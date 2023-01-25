@@ -60,6 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoEvacuateSettings.cs" />
     <Compile Include="DebugLogger.cs" />
     <Compile Include="Patches\DestroyBuildings1Patch.cs" />
     <Compile Include="Patches\DestroyBuildings2Patch.cs" />

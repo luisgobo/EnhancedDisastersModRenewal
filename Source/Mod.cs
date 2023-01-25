@@ -9,10 +9,15 @@ namespace EnhancedDisastersMod
 {
     public class Mod : IUserMod
     {
-        public static string ModNameEng = "Natural Disasters Overhaul";
+        public static string ModNameEng = "Natural Disasters Overhaul Renewal";
         public static string LogMsgPrefix = ">>> " + ModNameEng + ": ";
-        public static string Version = "2020/5/18";
+        public static string Version = "2023";
         private bool freezeUI = false;
+
+        //General
+        UICheckBox UI_General_AutoFocusOnDisaster;
+        UICheckBox UI_General_PauseOnDisasterStarts;
+        //****************
 
         private UICheckBox UI_ScaleMaxIntensityWithPopilation;
         private UICheckBox UI_RecordDisasterEventsChkBox;
@@ -52,6 +57,17 @@ namespace EnhancedDisastersMod
         private UICheckBox UI_MeteorStrike_Meteor2Enabled;
         private UICheckBox UI_MeteorStrike_Meteor3Enabled;
 
+        //AutoEvacuateRelease options
+        UIDropDown UI_Earthquake_AutoEvacuateRelease;
+        UIDropDown UI_ForestFire_AutoEvacuateRelease;
+        UIDropDown UI_MeteorStrike_AutoEvacuateRelease;
+        UIDropDown UI_Sinkhole_AutoEvacuateRelease;
+        UIDropDown UI_StructureCollapse_AutoEvacuateRelease;
+        UIDropDown UI_StructureFire_AutoEvacuateRelease;
+        UIDropDown UI_Thunderstorm_AutoEvacuateRelease;
+        UIDropDown UI_Tornado_AutoEvacuateRelease;
+        UIDropDown UI_Tsunami_AutoEvacuateRelease;
+
         public string Name
         {
             get { return ModNameEng; }
@@ -88,6 +104,9 @@ namespace EnhancedDisastersMod
             DisastersContainer c = Singleton<EnhancedDisastersManager>.instance.container;
 
             freezeUI = true;
+
+            UI_General_AutoFocusOnDisaster.isChecked = c.AutoFocusOnDisaster;
+            UI_General_PauseOnDisasterStarts.isChecked = c.PauseOnDisasterStarts;
 
             UI_ScaleMaxIntensityWithPopilation.isChecked = c.ScaleMaxIntensityWithPopilation;
             UI_RecordDisasterEventsChkBox.isChecked = c.RecordDisasterEvents;
@@ -126,6 +145,17 @@ namespace EnhancedDisastersMod
             UI_MeteorStrike_Meteor1Enabled.isChecked = c.MeteorStrike.GetEnabled(0);
             UI_MeteorStrike_Meteor2Enabled.isChecked = c.MeteorStrike.GetEnabled(1);
             UI_MeteorStrike_Meteor3Enabled.isChecked = c.MeteorStrike.GetEnabled(2);
+
+            //AutoEvacuateRelease options
+            UI_Earthquake_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateEarthquake;
+            UI_ForestFire_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateForestFire;
+            UI_MeteorStrike_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateMeteorStrike;
+            UI_Sinkhole_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateSinkhole;
+            UI_StructureCollapse_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateStructureCollapse;
+            UI_StructureFire_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateStructureFire;
+            UI_Thunderstorm_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateThunderstorm;
+            UI_Tornado_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateTornado;
+            UI_Tsunami_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateTsunami;
 
             freezeUI = false;
         }
@@ -399,6 +429,25 @@ namespace EnhancedDisastersMod
             });
             helper.AddSpace(20);
 
+
+            UIHelperBase generalGroup = helper.AddGroup("General");
+
+            UI_General_AutoFocusOnDisaster = (UICheckBox)generalGroup.AddCheckbox("Auto focus on disaster", c.AutoFocusOnDisaster, delegate (bool isChecked)
+            {
+                if (!freezeUI)
+                    c.AutoFocusOnDisaster = isChecked;
+            });
+            UI_General_AutoFocusOnDisaster.tooltip = "Auto focus on disaster";
+
+            UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Pause on disaster starts", c.PauseOnDisasterStarts, delegate (bool isChecked)
+            {
+                if (!freezeUI)
+                    c.PauseOnDisasterStarts = isChecked;
+            });
+            UI_General_PauseOnDisasterStarts.tooltip = "Pause on disaster starts";
+
+            generalGroup.AddSpace(10);
+
             UI_ScaleMaxIntensityWithPopilation = (UICheckBox)helper.AddCheckbox("Scale max intensity with population", c.ScaleMaxIntensityWithPopilation, delegate (bool isChecked)
             {
                 if (!freezeUI) c.ScaleMaxIntensityWithPopilation = isChecked;
@@ -419,6 +468,122 @@ namespace EnhancedDisastersMod
             });
 
             helper.AddSpace(20);
+
+            UIHelperBase autoEvacuate_ReleaseGroup = helper.AddGroup("Auto Evacuate");
+
+            UI_Earthquake_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
+                "Earthquake",
+                Helper.GetEvacuationOptions(),
+                c.AutoEvacuateSettings.AutoEvacuateEarthquake,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        c.AutoEvacuateSettings.AutoEvacuateEarthquake = selection;
+                    }
+                }
+            );
+
+            UI_ForestFire_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
+                "Forest Fire",
+                Helper.GetEvacuationOptions(),
+                c.AutoEvacuateSettings.AutoEvacuateForestFire,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        c.AutoEvacuateSettings.AutoEvacuateForestFire = selection;
+                    }
+
+                });
+
+            UI_MeteorStrike_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
+                "Meteor Strike",
+                Helper.GetEvacuationOptions(true),
+                c.AutoEvacuateSettings.AutoEvacuateMeteorStrike,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        c.AutoEvacuateSettings.AutoEvacuateMeteorStrike = selection;
+                    }
+                });
+
+            UI_Sinkhole_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
+                "Sinkhole",
+                Helper.GetEvacuationOptions(true),
+                c.AutoEvacuateSettings.AutoEvacuateSinkhole,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        c.AutoEvacuateSettings.AutoEvacuateSinkhole = selection;
+                    }
+                });
+
+            UI_StructureCollapse_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
+                "Structure Collapse",
+                Helper.GetEvacuationOptions(),
+                c.AutoEvacuateSettings.AutoEvacuateStructureCollapse,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        c.AutoEvacuateSettings.AutoEvacuateStructureCollapse = selection;
+                    }
+                });
+
+            UI_StructureFire_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
+                "Structure Fire",
+                Helper.GetEvacuationOptions(),
+                c.AutoEvacuateSettings.AutoEvacuateStructureFire,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        c.AutoEvacuateSettings.AutoEvacuateStructureFire = selection;
+                    }
+                });
+
+            UI_Thunderstorm_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
+                "Thunderstorm",
+                Helper.GetEvacuationOptions(),
+                c.AutoEvacuateSettings.AutoEvacuateThunderstorm,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        c.AutoEvacuateSettings.AutoEvacuateThunderstorm = selection;
+                    }
+                });
+
+            UI_Tornado_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
+                "Tornado",
+                Helper.GetEvacuationOptions(true),
+                c.AutoEvacuateSettings.AutoEvacuateTornado,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        c.AutoEvacuateSettings.AutoEvacuateTornado = selection;
+                    }
+                });
+
+
+            UI_Tsunami_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
+                "Tsunami",
+                Helper.GetEvacuationOptions(true),
+                c.AutoEvacuateSettings.AutoEvacuateTsunami,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        c.AutoEvacuateSettings.AutoEvacuateTsunami = selection;
+                    }
+                });
+
+            helper.AddSpace(20);
+
         }
 
         #endregion

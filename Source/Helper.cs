@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using ColossalFramework;
+using System;
 
 namespace EnhancedDisastersMod
 {
@@ -8,6 +9,24 @@ namespace EnhancedDisastersMod
         public static string[] GetMonths()
         {
             return new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+        }
+
+        public static string[] GetEvacuationOptions(bool allowsFocusedEvacuation = false)
+        {
+            string[] evacuationOptions = {
+                "Disabled",
+                "Enabled - manual release",
+                "Enabled - auto release"
+            };
+
+            if (allowsFocusedEvacuation)
+            {
+                string focusedEvacuation = "Enabled - focused evacuation/release";
+                Array.Resize(ref evacuationOptions, evacuationOptions.Length + 1);
+                evacuationOptions[evacuationOptions.Length - 1] = focusedEvacuation;
+            }
+
+            return evacuationOptions;
         }
 
         public static float FramesPerDay

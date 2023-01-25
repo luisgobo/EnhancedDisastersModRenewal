@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
+using EnhancedDisastersModRenewal;
 
 namespace EnhancedDisastersMod
 {
@@ -51,6 +52,11 @@ namespace EnhancedDisastersMod
         public EnhancedTornado Tornado;
         public EnhancedEarthquake Earthquake;
         public EnhancedMeteorStrike MeteorStrike;
+        public AutoEvacuateSettings AutoEvacuateSettings;
+
+        //General options
+        public bool AutoFocusOnDisaster = true;
+        public bool PauseOnDisasterStarts = true;
 
         public bool ScaleMaxIntensityWithPopilation = true;
         public bool RecordDisasterEvents = false;
@@ -77,6 +83,7 @@ namespace EnhancedDisastersMod
             if (Tornado == null) Tornado = new EnhancedTornado();
             if (Earthquake == null) Earthquake = new EnhancedEarthquake();
             if (MeteorStrike == null) MeteorStrike = new EnhancedMeteorStrike();
+            if (AutoEvacuateSettings == null) AutoEvacuateSettings = new AutoEvacuateSettings();
 
             AllDisasters.Clear();
             AllDisasters.Add(ForestFire);
