@@ -2,11 +2,11 @@
 using System.IO;
 using ColossalFramework;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public static class DisasterLogger
     {
-        private static string disasterListFileName = "Disasters.csv";
+        static string disasterListFileName = "Disasters.csv";
         public static bool StartedByMod = false;
 
         public static void AddDisaster(DateTime dt, string disasterName, byte intensity)
@@ -30,7 +30,7 @@ namespace EnhancedDisastersMod
             File.AppendAllText(filePath, dt.ToString("yyyy/MM/dd HH:mm") + "," + disasterName + "," + intensity.ToString() + "," + startedBy + Environment.NewLine);
         }
 
-        private static string getDisasterListFilePath()
+        static string getDisasterListFilePath()
         {
             //return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Colossal Order", "Cities_Skylines", optionsFileName);
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

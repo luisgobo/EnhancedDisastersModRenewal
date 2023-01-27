@@ -4,7 +4,7 @@ using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public abstract class EnhancedDisaster
     {
@@ -281,7 +281,7 @@ namespace EnhancedDisastersMod
             return intensity;
         }
 
-        private float scaleProbabilityByWarmup(float probability)
+        float scaleProbabilityByWarmup(float probability)
         {
             if (!unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
             {
@@ -394,7 +394,7 @@ namespace EnhancedDisastersMod
             }
         }
 
-        private bool findRandomTargetEverywhere(out Vector3 target, out float angle)
+        bool findRandomTargetEverywhere(out Vector3 target, out float angle)
         {
             GameAreaManager gam = Singleton<GameAreaManager>.instance;
             SimulationManager sm = Singleton<SimulationManager>.instance;
@@ -416,7 +416,7 @@ namespace EnhancedDisastersMod
             return true;
         }
 
-        private bool findRandomTargetInLockedAreas(out Vector3 target, out float angle)
+        bool findRandomTargetInLockedAreas(out Vector3 target, out float angle)
         {
             GameAreaManager gam = Singleton<GameAreaManager>.instance;
             SimulationManager sm = Singleton<SimulationManager>.instance;
@@ -482,7 +482,7 @@ namespace EnhancedDisastersMod
             return false;
         }
 
-        private bool isUnlocked(int x, int z)
+        bool isUnlocked(int x, int z)
         {
             return x >= 0 && z >= 0 && x < 5 && z < 5 && Singleton<GameAreaManager>.instance.m_areaGrid[z * 5 + x] != 0;
         }

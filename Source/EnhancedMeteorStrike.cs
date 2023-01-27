@@ -4,7 +4,7 @@ using ColossalFramework.IO;
 using UnityEngine;
 using System;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class EnhancedMeteorStrike : EnhancedDisaster
     {
@@ -61,7 +61,7 @@ namespace EnhancedDisastersMod
             }
         }
 
-        private struct MeteorEvent
+        struct MeteorEvent
         {
             public string Name;
             public float PeriodDays;
@@ -167,7 +167,7 @@ namespace EnhancedDisastersMod
             }
         }
 
-        private MeteorEvent[] meteorEvents;
+        MeteorEvent[] meteorEvents;
 
         public EnhancedMeteorStrike()
         {

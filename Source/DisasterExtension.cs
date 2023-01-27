@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ICities;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class DisasterExtension : IDisasterBase
     {

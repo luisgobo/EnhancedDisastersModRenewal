@@ -4,7 +4,7 @@ using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class EnhancedForestFire : EnhancedDisaster
     {
@@ -41,7 +41,7 @@ namespace EnhancedDisastersMod
         }
 
         public int WarmupDays = 180;
-        private float noRainDays = 0;
+        float noRainDays = 0;
 
         public EnhancedForestFire()
         {

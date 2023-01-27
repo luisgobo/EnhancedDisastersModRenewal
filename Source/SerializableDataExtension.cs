@@ -5,13 +5,13 @@ using ColossalFramework.IO;
 using ICities;
 using UnityEngine;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class SerializableDataExtension : ISerializableDataExtension
     {
         public const string DataID = "EnhancedDisastersMod";
         public const uint DataVersion = 3;
-        private ISerializableData serializableData;
+        ISerializableData serializableData;
 
         public void OnCreated(ISerializableData serializedData)
         {

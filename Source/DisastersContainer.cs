@@ -1,12 +1,12 @@
-﻿using System;
+﻿using ColossalFramework;
+using ColossalFramework.IO;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
-using System.Collections.Generic;
-using ColossalFramework;
-using ColossalFramework.IO;
 using UnityEngine;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class DisastersContainer
     {
@@ -41,8 +41,7 @@ namespace EnhancedDisastersMod
             }
         }
 
-
-        private static string optionsFileName = "EnhancedDisastersModOptions.xml";
+        static string optionsFileName = "EnhancedDisastersModOptions.xml";
 
         public EnhancedForestFire ForestFire;
         public EnhancedThunderstorm Thunderstorm;
@@ -51,6 +50,12 @@ namespace EnhancedDisastersMod
         public EnhancedTornado Tornado;
         public EnhancedEarthquake Earthquake;
         public EnhancedMeteorStrike MeteorStrike;
+        public AutoEvacuateSettings AutoEvacuateSettings;
+
+        //General options
+        public bool AutoFocusOnDisaster = true;
+
+        public bool PauseOnDisasterStarts = true;
 
         public bool ScaleMaxIntensityWithPopilation = true;
         public bool RecordDisasterEvents = false;
@@ -77,6 +82,7 @@ namespace EnhancedDisastersMod
             if (Tornado == null) Tornado = new EnhancedTornado();
             if (Earthquake == null) Earthquake = new EnhancedEarthquake();
             if (MeteorStrike == null) MeteorStrike = new EnhancedMeteorStrike();
+            if (AutoEvacuateSettings == null) AutoEvacuateSettings = new AutoEvacuateSettings();
 
             AllDisasters.Clear();
             AllDisasters.Add(ForestFire);
@@ -111,7 +117,7 @@ namespace EnhancedDisastersMod
             }
         }
 
-        private static string getOptionsFilePath()
+        static string getOptionsFilePath()
         {
             //return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Colossal Order", "Cities_Skylines", optionsFileName);
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

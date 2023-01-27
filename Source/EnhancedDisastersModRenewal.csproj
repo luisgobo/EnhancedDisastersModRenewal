@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EnhancedDisastersModRenewal</RootNamespace>
     <AssemblyName>EnhancedDisastersModRenewal</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -60,6 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoEvacuateSettings.cs" />
     <Compile Include="DebugLogger.cs" />
     <Compile Include="Patches\DestroyBuildings1Patch.cs" />
     <Compile Include="Patches\DestroyBuildings2Patch.cs" />

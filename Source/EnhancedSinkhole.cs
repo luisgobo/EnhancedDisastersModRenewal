@@ -3,7 +3,7 @@ using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class EnhancedSinkhole : EnhancedDisaster
     {
@@ -32,7 +32,7 @@ namespace EnhancedDisastersMod
         }
 
         public float GroundwaterCapacity = 50;
-        private float groundwaterAmount = 0; // groundwaterAmount=1 means rain of intensity 1 during 1 day
+        float groundwaterAmount = 0; // groundwaterAmount=1 means rain of intensity 1 during 1 day
 
         public EnhancedSinkhole()
         {

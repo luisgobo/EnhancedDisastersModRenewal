@@ -3,7 +3,7 @@ using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class EnhancedEarthquake : EnhancedDisaster
     {
@@ -57,11 +57,11 @@ namespace EnhancedDisastersMod
 
         public bool AftershocksEnabled = true;
         public bool NoCracks = true;
-        private byte aftershocksCount = 0;
-        private byte aftershockMaxIntensity = 0;
-        private byte mainStrikeIntensity = 0;
-        private Vector3 lastTargetPosition = new Vector3();
-        private float lastAngle = 0;
+        byte aftershocksCount = 0;
+        byte aftershockMaxIntensity = 0;
+        byte mainStrikeIntensity = 0;
+        Vector3 lastTargetPosition = new Vector3();
+        float lastAngle = 0;
 
         public EnhancedEarthquake()
         {
