@@ -11,7 +11,7 @@ namespace NaturalDisastersOverhaulRenewal
     {
         public const string DataID = "EnhancedDisastersMod";
         public const uint DataVersion = 3;
-        private ISerializableData serializableData;
+        ISerializableData serializableData;
 
         public void OnCreated(ISerializableData serializedData)
         {

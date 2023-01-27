@@ -61,7 +61,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        private struct MeteorEvent
+        struct MeteorEvent
         {
             public string Name;
             public float PeriodDays;
@@ -167,7 +167,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        private MeteorEvent[] meteorEvents;
+        MeteorEvent[] meteorEvents;
 
         public EnhancedMeteorStrike()
         {

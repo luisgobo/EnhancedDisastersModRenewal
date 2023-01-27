@@ -1,10 +1,10 @@
-using ICities;
 using ColossalFramework;
-using ColossalFramework.UI;
-using UnityEngine;
 using ColossalFramework.Plugins;
-using System.Reflection;
+using ColossalFramework.UI;
+using ICities;
 using System;
+using System.Reflection;
+using UnityEngine;
 
 namespace NaturalDisastersOverhaulRenewal
 {
@@ -13,53 +13,55 @@ namespace NaturalDisastersOverhaulRenewal
         public static string ModNameEng = "Natural Disasters Overhaul Renewal";
         public static string LogMsgPrefix = ">>> " + ModNameEng + ": ";
         public static string Version = "2023";
-        private bool freezeUI = false;
+        bool freezeUI = false;
 
         //General
         UICheckBox UI_General_AutoFocusOnDisaster;
+
         UICheckBox UI_General_PauseOnDisasterStarts;
         //****************
 
-        private UICheckBox UI_ScaleMaxIntensityWithPopulation;
-        private UICheckBox UI_RecordDisasterEventsChkBox;
-        private UICheckBox UI_ShowDisasterPanelButton;
+        UICheckBox UI_ScaleMaxIntensityWithPopulation;
+        UICheckBox UI_RecordDisasterEventsChkBox;
+        UICheckBox UI_ShowDisasterPanelButton;
 
-        private UICheckBox UI_ForestFire_Enabled;
-        private UISlider ForestFireMaxProbabilityUI;
-        private UISlider UI_ForestFire_WarmupDays;
+        UICheckBox UI_ForestFire_Enabled;
+        UISlider ForestFireMaxProbabilityUI;
+        UISlider UI_ForestFire_WarmupDays;
 
-        private UICheckBox UI_Thunderstorm_Enabled;
-        private UISlider UI_Thunderstorm_MaxProbability;
-        private UIDropDown UI_Thunderstorm_MaxProbabilityMonth;
-        private UISlider UI_Thunderstorm_RainFactor;
+        UICheckBox UI_Thunderstorm_Enabled;
+        UISlider UI_Thunderstorm_MaxProbability;
+        UIDropDown UI_Thunderstorm_MaxProbabilityMonth;
+        UISlider UI_Thunderstorm_RainFactor;
 
-        private UICheckBox UI_Sinkhole_Enabled;
-        private UISlider UI_Sinkhole_MaxProbability;
-        private UISlider UI_Sinkhole_GroundwaterCapacity;
+        UICheckBox UI_Sinkhole_Enabled;
+        UISlider UI_Sinkhole_MaxProbability;
+        UISlider UI_Sinkhole_GroundwaterCapacity;
 
-        private UICheckBox UI_Tornado_Enabled;
-        private UISlider UI_Tornado_MaxProbability;
-        private UIDropDown UI_Tornado_MaxProbabilityMonth;
-        private UICheckBox UI_Tornado_NoDuringFog;
+        UICheckBox UI_Tornado_Enabled;
+        UISlider UI_Tornado_MaxProbability;
+        UIDropDown UI_Tornado_MaxProbabilityMonth;
+        UICheckBox UI_Tornado_NoDuringFog;
 
-        private UICheckBox UI_Tsunami_Enabled;
-        private UISlider UI_Tsunami_MaxProbability;
-        private UISlider UI_Tsunami_WarmupYears;
+        UICheckBox UI_Tsunami_Enabled;
+        UISlider UI_Tsunami_MaxProbability;
+        UISlider UI_Tsunami_WarmupYears;
 
-        private UICheckBox UI_Earthquake_Enabled;
-        private UISlider UI_Earthquake_MaxProbability;
-        private UISlider UI_Earthquake_WarmupYears;
-        private UICheckBox UI_Earthquake_AftershocksEnabled;
-        private UICheckBox UI_Earthquake_NoCrack;
+        UICheckBox UI_Earthquake_Enabled;
+        UISlider UI_Earthquake_MaxProbability;
+        UISlider UI_Earthquake_WarmupYears;
+        UICheckBox UI_Earthquake_AftershocksEnabled;
+        UICheckBox UI_Earthquake_NoCrack;
 
-        private UICheckBox UI_MeteorStrike_Enabled;
-        private UISlider UI_MeteorStrike_MaxProbability;
-        private UICheckBox UI_MeteorStrike_Meteor1Enabled;
-        private UICheckBox UI_MeteorStrike_Meteor2Enabled;
-        private UICheckBox UI_MeteorStrike_Meteor3Enabled;
+        UICheckBox UI_MeteorStrike_Enabled;
+        UISlider UI_MeteorStrike_MaxProbability;
+        UICheckBox UI_MeteorStrike_Meteor1Enabled;
+        UICheckBox UI_MeteorStrike_Meteor2Enabled;
+        UICheckBox UI_MeteorStrike_Meteor3Enabled;
 
         //AutoEvacuateRelease options
         UIDropDown UI_Earthquake_AutoEvacuateRelease;
+
         UIDropDown UI_ForestFire_AutoEvacuateRelease;
         UIDropDown UI_MeteorStrike_AutoEvacuateRelease;
         UIDropDown UI_Sinkhole_AutoEvacuateRelease;
@@ -98,7 +100,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        private void EnhancedDisastersOptionsUpdateUI()
+        void EnhancedDisastersOptionsUpdateUI()
         {
             if (UI_ForestFire_Enabled == null) return;
 
@@ -156,17 +158,17 @@ namespace NaturalDisastersOverhaulRenewal
             UI_StructureFire_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateStructureFire;
             UI_Thunderstorm_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateThunderstorm;
             UI_Tornado_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateTornado;
-            UI_Tsunami_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateTsunami;            
+            UI_Tsunami_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateTsunami;
 
             freezeUI = false;
         }
 
-        private void addLabelToSlider(object obj)
+        void addLabelToSlider(object obj)
         {
             addLabelToSlider(obj, "");
         }
 
-        private void addLabelToSlider(object obj, string postfix)
+        void addLabelToSlider(object obj, string postfix)
         {
             UISlider uISlider = obj as UISlider;
             if (uISlider == null) return;
@@ -235,7 +237,6 @@ namespace NaturalDisastersOverhaulRenewal
 
             generalGroup.AddSpace(10);
 
-
             UIHelperBase disastersGroup = generalGroup.AddGroup("Enable Disasters:");
 
             UI_ForestFire_Enabled = (UICheckBox)disastersGroup.AddCheckbox("Forest Fire", disasterContainer.ForestFire.Enabled, delegate (bool isChecked)
@@ -274,7 +275,7 @@ namespace NaturalDisastersOverhaulRenewal
                     disasterContainer.MeteorStrike.Enabled = isChecked;
             });
 
-            #endregion
+            #endregion Gegeral options
 
             #region ForestFire
 
@@ -298,7 +299,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion ForestFire
 
             #region Thunderstorm
 
@@ -331,7 +332,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion Thunderstorm
 
             #region Sinkhole
 
@@ -355,7 +356,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion Sinkhole
 
             #region Tornado
 
@@ -386,7 +387,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion Tornado
 
             #region Tsunami
 
@@ -410,7 +411,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion Tsunami
 
             #region Earthquake
 
@@ -448,7 +449,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion Earthquake
 
             #region MeteorStrike
 
@@ -482,8 +483,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             helper.AddSpace(20);
 
-
-            #endregion
+            #endregion MeteorStrike
 
             #region AutoEvacuateRelase
 
@@ -500,7 +500,7 @@ namespace NaturalDisastersOverhaulRenewal
             AddDropDown(ref UI_Tsunami_AutoEvacuateRelease, ref autoEvacuate_ReleaseGroup, "Tsunami", Helper.GetEvacuationOptions(true), disasterContainer.AutoEvacuateSettings.AutoEvacuateTsunami);
 
             helper.AddSpace(20);
-            #endregion
+            #endregion AutoEvacuateRelase
 
             #region
             // Save buttons
@@ -521,12 +521,11 @@ namespace NaturalDisastersOverhaulRenewal
                 EnhancedDisastersOptionsUpdateUI();
             });
 
-            #endregion
-
+            #endregion Options UI
         }
 
         //Add dropddown Method
-        private void AddDropDown(ref UIDropDown dropDown, ref UIHelperBase group, string description, string[] itemList, int value)
+        void AddDropDown(ref UIDropDown dropDown, ref UIHelperBase group, string description, string[] itemList, int value)
         {
             dropDown = (UIDropDown)group.AddDropdown(
                 description,
@@ -542,7 +541,7 @@ namespace NaturalDisastersOverhaulRenewal
             );
 
             dropDown.width = (int)Math.Round(UI_Earthquake_AutoEvacuateRelease.width * 1.4f);
-        }        
+        }
 
         //Add Button Method
 

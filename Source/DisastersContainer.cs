@@ -1,11 +1,10 @@
-﻿using System;
+﻿using ColossalFramework;
+using ColossalFramework.IO;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
-using System.Collections.Generic;
-using ColossalFramework;
-using ColossalFramework.IO;
 using UnityEngine;
-using NaturalDisastersOverhaulRenewal;
 
 namespace NaturalDisastersOverhaulRenewal
 {
@@ -42,8 +41,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-
-        private static string optionsFileName = "EnhancedDisastersModOptions.xml";
+        static string optionsFileName = "EnhancedDisastersModOptions.xml";
 
         public EnhancedForestFire ForestFire;
         public EnhancedThunderstorm Thunderstorm;
@@ -56,6 +54,7 @@ namespace NaturalDisastersOverhaulRenewal
 
         //General options
         public bool AutoFocusOnDisaster = true;
+
         public bool PauseOnDisasterStarts = true;
 
         public bool ScaleMaxIntensityWithPopilation = true;
@@ -118,7 +117,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        private static string getOptionsFilePath()
+        static string getOptionsFilePath()
         {
             //return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Colossal Order", "Cities_Skylines", optionsFileName);
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
