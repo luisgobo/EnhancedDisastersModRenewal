@@ -2,7 +2,7 @@
 using ColossalFramework;
 using System;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public static class Helper
     {

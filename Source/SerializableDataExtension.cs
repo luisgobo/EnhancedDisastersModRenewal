@@ -5,7 +5,7 @@ using ColossalFramework.IO;
 using ICities;
 using UnityEngine;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class SerializableDataExtension : ISerializableDataExtension
     {

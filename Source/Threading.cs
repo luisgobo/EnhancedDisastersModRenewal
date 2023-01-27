@@ -1,7 +1,7 @@
 using ICities;
 using ColossalFramework;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class Threading: ThreadingExtensionBase
     {

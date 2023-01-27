@@ -6,7 +6,7 @@ using ColossalFramework.Plugins;
 using System.Reflection;
 using System;
 
-namespace EnhancedDisastersMod
+namespace NaturalDisastersOverhaulRenewal
 {
     public class Mod : IUserMod
     {
