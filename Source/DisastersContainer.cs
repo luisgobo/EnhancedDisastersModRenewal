@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
-using NaturalDisastersOverhaulRenewal;
+using EnhancedDisastersModRenewal;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace EnhancedDisastersMod
 {
     public class DisastersContainer
     {

@@ -1,8 +1,8 @@
 ﻿using ColossalFramework.IO;
 using ColossalFramework;
-using NaturalDisastersOverhaulRenewal;
+using EnhancedDisastersMod;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace EnhancedDisastersModRenewal
 {
     public class AutoEvacuateSettings
     {

@@ -2,7 +2,7 @@
 using ICities;
 using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace EnhancedDisastersMod
 {
     public class LoadingExtension : LoadingExtensionBase
     {

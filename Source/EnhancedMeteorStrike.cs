@@ -4,7 +4,7 @@ using ColossalFramework.IO;
 using UnityEngine;
 using System;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace EnhancedDisastersMod
 {
     public class EnhancedMeteorStrike : EnhancedDisaster
     {

@@ -5,7 +5,7 @@ using ColossalFramework;
 using ColossalFramework.UI;
 using HarmonyLib;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace EnhancedDisastersMod
 {
     public class EnhancedDisastersManager : Singleton<EnhancedDisastersManager>
     {

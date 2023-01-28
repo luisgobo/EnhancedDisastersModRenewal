@@ -2,7 +2,7 @@
 using HarmonyLib;
 using ColossalFramework.Math;
 
-namespace NaturalDisastersOverhaulRenewal.Patches
+namespace EnhancedDisastersMod.Patches
 {
     //[HarmonyPatch(typeof(DisasterHelpers))]
     //[HarmonyPatch("DestroyBuildings")]
