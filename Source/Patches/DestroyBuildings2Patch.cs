@@ -3,7 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 using ICities;
 
-namespace NaturalDisastersOverhaulRenewal.Patches
+namespace NaturalDisastersRenewal.Patches
 {
     [HarmonyPatch(typeof(DisasterHelpers))]
     [HarmonyPatch("DestroyBuildings")]

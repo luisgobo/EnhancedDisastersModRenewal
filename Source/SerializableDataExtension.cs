@@ -3,10 +3,10 @@ using System.IO;
 using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersOverhaulRenewal.Common;
+using NaturalDisastersRenewal.Common;
 using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal
 {
     public class SerializableDataExtension : ISerializableDataExtension
     {

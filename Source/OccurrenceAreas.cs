@@ -1,4 +1,4 @@
-﻿namespace NaturalDisastersOverhaulRenewal
+﻿namespace NaturalDisastersRenewal
 {
     public enum OccurrenceAreas
     {

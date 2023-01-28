@@ -4,7 +4,7 @@ using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal
 {
     public class EnhancedThunderstorm: EnhancedDisaster
     {

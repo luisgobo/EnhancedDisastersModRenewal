@@ -3,9 +3,9 @@ using ICities;
 using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
-using NaturalDisastersOverhaulRenewal.Common;
+using NaturalDisastersRenewal.Common;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal
 {
     public abstract class EnhancedDisaster
     {

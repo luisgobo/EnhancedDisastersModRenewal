@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace NaturalDisastersOverhaulRenewal.Common
+namespace NaturalDisastersRenewal.Common
 {
     public static class CommonProperties
     {

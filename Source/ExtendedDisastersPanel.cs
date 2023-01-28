@@ -3,7 +3,7 @@ using ColossalFramework;
 using ColossalFramework.UI;
 using System.Text;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal
 {
     public class ExtendedDisastersPanel : UIPanel
     {

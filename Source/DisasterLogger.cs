@@ -2,7 +2,7 @@
 using System.IO;
 using ColossalFramework;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal
 {
     public static class DisasterLogger
     {

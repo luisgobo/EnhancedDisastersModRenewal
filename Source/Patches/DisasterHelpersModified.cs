@@ -3,7 +3,7 @@ using ColossalFramework;
 using ColossalFramework.Math;
 using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal.Patches
+namespace NaturalDisastersRenewal.Patches
 {
     static class DisasterHelpersModified
     {

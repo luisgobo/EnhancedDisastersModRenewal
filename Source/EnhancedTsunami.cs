@@ -2,7 +2,7 @@
 using ColossalFramework;
 using ColossalFramework.IO;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal
 {
     public class EnhancedTsunami : EnhancedDisaster
     {

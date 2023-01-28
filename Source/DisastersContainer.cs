@@ -1,12 +1,12 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
-using NaturalDisastersOverhaulRenewal.Common;
+using NaturalDisastersRenewal.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal
 {
     public class DisastersContainer
     {

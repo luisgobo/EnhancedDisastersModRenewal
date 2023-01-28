@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnhancedDisastersMod_Legacy", "Legacy\EnhancedDisastersMod_Legacy.csproj", "{EE2C3384-E656-496C-9B64-41E15EB2E46C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalDisastersOverhaulRenewal", "Source\NaturalDisastersOverhaulRenewal.csproj", "{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalDisastersRenewal", "Source\NaturalDisastersRenewal.csproj", "{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

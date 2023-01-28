@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal.UI.ComponentHelper
+namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
     internal class ComponentHelpers
     {
