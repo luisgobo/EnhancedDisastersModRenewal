@@ -1,7 +1,8 @@
-﻿using System;
-using HarmonyLib;
-using UnityEngine;
+﻿using HarmonyLib;
 using ICities;
+using NaturalDisastersRenewal.DisasterServices.Patches;
+using System;
+using UnityEngine;
 
 namespace NaturalDisastersRenewal.Patches
 {

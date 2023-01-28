@@ -61,33 +61,33 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\CommonProperties.cs" />
-    <Compile Include="DebugLogger.cs" />
-    <Compile Include="Patches\DestroyBuildings1Patch.cs" />
-    <Compile Include="Patches\DestroyBuildings2Patch.cs" />
-    <Compile Include="DisasterExtension.cs" />
-    <Compile Include="DisasterLogger.cs" />
-    <Compile Include="DisastersContainer.cs" />
-    <Compile Include="EnhancedDisaster.cs" />
-    <Compile Include="EnhancedDisastersManager.cs" />
-    <Compile Include="EnhancedEarthquake.cs" />
-    <Compile Include="EnhancedForestFire.cs" />
-    <Compile Include="EnhancedMeteorStrike.cs" />
-    <Compile Include="EnhancedSinkhole.cs" />
-    <Compile Include="EnhancedThunderstorm.cs" />
-    <Compile Include="EnhancedTornado.cs" />
-    <Compile Include="EnhancedTsunami.cs" />
-    <Compile Include="ExtendedDisastersPanel.cs" />
-    <Compile Include="Helper.cs" />
-    <Compile Include="LoadingExtension.cs" />
-    <Compile Include="OccurrenceAreas.cs" />
-    <Compile Include="Patches\DisasterHelpersModified.cs" />
-    <Compile Include="ProbabilityDistributions.cs" />
-    <Compile Include="SerializableDataExtension.cs" />
-    <Compile Include="Threading.cs" />
+    <Compile Include="Logger\DebugLogger.cs" />
+    <Compile Include="DisasterServices\Patches\DestroyBuildings1Patch.cs" />
+    <Compile Include="DisasterServices\Patches\DestroyBuildings2Patch.cs" />
+    <Compile Include="BaseGameExtensions\DisasterExtension.cs" />
+    <Compile Include="Logger\DisasterLogger.cs" />
+    <Compile Include="DisasterServices\DisastersServiceBase.cs" />
+    <Compile Include="Serialization\DisasterSerialization.cs" />
+    <Compile Include="DisasterServices\DisasterManager.cs" />
+    <Compile Include="DisasterServices\EarthquakeService.cs" />
+    <Compile Include="DisasterServices\ForestFireService.cs" />
+    <Compile Include="DisasterServices\MeteorStrikeService.cs" />
+    <Compile Include="DisasterServices\SinkholeService.cs" />
+    <Compile Include="DisasterServices\ThunderstormService.cs" />
+    <Compile Include="DisasterServices\TornadoService.cs" />
+    <Compile Include="DisasterServices\TsunamiService.cs" />
+    <Compile Include="UI\ExtendedDisastersPanel.cs" />
+    <Compile Include="Common\Helper.cs" />
+    <Compile Include="BaseGameExtensions\LoadingExtension.cs" />
+    <Compile Include="Common\enums\OccurrenceAreas.cs" />
+    <Compile Include="DisasterServices\Patches\DisasterHelpersModified.cs" />
+    <Compile Include="Common\enums\ProbabilityDistributions.cs" />
+    <Compile Include="Serialization\SerializableDataExtension.cs" />
+    <Compile Include="BaseGameExtensions\Threading.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\ComponentHelper\ComponentHelpers.cs" />
-    <Compile Include="UI\SettingsUI\SettingsScreen.cs" />
+    <Compile Include="UI\SettingsScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

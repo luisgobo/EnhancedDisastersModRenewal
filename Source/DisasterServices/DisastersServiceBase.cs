@@ -1,6 +1,8 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.DisasterServices;
+using NaturalDisastersRenewal.Serialization;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
@@ -8,27 +10,27 @@ using UnityEngine;
 
 namespace NaturalDisastersRenewal
 {
-    public class DisastersContainer
+    public class DisastersServiceBase
     {
         public class Data : IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                DisastersContainer c = Singleton<EnhancedDisastersManager>.instance.container;
+                DisastersServiceBase c = Singleton<DisasterServices.DisasterManager>.instance.container;
                 s.WriteBool(c.ScaleMaxIntensityWithPopilation);
                 s.WriteBool(c.RecordDisasterEvents);
                 s.WriteBool(c.ShowDisasterPanelButton);
-                
+
                 s.WriteBool(c.AutoFocusOnDisasterStarts);
                 s.WriteBool(c.PauseOnDisasterStarts);
-                
+
                 s.WriteFloat(c.ToggleButtonPos.x);
                 s.WriteFloat(c.ToggleButtonPos.y);
             }
 
             public void Deserialize(DataSerializer s)
             {
-                DisastersContainer c = Singleton<EnhancedDisastersManager>.instance.container;
+                DisastersServiceBase c = Singleton<DisasterServices.DisasterManager>.instance.container;
                 c.ScaleMaxIntensityWithPopilation = s.ReadBool();
                 c.RecordDisasterEvents = s.ReadBool();
                 c.ShowDisasterPanelButton = s.ReadBool();
@@ -44,20 +46,21 @@ namespace NaturalDisastersRenewal
 
             public void AfterDeserialize(DataSerializer s)
             {
-                Singleton<EnhancedDisastersManager>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<DisasterServices.DisasterManager>.instance.UpdateDisastersPanelToggleBtn();
             }
         }
 
-        public EnhancedForestFire ForestFire;
-        public EnhancedThunderstorm Thunderstorm;
-        public EnhancedSinkhole Sinkhole;
-        public EnhancedTsunami Tsunami;
-        public EnhancedTornado Tornado;
-        public EnhancedEarthquake Earthquake;
-        public EnhancedMeteorStrike MeteorStrike;
+        public ForestFireService ForestFire;
+        public ThunderstormService Thunderstorm;
+        public SinkholeService Sinkhole;
+        public TsunamiService Tsunami;
+        public TornadoService Tornado;
+        public EarthquakeService Earthquake;
+        public MeteorStrikeService MeteorStrike;
 
         //General options
         public bool AutoFocusOnDisasterStarts = true;
+
         public bool PauseOnDisasterStarts = true;
 
         public bool ScaleMaxIntensityWithPopilation = true;
@@ -66,11 +69,11 @@ namespace NaturalDisastersRenewal
         public Vector3 ToggleButtonPos = new Vector3(90, 62);
 
         [XmlIgnore]
-        public List<EnhancedDisaster> AllDisasters = new List<EnhancedDisaster>();
-        
+        public List<DisasterSerialization> AllDisasters = new List<DisasterSerialization>();
+
         public void Save()
         {
-            XmlSerializer ser = new XmlSerializer(typeof(DisastersContainer));
+            XmlSerializer ser = new XmlSerializer(typeof(DisastersServiceBase));
             TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath());
             ser.Serialize(writer, this);
             writer.Close();
@@ -78,13 +81,13 @@ namespace NaturalDisastersRenewal
 
         public void CheckObjects()
         {
-            if (ForestFire == null) ForestFire = new EnhancedForestFire();
-            if (Thunderstorm == null) Thunderstorm = new EnhancedThunderstorm();
-            if (Sinkhole == null) Sinkhole = new EnhancedSinkhole();
-            if (Tsunami == null) Tsunami = new EnhancedTsunami();
-            if (Tornado == null) Tornado = new EnhancedTornado();
-            if (Earthquake == null) Earthquake = new EnhancedEarthquake();
-            if (MeteorStrike == null) MeteorStrike = new EnhancedMeteorStrike();
+            if (ForestFire == null) ForestFire = new ForestFireService();
+            if (Thunderstorm == null) Thunderstorm = new ThunderstormService();
+            if (Sinkhole == null) Sinkhole = new SinkholeService();
+            if (Tsunami == null) Tsunami = new TsunamiService();
+            if (Tornado == null) Tornado = new TornadoService();
+            if (Earthquake == null) Earthquake = new EarthquakeService();
+            if (MeteorStrike == null) MeteorStrike = new MeteorStrikeService();
 
             AllDisasters.Clear();
             AllDisasters.Add(ForestFire);
@@ -96,7 +99,7 @@ namespace NaturalDisastersRenewal
             AllDisasters.Add(MeteorStrike);
         }
 
-        public static DisastersContainer CreateFromFile()
+        public static DisastersServiceBase CreateFromFile()
         {
             string path = CommonProperties.GetOptionsFilePath();
 
@@ -104,9 +107,9 @@ namespace NaturalDisastersRenewal
 
             try
             {
-                XmlSerializer ser = new XmlSerializer(typeof(DisastersContainer));
+                XmlSerializer ser = new XmlSerializer(typeof(DisastersServiceBase));
                 TextReader reader = new StreamReader(path);
-                DisastersContainer instance = (DisastersContainer)ser.Deserialize(reader);
+                DisastersServiceBase instance = (DisastersServiceBase)ser.Deserialize(reader);
                 reader.Close();
 
                 instance.CheckObjects();

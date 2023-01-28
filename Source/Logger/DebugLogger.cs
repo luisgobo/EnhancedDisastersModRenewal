@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal
+namespace NaturalDisastersRenewal.Logger
 {
     public static class DebugLogger
     {

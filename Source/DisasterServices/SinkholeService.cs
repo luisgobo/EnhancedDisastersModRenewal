@@ -1,17 +1,19 @@
-﻿using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
-using UnityEngine;
+using ICities;
+using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Serialization;
 
-namespace NaturalDisastersRenewal
+namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EnhancedSinkhole : EnhancedDisaster
+    public class SinkholeService : DisasterSerialization
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                EnhancedSinkhole d = Singleton<EnhancedDisastersManager>.instance.container.Sinkhole;
+                SinkholeService d = Singleton<DisasterManager>.instance.container.Sinkhole;
                 serializeCommonParameters(s, d);
                 s.WriteFloat(d.GroundwaterCapacity);
                 s.WriteFloat(d.groundwaterAmount);
@@ -19,7 +21,7 @@ namespace NaturalDisastersRenewal
 
             public void Deserialize(DataSerializer s)
             {
-                EnhancedSinkhole d = Singleton<EnhancedDisastersManager>.instance.container.Sinkhole;
+                SinkholeService d = Singleton<DisasterManager>.instance.container.Sinkhole;
                 deserializeCommonParameters(s, d);
                 d.GroundwaterCapacity = s.ReadFloat();
                 d.groundwaterAmount = s.ReadFloat();
@@ -34,7 +36,7 @@ namespace NaturalDisastersRenewal
         public float GroundwaterCapacity = 50;
         float groundwaterAmount = 0; // groundwaterAmount=1 means rain of intensity 1 during 1 day
 
-        public EnhancedSinkhole()
+        public SinkholeService()
         {
             DType = DisasterType.Sinkhole;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
@@ -103,11 +105,11 @@ namespace NaturalDisastersRenewal
             return "Sinkhole";
         }
 
-        public override void CopySettings(EnhancedDisaster disaster)
+        public override void CopySettings(DisasterSerialization disaster)
         {
             base.CopySettings(disaster);
 
-            EnhancedSinkhole d = disaster as EnhancedSinkhole;
+            SinkholeService d = disaster as SinkholeService;
             if (d != null)
             {
                 GroundwaterCapacity = d.GroundwaterCapacity;

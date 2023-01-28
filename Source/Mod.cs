@@ -3,6 +3,7 @@ using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Logger;
 using System.Reflection;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ namespace NaturalDisastersRenewal
 
         //General
         UICheckBox UI_General_AutoFocusOnDisasterStarts;
+
         UICheckBox UI_General_PauseOnDisasterStarts;
         //****************
 
@@ -101,13 +103,13 @@ namespace NaturalDisastersRenewal
         }
 
         void EnhancedDisastersOptionsUpdateUI()
-        {            
-            if (UI_ForestFire_Enabled == null) 
+        {
+            if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisastersContainer c = Singleton<EnhancedDisastersManager>.instance.container;
+            DisastersServiceBase c = Singleton<DisasterServices.DisasterManager>.instance.container;
 
-            var messagelog = 
+            var messagelog =
                 $"AutoFocusOnDisaster:{c.AutoFocusOnDisasterStarts}, " +
                 $"PauseOnDisasterStarts:{c.PauseOnDisasterStarts}, " +
                 $"ScaleMaxIntensityWithPopilation:{c.ScaleMaxIntensityWithPopilation}, " +
@@ -200,11 +202,11 @@ namespace NaturalDisastersRenewal
 
         public void OnSettingsUI(UIHelperBase helper)
         {
-            DisastersContainer disasterContainer = Singleton<EnhancedDisastersManager>.instance.container;
+            DisastersServiceBase disasterContainer = Singleton<DisasterServices.DisasterManager>.instance.container;
 
             #region Gegeral options
 
-            UIHelperBase generalGroup = helper.AddGroup("General");            
+            UIHelperBase generalGroup = helper.AddGroup("General");
 
             UI_General_AutoFocusOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Auto focus on disaster starts", disasterContainer.AutoFocusOnDisasterStarts, delegate (bool isChecked)
             {
@@ -213,7 +215,6 @@ namespace NaturalDisastersRenewal
             });
             //UI_General_AutoFocusOnDisaster.tooltip = "Autofocus on disaster";
 
-            
             UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Pause on disaster starts", disasterContainer.PauseOnDisasterStarts, delegate (bool isChecked)
             {
                 if (!freezeUI)
@@ -231,7 +232,7 @@ namespace NaturalDisastersRenewal
             UI_General_ScaleMaxIntensityWithPopulation.tooltip = "Maximum intensity for all disasters is set to the minimum at the beginning of the game and gradually increases as the city grows.";
 
             UI_General_RecordDisasterEventsChkBox = (UICheckBox)generalGroup.AddCheckbox("Record disaster events", disasterContainer.RecordDisasterEvents, delegate (bool isChecked)
-            {                
+            {
                 if (!freezeUI)
                     disasterContainer.RecordDisasterEvents = isChecked;
             });
@@ -242,7 +243,7 @@ namespace NaturalDisastersRenewal
                 if (!freezeUI)
                     disasterContainer.ShowDisasterPanelButton = isChecked;
 
-                Singleton<EnhancedDisastersManager>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<DisasterServices.DisasterManager>.instance.UpdateDisastersPanelToggleBtn();
             });
 
             generalGroup.AddSpace(10);
@@ -580,8 +581,6 @@ namespace NaturalDisastersRenewal
 
             #endregion MeteorStrike
 
-
-
             #region SaveOptions
 
             // Save buttons
@@ -589,16 +588,16 @@ namespace NaturalDisastersRenewal
 
             saveOptionsGroup.AddButton("Save as default for new games", delegate ()
             {
-                Singleton<EnhancedDisastersManager>.instance.container.Save();
+                Singleton<DisasterServices.DisasterManager>.instance.container.Save();
             });
             saveOptionsGroup.AddButton("Reset to the last saved values", delegate ()
             {
-                Singleton<EnhancedDisastersManager>.instance.ReadValuesFromFile();
+                Singleton<DisasterServices.DisasterManager>.instance.ReadValuesFromFile();
                 EnhancedDisastersOptionsUpdateUI();
             });
             saveOptionsGroup.AddButton("Reset to the mod default values", delegate ()
             {
-                Singleton<EnhancedDisastersManager>.instance.ResetToDefaultValues();
+                Singleton<DisasterServices.DisasterManager>.instance.ResetToDefaultValues();
                 EnhancedDisastersOptionsUpdateUI();
             });
 

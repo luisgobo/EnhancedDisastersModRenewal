@@ -1,9 +1,10 @@
-﻿using UnityEngine;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.UI;
+using NaturalDisastersRenewal.Serialization;
 using System.Text;
+using UnityEngine;
 
-namespace NaturalDisastersRenewal
+namespace NaturalDisastersRenewal.UI
 {
     public class ExtendedDisastersPanel : UIPanel
     {
@@ -51,15 +52,15 @@ namespace NaturalDisastersRenewal
             addAxisLabel(375, y, "10");
             y -= 15;
 
-            int disasterCount = Singleton<EnhancedDisastersManager>.instance.container.AllDisasters.Count;
+            int disasterCount = Singleton<DisasterServices.DisasterManager>.instance.container.AllDisasters.Count;
             labels = new UILabel[disasterCount];
             progressBars_probability = new UIProgressBar[disasterCount];
             progressBars_maxIntensity = new UIProgressBar[disasterCount];
 
-            EnhancedDisastersManager edm = Singleton<EnhancedDisastersManager>.instance;
+            DisasterServices.DisasterManager edm = Singleton<DisasterServices.DisasterManager>.instance;
             for (int i = 0; i < disasterCount; i++)
             {
-                EnhancedDisaster d = edm.container.AllDisasters[i];
+                DisasterSerialization d = edm.container.AllDisasters[i];
                 labels[i] = addLabel(10, y);
                 labels[i].text = string.Format(labelFormat, d.GetName(), 0, 0);
                 progressBars_probability[i] = addProgressBar(200, y);
@@ -212,12 +213,12 @@ namespace NaturalDisastersRenewal
             if (--Counter > 0) return;
             Counter = 10;
 
-            EnhancedDisastersManager edm = Singleton<EnhancedDisastersManager>.instance;
+            DisasterServices.DisasterManager edm = Singleton<DisasterServices.DisasterManager>.instance;
             int disasterCount = edm.container.AllDisasters.Count;
 
             for (int i = 0; i < disasterCount; i++)
             {
-                EnhancedDisaster d = edm.container.AllDisasters[i];
+                DisasterSerialization d = edm.container.AllDisasters[i];
                 float p = d.GetCurrentOccurrencePerYear();
                 byte maxIntensity = d.GetMaximumIntensity();
                 if (d.Enabled)

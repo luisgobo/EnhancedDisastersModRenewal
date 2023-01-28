@@ -1,9 +1,9 @@
-using ICities;
 using ColossalFramework;
+using ICities;
 
-namespace NaturalDisastersRenewal
+namespace NaturalDisastersRenewal.BaseGameExtensions
 {
-    public class Threading: ThreadingExtensionBase
+    public class Threading : ThreadingExtensionBase
     {
         public override void OnAfterSimulationFrame()
         {
@@ -11,7 +11,7 @@ namespace NaturalDisastersRenewal
             Singleton<DisasterManager>.instance.m_randomDisasterCooldown = 0;
 
             // Give disasters a chance to occur
-            Singleton<EnhancedDisastersManager>.instance.OnSimulationFrame();
+            Singleton<DisasterServices.DisasterManager>.instance.OnSimulationFrame();
         }
     }
 }

@@ -1,17 +1,17 @@
-﻿using System;
+﻿using ColossalFramework;
+using NaturalDisastersRenewal.Common;
+using System;
 using System.IO;
-using ColossalFramework;
 
-namespace NaturalDisastersRenewal
+namespace NaturalDisastersRenewal.Logger
 {
     public static class DisasterLogger
     {
-        static string disasterListFileName = "Disasters.csv";
         public static bool StartedByMod = false;
 
         public static void AddDisaster(DateTime dt, string disasterName, byte intensity)
         {
-            if (!Singleton<EnhancedDisastersManager>.instance.container.RecordDisasterEvents) return;
+            if (!Singleton<DisasterServices.DisasterManager>.instance.container.RecordDisasterEvents) return;
 
             string filePath = getDisasterListFilePath();
 
@@ -32,11 +32,10 @@ namespace NaturalDisastersRenewal
 
         static string getDisasterListFilePath()
         {
-            //return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Colossal Order", "Cities_Skylines", optionsFileName);
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            path = Path.Combine(path, "Colossal Order");
-            path = Path.Combine(path, "Cities_Skylines");
-            path = Path.Combine(path, disasterListFileName);
+            path = Path.Combine(path, CommonProperties.xmlMainPath);
+            path = Path.Combine(path, CommonProperties.xmlSubPath);
+            path = Path.Combine(path, CommonProperties.disasterListFileName);
             return path;
         }
     }

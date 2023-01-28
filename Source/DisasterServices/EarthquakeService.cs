@@ -1,18 +1,20 @@
-﻿using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
-using UnityEngine;
+using ICities;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Serialization;
+using UnityEngine;
 
-namespace NaturalDisastersRenewal
+namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EnhancedEarthquake : EnhancedDisaster
+    public class EarthquakeService : DisasterSerialization
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                EnhancedEarthquake d = Singleton<EnhancedDisastersManager>.instance.container.Earthquake;
+                EarthquakeService d = Singleton<DisasterManager>.instance.container.Earthquake;
                 serializeCommonParameters(s, d);
 
                 s.WriteFloat(d.WarmupYears);
@@ -25,12 +27,12 @@ namespace NaturalDisastersRenewal
                 s.WriteFloat(d.lastTargetPosition.x);
                 s.WriteFloat(d.lastTargetPosition.y);
                 s.WriteFloat(d.lastTargetPosition.z);
-                s.WriteFloat(d.lastAngle);                
+                s.WriteFloat(d.lastAngle);
             }
 
             public void Deserialize(DataSerializer s)
             {
-                EnhancedEarthquake d = Singleton<EnhancedDisastersManager>.instance.container.Earthquake;
+                EarthquakeService d = Singleton<DisasterManager>.instance.container.Earthquake;
                 deserializeCommonParameters(s, d);
 
                 d.WarmupYears = s.ReadFloat();
@@ -47,7 +49,7 @@ namespace NaturalDisastersRenewal
                 }
 
                 d.lastTargetPosition = new Vector3(s.ReadFloat(), s.ReadFloat(), s.ReadFloat());
-                d.lastAngle = s.ReadFloat();                
+                d.lastAngle = s.ReadFloat();
             }
 
             public void AfterDeserialize(DataSerializer s)
@@ -64,7 +66,7 @@ namespace NaturalDisastersRenewal
         Vector3 lastTargetPosition = new Vector3();
         float lastAngle = 0;
 
-        public EnhancedEarthquake()
+        public EarthquakeService()
         {
             DType = DisasterType.Earthquake;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
@@ -188,11 +190,11 @@ namespace NaturalDisastersRenewal
             return "Earthquake";
         }
 
-        public override void CopySettings(EnhancedDisaster disaster)
+        public override void CopySettings(DisasterSerialization disaster)
         {
             base.CopySettings(disaster);
 
-            EnhancedEarthquake d = disaster as EnhancedEarthquake;
+            EarthquakeService d = disaster as EarthquakeService;
             if (d != null)
             {
                 AftershocksEnabled = d.AftershocksEnabled;

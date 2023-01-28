@@ -1,8 +1,7 @@
 ﻿using ColossalFramework.UI;
 using ICities;
+using NaturalDisastersRenewal.Logger;
 using System;
-using System.IO;
-using UnityEngine;
 
 namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
@@ -29,7 +28,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             );
 
             dropDown.width = (int)Math.Round(dropDown.width * 1.4f);
-            
+
             DebugLogger.Log("Dropbox created");
         }
     }

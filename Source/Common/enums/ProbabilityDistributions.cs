@@ -1,4 +1,4 @@
-﻿namespace NaturalDisastersRenewal
+﻿namespace NaturalDisastersRenewal.Common.enums
 {
     public enum ProbabilityDistributions
     {
