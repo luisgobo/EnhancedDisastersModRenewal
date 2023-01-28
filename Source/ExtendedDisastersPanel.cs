@@ -7,10 +7,10 @@ namespace NaturalDisastersOverhaulRenewal
 {
     public class ExtendedDisastersPanel : UIPanel
     {
-        UILabel[] labels;
-        UIProgressBar[] progressBars_probability;
-        UIProgressBar[] progressBars_maxIntensity;
-        string labelFormat = "{0} ({1:0.00}/{2})";
+        private UILabel[] labels;
+        private UIProgressBar[] progressBars_probability;
+        private UIProgressBar[] progressBars_maxIntensity;
+        private string labelFormat = "{0} ({1:0.00}/{2})";
         public int Counter = 0;
 
         public override void Awake()
@@ -95,7 +95,7 @@ namespace NaturalDisastersOverhaulRenewal
             btn.eventClick += Btn_eventClick;
         }
 
-        void BigRedBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void BigRedBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -138,17 +138,17 @@ namespace NaturalDisastersOverhaulRenewal
             Debug.Log(sb.ToString());
         }
 
-        bool isDisasterCanBeStopped(DisasterAI ai)
+        private bool isDisasterCanBeStopped(DisasterAI ai)
         {
             return (ai as ThunderStormAI != null) || (ai as SinkholeAI != null) || (ai as TornadoAI != null) || (ai as EarthquakeAI != null) || (ai as MeteorStrikeAI != null);
         }
 
-        void Btn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void Btn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             this.Hide();
         }
 
-        UILabel addLabel(int x, int y)
+        private UILabel addLabel(int x, int y)
         {
             UILabel l = this.AddUIComponent<UILabel>();
             l.position = new Vector3(x, y);
@@ -157,7 +157,7 @@ namespace NaturalDisastersOverhaulRenewal
             return l;
         }
 
-        void addAxisLabel(int x, int y, string text)
+        private void addAxisLabel(int x, int y, string text)
         {
             //switch (labelTextAlignment)
             //{
@@ -175,7 +175,7 @@ namespace NaturalDisastersOverhaulRenewal
             l.text = text;
         }
 
-        void addAxisTitle(int x, int y, string text)
+        private void addAxisTitle(int x, int y, string text)
         {
             UILabel l = this.AddUIComponent<UILabel>();
             l.position = new Vector3(x, y);
@@ -183,7 +183,7 @@ namespace NaturalDisastersOverhaulRenewal
             l.text = text;
         }
 
-        UIProgressBar addProgressBar(int x, int y)
+        private UIProgressBar addProgressBar(int x, int y)
         {
             UIProgressBar b = this.AddUIComponent<UIProgressBar>();
             b.backgroundSprite = "LevelBarBackground";
@@ -196,7 +196,7 @@ namespace NaturalDisastersOverhaulRenewal
             return b;
         }
 
-        float getProgressValueLog(float value)
+        private float getProgressValueLog(float value)
         {
             if (value <= 0.1) return 0;
             if (value >= 10) return 1;
@@ -245,7 +245,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        void setProgressBarColor(UIProgressBar progressBar)
+        private void setProgressBarColor(UIProgressBar progressBar)
         {
             float value = progressBar.value;
             progressBar.progressColor = new Color(2.0f * value, 2.0f * (1 - value), 0);

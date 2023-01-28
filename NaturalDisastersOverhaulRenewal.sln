@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnhancedDisastersMod_Legacy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalDisastersOverhaulRenewal", "Source\NaturalDisastersOverhaulRenewal.csproj", "{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalDisasterRenewal", "NaturalDisasterRenewal\NaturalDisasterRenewal.csproj", "{94C61119-6FD1-4575-8E2F-B29E88E35E77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94C61119-6FD1-4575-8E2F-B29E88E35E77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94C61119-6FD1-4575-8E2F-B29E88E35E77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94C61119-6FD1-4575-8E2F-B29E88E35E77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94C61119-6FD1-4575-8E2F-B29E88E35E77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

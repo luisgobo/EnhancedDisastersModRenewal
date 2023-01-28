@@ -6,7 +6,7 @@ namespace NaturalDisastersOverhaulRenewal
 {
     public static class DisasterLogger
     {
-        static string disasterListFileName = "Disasters.csv";
+        private static string disasterListFileName = "Disasters.csv";
         public static bool StartedByMod = false;
 
         public static void AddDisaster(DateTime dt, string disasterName, byte intensity)
@@ -30,7 +30,7 @@ namespace NaturalDisastersOverhaulRenewal
             File.AppendAllText(filePath, dt.ToString("yyyy/MM/dd HH:mm") + "," + disasterName + "," + intensity.ToString() + "," + startedBy + Environment.NewLine);
         }
 
-        static string getDisasterListFilePath()
+        private static string getDisasterListFilePath()
         {
             //return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Colossal Order", "Cities_Skylines", optionsFileName);
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

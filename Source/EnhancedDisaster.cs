@@ -281,7 +281,7 @@ namespace NaturalDisastersOverhaulRenewal
             return intensity;
         }
 
-        float scaleProbabilityByWarmup(float probability)
+        private float scaleProbabilityByWarmup(float probability)
         {
             if (!unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
             {
@@ -394,7 +394,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        bool findRandomTargetEverywhere(out Vector3 target, out float angle)
+        private bool findRandomTargetEverywhere(out Vector3 target, out float angle)
         {
             GameAreaManager gam = Singleton<GameAreaManager>.instance;
             SimulationManager sm = Singleton<SimulationManager>.instance;
@@ -416,7 +416,7 @@ namespace NaturalDisastersOverhaulRenewal
             return true;
         }
 
-        bool findRandomTargetInLockedAreas(out Vector3 target, out float angle)
+        private bool findRandomTargetInLockedAreas(out Vector3 target, out float angle)
         {
             GameAreaManager gam = Singleton<GameAreaManager>.instance;
             SimulationManager sm = Singleton<SimulationManager>.instance;
@@ -482,7 +482,7 @@ namespace NaturalDisastersOverhaulRenewal
             return false;
         }
 
-        bool isUnlocked(int x, int z)
+        private bool isUnlocked(int x, int z)
         {
             return x >= 0 && z >= 0 && x < 5 && z < 5 && Singleton<GameAreaManager>.instance.m_areaGrid[z * 5 + x] != 0;
         }

@@ -10,11 +10,11 @@ namespace NaturalDisastersOverhaulRenewal
     public class EnhancedDisastersManager : Singleton<EnhancedDisastersManager>
     {
         public DisastersContainer container;
-        ExtendedDisastersPanel dPanel;
-        UIButton toggleButton;
-        readonly Harmony harmony = new Harmony("EnhancedDisastersManagerRenewal");
+        private ExtendedDisastersPanel dPanel;
+        private UIButton toggleButton;
+        private readonly Harmony harmony = new Harmony("EnhancedDisastersManagerRenewal");
 
-        EnhancedDisastersManager()
+        private EnhancedDisastersManager()
         {
             ReadValuesFromFile();
             harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -41,7 +41,7 @@ namespace NaturalDisastersOverhaulRenewal
             copySettings(newContainer);
         }
 
-        void copySettings(DisastersContainer fromContainer)
+        private void copySettings(DisastersContainer fromContainer)
         {
             if (container == null)
             {
@@ -173,7 +173,7 @@ namespace NaturalDisastersOverhaulRenewal
             UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
         }
 
-        void ToggleButton_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
+        private void ToggleButton_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
             {
@@ -187,7 +187,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
+        private void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
             if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
             {
@@ -201,12 +201,12 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        void ToggleButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void ToggleButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             toggleDisasterPanel();
         }
 
-        void toggleDisasterPanel()
+        private void toggleDisasterPanel()
         {
             dPanel.isVisible = !dPanel.isVisible;
 

@@ -41,7 +41,7 @@ namespace NaturalDisastersOverhaulRenewal
         }
 
         public int WarmupDays = 180;
-        float noRainDays = 0;
+        private float noRainDays = 0;
 
         public EnhancedForestFire()
         {

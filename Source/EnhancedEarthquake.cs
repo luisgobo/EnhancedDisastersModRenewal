@@ -57,11 +57,11 @@ namespace NaturalDisastersOverhaulRenewal
 
         public bool AftershocksEnabled = true;
         public bool NoCracks = true;
-        byte aftershocksCount = 0;
-        byte aftershockMaxIntensity = 0;
-        byte mainStrikeIntensity = 0;
-        Vector3 lastTargetPosition = new Vector3();
-        float lastAngle = 0;
+        private byte aftershocksCount = 0;
+        private byte aftershockMaxIntensity = 0;
+        private byte mainStrikeIntensity = 0;
+        private Vector3 lastTargetPosition = new Vector3();
+        private float lastAngle = 0;
 
         public EnhancedEarthquake()
         {

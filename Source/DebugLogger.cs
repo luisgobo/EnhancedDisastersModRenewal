@@ -6,7 +6,7 @@ namespace NaturalDisastersOverhaulRenewal
 {
     public static class DebugLogger
     {
-        static string fileName = "EnhancedDisastersMod.log";
+        private static string fileName = "EnhancedDisastersMod.log";
         public static bool IsDebug = true;
         public static bool IsLogInFile = false;
 
@@ -25,7 +25,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        static string geFilePath()
+        private static string geFilePath()
         {
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             path = Path.Combine(path, "Colossal Order");
