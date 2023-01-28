@@ -5,14 +5,12 @@ using UnityEngine;
 using ColossalFramework.Plugins;
 using System.Reflection;
 using System;
+using NaturalDisastersRenewal.Common;
 
 namespace NaturalDisastersRenewal
 {
     public class Mod : IUserMod
     {
-        public static string ModNameEng = "Natural Disasters Overhaul Renewal";
-        public static string LogMsgPrefix = ">>> " + ModNameEng + ": ";
-        public static string Version = "2023";
         private bool freezeUI = false;
 
         //General
@@ -63,20 +61,22 @@ namespace NaturalDisastersRenewal
         UIDropDown UI_ForestFire_AutoEvacuateRelease;
         UIDropDown UI_MeteorStrike_AutoEvacuateRelease;
         UIDropDown UI_Sinkhole_AutoEvacuateRelease;
-        UIDropDown UI_StructureCollapse_AutoEvacuateRelease;
-        UIDropDown UI_StructureFire_AutoEvacuateRelease;
         UIDropDown UI_Thunderstorm_AutoEvacuateRelease;
         UIDropDown UI_Tornado_AutoEvacuateRelease;
         UIDropDown UI_Tsunami_AutoEvacuateRelease;
 
+        //Next enhancement
+        //UIDropDown UI_StructureCollapse_AutoEvacuateRelease;
+        //UIDropDown UI_StructureFire_AutoEvacuateRelease;
+
         public string Name
         {
-            get { return ModNameEng; }
+            get { return CommonProperties.ModName; }
         }
 
         public string Description
         {
-            get { return "More natural behavior of natural disasters (ver. " + Version + ")"; }
+            get { return CommonProperties.getModDescription(); }
         }
 
         #region Options UI
