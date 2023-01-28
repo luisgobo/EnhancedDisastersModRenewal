@@ -54,6 +54,7 @@ namespace NaturalDisastersRenewal
             calmDays = 7;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
+            EvacuationMode = 0;
         }
 
         protected override void onSimulationFrame_local()

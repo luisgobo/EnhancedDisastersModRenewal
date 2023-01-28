@@ -71,8 +71,9 @@ namespace NaturalDisastersRenewal
             BaseOccurrencePerYear = 1.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            WarmupYears = 3;            
-    }
+            WarmupYears = 3;
+            EvacuationMode = 0;
+        }
 
         [System.Xml.Serialization.XmlElement]
         public float WarmupYears

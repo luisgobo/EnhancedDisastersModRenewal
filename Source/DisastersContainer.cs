@@ -18,6 +18,10 @@ namespace NaturalDisastersRenewal
                 s.WriteBool(c.ScaleMaxIntensityWithPopilation);
                 s.WriteBool(c.RecordDisasterEvents);
                 s.WriteBool(c.ShowDisasterPanelButton);
+                
+                s.WriteBool(c.AutoFocusOnDisasterStarts);
+                s.WriteBool(c.PauseOnDisasterStarts);
+                
                 s.WriteFloat(c.ToggleButtonPos.x);
                 s.WriteFloat(c.ToggleButtonPos.y);
             }
@@ -28,6 +32,9 @@ namespace NaturalDisastersRenewal
                 c.ScaleMaxIntensityWithPopilation = s.ReadBool();
                 c.RecordDisasterEvents = s.ReadBool();
                 c.ShowDisasterPanelButton = s.ReadBool();
+
+                c.PauseOnDisasterStarts = s.ReadBool();
+                c.AutoFocusOnDisasterStarts = s.ReadBool();
 
                 if (s.version >= 1)
                 {
@@ -47,11 +54,10 @@ namespace NaturalDisastersRenewal
         public EnhancedTsunami Tsunami;
         public EnhancedTornado Tornado;
         public EnhancedEarthquake Earthquake;
-        public EnhancedMeteorStrike MeteorStrike;        
+        public EnhancedMeteorStrike MeteorStrike;
 
         //General options
-        public bool AutoFocusOnDisaster = true;
-
+        public bool AutoFocusOnDisasterStarts = true;
         public bool PauseOnDisasterStarts = true;
 
         public bool ScaleMaxIntensityWithPopilation = true;
@@ -61,10 +67,10 @@ namespace NaturalDisastersRenewal
 
         [XmlIgnore]
         public List<EnhancedDisaster> AllDisasters = new List<EnhancedDisaster>();
-
+        
         public void Save()
         {
-            XmlSerializer ser = new XmlSerializer(typeof(DisastersContainer));            
+            XmlSerializer ser = new XmlSerializer(typeof(DisastersContainer));
             TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath());
             ser.Serialize(writer, this);
             writer.Close();
@@ -78,7 +84,7 @@ namespace NaturalDisastersRenewal
             if (Tsunami == null) Tsunami = new EnhancedTsunami();
             if (Tornado == null) Tornado = new EnhancedTornado();
             if (Earthquake == null) Earthquake = new EnhancedEarthquake();
-            if (MeteorStrike == null) MeteorStrike = new EnhancedMeteorStrike();            
+            if (MeteorStrike == null) MeteorStrike = new EnhancedMeteorStrike();
 
             AllDisasters.Clear();
             AllDisasters.Add(ForestFire);
@@ -111,6 +117,6 @@ namespace NaturalDisastersRenewal
             {
                 return null;
             }
-        }        
+        }
     }
 }

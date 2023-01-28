@@ -175,6 +175,7 @@ namespace NaturalDisastersRenewal
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
             BaseOccurrencePerYear = 10.0f;
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
+            EvacuationMode = 0;
 
             meteorEvents = new MeteorEvent[] {
                 MeteorEvent.Init("Long period meteor", 9, 100),
@@ -184,7 +185,7 @@ namespace NaturalDisastersRenewal
         }
 
         [System.Xml.Serialization.XmlElement]
-        public bool Meteor1Enabled
+        public bool MeteorLongPeriodEnabled
         {
             get
             {
@@ -198,7 +199,7 @@ namespace NaturalDisastersRenewal
         }
 
         [System.Xml.Serialization.XmlElement]
-        public bool Meteor2Enabled
+        public bool MeteorMediumPeriodEnabled
         {
             get
             {
@@ -212,7 +213,7 @@ namespace NaturalDisastersRenewal
         }
 
         [System.Xml.Serialization.XmlElement]
-        public bool Meteor3Enabled
+        public bool MeteorShortPeriodEnabled
         {
             get
             {
@@ -331,9 +332,9 @@ namespace NaturalDisastersRenewal
             EnhancedMeteorStrike d = disaster as EnhancedMeteorStrike;
             if (d != null)
             {
-                Meteor1Enabled = d.Meteor1Enabled;
-                Meteor2Enabled = d.Meteor2Enabled;
-                Meteor3Enabled = d.Meteor3Enabled;
+                MeteorLongPeriodEnabled = d.MeteorLongPeriodEnabled;
+                MeteorMediumPeriodEnabled = d.MeteorMediumPeriodEnabled;
+                MeteorShortPeriodEnabled = d.MeteorShortPeriodEnabled;
             }
         }
     }

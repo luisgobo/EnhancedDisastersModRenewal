@@ -30,18 +30,21 @@ namespace NaturalDisastersRenewal
 
             newContainer.CheckObjects();
 
-            copySettings(newContainer);
+            CopySettings(newContainer);
         }
 
         public void ResetToDefaultValues()
         {
             DisastersContainer newContainer = new DisastersContainer();
+            DebugLogger.Log("Record disasters Events 1: " + newContainer.RecordDisasterEvents.ToString());
             newContainer.CheckObjects();
 
-            copySettings(newContainer);
+            DebugLogger.Log("Record disasters Events 2: " + newContainer.RecordDisasterEvents.ToString());
+
+            CopySettings(newContainer);
         }
 
-        void copySettings(DisastersContainer fromContainer)
+        void CopySettings(DisastersContainer fromContainer)
         {
             if (container == null)
             {
@@ -53,6 +56,13 @@ namespace NaturalDisastersRenewal
                 {
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
                 }
+
+                container.AutoFocusOnDisasterStarts = fromContainer.AutoFocusOnDisasterStarts;
+                container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
+                
+                container.ScaleMaxIntensityWithPopilation= fromContainer.ScaleMaxIntensityWithPopilation;
+                container.RecordDisasterEvents= fromContainer.RecordDisasterEvents;
+                container.ShowDisasterPanelButton = fromContainer.ShowDisasterPanelButton;
             }
         }
 

@@ -37,6 +37,7 @@ namespace NaturalDisastersRenewal
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
             WarmupYears = 4;
+            EvacuationMode = 0;
         }
 
         public float WarmupYears

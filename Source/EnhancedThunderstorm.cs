@@ -46,6 +46,7 @@ namespace NaturalDisastersRenewal
             calmDays = 60;
             probabilityWarmupDays = 30;
             intensityWarmupDays = 60;
+            EvacuationMode = 0;
         }
 
         public override string GetProbabilityTooltip()

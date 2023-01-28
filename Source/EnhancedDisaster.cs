@@ -70,10 +70,8 @@ namespace NaturalDisastersRenewal
 
         // Disaster public properties (to be saved in xml)
         public bool Enabled = true;
-        public float BaseOccurrencePerYear = 1.0f;
         public int EvacuationMode = 0;
-
-
+        public float BaseOccurrencePerYear = 1.0f;
 
 
         // Public
@@ -217,6 +215,9 @@ namespace NaturalDisastersRenewal
         {
             Enabled = disaster.Enabled;
             BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
+            EvacuationMode= disaster.EvacuationMode;
+
+            
         }
 
 

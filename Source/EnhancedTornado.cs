@@ -48,6 +48,7 @@ namespace NaturalDisastersRenewal
             calmDays = 360 * 2;
             probabilityWarmupDays = 180;
             intensityWarmupDays = 180;
+            EvacuationMode = 0;
         }
 
         protected override float getCurrentOccurrencePerYear_local()
