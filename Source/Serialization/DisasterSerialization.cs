@@ -1,25 +1,30 @@
-﻿using System;
-using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
+using ICities;
+using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Logger;
+using System;
 using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal.Serialization
+
 {
-    public abstract class EnhancedDisaster
+    public abstract class DisasterSerialization
     {
         public class SerializableDataCommon
         {
-            public void serializeCommonParameters(DataSerializer s, EnhancedDisaster disaster)
+            public void serializeCommonParameters(DataSerializer s, DisasterSerialization disaster)
             {
                 s.WriteBool(disaster.Enabled);
                 s.WriteFloat(disaster.BaseOccurrencePerYear);
                 s.WriteFloat(disaster.calmDaysLeft);
                 s.WriteFloat(disaster.probabilityWarmupDaysLeft);
                 s.WriteFloat(disaster.intensityWarmupDaysLeft);
+                s.WriteInt32(disaster.EvacuationMode);
             }
 
-            public void deserializeCommonParameters(DataSerializer s, EnhancedDisaster disaster)
+            public void deserializeCommonParameters(DataSerializer s, DisasterSerialization disaster)
             {
                 disaster.Enabled = s.ReadBool();
                 disaster.BaseOccurrencePerYear = s.ReadFloat();
@@ -29,27 +34,29 @@ namespace NaturalDisastersOverhaulRenewal
                     disaster.calmDaysLeft = s.ReadInt32() * daysPerFrame;
                     disaster.probabilityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
                     disaster.intensityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
+                    disaster.EvacuationMode = s.ReadInt32();
                 }
                 else
                 {
                     disaster.calmDaysLeft = s.ReadFloat();
                     disaster.probabilityWarmupDaysLeft = s.ReadFloat();
                     disaster.intensityWarmupDaysLeft = s.ReadFloat();
+                    disaster.EvacuationMode = s.ReadInt32();
                 }
             }
 
             public void afterDeserializeLog(string className)
             {
-                Debug.Log(Mod.LogMsgPrefix + className + " data loaded.");
+                Debug.Log(CommonProperties.LogMsgPrefix + className + " data loaded.");
             }
         }
-
 
         // Constants
         protected const uint randomizerRange = 67108864u;
 
         // Cooldown variables
         protected int calmDays = 0;
+
         protected float calmDaysLeft = 0;
         protected int probabilityWarmupDays = 0;
         protected float probabilityWarmupDaysLeft = 0;
@@ -58,6 +65,7 @@ namespace NaturalDisastersOverhaulRenewal
 
         // Disaster properties
         protected DisasterType DType = DisasterType.Empty;
+
         protected ProbabilityDistributions ProbabilityDistribution = ProbabilityDistributions.Uniform;
         protected int FullIntensityPopulation = 20000;
         protected OccurrenceAreas OccurrenceAreaBeforeUnlock = OccurrenceAreas.Nowhere;
@@ -66,8 +74,9 @@ namespace NaturalDisastersOverhaulRenewal
 
         // Disaster public properties (to be saved in xml)
         public bool Enabled = true;
-        public float BaseOccurrencePerYear = 1.0f;
 
+        public int EvacuationMode = 0;
+        public float BaseOccurrencePerYear = 1.0f;
 
         // Public
 
@@ -206,12 +215,12 @@ namespace NaturalDisastersOverhaulRenewal
             return result;
         }
 
-        public virtual void CopySettings(EnhancedDisaster disaster)
+        public virtual void CopySettings(DisasterSerialization disaster)
         {
             Enabled = disaster.Enabled;
             BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
+            EvacuationMode = disaster.EvacuationMode;
         }
-
 
         // Utilities
 
@@ -269,7 +278,7 @@ namespace NaturalDisastersOverhaulRenewal
 
         protected byte scaleIntensityByPopulation(byte intensity)
         {
-            if (Singleton<EnhancedDisastersManager>.instance.container.ScaleMaxIntensityWithPopilation)
+            if (Singleton<DisasterServices.DisasterManager>.instance.container.ScaleMaxIntensityWithPopilation)
             {
                 int population = Helper.GetPopulation();
                 if (population < FullIntensityPopulation)
@@ -308,12 +317,10 @@ namespace NaturalDisastersOverhaulRenewal
             return DType.ToString() + ", " + Singleton<SimulationManager>.instance.m_currentGameTime.ToShortDateString() + ", ";
         }
 
-
         // Disaster
 
         protected virtual void onSimulationFrame_local()
         {
-
         }
 
         public virtual void OnDisasterStarted(byte intensity)
@@ -327,14 +334,13 @@ namespace NaturalDisastersOverhaulRenewal
 
         protected virtual void disasterStarting(DisasterInfo disasterInfo)
         {
-
         }
 
         public abstract bool CheckDisasterAIType(object disasterAI);
 
         protected void startDisaster(byte intensity)
         {
-            DisasterInfo disasterInfo = EnhancedDisastersManager.GetDisasterInfo(DType);
+            DisasterInfo disasterInfo = DisasterServices.DisasterManager.GetDisasterInfo(DType);
 
             if (disasterInfo == null)
             {
@@ -383,10 +389,13 @@ namespace NaturalDisastersOverhaulRenewal
             {
                 case OccurrenceAreas.LockedAreas:
                     return findRandomTargetInLockedAreas(out targetPosition, out angle);
+
                 case OccurrenceAreas.Everywhere:
                     return findRandomTargetEverywhere(out targetPosition, out angle);
+
                 case OccurrenceAreas.UnlockedAreas: // Vanilla default
                     return disasterInfo.m_disasterAI.FindRandomTarget(out targetPosition, out angle);
+
                 default:
                     targetPosition = new Vector3();
                     angle = 0;

@@ -1,16 +1,18 @@
-﻿using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
+using ICities;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Serialization;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EnhancedTsunami : EnhancedDisaster
+    public class TsunamiService : DisasterSerialization
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                EnhancedTsunami d = Singleton<EnhancedDisastersManager>.instance.container.Tsunami;
+                TsunamiService d = Singleton<DisasterManager>.instance.container.Tsunami;
                 serializeCommonParameters(s, d);
 
                 s.WriteFloat(d.WarmupYears);
@@ -18,7 +20,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             public void Deserialize(DataSerializer s)
             {
-                EnhancedTsunami d = Singleton<EnhancedDisastersManager>.instance.container.Tsunami;
+                TsunamiService d = Singleton<DisasterManager>.instance.container.Tsunami;
                 deserializeCommonParameters(s, d);
 
                 d.WarmupYears = s.ReadFloat();
@@ -30,13 +32,14 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        public EnhancedTsunami()
+        public TsunamiService()
         {
             DType = DisasterType.Tsunami;
             BaseOccurrencePerYear = 1.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
             WarmupYears = 4;
+            EvacuationMode = 0;
         }
 
         public float WarmupYears
@@ -64,11 +67,11 @@ namespace NaturalDisastersOverhaulRenewal
             return "Tsunami";
         }
 
-        public override void CopySettings(EnhancedDisaster disaster)
+        public override void CopySettings(DisasterSerialization disaster)
         {
             base.CopySettings(disaster);
 
-            EnhancedTsunami d = disaster as EnhancedTsunami;
+            TsunamiService d = disaster as TsunamiService;
             if (d != null)
             {
                 WarmupYears = d.WarmupYears;
@@ -76,4 +79,3 @@ namespace NaturalDisastersOverhaulRenewal
         }
     }
 }
-

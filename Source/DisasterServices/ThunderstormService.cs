@@ -1,18 +1,19 @@
-﻿using System;
-using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
-using UnityEngine;
+using ICities;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Serialization;
+using System;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EnhancedThunderstorm: EnhancedDisaster
+    public class ThunderstormService : DisasterSerialization
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                EnhancedThunderstorm d = Singleton<EnhancedDisastersManager>.instance.container.Thunderstorm;
+                ThunderstormService d = Singleton<DisasterManager>.instance.container.Thunderstorm;
                 serializeCommonParameters(s, d);
                 s.WriteInt32(d.MaxProbabilityMonth);
                 s.WriteFloat(d.RainFactor);
@@ -20,7 +21,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             public void Deserialize(DataSerializer s)
             {
-                EnhancedThunderstorm d = Singleton<EnhancedDisastersManager>.instance.container.Thunderstorm;
+                ThunderstormService d = Singleton<DisasterManager>.instance.container.Thunderstorm;
                 deserializeCommonParameters(s, d);
                 d.MaxProbabilityMonth = s.ReadInt32();
                 d.RainFactor = s.ReadFloat();
@@ -35,7 +36,7 @@ namespace NaturalDisastersOverhaulRenewal
         public float RainFactor = 2.0f;
         public int MaxProbabilityMonth = 7;
 
-        public EnhancedThunderstorm()
+        public ThunderstormService()
         {
             DType = DisasterType.ThunderStorm;
             OccurrenceAreaBeforeUnlock = OccurrenceAreas.LockedAreas;
@@ -46,6 +47,7 @@ namespace NaturalDisastersOverhaulRenewal
             calmDays = 60;
             probabilityWarmupDays = 30;
             intensityWarmupDays = 60;
+            EvacuationMode = 0;
         }
 
         public override string GetProbabilityTooltip()
@@ -93,11 +95,11 @@ namespace NaturalDisastersOverhaulRenewal
             return "Thunderstorm";
         }
 
-        public override void CopySettings(EnhancedDisaster disaster)
+        public override void CopySettings(DisasterSerialization disaster)
         {
             base.CopySettings(disaster);
 
-            EnhancedThunderstorm d = disaster as EnhancedThunderstorm;
+            ThunderstormService d = disaster as ThunderstormService;
             if (d != null)
             {
                 RainFactor = d.RainFactor;

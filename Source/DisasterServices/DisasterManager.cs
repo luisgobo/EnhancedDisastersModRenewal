@@ -1,20 +1,24 @@
-﻿using System.Reflection;
-using UnityEngine;
-using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.UI;
 using HarmonyLib;
+using ICities;
+using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Logger;
+using NaturalDisastersRenewal.Serialization;
+using NaturalDisastersRenewal.UI;
+using System.Reflection;
+using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EnhancedDisastersManager : Singleton<EnhancedDisastersManager>
+    public class DisasterManager : Singleton<DisasterManager>
     {
-        public DisastersContainer container;
+        public DisastersServiceBase container;
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
-        readonly Harmony harmony = new Harmony("EnhancedDisastersManagerRenewal");
+        readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
 
-        EnhancedDisastersManager()
+        DisasterManager()
         {
             ReadValuesFromFile();
             harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -22,26 +26,29 @@ namespace NaturalDisastersOverhaulRenewal
 
         public void ReadValuesFromFile()
         {
-            DisastersContainer newContainer = DisastersContainer.CreateFromFile();
+            DisastersServiceBase newContainer = DisastersServiceBase.CreateFromFile();
             if (newContainer == null)
             {
-                newContainer = new DisastersContainer();
+                newContainer = new DisastersServiceBase();
             }
 
             newContainer.CheckObjects();
 
-            copySettings(newContainer);
+            CopySettings(newContainer);
         }
 
         public void ResetToDefaultValues()
         {
-            DisastersContainer newContainer = new DisastersContainer();
+            DisastersServiceBase newContainer = new DisastersServiceBase();
+            DebugLogger.Log("Record disasters Events 1: " + newContainer.RecordDisasterEvents.ToString());
             newContainer.CheckObjects();
 
-            copySettings(newContainer);
+            DebugLogger.Log("Record disasters Events 2: " + newContainer.RecordDisasterEvents.ToString());
+
+            CopySettings(newContainer);
         }
 
-        void copySettings(DisastersContainer fromContainer)
+        void CopySettings(DisastersServiceBase fromContainer)
         {
             if (container == null)
             {
@@ -53,6 +60,13 @@ namespace NaturalDisastersOverhaulRenewal
                 {
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
                 }
+
+                container.AutoFocusOnDisasterStarts = fromContainer.AutoFocusOnDisasterStarts;
+                container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
+
+                container.ScaleMaxIntensityWithPopilation = fromContainer.ScaleMaxIntensityWithPopilation;
+                container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;
+                container.ShowDisasterPanelButton = fromContainer.ShowDisasterPanelButton;
             }
         }
 
@@ -60,7 +74,7 @@ namespace NaturalDisastersOverhaulRenewal
         {
             CheckUnlocks();
 
-            foreach (EnhancedDisaster ed in container.AllDisasters)
+            foreach (DisasterSerialization ed in container.AllDisasters)
             {
                 ed.OnSimulationFrame();
             }
@@ -68,7 +82,7 @@ namespace NaturalDisastersOverhaulRenewal
 
         public void OnDisasterStarted(DisasterAI dai, byte intensity)
         {
-            foreach (EnhancedDisaster ed in container.AllDisasters)
+            foreach (DisasterSerialization ed in container.AllDisasters)
             {
                 if (ed.CheckDisasterAIType(dai))
                 {
@@ -92,27 +106,35 @@ namespace NaturalDisastersOverhaulRenewal
                         case DisasterType.Earthquake:
                             if (disasterInfo.m_disasterAI as EarthquakeAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.ForestFire:
                             if (disasterInfo.m_disasterAI as ForestFireAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.MeteorStrike:
                             if (disasterInfo.m_disasterAI as MeteorStrikeAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.ThunderStorm:
                             if (disasterInfo.m_disasterAI as ThunderStormAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.Tornado:
                             if (disasterInfo.m_disasterAI as TornadoAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.Tsunami:
                             if (disasterInfo.m_disasterAI as TsunamiAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.StructureCollapse:
                             if (disasterInfo.m_disasterAI as StructureCollapseAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.StructureFire:
                             if (disasterInfo.m_disasterAI as StructureFireAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.Sinkhole:
                             if (disasterInfo.m_disasterAI as SinkholeAI != null) return disasterInfo;
                             break;
@@ -197,16 +219,16 @@ namespace NaturalDisastersOverhaulRenewal
 
             if (eventType == EventType.KeyDown && modifiers == EventModifiers.Shift && keyCode == KeyCode.D)
             {
-                toggleDisasterPanel();
+                ToggleDisasterPanel();
             }
         }
 
         void ToggleButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-            toggleDisasterPanel();
+            ToggleDisasterPanel();
         }
 
-        void toggleDisasterPanel()
+        void ToggleDisasterPanel()
         {
             dPanel.isVisible = !dPanel.isVisible;
 

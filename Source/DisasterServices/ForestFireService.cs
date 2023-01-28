@@ -1,18 +1,20 @@
-﻿using System;
-using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
-using UnityEngine;
+using ICities;
+using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Serialization;
+using System;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EnhancedForestFire : EnhancedDisaster
+    public class ForestFireService : DisasterSerialization
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                EnhancedForestFire d = Singleton<EnhancedDisastersManager>.instance.container.ForestFire;
+                ForestFireService d = Singleton<DisasterManager>.instance.container.ForestFire;
                 serializeCommonParameters(s, d);
                 s.WriteInt32(d.WarmupDays);
                 s.WriteFloat(d.noRainDays);
@@ -20,7 +22,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             public void Deserialize(DataSerializer s)
             {
-                EnhancedForestFire d = Singleton<EnhancedDisastersManager>.instance.container.ForestFire;
+                ForestFireService d = Singleton<DisasterManager>.instance.container.ForestFire;
                 deserializeCommonParameters(s, d);
                 d.WarmupDays = s.ReadInt32();
                 if (s.version <= 2)
@@ -43,7 +45,7 @@ namespace NaturalDisastersOverhaulRenewal
         public int WarmupDays = 180;
         float noRainDays = 0;
 
-        public EnhancedForestFire()
+        public ForestFireService()
         {
             DType = DisasterType.ForestFire;
             OccurrenceAreaBeforeUnlock = OccurrenceAreas.LockedAreas;
@@ -54,6 +56,7 @@ namespace NaturalDisastersOverhaulRenewal
             calmDays = 7;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
+            EvacuationMode = 0;
         }
 
         protected override void onSimulationFrame_local()
@@ -113,11 +116,11 @@ namespace NaturalDisastersOverhaulRenewal
             return "Forest Fire";
         }
 
-        public override void CopySettings(EnhancedDisaster disaster)
+        public override void CopySettings(DisasterSerialization disaster)
         {
             base.CopySettings(disaster);
 
-            EnhancedForestFire d = disaster as EnhancedForestFire;
+            ForestFireService d = disaster as ForestFireService;
             if (d != null)
             {
                 WarmupDays = d.WarmupDays;

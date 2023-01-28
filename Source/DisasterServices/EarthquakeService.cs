@@ -1,17 +1,20 @@
-﻿using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
+using ICities;
+using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Serialization;
 using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EnhancedEarthquake : EnhancedDisaster
+    public class EarthquakeService : DisasterSerialization
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                EnhancedEarthquake d = Singleton<EnhancedDisastersManager>.instance.container.Earthquake;
+                EarthquakeService d = Singleton<DisasterManager>.instance.container.Earthquake;
                 serializeCommonParameters(s, d);
 
                 s.WriteFloat(d.WarmupYears);
@@ -29,7 +32,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             public void Deserialize(DataSerializer s)
             {
-                EnhancedEarthquake d = Singleton<EnhancedDisastersManager>.instance.container.Earthquake;
+                EarthquakeService d = Singleton<DisasterManager>.instance.container.Earthquake;
                 deserializeCommonParameters(s, d);
 
                 d.WarmupYears = s.ReadFloat();
@@ -63,7 +66,7 @@ namespace NaturalDisastersOverhaulRenewal
         Vector3 lastTargetPosition = new Vector3();
         float lastAngle = 0;
 
-        public EnhancedEarthquake()
+        public EarthquakeService()
         {
             DType = DisasterType.Earthquake;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
@@ -71,6 +74,7 @@ namespace NaturalDisastersOverhaulRenewal
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
             WarmupYears = 3;
+            EvacuationMode = 0;
         }
 
         [System.Xml.Serialization.XmlElement]
@@ -139,7 +143,7 @@ namespace NaturalDisastersOverhaulRenewal
                 probabilityWarmupDaysLeft = 0;
                 intensityWarmupDaysLeft = 0;
 
-                Debug.Log(string.Format(Mod.LogMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
+                Debug.Log(string.Format(CommonProperties.LogMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
             }
             else
             {
@@ -186,11 +190,11 @@ namespace NaturalDisastersOverhaulRenewal
             return "Earthquake";
         }
 
-        public override void CopySettings(EnhancedDisaster disaster)
+        public override void CopySettings(DisasterSerialization disaster)
         {
             base.CopySettings(disaster);
 
-            EnhancedEarthquake d = disaster as EnhancedEarthquake;
+            EarthquakeService d = disaster as EarthquakeService;
             if (d != null)
             {
                 AftershocksEnabled = d.AftershocksEnabled;

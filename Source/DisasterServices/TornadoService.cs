@@ -1,18 +1,19 @@
-﻿using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
-using UnityEngine;
+using ICities;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Serialization;
 using System;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EnhancedTornado : EnhancedDisaster
+    public class TornadoService : DisasterSerialization
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                EnhancedTornado d = Singleton<EnhancedDisastersManager>.instance.container.Tornado;
+                TornadoService d = Singleton<DisasterManager>.instance.container.Tornado;
                 serializeCommonParameters(s, d);
                 s.WriteInt32(d.MaxProbabilityMonth);
                 s.WriteBool(d.NoTornadoDuringFog);
@@ -20,7 +21,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             public void Deserialize(DataSerializer s)
             {
-                EnhancedTornado d = Singleton<EnhancedDisastersManager>.instance.container.Tornado;
+                TornadoService d = Singleton<DisasterManager>.instance.container.Tornado;
                 deserializeCommonParameters(s, d);
 
                 if (s.version >= 3)
@@ -39,7 +40,7 @@ namespace NaturalDisastersOverhaulRenewal
         public int MaxProbabilityMonth = 5;
         public bool NoTornadoDuringFog = true;
 
-        public EnhancedTornado()
+        public TornadoService()
         {
             DType = DisasterType.Tornado;
             BaseOccurrencePerYear = 1.5f;
@@ -48,6 +49,7 @@ namespace NaturalDisastersOverhaulRenewal
             calmDays = 360 * 2;
             probabilityWarmupDays = 180;
             intensityWarmupDays = 180;
+            EvacuationMode = 0;
         }
 
         protected override float getCurrentOccurrencePerYear_local()
@@ -89,11 +91,11 @@ namespace NaturalDisastersOverhaulRenewal
             return "Tornado";
         }
 
-        public override void CopySettings(EnhancedDisaster disaster)
+        public override void CopySettings(DisasterSerialization disaster)
         {
             base.CopySettings(disaster);
 
-            EnhancedTornado d = disaster as EnhancedTornado;
+            TornadoService d = disaster as TornadoService;
             if (d != null)
             {
                 MaxProbabilityMonth = d.MaxProbabilityMonth;

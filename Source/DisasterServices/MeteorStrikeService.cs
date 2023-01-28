@@ -1,18 +1,21 @@
-﻿using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
-using UnityEngine;
+using ICities;
+using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Serialization;
 using System;
+using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EnhancedMeteorStrike : EnhancedDisaster
+    public class MeteorStrikeService : DisasterSerialization
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                EnhancedMeteorStrike d = Singleton<EnhancedDisastersManager>.instance.container.MeteorStrike;
+                MeteorStrikeService d = Singleton<DisasterManager>.instance.container.MeteorStrike;
                 serializeCommonParameters(s, d);
 
                 for (int i = 0; i < d.meteorEvents.Length; i++)
@@ -27,7 +30,7 @@ namespace NaturalDisastersOverhaulRenewal
 
             public void Deserialize(DataSerializer s)
             {
-                EnhancedMeteorStrike d = Singleton<EnhancedDisastersManager>.instance.container.MeteorStrike;
+                MeteorStrikeService d = Singleton<DisasterManager>.instance.container.MeteorStrike;
                 deserializeCommonParameters(s, d);
 
                 if (s.version <= 2)
@@ -169,12 +172,13 @@ namespace NaturalDisastersOverhaulRenewal
 
         MeteorEvent[] meteorEvents;
 
-        public EnhancedMeteorStrike()
+        public MeteorStrikeService()
         {
             DType = DisasterType.MeteorStrike;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
             BaseOccurrencePerYear = 10.0f;
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
+            EvacuationMode = 0;
 
             meteorEvents = new MeteorEvent[] {
                 MeteorEvent.Init("Long period meteor", 9, 100),
@@ -184,7 +188,7 @@ namespace NaturalDisastersOverhaulRenewal
         }
 
         [System.Xml.Serialization.XmlElement]
-        public bool Meteor1Enabled
+        public bool MeteorLongPeriodEnabled
         {
             get
             {
@@ -198,7 +202,7 @@ namespace NaturalDisastersOverhaulRenewal
         }
 
         [System.Xml.Serialization.XmlElement]
-        public bool Meteor2Enabled
+        public bool MeteorMediumPeriodEnabled
         {
             get
             {
@@ -212,7 +216,7 @@ namespace NaturalDisastersOverhaulRenewal
         }
 
         [System.Xml.Serialization.XmlElement]
-        public bool Meteor3Enabled
+        public bool MeteorShortPeriodEnabled
         {
             get
             {
@@ -324,16 +328,16 @@ namespace NaturalDisastersOverhaulRenewal
             return result;
         }
 
-        public override void CopySettings(EnhancedDisaster disaster)
+        public override void CopySettings(DisasterSerialization disaster)
         {
             base.CopySettings(disaster);
 
-            EnhancedMeteorStrike d = disaster as EnhancedMeteorStrike;
+            MeteorStrikeService d = disaster as MeteorStrikeService;
             if (d != null)
             {
-                Meteor1Enabled = d.Meteor1Enabled;
-                Meteor2Enabled = d.Meteor2Enabled;
-                Meteor3Enabled = d.Meteor3Enabled;
+                MeteorLongPeriodEnabled = d.MeteorLongPeriodEnabled;
+                MeteorMediumPeriodEnabled = d.MeteorMediumPeriodEnabled;
+                MeteorShortPeriodEnabled = d.MeteorShortPeriodEnabled;
             }
         }
     }

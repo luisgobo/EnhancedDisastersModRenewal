@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using ColossalFramework;
+﻿using ColossalFramework;
 using System;
+using UnityEngine;
 
-namespace NaturalDisastersOverhaulRenewal
+namespace NaturalDisastersRenewal.Common
 {
     public static class Helper
     {
