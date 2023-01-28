@@ -116,47 +116,47 @@ namespace NaturalDisastersOverhaulRenewal
             UI_ForestFire_Enabled.isChecked = c.ForestFire.Enabled;
             ForestFireMaxProbabilityUI.value = c.ForestFire.BaseOccurrencePerYear;
             UI_ForestFire_WarmupDays.value = c.ForestFire.WarmupDays;
+            UI_ForestFire_AutoEvacuateRelease.selectedIndex = c.ForestFire.EvacuationMode;
 
             UI_Thunderstorm_Enabled.isChecked = c.Thunderstorm.Enabled;
             UI_Thunderstorm_MaxProbability.value = c.Thunderstorm.BaseOccurrencePerYear;
             UI_Thunderstorm_MaxProbabilityMonth.selectedIndex = c.Thunderstorm.MaxProbabilityMonth - 1;
             UI_Thunderstorm_RainFactor.value = c.Thunderstorm.RainFactor;
+            UI_Thunderstorm_AutoEvacuateRelease.selectedIndex = c.Thunderstorm.EvacuationMode;
 
             UI_Sinkhole_Enabled.isChecked = c.Sinkhole.Enabled;
             UI_Sinkhole_MaxProbability.value = c.Sinkhole.BaseOccurrencePerYear;
             UI_Sinkhole_GroundwaterCapacity.value = c.Sinkhole.GroundwaterCapacity;
+            UI_Sinkhole_AutoEvacuateRelease.selectedIndex = c.Sinkhole.EvacuationMode;
 
             UI_Tornado_Enabled.isChecked = c.Tornado.Enabled;
             UI_Tornado_MaxProbability.value = c.Tornado.BaseOccurrencePerYear;
             UI_Tornado_MaxProbabilityMonth.selectedIndex = c.Tornado.MaxProbabilityMonth - 1;
             UI_Tornado_NoDuringFog.isChecked = c.Tornado.NoTornadoDuringFog;
+            UI_Tornado_AutoEvacuateRelease.selectedIndex = c.Tornado.EvacuationMode;
 
             UI_Tsunami_Enabled.isChecked = c.Tsunami.Enabled;
             UI_Tsunami_MaxProbability.value = c.Tsunami.BaseOccurrencePerYear;
             UI_Tsunami_WarmupYears.value = c.Tsunami.WarmupYears;
+            UI_Tsunami_AutoEvacuateRelease.selectedIndex = c.Tsunami.EvacuationMode;
 
             UI_Earthquake_Enabled.isChecked = c.Earthquake.Enabled;
             UI_Earthquake_MaxProbability.value = c.Earthquake.BaseOccurrencePerYear;
             UI_Earthquake_WarmupYears.value = c.Earthquake.WarmupYears;
             UI_Earthquake_AftershocksEnabled.isChecked = c.Earthquake.AftershocksEnabled;
             UI_Earthquake_NoCrack.isChecked = c.Earthquake.NoCracks;
+            UI_Earthquake_AutoEvacuateRelease.selectedIndex = c.Earthquake.EvacuationMode;
 
             UI_MeteorStrike_Enabled.isChecked = c.MeteorStrike.Enabled;
             UI_MeteorStrike_MaxProbability.value = c.MeteorStrike.BaseOccurrencePerYear;
             UI_MeteorStrike_Meteor1Enabled.isChecked = c.MeteorStrike.GetEnabled(0);
             UI_MeteorStrike_Meteor2Enabled.isChecked = c.MeteorStrike.GetEnabled(1);
             UI_MeteorStrike_Meteor3Enabled.isChecked = c.MeteorStrike.GetEnabled(2);
+            UI_MeteorStrike_AutoEvacuateRelease.selectedIndex = c.MeteorStrike.EvacuationMode;
 
             //AutoEvacuateRelease options
-            UI_Earthquake_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateEarthquake;
-            UI_ForestFire_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateForestFire;
-            UI_MeteorStrike_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateMeteorStrike;
-            UI_Sinkhole_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateSinkhole;
-            UI_StructureCollapse_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateStructureCollapse;
-            UI_StructureFire_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateStructureFire;
-            UI_Thunderstorm_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateThunderstorm;
-            UI_Tornado_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateTornado;
-            UI_Tsunami_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.AutoEvacuateTsunami;
+            //UI_StructureCollapse_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.EvacuationMode;
+            //UI_StructureFire_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.EvacuationMode;
 
             freezeUI = false;
         }
@@ -699,6 +699,19 @@ namespace NaturalDisastersOverhaulRenewal
             addLabelToSlider(UI_ForestFire_WarmupDays, " days");
             UI_ForestFire_WarmupDays.tooltip = "No-rain period during wich the probability of Forest Fire increases";
 
+            UI_ForestFire_AutoEvacuateRelease = (UIDropDown)forestFireGroup.AddDropdown(
+                "Evacuation mode:",
+                Helper.GetEvacuationOptions(),
+                disasterContainer.ForestFire.EvacuationMode,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        disasterContainer.ForestFire.EvacuationMode = selection;
+                    }
+
+                });
+
             helper.AddSpace(20);
 
             #endregion
@@ -732,6 +745,18 @@ namespace NaturalDisastersOverhaulRenewal
             addLabelToSlider(UI_Thunderstorm_RainFactor);
             UI_Thunderstorm_RainFactor.tooltip = "Thunderstorm probability increases by this factor during rain.";
 
+            UI_Thunderstorm_AutoEvacuateRelease = (UIDropDown)thunderstormGroup.AddDropdown(
+                "Evacuation mode:",
+                Helper.GetEvacuationOptions(),
+                disasterContainer.Thunderstorm.EvacuationMode,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        disasterContainer.Thunderstorm.EvacuationMode = selection;
+                    }
+                });
+
             helper.AddSpace(20);
 
             #endregion
@@ -755,6 +780,18 @@ namespace NaturalDisastersOverhaulRenewal
             });
             addLabelToSlider(UI_Sinkhole_GroundwaterCapacity);
             UI_Sinkhole_GroundwaterCapacity.tooltip = "Set how fast groundwater fills up during rain and causes a sinkhole to appear.";
+
+            UI_Sinkhole_AutoEvacuateRelease = (UIDropDown)sinkholeGroup.AddDropdown(
+                "Evacuation mode:",
+                Helper.GetEvacuationOptions(true),
+                disasterContainer.Sinkhole.EvacuationMode,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        disasterContainer.Sinkhole.EvacuationMode = selection;
+                    }
+                });
 
             helper.AddSpace(20);
 
@@ -787,6 +824,18 @@ namespace NaturalDisastersOverhaulRenewal
             });
             UI_Tornado_NoDuringFog.tooltip = "Tornado does not occur during foggy weather";
 
+            UI_Tornado_AutoEvacuateRelease = (UIDropDown)tornadoGroup.AddDropdown(
+                "Evacuation mode:",
+                Helper.GetEvacuationOptions(true),
+                disasterContainer.Tornado.EvacuationMode,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        disasterContainer.Tornado.EvacuationMode = selection;
+                    }
+                });
+
             helper.AddSpace(20);
 
             #endregion
@@ -810,6 +859,18 @@ namespace NaturalDisastersOverhaulRenewal
             });
             addLabelToSlider(UI_Tsunami_WarmupYears, " years");
             UI_Tsunami_WarmupYears.tooltip = "The probability of tsunami increases to the maximum during this period";
+
+            UI_Tsunami_AutoEvacuateRelease = (UIDropDown)tsunamiGroup.AddDropdown(
+                "Evacuation mode:",
+                Helper.GetEvacuationOptions(true),
+                disasterContainer.Tsunami.EvacuationMode,
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        disasterContainer.Tsunami.EvacuationMode = selection;
+                    }
+                });
 
             helper.AddSpace(20);
 
@@ -849,6 +910,19 @@ namespace NaturalDisastersOverhaulRenewal
             });
             UI_Earthquake_NoCrack.tooltip = "If checked, the earthquake does not put a crack in the ground.";
 
+            UI_Earthquake_AutoEvacuateRelease = (UIDropDown)earthquakeGroup.AddDropdown(
+               "Evacuation mode:",
+               Helper.GetEvacuationOptions(),
+               disasterContainer.Earthquake.EvacuationMode,
+               delegate (int selection)
+               {
+                   if (!freezeUI)
+                   {
+                       disasterContainer.Earthquake.EvacuationMode = selection;
+                   }
+               }
+           );
+
             helper.AddSpace(20);
 
             #endregion
@@ -883,130 +957,24 @@ namespace NaturalDisastersOverhaulRenewal
                     disasterContainer.MeteorStrike.SetEnabled(2, isChecked);
             });
 
-            helper.AddSpace(20);
-
-
-            #endregion
-
-            #region AutoEvacuateRelase
-
-            UIHelperBase autoEvacuate_ReleaseGroup = helper.AddGroup("Auto Evacuate");
-
-            UI_Earthquake_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
-                "Earthquake",
-                Helper.GetEvacuationOptions(),
-                disasterContainer.AutoEvacuateSettings.AutoEvacuateEarthquake,
-                delegate (int selection)
-                {
-                    if (!freezeUI)
-                    {
-                        disasterContainer.AutoEvacuateSettings.AutoEvacuateEarthquake = selection;
-                    }
-                }
-            );
-
-            UI_ForestFire_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
-                "Forest Fire",
-                Helper.GetEvacuationOptions(),
-                disasterContainer.AutoEvacuateSettings.AutoEvacuateForestFire,
-                delegate (int selection)
-                {
-                    if (!freezeUI)
-                    {
-                        disasterContainer.AutoEvacuateSettings.AutoEvacuateForestFire = selection;
-                    }
-
-                });
-
-            UI_MeteorStrike_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
-                "Meteor Strike",
+            UI_MeteorStrike_AutoEvacuateRelease = (UIDropDown)meteorStrikeGroup.AddDropdown(
+                "Evacuation mode:",
                 Helper.GetEvacuationOptions(true),
-                disasterContainer.AutoEvacuateSettings.AutoEvacuateMeteorStrike,
+                disasterContainer.MeteorStrike.EvacuationMode,
                 delegate (int selection)
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.AutoEvacuateSettings.AutoEvacuateMeteorStrike = selection;
-                    }
-                });
-
-            UI_Sinkhole_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
-                "Sinkhole",
-                Helper.GetEvacuationOptions(true),
-                disasterContainer.AutoEvacuateSettings.AutoEvacuateSinkhole,
-                delegate (int selection)
-                {
-                    if (!freezeUI)
-                    {
-                        disasterContainer.AutoEvacuateSettings.AutoEvacuateSinkhole = selection;
-                    }
-                });
-
-            UI_StructureCollapse_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
-                "Structure Collapse",
-                Helper.GetEvacuationOptions(),
-                disasterContainer.AutoEvacuateSettings.AutoEvacuateStructureCollapse,
-                delegate (int selection)
-                {
-                    if (!freezeUI)
-                    {
-                        disasterContainer.AutoEvacuateSettings.AutoEvacuateStructureCollapse = selection;
-                    }
-                });
-
-            UI_StructureFire_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
-                "Structure Fire",
-                Helper.GetEvacuationOptions(),
-                disasterContainer.AutoEvacuateSettings.AutoEvacuateStructureFire,
-                delegate (int selection)
-                {
-                    if (!freezeUI)
-                    {
-                        disasterContainer.AutoEvacuateSettings.AutoEvacuateStructureFire = selection;
-                    }
-                });
-
-            UI_Thunderstorm_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
-                "Thunderstorm",
-                Helper.GetEvacuationOptions(),
-                disasterContainer.AutoEvacuateSettings.AutoEvacuateThunderstorm,
-                delegate (int selection)
-                {
-                    if (!freezeUI)
-                    {
-                        disasterContainer.AutoEvacuateSettings.AutoEvacuateThunderstorm = selection;
-                    }
-                });
-
-            UI_Tornado_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
-                "Tornado",
-                Helper.GetEvacuationOptions(true),
-                disasterContainer.AutoEvacuateSettings.AutoEvacuateTornado,
-                delegate (int selection)
-                {
-                    if (!freezeUI)
-                    {
-                        disasterContainer.AutoEvacuateSettings.AutoEvacuateTornado = selection;
-                    }
-                });
-
-
-            UI_Tsunami_AutoEvacuateRelease = (UIDropDown)autoEvacuate_ReleaseGroup.AddDropdown(
-                "Tsunami",
-                Helper.GetEvacuationOptions(true),
-                disasterContainer.AutoEvacuateSettings.AutoEvacuateTsunami,
-                delegate (int selection)
-                {
-                    if (!freezeUI)
-                    {
-                        disasterContainer.AutoEvacuateSettings.AutoEvacuateTsunami = selection;
+                        disasterContainer.MeteorStrike.EvacuationMode = selection;
                     }
                 });
 
             helper.AddSpace(20);
-            #endregion
 
-            #region
+
+            #endregion            
+
+            #region Save_Options
             // Save buttons
             UIHelperBase saveOptionsGroup = helper.AddGroup("Save options");
 

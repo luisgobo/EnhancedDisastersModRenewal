@@ -2,6 +2,7 @@
 using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
+using NaturalDisastersOverhaulRenewal.Common;
 
 namespace NaturalDisastersOverhaulRenewal
 {
@@ -24,7 +25,7 @@ namespace NaturalDisastersOverhaulRenewal
                 s.WriteFloat(d.lastTargetPosition.x);
                 s.WriteFloat(d.lastTargetPosition.y);
                 s.WriteFloat(d.lastTargetPosition.z);
-                s.WriteFloat(d.lastAngle);
+                s.WriteFloat(d.lastAngle);                
             }
 
             public void Deserialize(DataSerializer s)
@@ -46,7 +47,7 @@ namespace NaturalDisastersOverhaulRenewal
                 }
 
                 d.lastTargetPosition = new Vector3(s.ReadFloat(), s.ReadFloat(), s.ReadFloat());
-                d.lastAngle = s.ReadFloat();
+                d.lastAngle = s.ReadFloat();                
             }
 
             public void AfterDeserialize(DataSerializer s)
@@ -70,8 +71,8 @@ namespace NaturalDisastersOverhaulRenewal
             BaseOccurrencePerYear = 1.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            WarmupYears = 3;
-        }
+            WarmupYears = 3;            
+    }
 
         [System.Xml.Serialization.XmlElement]
         public float WarmupYears
@@ -139,7 +140,7 @@ namespace NaturalDisastersOverhaulRenewal
                 probabilityWarmupDaysLeft = 0;
                 intensityWarmupDaysLeft = 0;
 
-                Debug.Log(string.Format(Mod.LogMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
+                Debug.Log(string.Format(CommonProperties.LogMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
             }
             else
             {

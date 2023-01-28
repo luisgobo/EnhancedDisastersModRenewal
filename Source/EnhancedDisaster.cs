@@ -3,6 +3,7 @@ using ICities;
 using ColossalFramework;
 using ColossalFramework.IO;
 using UnityEngine;
+using NaturalDisastersOverhaulRenewal.Common;
 
 namespace NaturalDisastersOverhaulRenewal
 {
@@ -17,6 +18,7 @@ namespace NaturalDisastersOverhaulRenewal
                 s.WriteFloat(disaster.calmDaysLeft);
                 s.WriteFloat(disaster.probabilityWarmupDaysLeft);
                 s.WriteFloat(disaster.intensityWarmupDaysLeft);
+                s.WriteInt32(disaster.EvacuationMode);
             }
 
             public void deserializeCommonParameters(DataSerializer s, EnhancedDisaster disaster)
@@ -29,18 +31,20 @@ namespace NaturalDisastersOverhaulRenewal
                     disaster.calmDaysLeft = s.ReadInt32() * daysPerFrame;
                     disaster.probabilityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
                     disaster.intensityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
+                    disaster.EvacuationMode = s.ReadInt32();
                 }
                 else
                 {
                     disaster.calmDaysLeft = s.ReadFloat();
                     disaster.probabilityWarmupDaysLeft = s.ReadFloat();
                     disaster.intensityWarmupDaysLeft = s.ReadFloat();
+                    disaster.EvacuationMode = s.ReadInt32();
                 }
             }
 
             public void afterDeserializeLog(string className)
             {
-                Debug.Log(Mod.LogMsgPrefix + className + " data loaded.");
+                Debug.Log(CommonProperties.LogMsgPrefix + className + " data loaded.");
             }
         }
 
@@ -67,6 +71,9 @@ namespace NaturalDisastersOverhaulRenewal
         // Disaster public properties (to be saved in xml)
         public bool Enabled = true;
         public float BaseOccurrencePerYear = 1.0f;
+        public int EvacuationMode = 0;
+
+
 
 
         // Public

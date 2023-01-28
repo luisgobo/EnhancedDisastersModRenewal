@@ -21,7 +21,7 @@ namespace NaturalDisastersOverhaulRenewal
                     s.WriteFloat(d.meteorEvents[i].PeriodDays);
                     s.WriteInt8(d.meteorEvents[i].MaxIntensity);
                     s.WriteFloat(d.meteorEvents[i].DaysUntilNextEvent);
-                    s.WriteInt32(d.meteorEvents[i].MeteorsFallen);
+                    s.WriteInt32(d.meteorEvents[i].MeteorsFallen);                    
                 }
             }
 
@@ -39,7 +39,7 @@ namespace NaturalDisastersOverhaulRenewal
                         d.meteorEvents[i].PeriodDays = s.ReadInt32() * daysPerFrame;
                         d.meteorEvents[i].MaxIntensity = (byte)s.ReadInt8();
                         d.meteorEvents[i].DaysUntilNextEvent = s.ReadInt32() * daysPerFrame;
-                        d.meteorEvents[i].MeteorsFallen = s.ReadInt32();
+                        d.meteorEvents[i].MeteorsFallen = s.ReadInt32();                        
                     }
                 }
                 else
@@ -68,7 +68,7 @@ namespace NaturalDisastersOverhaulRenewal
             public byte MaxIntensity;
             public float DaysUntilNextEvent;
             public int MeteorsFallen;
-            public bool Enabled;
+            public bool Enabled;            
 
             public MeteorEvent(string name, float periodDays, byte maxIntensity, float daysUntilNextEvent)
             {
@@ -77,8 +77,8 @@ namespace NaturalDisastersOverhaulRenewal
                 MaxIntensity = maxIntensity;
                 DaysUntilNextEvent = daysUntilNextEvent;
                 MeteorsFallen = 0;
-                Enabled = true;
-            }
+                Enabled = true;                
+        }
 
             public static MeteorEvent Init(string name, float periodYears, byte maxIntensity)
             {

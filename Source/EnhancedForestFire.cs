@@ -15,14 +15,14 @@ namespace NaturalDisastersOverhaulRenewal
                 EnhancedForestFire d = Singleton<EnhancedDisastersManager>.instance.container.ForestFire;
                 serializeCommonParameters(s, d);
                 s.WriteInt32(d.WarmupDays);
-                s.WriteFloat(d.noRainDays);
+                s.WriteFloat(d.noRainDays);                
             }
 
             public void Deserialize(DataSerializer s)
             {
                 EnhancedForestFire d = Singleton<EnhancedDisastersManager>.instance.container.ForestFire;
                 deserializeCommonParameters(s, d);
-                d.WarmupDays = s.ReadInt32();
+                d.WarmupDays = s.ReadInt32();                
                 if (s.version <= 2)
                 {
                     float daysPerFrame = Helper.DaysPerFrame;
@@ -41,7 +41,7 @@ namespace NaturalDisastersOverhaulRenewal
         }
 
         public int WarmupDays = 180;
-        float noRainDays = 0;
+        float noRainDays = 0;        
 
         public EnhancedForestFire()
         {

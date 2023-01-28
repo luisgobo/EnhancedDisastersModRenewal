@@ -1,6 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
-using System;
+using NaturalDisastersOverhaulRenewal.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
@@ -41,16 +41,13 @@ namespace NaturalDisastersOverhaulRenewal
             }
         }
 
-        static string optionsFileName = "EnhancedDisastersModOptions.xml";
-
         public EnhancedForestFire ForestFire;
         public EnhancedThunderstorm Thunderstorm;
         public EnhancedSinkhole Sinkhole;
         public EnhancedTsunami Tsunami;
         public EnhancedTornado Tornado;
         public EnhancedEarthquake Earthquake;
-        public EnhancedMeteorStrike MeteorStrike;
-        public AutoEvacuateSettings AutoEvacuateSettings;
+        public EnhancedMeteorStrike MeteorStrike;        
 
         //General options
         public bool AutoFocusOnDisaster = true;
@@ -67,8 +64,8 @@ namespace NaturalDisastersOverhaulRenewal
 
         public void Save()
         {
-            XmlSerializer ser = new XmlSerializer(typeof(DisastersContainer));
-            TextWriter writer = new StreamWriter(getOptionsFilePath());
+            XmlSerializer ser = new XmlSerializer(typeof(DisastersContainer));            
+            TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath());
             ser.Serialize(writer, this);
             writer.Close();
         }
@@ -81,8 +78,7 @@ namespace NaturalDisastersOverhaulRenewal
             if (Tsunami == null) Tsunami = new EnhancedTsunami();
             if (Tornado == null) Tornado = new EnhancedTornado();
             if (Earthquake == null) Earthquake = new EnhancedEarthquake();
-            if (MeteorStrike == null) MeteorStrike = new EnhancedMeteorStrike();
-            if (AutoEvacuateSettings == null) AutoEvacuateSettings = new AutoEvacuateSettings();
+            if (MeteorStrike == null) MeteorStrike = new EnhancedMeteorStrike();            
 
             AllDisasters.Clear();
             AllDisasters.Add(ForestFire);
@@ -96,7 +92,7 @@ namespace NaturalDisastersOverhaulRenewal
 
         public static DisastersContainer CreateFromFile()
         {
-            string path = getOptionsFilePath();
+            string path = CommonProperties.GetOptionsFilePath();
 
             if (!File.Exists(path)) return null;
 
@@ -115,16 +111,6 @@ namespace NaturalDisastersOverhaulRenewal
             {
                 return null;
             }
-        }
-
-        static string getOptionsFilePath()
-        {
-            //return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Colossal Order", "Cities_Skylines", optionsFileName);
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            path = Path.Combine(path, "Colossal Order");
-            path = Path.Combine(path, "Cities_Skylines");
-            path = Path.Combine(path, optionsFileName);
-            return path;
-        }
+        }        
     }
 }

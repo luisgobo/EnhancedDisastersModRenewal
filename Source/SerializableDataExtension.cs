@@ -3,6 +3,7 @@ using System.IO;
 using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Common;
 using UnityEngine;
 
 namespace NaturalDisastersOverhaulRenewal
@@ -44,7 +45,7 @@ namespace NaturalDisastersOverhaulRenewal
             }
             catch (Exception ex)
             {
-                Debug.Log(Mod.LogMsgPrefix + "(save error) " + ex.Message);
+                Debug.Log(CommonProperties.LogMsgPrefix + "(save error) " + ex.Message);
             }
         }
 
@@ -56,7 +57,7 @@ namespace NaturalDisastersOverhaulRenewal
 
                 if (data == null)
                 {
-                    Debug.Log(Mod.LogMsgPrefix + "No saved data");
+                    Debug.Log(CommonProperties.LogMsgPrefix + "No saved data");
                     return;
                 }
 
@@ -75,9 +76,10 @@ namespace NaturalDisastersOverhaulRenewal
             }
             catch (Exception ex)
             {
-                Debug.Log(Mod.LogMsgPrefix + "(load error) " + ex.Message);
+                Debug.Log(CommonProperties.LogMsgPrefix + "(load error) " + ex.Message);
             }
 
+            DebugLogger.Log("Update Settings UI");
             Mod.UpdateUI();
         }
 
