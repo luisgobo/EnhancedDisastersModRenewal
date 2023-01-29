@@ -15,7 +15,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Serialize(DataSerializer s)
             {
                 ForestFireService d = Singleton<DisasterManager>.instance.container.ForestFire;
-                serializeCommonParameters(s, d);
+                SerializeCommonParameters(s, d);
                 s.WriteInt32(d.WarmupDays);
                 s.WriteFloat(d.noRainDays);
             }
@@ -23,7 +23,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Deserialize(DataSerializer s)
             {
                 ForestFireService d = Singleton<DisasterManager>.instance.container.ForestFire;
-                deserializeCommonParameters(s, d);
+                DeserializeCommonParameters(s, d);
                 d.WarmupDays = s.ReadInt32();
                 if (s.version <= 2)
                 {
@@ -38,7 +38,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("ForestFire");
+                AfterDeserializeLog("ForestFire");
             }
         }
 
@@ -59,7 +59,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             EvacuationMode = 0;
         }
 
-        protected override void onSimulationFrame_local()
+        protected override void OnSimulationFrameLocal()
         {
             WeatherManager wm = Singleton<WeatherManager>.instance;
             if (wm.m_currentRain > 0)
@@ -101,9 +101,9 @@ namespace NaturalDisastersRenewal.DisasterServices
             return base.GetProbabilityTooltip();
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
-            return base.getCurrentOccurrencePerYear_local() * Math.Min(1f, noRainDays / WarmupDays);
+            return base.GetCurrentOccurrencePerYearLocal() * Math.Min(1f, noRainDays / WarmupDays);
         }
 
         public override bool CheckDisasterAIType(object disasterAI)

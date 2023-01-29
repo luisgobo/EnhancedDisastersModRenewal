@@ -14,7 +14,7 @@ namespace NaturalDisastersRenewal.Serialization
     {
         public class SerializableDataCommon
         {
-            public void serializeCommonParameters(DataSerializer s, DisasterSerialization disaster)
+            public void SerializeCommonParameters(DataSerializer s, DisasterSerialization disaster)
             {
                 s.WriteBool(disaster.Enabled);
                 s.WriteFloat(disaster.BaseOccurrencePerYear);
@@ -24,7 +24,7 @@ namespace NaturalDisastersRenewal.Serialization
                 s.WriteInt32(disaster.EvacuationMode);
             }
 
-            public void deserializeCommonParameters(DataSerializer s, DisasterSerialization disaster)
+            public void DeserializeCommonParameters(DataSerializer s, DisasterSerialization disaster)
             {
                 disaster.Enabled = s.ReadBool();
                 disaster.BaseOccurrencePerYear = s.ReadFloat();
@@ -45,7 +45,7 @@ namespace NaturalDisastersRenewal.Serialization
                 }
             }
 
-            public void afterDeserializeLog(string className)
+            public void AfterDeserializeLog(string className)
             {
                 Debug.Log(CommonProperties.LogMsgPrefix + className + " data loaded.");
             }
@@ -89,16 +89,16 @@ namespace NaturalDisastersRenewal.Serialization
                 return 0f;
             }
 
-            return scaleProbabilityByWarmup(getCurrentOccurrencePerYear_local());
+            return ScaleProbabilityByWarmup(GetCurrentOccurrencePerYearLocal());
         }
 
         public virtual byte GetMaximumIntensity()
         {
             byte intensity = 100;
 
-            intensity = scaleIntensityByWarmup(intensity);
+            intensity = ScaleIntensityByWarmup(intensity);
 
-            intensity = scaleIntensityByPopulation(intensity);
+            intensity = ScaleIntensityByPopulation(intensity);
 
             return intensity;
         }
@@ -115,7 +115,7 @@ namespace NaturalDisastersRenewal.Serialization
                 return;
             }
 
-            onSimulationFrame_local();
+            OnSimulationFrameLocal();
 
             float daysPerFrame = Helper.DaysPerFrame;
 
@@ -156,9 +156,9 @@ namespace NaturalDisastersRenewal.Serialization
             float occurrencePerFrame = (occurrencePerYear / 365) * daysPerFrame;
             if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
             {
-                byte intensity = getRandomIntensity(GetMaximumIntensity());
+                byte intensity = GetRandomIntensity(GetMaximumIntensity());
 
-                startDisaster(intensity);
+                StartDisaster(intensity);
             }
         }
 
@@ -224,12 +224,12 @@ namespace NaturalDisastersRenewal.Serialization
 
         // Utilities
 
-        protected virtual float getCurrentOccurrencePerYear_local()
+        protected virtual float GetCurrentOccurrencePerYearLocal()
         {
             return BaseOccurrencePerYear;
         }
 
-        protected virtual byte getRandomIntensity(byte maxIntensity)
+        protected virtual byte GetRandomIntensity(byte maxIntensity)
         {
             byte intensity;
 
@@ -259,7 +259,7 @@ namespace NaturalDisastersRenewal.Serialization
             return intensity;
         }
 
-        protected byte scaleIntensityByWarmup(byte intensity)
+        protected byte ScaleIntensityByWarmup(byte intensity)
         {
             if (intensityWarmupDaysLeft > 0 && intensityWarmupDays > 0)
             {
@@ -276,7 +276,7 @@ namespace NaturalDisastersRenewal.Serialization
             return intensity;
         }
 
-        protected byte scaleIntensityByPopulation(byte intensity)
+        protected byte ScaleIntensityByPopulation(byte intensity)
         {
             if (Singleton<DisasterServices.DisasterManager>.instance.container.ScaleMaxIntensityWithPopilation)
             {
@@ -290,7 +290,7 @@ namespace NaturalDisastersRenewal.Serialization
             return intensity;
         }
 
-        float scaleProbabilityByWarmup(float probability)
+        float ScaleProbabilityByWarmup(float probability)
         {
             if (!unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
             {
@@ -312,14 +312,14 @@ namespace NaturalDisastersRenewal.Serialization
             return probability;
         }
 
-        protected string getDebugStr()
+        protected string GetDebugStr()
         {
             return DType.ToString() + ", " + Singleton<SimulationManager>.instance.m_currentGameTime.ToShortDateString() + ", ";
         }
 
         // Disaster
 
-        protected virtual void onSimulationFrame_local()
+        protected virtual void OnSimulationFrameLocal()
         {
         }
 
@@ -332,13 +332,13 @@ namespace NaturalDisastersRenewal.Serialization
             intensityWarmupDaysLeft = intensityWarmupDays;
         }
 
-        protected virtual void disasterStarting(DisasterInfo disasterInfo)
+        protected virtual void DisasterStarting(DisasterInfo disasterInfo)
         {
         }
 
         public abstract bool CheckDisasterAIType(object disasterAI);
 
-        protected void startDisaster(byte intensity)
+        protected void StartDisaster(byte intensity)
         {
             DisasterInfo disasterInfo = DisasterServices.DisasterManager.GetDisasterInfo(DType);
 
@@ -349,11 +349,11 @@ namespace NaturalDisastersRenewal.Serialization
 
             Vector3 targetPosition;
             float angle;
-            bool targetFound = findTarget(disasterInfo, out targetPosition, out angle);
+            bool targetFound = FindTarget(disasterInfo, out targetPosition, out angle);
 
             if (!targetFound)
             {
-                DebugLogger.Log(getDebugStr() + "target not found");
+                DebugLogger.Log(GetDebugStr() + "target not found");
                 return;
             }
 
@@ -363,13 +363,13 @@ namespace NaturalDisastersRenewal.Serialization
             bool disasterCreated = dm.CreateDisaster(out disasterIndex, disasterInfo);
             if (!disasterCreated)
             {
-                DebugLogger.Log(getDebugStr() + "could not create disaster");
+                DebugLogger.Log(GetDebugStr() + "could not create disaster");
                 return;
             }
 
             DisasterLogger.StartedByMod = true;
 
-            disasterStarting(disasterInfo);
+            DisasterStarting(disasterInfo);
 
             dm.m_disasters.m_buffer[(int)disasterIndex].m_targetPosition = targetPosition;
             dm.m_disasters.m_buffer[(int)disasterIndex].m_angle = angle;
@@ -379,19 +379,19 @@ namespace NaturalDisastersRenewal.Serialization
             expr_98_cp_0[(int)expr_98_cp_1].m_flags = (expr_98_cp_0[(int)expr_98_cp_1].m_flags | DisasterData.Flags.SelfTrigger);
             disasterInfo.m_disasterAI.StartNow(disasterIndex, ref dm.m_disasters.m_buffer[(int)disasterIndex]);
 
-            DebugLogger.Log(getDebugStr() + string.Format("disaster intensity: {0}, area: {1}", intensity, unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock));
+            DebugLogger.Log(GetDebugStr() + string.Format("disaster intensity: {0}, area: {1}", intensity, unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock));
         }
 
-        protected virtual bool findTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
+        protected virtual bool FindTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
         {
             OccurrenceAreas area = unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock;
             switch (area)
             {
                 case OccurrenceAreas.LockedAreas:
-                    return findRandomTargetInLockedAreas(out targetPosition, out angle);
+                    return FindRandomTargetInLockedAreas(out targetPosition, out angle);
 
                 case OccurrenceAreas.Everywhere:
-                    return findRandomTargetEverywhere(out targetPosition, out angle);
+                    return FindRandomTargetEverywhere(out targetPosition, out angle);
 
                 case OccurrenceAreas.UnlockedAreas: // Vanilla default
                     return disasterInfo.m_disasterAI.FindRandomTarget(out targetPosition, out angle);
@@ -403,7 +403,7 @@ namespace NaturalDisastersRenewal.Serialization
             }
         }
 
-        bool findRandomTargetEverywhere(out Vector3 target, out float angle)
+        bool FindRandomTargetEverywhere(out Vector3 target, out float angle)
         {
             GameAreaManager gam = Singleton<GameAreaManager>.instance;
             SimulationManager sm = Singleton<SimulationManager>.instance;
@@ -425,7 +425,7 @@ namespace NaturalDisastersRenewal.Serialization
             return true;
         }
 
-        bool findRandomTargetInLockedAreas(out Vector3 target, out float angle)
+        bool FindRandomTargetInLockedAreas(out Vector3 target, out float angle)
         {
             GameAreaManager gam = Singleton<GameAreaManager>.instance;
             SimulationManager sm = Singleton<SimulationManager>.instance;
@@ -443,7 +443,7 @@ namespace NaturalDisastersRenewal.Serialization
             {
                 for (int j = 0; j < 5; j++)
                 {
-                    if (isUnlocked(i, j))
+                    if (IsUnlocked(i, j))
                     {
                         continue;
                     }
@@ -456,19 +456,19 @@ namespace NaturalDisastersRenewal.Serialization
                         float maxZ;
                         gam.GetAreaBounds(j, i, out minX, out minZ, out maxX, out maxZ);
                         float minimumEdgeDistance = 100f;
-                        if (isUnlocked(j - 1, i))
+                        if (IsUnlocked(j - 1, i))
                         {
                             minX += minimumEdgeDistance;
                         }
-                        if (isUnlocked(j, i - 1))
+                        if (IsUnlocked(j, i - 1))
                         {
                             minZ += minimumEdgeDistance;
                         }
-                        if (isUnlocked(j + 1, i))
+                        if (IsUnlocked(j + 1, i))
                         {
                             maxX -= minimumEdgeDistance;
                         }
-                        if (isUnlocked(j, i + 1))
+                        if (IsUnlocked(j, i + 1))
                         {
                             maxZ -= minimumEdgeDistance;
                         }
@@ -491,7 +491,7 @@ namespace NaturalDisastersRenewal.Serialization
             return false;
         }
 
-        bool isUnlocked(int x, int z)
+        bool IsUnlocked(int x, int z)
         {
             return x >= 0 && z >= 0 && x < 5 && z < 5 && Singleton<GameAreaManager>.instance.m_areaGrid[z * 5 + x] != 0;
         }

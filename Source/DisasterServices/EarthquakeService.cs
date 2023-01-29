@@ -15,7 +15,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Serialize(DataSerializer s)
             {
                 EarthquakeService d = Singleton<DisasterManager>.instance.container.Earthquake;
-                serializeCommonParameters(s, d);
+                SerializeCommonParameters(s, d);
 
                 s.WriteFloat(d.WarmupYears);
                 s.WriteBool(d.NoCracks);
@@ -33,7 +33,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Deserialize(DataSerializer s)
             {
                 EarthquakeService d = Singleton<DisasterManager>.instance.container.Earthquake;
-                deserializeCommonParameters(s, d);
+                DeserializeCommonParameters(s, d);
 
                 d.WarmupYears = s.ReadFloat();
                 if (s.version >= 3)
@@ -54,7 +54,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("EnhancedEarthquake");
+                AfterDeserializeLog("EnhancedEarthquake");
             }
         }
 
@@ -103,14 +103,14 @@ namespace NaturalDisastersRenewal.DisasterServices
             return base.GetProbabilityTooltip();
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
             if (aftershocksCount > 0)
             {
                 return 12 * aftershocksCount;
             }
 
-            return base.getCurrentOccurrencePerYear_local();
+            return base.GetCurrentOccurrencePerYearLocal();
         }
 
         public override void OnDisasterStarted(byte intensity)
@@ -151,11 +151,11 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
         }
 
-        protected override bool findTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
+        protected override bool FindTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
         {
             if (aftershocksCount == 0)
             {
-                bool result = base.findTarget(disasterInfo, out targetPosition, out angle);
+                bool result = base.FindTarget(disasterInfo, out targetPosition, out angle);
                 lastTargetPosition = targetPosition;
                 lastAngle = angle;
                 return result;
@@ -168,7 +168,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
         }
 
-        protected override byte getRandomIntensity(byte maxIntensity)
+        protected override byte GetRandomIntensity(byte maxIntensity)
         {
             if (aftershocksCount > 0)
             {
@@ -176,7 +176,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
             else
             {
-                return base.getRandomIntensity(maxIntensity);
+                return base.GetRandomIntensity(maxIntensity);
             }
         }
 

@@ -14,7 +14,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Serialize(DataSerializer s)
             {
                 SinkholeService d = Singleton<DisasterManager>.instance.container.Sinkhole;
-                serializeCommonParameters(s, d);
+                SerializeCommonParameters(s, d);
                 s.WriteFloat(d.GroundwaterCapacity);
                 s.WriteFloat(d.groundwaterAmount);
             }
@@ -22,14 +22,14 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Deserialize(DataSerializer s)
             {
                 SinkholeService d = Singleton<DisasterManager>.instance.container.Sinkhole;
-                deserializeCommonParameters(s, d);
+                DeserializeCommonParameters(s, d);
                 d.GroundwaterCapacity = s.ReadFloat();
                 d.groundwaterAmount = s.ReadFloat();
             }
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("Sinkhole");
+                AfterDeserializeLog("Sinkhole");
             }
         }
 
@@ -72,7 +72,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             base.OnDisasterStarted(intensity);
         }
 
-        protected override void onSimulationFrame_local()
+        protected override void OnSimulationFrameLocal()
         {
             float daysPerFrame = Helper.DaysPerFrame;
 
@@ -90,9 +90,9 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
-            return base.getCurrentOccurrencePerYear_local() * groundwaterAmount / GroundwaterCapacity;
+            return base.GetCurrentOccurrencePerYearLocal() * groundwaterAmount / GroundwaterCapacity;
         }
 
         public override bool CheckDisasterAIType(object disasterAI)

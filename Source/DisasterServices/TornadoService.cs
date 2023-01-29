@@ -14,7 +14,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Serialize(DataSerializer s)
             {
                 TornadoService d = Singleton<DisasterManager>.instance.container.Tornado;
-                serializeCommonParameters(s, d);
+                SerializeCommonParameters(s, d);
                 s.WriteInt32(d.MaxProbabilityMonth);
                 s.WriteBool(d.NoTornadoDuringFog);
             }
@@ -22,7 +22,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Deserialize(DataSerializer s)
             {
                 TornadoService d = Singleton<DisasterManager>.instance.container.Tornado;
-                deserializeCommonParameters(s, d);
+                DeserializeCommonParameters(s, d);
 
                 if (s.version >= 3)
                 {
@@ -33,7 +33,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("Tornado");
+                AfterDeserializeLog("Tornado");
             }
         }
 
@@ -52,7 +52,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             EvacuationMode = 0;
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
             if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
             {
@@ -63,7 +63,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (delta_month > 6) delta_month = 12 - delta_month;
 
-            float occurrence = base.getCurrentOccurrencePerYear_local() * (1f - delta_month / 6f);
+            float occurrence = base.GetCurrentOccurrencePerYearLocal() * (1f - delta_month / 6f);
 
             return occurrence;
         }

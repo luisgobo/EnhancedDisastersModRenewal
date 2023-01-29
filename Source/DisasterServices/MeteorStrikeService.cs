@@ -16,7 +16,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Serialize(DataSerializer s)
             {
                 MeteorStrikeService d = Singleton<DisasterManager>.instance.container.MeteorStrike;
-                serializeCommonParameters(s, d);
+                SerializeCommonParameters(s, d);
 
                 for (int i = 0; i < d.meteorEvents.Length; i++)
                 {
@@ -31,7 +31,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Deserialize(DataSerializer s)
             {
                 MeteorStrikeService d = Singleton<DisasterManager>.instance.container.MeteorStrike;
-                deserializeCommonParameters(s, d);
+                DeserializeCommonParameters(s, d);
 
                 if (s.version <= 2)
                 {
@@ -60,7 +60,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("EnhancedMeteorStrike");
+                AfterDeserializeLog("EnhancedMeteorStrike");
             }
         }
 
@@ -239,7 +239,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             meteorEvents[index].Enabled = value;
         }
 
-        protected override void onSimulationFrame_local()
+        protected override void OnSimulationFrameLocal()
         {
             for (int i = 0; i < meteorEvents.Length; i++)
             {
@@ -247,9 +247,9 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
-            float baseValue = base.getCurrentOccurrencePerYear_local();
+            float baseValue = base.GetCurrentOccurrencePerYearLocal();
 
             float result = 0;
 
@@ -270,7 +270,7 @@ namespace NaturalDisastersRenewal.DisasterServices
                 intensity = Math.Max(intensity, meteorEvents[i].GetActualMaxIntensity());
             }
 
-            intensity = scaleIntensityByPopulation(intensity);
+            intensity = ScaleIntensityByPopulation(intensity);
 
             return intensity;
         }

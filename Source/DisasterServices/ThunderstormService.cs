@@ -14,7 +14,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Serialize(DataSerializer s)
             {
                 ThunderstormService d = Singleton<DisasterManager>.instance.container.Thunderstorm;
-                serializeCommonParameters(s, d);
+                SerializeCommonParameters(s, d);
                 s.WriteInt32(d.MaxProbabilityMonth);
                 s.WriteFloat(d.RainFactor);
             }
@@ -22,14 +22,14 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Deserialize(DataSerializer s)
             {
                 ThunderstormService d = Singleton<DisasterManager>.instance.container.Thunderstorm;
-                deserializeCommonParameters(s, d);
+                DeserializeCommonParameters(s, d);
                 d.MaxProbabilityMonth = s.ReadInt32();
                 d.RainFactor = s.ReadFloat();
             }
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("Thunderstorm");
+                AfterDeserializeLog("Thunderstorm");
             }
         }
 
@@ -68,13 +68,13 @@ namespace NaturalDisastersRenewal.DisasterServices
             return base.GetProbabilityTooltip();
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
             DateTime dt = Singleton<SimulationManager>.instance.m_currentGameTime;
             int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (delta_month > 6) delta_month = 12 - delta_month;
 
-            float occurence = base.getCurrentOccurrencePerYear_local() * (1f - delta_month / 6f);
+            float occurence = base.GetCurrentOccurrencePerYearLocal() * (1f - delta_month / 6f);
 
             WeatherManager wm = Singleton<WeatherManager>.instance;
             if (wm.m_currentRain > 0)

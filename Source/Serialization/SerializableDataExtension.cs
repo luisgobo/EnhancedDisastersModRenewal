@@ -4,6 +4,7 @@ using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.DisasterServices;
 using NaturalDisastersRenewal.Logger;
+using NaturalDisastersRenewal.UI;
 using System;
 using System.IO;
 using UnityEngine;
@@ -82,7 +83,7 @@ namespace NaturalDisastersRenewal.Serialization
             }
 
             DebugLogger.Log("Update Settings UI");
-            Mod.UpdateUI();
+            SettingsScreen.UpdateUI();
         }
 
         public void OnReleased()

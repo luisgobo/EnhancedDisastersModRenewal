@@ -13,7 +13,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Serialize(DataSerializer s)
             {
                 TsunamiService d = Singleton<DisasterManager>.instance.container.Tsunami;
-                serializeCommonParameters(s, d);
+                SerializeCommonParameters(s, d);
 
                 s.WriteFloat(d.WarmupYears);
             }
@@ -21,14 +21,14 @@ namespace NaturalDisastersRenewal.DisasterServices
             public void Deserialize(DataSerializer s)
             {
                 TsunamiService d = Singleton<DisasterManager>.instance.container.Tsunami;
-                deserializeCommonParameters(s, d);
+                DeserializeCommonParameters(s, d);
 
                 d.WarmupYears = s.ReadFloat();
             }
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("Tsunami");
+                AfterDeserializeLog("Tsunami");
             }
         }
 

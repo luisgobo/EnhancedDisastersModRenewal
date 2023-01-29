@@ -11,7 +11,7 @@ namespace NaturalDisastersRenewal.UI
         UILabel[] labels;
         UIProgressBar[] progressBars_probability;
         UIProgressBar[] progressBars_maxIntensity;
-        string labelFormat = "{0} ({1:0.00}/{2})";
+        readonly string labelFormat = "{0} ({1:0.00}/{2})";
         public int Counter = 0;
 
         public override void Awake()
@@ -41,15 +41,15 @@ namespace NaturalDisastersRenewal.UI
             int y = -50;
             int h = -20;
 
-            addAxisTitle(200, y, "Probability");
-            addAxisTitle(300, y, "Max intensity");
+            AddAxisTitle(200, y, "Probability");
+            AddAxisTitle(300, y, "Max intensity");
             y -= 15;
 
-            addAxisLabel(200, y, "0.1");
-            addAxisLabel(240, y, "1");
-            addAxisLabel(275, y, "10");
-            addAxisLabel(300, y, "1");
-            addAxisLabel(375, y, "10");
+            AddAxisLabel(200, y, "0.1");
+            AddAxisLabel(240, y, "1");
+            AddAxisLabel(275, y, "10");
+            AddAxisLabel(300, y, "1");
+            AddAxisLabel(375, y, "10");
             y -= 15;
 
             int disasterCount = Singleton<DisasterServices.DisasterManager>.instance.container.AllDisasters.Count;
@@ -61,10 +61,10 @@ namespace NaturalDisastersRenewal.UI
             for (int i = 0; i < disasterCount; i++)
             {
                 DisasterSerialization d = edm.container.AllDisasters[i];
-                labels[i] = addLabel(10, y);
+                labels[i] = AddLabel(10, y);
                 labels[i].text = string.Format(labelFormat, d.GetName(), 0, 0);
-                progressBars_probability[i] = addProgressBar(200, y);
-                progressBars_maxIntensity[i] = addProgressBar(300, y);
+                progressBars_probability[i] = AddProgressBar(200, y);
+                progressBars_maxIntensity[i] = AddProgressBar(300, y);
                 y += h;
             }
 
@@ -129,7 +129,7 @@ namespace NaturalDisastersRenewal.UI
                 sb.AppendLine(dm.m_disasters.m_buffer[i].Info.name + " flags: " + dm.m_disasters.m_buffer[i].m_flags.ToString());
                 if ((dm.m_disasters.m_buffer[i].m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) != DisasterData.Flags.None)
                 {
-                    if (isDisasterCanBeStopped(dm.m_disasters.m_buffer[i].Info.m_disasterAI))
+                    if (IsStopableDisaster(dm.m_disasters.m_buffer[i].Info.m_disasterAI))
                     {
                         sb.AppendLine("Trying to cancel " + dm.m_disasters.m_buffer[i].Info.name);
                         dm.m_disasters.m_buffer[i].m_flags = ((dm.m_disasters.m_buffer[i].m_flags & ~(DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) | DisasterData.Flags.Finished);
@@ -139,7 +139,7 @@ namespace NaturalDisastersRenewal.UI
             Debug.Log(sb.ToString());
         }
 
-        bool isDisasterCanBeStopped(DisasterAI ai)
+        bool IsStopableDisaster(DisasterAI ai)
         {
             return (ai as ThunderStormAI != null) || (ai as SinkholeAI != null) || (ai as TornadoAI != null) || (ai as EarthquakeAI != null) || (ai as MeteorStrikeAI != null);
         }
@@ -149,7 +149,7 @@ namespace NaturalDisastersRenewal.UI
             this.Hide();
         }
 
-        UILabel addLabel(int x, int y)
+        UILabel AddLabel(int x, int y)
         {
             UILabel l = this.AddUIComponent<UILabel>();
             l.position = new Vector3(x, y);
@@ -158,7 +158,7 @@ namespace NaturalDisastersRenewal.UI
             return l;
         }
 
-        void addAxisLabel(int x, int y, string text)
+        void AddAxisLabel(int x, int y, string text)
         {
             //switch (labelTextAlignment)
             //{
@@ -176,7 +176,7 @@ namespace NaturalDisastersRenewal.UI
             l.text = text;
         }
 
-        void addAxisTitle(int x, int y, string text)
+        void AddAxisTitle(int x, int y, string text)
         {
             UILabel l = this.AddUIComponent<UILabel>();
             l.position = new Vector3(x, y);
@@ -184,7 +184,7 @@ namespace NaturalDisastersRenewal.UI
             l.text = text;
         }
 
-        UIProgressBar addProgressBar(int x, int y)
+        UIProgressBar AddProgressBar(int x, int y)
         {
             UIProgressBar b = this.AddUIComponent<UIProgressBar>();
             b.backgroundSprite = "LevelBarBackground";
@@ -197,7 +197,7 @@ namespace NaturalDisastersRenewal.UI
             return b;
         }
 
-        float getProgressValueLog(float value)
+        float GetProgressValueLog(float value)
         {
             if (value <= 0.1) return 0;
             if (value >= 10) return 1;
@@ -225,12 +225,12 @@ namespace NaturalDisastersRenewal.UI
                 {
                     labels[i].text = string.Format(labelFormat, d.GetName(), p, maxIntensity);
 
-                    progressBars_probability[i].value = getProgressValueLog(p);
-                    setProgressBarColor(progressBars_probability[i]);
+                    progressBars_probability[i].value = GetProgressValueLog(p);
+                    SetProgressBarColor(progressBars_probability[i]);
                     progressBars_probability[i].tooltip = d.GetProbabilityTooltip();
 
                     progressBars_maxIntensity[i].value = maxIntensity * 0.01f;
-                    setProgressBarColor(progressBars_maxIntensity[i]);
+                    SetProgressBarColor(progressBars_maxIntensity[i]);
                     progressBars_maxIntensity[i].tooltip = d.GetIntensityTooltip();
                 }
                 else
@@ -246,7 +246,7 @@ namespace NaturalDisastersRenewal.UI
             }
         }
 
-        void setProgressBarColor(UIProgressBar progressBar)
+        void SetProgressBarColor(UIProgressBar progressBar)
         {
             float value = progressBar.value;
             progressBar.progressColor = new Color(2.0f * value, 2.0f * (1 - value), 0);
