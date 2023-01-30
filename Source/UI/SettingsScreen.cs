@@ -6,12 +6,14 @@ using System.Reflection;
 using UnityEngine;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.UI.ComponentHelper;
 
 namespace NaturalDisastersRenewal.UI
 {
     public class SettingsScreen
     {
         bool freezeUI = false;
+        readonly string evacuationModeText = "Evacuation Mode: ";
 
         //General
         UICheckBox UI_General_AutoFocusOnDisasterStarts;
@@ -21,49 +23,54 @@ namespace NaturalDisastersRenewal.UI
         UICheckBox UI_General_ShowDisasterPanelButton;
         //****************
 
+
+        //Forest Fire
         UICheckBox UI_ForestFire_Enabled;
         UISlider UI_ForestFireMaxProbability;
         UISlider UI_ForestFire_WarmupDays;
+        UIDropDown UI_ForestFire_EvacuationMode;
 
+        //Thunderstorm
         UICheckBox UI_Thunderstorm_Enabled;
         UISlider UI_Thunderstorm_MaxProbability;
         UIDropDown UI_Thunderstorm_MaxProbabilityMonth;
         UISlider UI_Thunderstorm_RainFactor;
+        UIDropDown UI_Thunderstorm_EvacuationMode;
 
+        //Sunkhole
         UICheckBox UI_Sinkhole_Enabled;
         UISlider UI_Sinkhole_MaxProbability;
         UISlider UI_Sinkhole_GroundwaterCapacity;
+        UIDropDown UI_Sinkhole_EvacuationMode;
 
+        //Tornado        
         UICheckBox UI_Tornado_Enabled;
         UISlider UI_Tornado_MaxProbability;
         UIDropDown UI_Tornado_MaxProbabilityMonth;
         UICheckBox UI_Tornado_NoDuringFog;
+        UIDropDown UI_Tornado_EvacuationMode;
 
+        //Tsunami
         UICheckBox UI_Tsunami_Enabled;
         UISlider UI_Tsunami_MaxProbability;
         UISlider UI_Tsunami_WarmupYears;
+        UIDropDown UI_Tsunami_EvacuationMode;
 
+        //Earthquake
         UICheckBox UI_Earthquake_Enabled;
         UISlider UI_Earthquake_MaxProbability;
         UISlider UI_Earthquake_WarmupYears;
         UICheckBox UI_Earthquake_AftershocksEnabled;
         UICheckBox UI_Earthquake_NoCrack;
+        UIDropDown UI_Earthquake_EvacuationMode;
 
+        //Meteor Strike
         UICheckBox UI_MeteorStrike_Enabled;
         UISlider UI_MeteorStrike_MaxProbability;
         UICheckBox UI_MeteorStrike_MeteorLongPeriodEnabled;
         UICheckBox UI_MeteorStrike_MeteorMediumPeriodEnabled;
         UICheckBox UI_MeteorStrike_MeteorShortPeriodEnabled;
-
-        //AutoEvacuateRelease options
-        UIDropDown UI_Earthquake_EvacuationMode;
-
-        UIDropDown UI_ForestFire_EvacuationMode;
         UIDropDown UI_MeteorStrike_EvacuationMode;
-        UIDropDown UI_Sinkhole_EvacuationMode;
-        UIDropDown UI_Thunderstorm_EvacuationMode;
-        UIDropDown UI_Tornado_EvacuationMode;
-        UIDropDown UI_Tsunami_EvacuationMode;
 
         //Next enhancements
         //UIDropDown UI_StructureCollapse_AutoEvacuateRelease;
@@ -71,10 +78,8 @@ namespace NaturalDisastersRenewal.UI
 
         #region Options UI
 
-        public static void UpdateUI()
+        public static void UpdateUISettingsOptions()
         {
-            DebugLogger.Log("Update settings UI");
-
             foreach (PluginManager.PluginInfo current in Singleton<PluginManager>.instance.GetPluginsInfo())
             {
                 if (current.isEnabled)
@@ -96,15 +101,6 @@ namespace NaturalDisastersRenewal.UI
                 return;
 
             DisastersServiceBase c = Singleton<DisasterServices.DisasterManager>.instance.container;
-
-            var messagelog =
-                $"AutoFocusOnDisaster:{c.AutoFocusOnDisasterStarts}, " +
-                $"PauseOnDisasterStarts:{c.PauseOnDisasterStarts}, " +
-                $"ScaleMaxIntensityWithPopilation:{c.ScaleMaxIntensityWithPopilation}, " +
-                $"RecordDisasterEvents:{c.RecordDisasterEvents}, " +
-                $"ShowDisasterPanelButton:{c.ShowDisasterPanelButton}, ";
-
-            DebugLogger.Log("Values to be assigned? " + messagelog);
 
             freezeUI = true;
 
@@ -160,7 +156,7 @@ namespace NaturalDisastersRenewal.UI
             //UI_StructureFire_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.EvacuationMode;
 
             freezeUI = false;
-        }        
+        }
 
         void AddLabelToSlider(object obj, string postfix = "")
         {
@@ -291,17 +287,33 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_ForestFire_WarmupDays, " days");
             UI_ForestFire_WarmupDays.tooltip = "No-rain period during wich the probability of Forest Fire increases";
 
-            UI_ForestFire_EvacuationMode = (UIDropDown)forestFireGroup.AddDropdown(
-                "Evacuation mode:",
-                Helper.GetEvacuationOptions(),
-                disasterContainer.ForestFire.EvacuationMode,
+            //UI_ForestFire_EvacuationMode = (UIDropDown)forestFireGroup.AddDropdown(
+            //    "Evacuation mode:",
+            //    Helper.GetEvacuationOptions(),
+            //    disasterContainer.ForestFire.EvacuationMode,
+            //    delegate (int selection)
+            //    {
+            //        if (!freezeUI)
+            //        {
+            //            disasterContainer.ForestFire.EvacuationMode = selection;
+            //        }
+            //    });
+
+            ComponentHelpers.AddDropDown(
+                freezeUI, 
+                ref UI_ForestFire_EvacuationMode, 
+                ref forestFireGroup, 
+                evacuationModeText, 
+                Helper.GetEvacuationOptions(), 
+                ref disasterContainer.ForestFire.EvacuationMode,
                 delegate (int selection)
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.ForestFire.EvacuationMode = selection;
+                        disasterContainer.ForestFire.EvacuationMode = selection;                        
                     }
-                });
+                }
+            );
 
             helper.AddSpace(20);
 
@@ -336,17 +348,33 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_Thunderstorm_RainFactor);
             UI_Thunderstorm_RainFactor.tooltip = "Thunderstorm probability increases by this factor during rain.";
 
-            UI_Thunderstorm_EvacuationMode = (UIDropDown)thunderstormGroup.AddDropdown(
-                "Evacuation mode:",
-                Helper.GetEvacuationOptions(),
-                disasterContainer.Thunderstorm.EvacuationMode,
+            //UI_Thunderstorm_EvacuationMode = (UIDropDown)thunderstormGroup.AddDropdown(
+            //    "Evacuation mode:",
+            //    Helper.GetEvacuationOptions(),
+            //    disasterContainer.Thunderstorm.EvacuationMode,
+            //    delegate (int selection)
+            //    {
+            //        if (!freezeUI)
+            //        {
+            //            disasterContainer.Thunderstorm.EvacuationMode = selection;
+            //        }
+            //    });
+
+            ComponentHelpers.AddDropDown(
+                freezeUI, 
+                ref UI_Thunderstorm_EvacuationMode, 
+                ref thunderstormGroup, 
+                evacuationModeText, 
+                Helper.GetEvacuationOptions(), 
+                ref disasterContainer.Thunderstorm.EvacuationMode,
                 delegate (int selection)
                 {
                     if (!freezeUI)
                     {
                         disasterContainer.Thunderstorm.EvacuationMode = selection;
                     }
-                });
+                }
+            );
 
             helper.AddSpace(20);
 
@@ -372,10 +400,25 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_Sinkhole_GroundwaterCapacity);
             UI_Sinkhole_GroundwaterCapacity.tooltip = "Set how fast groundwater fills up during rain and causes a sinkhole to appear.";
 
-            UI_Sinkhole_EvacuationMode = (UIDropDown)sinkholeGroup.AddDropdown(
-                "Evacuation mode:",
-                Helper.GetEvacuationOptions(true),
-                disasterContainer.Sinkhole.EvacuationMode,
+            //UI_Sinkhole_EvacuationMode = (UIDropDown)sinkholeGroup.AddDropdown(
+            //    "Evacuation mode:",
+            //    Helper.GetEvacuationOptions(true),
+            //    disasterContainer.Sinkhole.EvacuationMode,
+            //    delegate (int selection)
+            //    {
+            //        if (!freezeUI)
+            //        {
+            //            disasterContainer.Sinkhole.EvacuationMode = selection;
+            //        }
+            //    });
+
+            ComponentHelpers.AddDropDown(
+                freezeUI, 
+                ref UI_Sinkhole_EvacuationMode, 
+                ref sinkholeGroup, 
+                evacuationModeText, 
+                Helper.GetEvacuationOptions(true), 
+                ref disasterContainer.Sinkhole.EvacuationMode, 
                 delegate (int selection)
                 {
                     if (!freezeUI)
@@ -415,17 +458,32 @@ namespace NaturalDisastersRenewal.UI
             });
             UI_Tornado_NoDuringFog.tooltip = "Tornado does not occur during foggy weather";
 
-            UI_Tornado_EvacuationMode = (UIDropDown)tornadoGroup.AddDropdown(
-                "Evacuation mode:",
-                Helper.GetEvacuationOptions(true),
-                disasterContainer.Tornado.EvacuationMode,
-                delegate (int selection)
+            //UI_Tornado_EvacuationMode = (UIDropDown)tornadoGroup.AddDropdown(
+            //    "Evacuation mode:",
+            //    Helper.GetEvacuationOptions(true),
+            //    disasterContainer.Tornado.EvacuationMode,
+            //    delegate (int selection)
+            //    {
+            //        if (!freezeUI)
+            //        {
+            //            disasterContainer.Tornado.EvacuationMode = selection;
+            //        }
+            //    });
+
+            ComponentHelpers.AddDropDown(
+                freezeUI, 
+                ref UI_Tornado_EvacuationMode, 
+                ref tornadoGroup, 
+                evacuationModeText, 
+                Helper.GetEvacuationOptions(true), 
+                ref disasterContainer.Tornado.EvacuationMode, delegate (int selection)
                 {
                     if (!freezeUI)
                     {
                         disasterContainer.Tornado.EvacuationMode = selection;
                     }
-                });
+                }
+            );
 
             helper.AddSpace(20);
 
@@ -451,17 +509,20 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_Tsunami_WarmupYears, " years");
             UI_Tsunami_WarmupYears.tooltip = "The probability of tsunami increases to the maximum during this period";
 
-            UI_Tsunami_EvacuationMode = (UIDropDown)tsunamiGroup.AddDropdown(
-                "Evacuation mode:",
-                Helper.GetEvacuationOptions(true),
-                disasterContainer.Tsunami.EvacuationMode,
-                delegate (int selection)
+            ComponentHelpers.AddDropDown(
+                freezeUI, 
+                ref UI_Tsunami_EvacuationMode, 
+                ref tsunamiGroup, 
+                evacuationModeText, 
+                Helper.GetEvacuationOptions(true), 
+                ref disasterContainer.Tsunami.EvacuationMode, delegate (int selection)
                 {
                     if (!freezeUI)
                     {
                         disasterContainer.Tsunami.EvacuationMode = selection;
                     }
-                });
+                }
+           );
 
             helper.AddSpace(20);
 
@@ -497,22 +558,39 @@ namespace NaturalDisastersRenewal.UI
             {
                 if (!freezeUI)
                     disasterContainer.Earthquake.NoCracks = isChecked;
+                
                 disasterContainer.Earthquake.UpdateDisasterProperties(true);
             });
             UI_Earthquake_NoCrack.tooltip = "If checked, the earthquake does not put a crack in the ground.";
 
-            UI_Earthquake_EvacuationMode = (UIDropDown)earthquakeGroup.AddDropdown(
-               "Evacuation mode:",
-               Helper.GetEvacuationOptions(),
-               disasterContainer.Earthquake.EvacuationMode,
-               delegate (int selection)
-               {
-                   if (!freezeUI)
-                   {
-                       disasterContainer.Earthquake.EvacuationMode = selection;
-                   }
-               }
-           );
+           // UI_Earthquake_EvacuationMode = (UIDropDown)earthquakeGroup.AddDropdown(
+           //    "Evacuation mode:",
+           //    Helper.GetEvacuationOptions(),
+           //    disasterContainer.Earthquake.EvacuationMode,
+           //    delegate (int selection)
+           //    {
+           //        if (!freezeUI)
+           //        {
+           //            disasterContainer.Earthquake.EvacuationMode = selection;
+           //        }
+           //    }
+           //);
+
+            ComponentHelpers.AddDropDown(
+                freezeUI, 
+                ref UI_Earthquake_EvacuationMode, 
+                ref earthquakeGroup, 
+                evacuationModeText, 
+                Helper.GetEvacuationOptions(), 
+                ref disasterContainer.Earthquake.EvacuationMode, 
+                delegate (int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        disasterContainer.Earthquake.EvacuationMode = selection;
+                    }
+                }
+            );
 
             helper.AddSpace(20);
 
@@ -548,17 +626,21 @@ namespace NaturalDisastersRenewal.UI
                     disasterContainer.MeteorStrike.SetEnabled(2, isChecked);
             });
 
-            UI_MeteorStrike_EvacuationMode = (UIDropDown)meteorStrikeGroup.AddDropdown(
-                "Evacuation mode:",
-                Helper.GetEvacuationOptions(true),
-                disasterContainer.MeteorStrike.EvacuationMode,
+            ComponentHelpers.AddDropDown(
+                freezeUI, 
+                ref UI_MeteorStrike_EvacuationMode,
+                ref meteorStrikeGroup, 
+                evacuationModeText, 
+                Helper.GetEvacuationOptions(true), 
+                ref disasterContainer.MeteorStrike.EvacuationMode, 
                 delegate (int selection)
                 {
                     if (!freezeUI)
                     {
                         disasterContainer.MeteorStrike.EvacuationMode = selection;
                     }
-                });
+                }
+            );
 
             helper.AddSpace(20);
 

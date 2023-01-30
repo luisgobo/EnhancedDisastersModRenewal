@@ -21,7 +21,7 @@ namespace NaturalDisastersRenewal.Common
 
             if (allowsFocusedEvacuation)
             {
-                string focusedEvacuation = "Enabled - focused evacuation/release";
+                string focusedEvacuation = "Enabled - focused auto evacuation/release";
                 Array.Resize(ref evacuationOptions, evacuationOptions.Length + 1);
                 evacuationOptions[evacuationOptions.Length - 1] = focusedEvacuation;
             }

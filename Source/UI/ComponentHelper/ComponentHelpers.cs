@@ -5,31 +5,18 @@ using System;
 
 namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
-    internal class ComponentHelpers
+    public class ComponentHelpers
     {
-        public static void AddDropDown(bool freezeUI, ref UIDropDown dropDown, ref UIHelperBase group, string description, string[] itemList, int value)
-        {
-            DebugLogger.Log("Creating dropbox: " + description);
-            DebugLogger.Log("freezeUI Value: " + freezeUI.ToString());
-
+        public static void AddDropDown(bool freezeUI, ref UIDropDown dropDown, ref UIHelperBase group, string description, string[] itemList, ref int value, OnDropdownSelectionChanged eventCallback)
+        {            
             dropDown = (UIDropDown)group.AddDropdown(
                 description,
                 itemList,
                 value,
-                delegate (int selection)
-                {
-                    DebugLogger.Log("dropbox delegate. FreezeUI: " + freezeUI.ToString());
-                    if (!freezeUI)
-                    {
-                        value = selection;
-                        DebugLogger.Log("Value = " + value.ToString());
-                    }
-                }
+                eventCallback            
             );
 
-            dropDown.width = (int)Math.Round(dropDown.width * 1.4f);
-
-            DebugLogger.Log("Dropbox created");
-        }
+            dropDown.width = (int)Math.Round(dropDown.width * 2.1f);
+        }        
     }
 }

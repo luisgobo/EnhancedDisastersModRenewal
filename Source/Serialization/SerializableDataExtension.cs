@@ -81,9 +81,8 @@ namespace NaturalDisastersRenewal.Serialization
             {
                 Debug.Log(CommonProperties.LogMsgPrefix + "(load error) " + ex.Message);
             }
-
-            DebugLogger.Log("Update Settings UI");
-            SettingsScreen.UpdateUI();
+            
+            SettingsScreen.UpdateUISettingsOptions();
         }
 
         public void OnReleased()

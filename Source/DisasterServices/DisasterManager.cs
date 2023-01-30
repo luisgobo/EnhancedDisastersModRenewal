@@ -40,11 +40,7 @@ namespace NaturalDisastersRenewal.DisasterServices
         public void ResetToDefaultValues()
         {
             DisastersServiceBase newContainer = new DisastersServiceBase();
-            DebugLogger.Log("Record disasters Events 1: " + newContainer.RecordDisasterEvents.ToString());
-            newContainer.CheckObjects();
-
-            DebugLogger.Log("Record disasters Events 2: " + newContainer.RecordDisasterEvents.ToString());
-
+            newContainer.CheckObjects();            
             CopySettings(newContainer);
         }
 
