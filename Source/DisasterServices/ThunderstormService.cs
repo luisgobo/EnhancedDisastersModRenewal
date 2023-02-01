@@ -13,7 +13,7 @@ namespace NaturalDisastersRenewal.DisasterServices
         {
             public void Serialize(DataSerializer s)
             {
-                ThunderstormService d = Singleton<DisasterManager>.instance.container.Thunderstorm;
+                ThunderstormService d = Singleton<NaturalDisasterManager>.instance.container.Thunderstorm;
                 SerializeCommonParameters(s, d);
                 s.WriteInt32(d.MaxProbabilityMonth);
                 s.WriteFloat(d.RainFactor);
@@ -21,7 +21,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                ThunderstormService d = Singleton<DisasterManager>.instance.container.Thunderstorm;
+                ThunderstormService d = Singleton<NaturalDisasterManager>.instance.container.Thunderstorm;
                 DeserializeCommonParameters(s, d);
                 d.MaxProbabilityMonth = s.ReadInt32();
                 d.RainFactor = s.ReadFloat();
@@ -105,6 +105,12 @@ namespace NaturalDisastersRenewal.DisasterServices
                 RainFactor = d.RainFactor;
                 MaxProbabilityMonth = d.MaxProbabilityMonth;
             }
+        }
+
+        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterID)
+        {
+            disasterInfo.type = DisasterType.ThunderStorm;
+            base.OnDisasterDetected(disasterInfo,disasterID);
         }
     }
 }

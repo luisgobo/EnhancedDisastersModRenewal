@@ -5,7 +5,11 @@ using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Logger;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace NaturalDisastersRenewal.Serialization
 
@@ -78,8 +82,13 @@ namespace NaturalDisastersRenewal.Serialization
         public int EvacuationMode = 0;
         public float BaseOccurrencePerYear = 1.0f;
 
-        // Public
 
+        // Disaster services
+        private DisasterWrapper disasterWrapper;
+        private FieldInfo evacuatingField;
+        private WarningPhasePanel phasePanel;
+        private readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
+        // Public
         public abstract string GetName();
 
         public float GetCurrentOccurrencePerYear()
@@ -222,6 +231,8 @@ namespace NaturalDisastersRenewal.Serialization
             EvacuationMode = disaster.EvacuationMode;
         }
 
+        public DisasterType GetDisasterType() => DType;
+
         // Utilities
 
         protected virtual float GetCurrentOccurrencePerYearLocal()
@@ -278,7 +289,7 @@ namespace NaturalDisastersRenewal.Serialization
 
         protected byte ScaleIntensityByPopulation(byte intensity)
         {
-            if (Singleton<DisasterServices.DisasterManager>.instance.container.ScaleMaxIntensityWithPopilation)
+            if (Singleton<DisasterServices.NaturalDisasterManager>.instance.container.ScaleMaxIntensityWithPopilation)
             {
                 int population = Helper.GetPopulation();
                 if (population < FullIntensityPopulation)
@@ -321,8 +332,89 @@ namespace NaturalDisastersRenewal.Serialization
 
         protected virtual void OnSimulationFrameLocal()
         {
+        }             
+
+         public virtual void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId)
+        {
+            try
+            {
+                var msg = string.Format("EvacuationService.OnDisasterDeactivated. Id: {0}, Name: {1}, Type: {2}, Intensity: {3}",
+                disasterId,
+                disasterInfo.name,
+                disasterInfo.type,
+                disasterInfo.intensity);
+
+                DebugLogger.Log(msg);
+
+                if (disasterInfo.type == DisasterType.Empty)
+                {
+                    return;
+                }
+
+                if (!IsEvacuating())
+                {
+                    DebugLogger.Log("Not evacuating. Clear list of active manual release disasters");
+                    manualReleaseDisasters.Clear();
+                    return;
+                }
+
+                //based on dister setup and list of manual releases check if autorelease
+                //if (ShouldAutoRelease(disasterInfo.type) && !manualReleaseDisasters.Any())
+                if(true)
+                {
+                    DebugLogger.Log("Auto releasing citizens");
+                    DisasterManager.instance.EvacuateAll(true);
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log(ex.ToString());
+
+                throw;
+            }
         }
 
+        public virtual void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterId)
+        {
+            DebugLogger.Log("Execute code to evacuate cims based on type of disaster and also the specification of localization");
+            DebugLogger.Log($"DisasterSettings: Type-{disasterInfo.type}");
+
+            var msg = $"disasterInfo2(Base): type: {disasterInfo.type}, name:{disasterInfo.name}, " +
+                                  $"location => x:{disasterInfo.targetX} y:{disasterInfo.targetX} z:{disasterInfo.targetZ}. " +
+                                  $"Angle: {disasterInfo.angle}, intensity: {disasterInfo.intensity} ";
+            DebugLogger.Log(msg);
+
+            var releaseOptions = Helper.GetEvacuationOptions(true);
+            var dummyType = 0;
+            switch (dummyType)
+            {
+                case 0:
+                    break;
+                case 1:
+                    break;
+                case 2:
+                case 3:
+                    DebugLogger.Log("Is auto-evacuate disaster");
+                    if (!IsEvacuating())
+                    {
+                        DebugLogger.Log("Starting evacuation");
+                        DisasterManager.instance.EvacuateAll(false);
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Already evacuating");
+                    }
+
+                    //Setup autorelease
+                    DebugLogger.Log("Should be manually released");
+                    manualReleaseDisasters.Add(disasterId);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+        
         public virtual void OnDisasterStarted(byte intensity)
         {
             float framesPerDay = Helper.FramesPerDay;
@@ -340,7 +432,7 @@ namespace NaturalDisastersRenewal.Serialization
 
         protected void StartDisaster(byte intensity)
         {
-            DisasterInfo disasterInfo = DisasterServices.DisasterManager.GetDisasterInfo(DType);
+            DisasterInfo disasterInfo = DisasterServices.NaturalDisasterManager.GetDisasterInfo(DType);
 
             if (disasterInfo == null)
             {
@@ -494,6 +586,55 @@ namespace NaturalDisastersRenewal.Serialization
         bool IsUnlocked(int x, int z)
         {
             return x >= 0 && z >= 0 && x < 5 && z < 5 && Singleton<GameAreaManager>.instance.m_areaGrid[z * 5 + x] != 0;
+        }
+
+        private void FindPhasePanel()
+        {
+            DebugLogger.Log("ES: Find Phase Panel");
+
+            if (phasePanel != null)
+            {
+                return;
+            }
+
+            phasePanel = UnityObject.FindObjectOfType<WarningPhasePanel>();
+            evacuatingField = phasePanel.GetType().GetField("m_isEvacuating", BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+
+        private bool IsEvacuating()
+        {
+            FindPhasePanel();
+
+            var isEvacuating = (bool)evacuatingField.GetValue(phasePanel);
+
+            DebugLogger.Log("Is evacuating: " + isEvacuating);
+
+            return isEvacuating;
+        }
+
+        public void EvacuatePartially(bool release)
+        {
+
+            //Finish this method
+            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+            FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
+            if (serviceBuildings == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < serviceBuildings.m_size; i++)
+            {
+                ushort num = serviceBuildings.m_buffer[i];
+                if (num != 0)
+                {
+                    BuildingInfo info = buildingManager.m_buildings.m_buffer[num].Info;
+                    if ((object)info != null)
+                    {
+                        (info.m_buildingAI as ShelterAI)?.SetEmptying(num, ref buildingManager.m_buildings.m_buffer[num], release);
+                    }
+                }
+            }
         }
     }
 }

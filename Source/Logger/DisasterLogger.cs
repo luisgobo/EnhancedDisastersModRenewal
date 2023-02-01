@@ -11,7 +11,7 @@ namespace NaturalDisastersRenewal.Logger
 
         public static void AddDisaster(DateTime dt, string disasterName, byte intensity)
         {
-            if (!Singleton<DisasterServices.DisasterManager>.instance.container.RecordDisasterEvents) return;
+            if (!Singleton<DisasterServices.NaturalDisasterManager>.instance.container.RecordDisasterEvents) return;
 
             string filePath = getDisasterListFilePath();
 

@@ -68,7 +68,7 @@
     <Compile Include="Logger\DisasterLogger.cs" />
     <Compile Include="DisasterServices\DisastersServiceBase.cs" />
     <Compile Include="Serialization\DisasterSerialization.cs" />
-    <Compile Include="DisasterServices\DisasterManager.cs" />
+    <Compile Include="DisasterServices\NaturalDisasterManager.cs" />
     <Compile Include="DisasterServices\EarthquakeService.cs" />
     <Compile Include="DisasterServices\ForestFireService.cs" />
     <Compile Include="DisasterServices\MeteorStrikeService.cs" />

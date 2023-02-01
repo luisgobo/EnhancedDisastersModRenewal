@@ -52,12 +52,12 @@ namespace NaturalDisastersRenewal.UI
             AddAxisLabel(375, y, "10");
             y -= 15;
 
-            int disasterCount = Singleton<DisasterServices.DisasterManager>.instance.container.AllDisasters.Count;
+            int disasterCount = Singleton<DisasterServices.NaturalDisasterManager>.instance.container.AllDisasters.Count;
             labels = new UILabel[disasterCount];
             progressBars_probability = new UIProgressBar[disasterCount];
             progressBars_maxIntensity = new UIProgressBar[disasterCount];
 
-            DisasterServices.DisasterManager edm = Singleton<DisasterServices.DisasterManager>.instance;
+            DisasterServices.NaturalDisasterManager edm = Singleton<DisasterServices.NaturalDisasterManager>.instance;
             for (int i = 0; i < disasterCount; i++)
             {
                 DisasterSerialization d = edm.container.AllDisasters[i];
@@ -213,7 +213,7 @@ namespace NaturalDisastersRenewal.UI
             if (--Counter > 0) return;
             Counter = 10;
 
-            DisasterServices.DisasterManager edm = Singleton<DisasterServices.DisasterManager>.instance;
+            DisasterServices.NaturalDisasterManager edm = Singleton<DisasterServices.NaturalDisasterManager>.instance;
             int disasterCount = edm.container.AllDisasters.Count;
 
             for (int i = 0; i < disasterCount; i++)

@@ -30,7 +30,7 @@ namespace NaturalDisastersRenewal.Serialization
 
                 using (var stream = new MemoryStream())
                 {
-                    DisasterServices.DisasterManager edm = Singleton<DisasterServices.DisasterManager>.instance;
+                    DisasterServices.NaturalDisasterManager edm = Singleton<DisasterServices.NaturalDisasterManager>.instance;
 
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new DisastersServiceBase.Data());
 

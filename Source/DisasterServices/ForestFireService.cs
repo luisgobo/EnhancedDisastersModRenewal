@@ -14,7 +14,7 @@ namespace NaturalDisastersRenewal.DisasterServices
         {
             public void Serialize(DataSerializer s)
             {
-                ForestFireService d = Singleton<DisasterManager>.instance.container.ForestFire;
+                ForestFireService d = Singleton<NaturalDisasterManager>.instance.container.ForestFire;
                 SerializeCommonParameters(s, d);
                 s.WriteInt32(d.WarmupDays);
                 s.WriteFloat(d.noRainDays);
@@ -22,7 +22,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                ForestFireService d = Singleton<DisasterManager>.instance.container.ForestFire;
+                ForestFireService d = Singleton<NaturalDisasterManager>.instance.container.ForestFire;
                 DeserializeCommonParameters(s, d);
                 d.WarmupDays = s.ReadInt32();
                 if (s.version <= 2)
@@ -125,6 +125,12 @@ namespace NaturalDisastersRenewal.DisasterServices
             {
                 WarmupDays = d.WarmupDays;
             }
+        }
+
+        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterID)
+        {
+            disasterInfo.type = DisasterType.ForestFire;
+            base.OnDisasterDetected(disasterInfo, disasterID);
         }
     }
 }

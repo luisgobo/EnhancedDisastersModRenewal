@@ -13,7 +13,7 @@ namespace NaturalDisastersRenewal.DisasterServices
         {
             public void Serialize(DataSerializer s)
             {
-                SinkholeService d = Singleton<DisasterManager>.instance.container.Sinkhole;
+                SinkholeService d = Singleton<NaturalDisasterManager>.instance.container.Sinkhole;
                 SerializeCommonParameters(s, d);
                 s.WriteFloat(d.GroundwaterCapacity);
                 s.WriteFloat(d.groundwaterAmount);
@@ -21,7 +21,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                SinkholeService d = Singleton<DisasterManager>.instance.container.Sinkhole;
+                SinkholeService d = Singleton<NaturalDisasterManager>.instance.container.Sinkhole;
                 DeserializeCommonParameters(s, d);
                 d.GroundwaterCapacity = s.ReadFloat();
                 d.groundwaterAmount = s.ReadFloat();
@@ -70,6 +70,12 @@ namespace NaturalDisastersRenewal.DisasterServices
             groundwaterAmount = 0;
 
             base.OnDisasterStarted(intensity);
+        }
+
+        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterID)
+        {
+            disasterInfo.type = DisasterType.Sinkhole;
+            base.OnDisasterDetected(disasterInfo,disasterID);
         }
 
         protected override void OnSimulationFrameLocal()

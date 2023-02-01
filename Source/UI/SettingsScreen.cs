@@ -7,6 +7,7 @@ using UnityEngine;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.UI.ComponentHelper;
+using System;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -21,8 +22,6 @@ namespace NaturalDisastersRenewal.UI
         UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
         UICheckBox UI_General_RecordDisasterEventsChkBox;
         UICheckBox UI_General_ShowDisasterPanelButton;
-        //****************
-
 
         //Forest Fire
         UICheckBox UI_ForestFire_Enabled;
@@ -100,7 +99,7 @@ namespace NaturalDisastersRenewal.UI
             if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisastersServiceBase c = Singleton<DisasterServices.DisasterManager>.instance.container;
+            DisastersServiceBase c = Singleton<DisasterServices.NaturalDisasterManager>.instance.container;
 
             freezeUI = true;
 
@@ -181,7 +180,7 @@ namespace NaturalDisastersRenewal.UI
 
         public void BuildSettingsMenu(UIHelperBase helper)
         {
-            DisastersServiceBase disasterContainer = Singleton<DisasterServices.DisasterManager>.instance.container;
+            DisastersServiceBase disasterContainer = Singleton<DisasterServices.NaturalDisasterManager>.instance.container;
 
             #region Gegeral options
 
@@ -189,7 +188,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_General_AutoFocusOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Auto focus on disaster starts", disasterContainer.AutoFocusOnDisasterStarts, delegate (bool isChecked)
             {
-                if (!freezeUI)
+                if (!freezeUI)                
                     disasterContainer.AutoFocusOnDisasterStarts = isChecked;
             });
             //UI_General_AutoFocusOnDisaster.tooltip = "Autofocus on disaster";
@@ -197,7 +196,10 @@ namespace NaturalDisastersRenewal.UI
             UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Pause on disaster starts", disasterContainer.PauseOnDisasterStarts, delegate (bool isChecked)
             {
                 if (!freezeUI)
+                {
                     disasterContainer.PauseOnDisasterStarts = isChecked;
+                    SetPauseOnSisasterBaseSettings(disasterContainer.AutoFocusOnDisasterStarts);
+                }
             });
             //UI_General_PauseOnDisasterStarts.tooltip = "Pause on disaster starts";
 
@@ -222,7 +224,7 @@ namespace NaturalDisastersRenewal.UI
                 if (!freezeUI)
                     disasterContainer.ShowDisasterPanelButton = isChecked;
 
-                Singleton<DisasterServices.DisasterManager>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<DisasterServices.NaturalDisasterManager>.instance.UpdateDisastersPanelToggleBtn();
             });
 
             generalGroup.AddSpace(10);
@@ -287,18 +289,6 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_ForestFire_WarmupDays, " days");
             UI_ForestFire_WarmupDays.tooltip = "No-rain period during wich the probability of Forest Fire increases";
 
-            //UI_ForestFire_EvacuationMode = (UIDropDown)forestFireGroup.AddDropdown(
-            //    "Evacuation mode:",
-            //    Helper.GetEvacuationOptions(),
-            //    disasterContainer.ForestFire.EvacuationMode,
-            //    delegate (int selection)
-            //    {
-            //        if (!freezeUI)
-            //        {
-            //            disasterContainer.ForestFire.EvacuationMode = selection;
-            //        }
-            //    });
-
             ComponentHelpers.AddDropDown(
                 freezeUI, 
                 ref UI_ForestFire_EvacuationMode, 
@@ -348,18 +338,6 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_Thunderstorm_RainFactor);
             UI_Thunderstorm_RainFactor.tooltip = "Thunderstorm probability increases by this factor during rain.";
 
-            //UI_Thunderstorm_EvacuationMode = (UIDropDown)thunderstormGroup.AddDropdown(
-            //    "Evacuation mode:",
-            //    Helper.GetEvacuationOptions(),
-            //    disasterContainer.Thunderstorm.EvacuationMode,
-            //    delegate (int selection)
-            //    {
-            //        if (!freezeUI)
-            //        {
-            //            disasterContainer.Thunderstorm.EvacuationMode = selection;
-            //        }
-            //    });
-
             ComponentHelpers.AddDropDown(
                 freezeUI, 
                 ref UI_Thunderstorm_EvacuationMode, 
@@ -399,18 +377,6 @@ namespace NaturalDisastersRenewal.UI
             });
             AddLabelToSlider(UI_Sinkhole_GroundwaterCapacity);
             UI_Sinkhole_GroundwaterCapacity.tooltip = "Set how fast groundwater fills up during rain and causes a sinkhole to appear.";
-
-            //UI_Sinkhole_EvacuationMode = (UIDropDown)sinkholeGroup.AddDropdown(
-            //    "Evacuation mode:",
-            //    Helper.GetEvacuationOptions(true),
-            //    disasterContainer.Sinkhole.EvacuationMode,
-            //    delegate (int selection)
-            //    {
-            //        if (!freezeUI)
-            //        {
-            //            disasterContainer.Sinkhole.EvacuationMode = selection;
-            //        }
-            //    });
 
             ComponentHelpers.AddDropDown(
                 freezeUI, 
@@ -456,19 +422,7 @@ namespace NaturalDisastersRenewal.UI
                 if (!freezeUI)
                     disasterContainer.Tornado.NoTornadoDuringFog = isChecked;
             });
-            UI_Tornado_NoDuringFog.tooltip = "Tornado does not occur during foggy weather";
-
-            //UI_Tornado_EvacuationMode = (UIDropDown)tornadoGroup.AddDropdown(
-            //    "Evacuation mode:",
-            //    Helper.GetEvacuationOptions(true),
-            //    disasterContainer.Tornado.EvacuationMode,
-            //    delegate (int selection)
-            //    {
-            //        if (!freezeUI)
-            //        {
-            //            disasterContainer.Tornado.EvacuationMode = selection;
-            //        }
-            //    });
+            UI_Tornado_NoDuringFog.tooltip = "Tornado does not occur during foggy weather";            
 
             ComponentHelpers.AddDropDown(
                 freezeUI, 
@@ -563,20 +517,7 @@ namespace NaturalDisastersRenewal.UI
             });
             UI_Earthquake_NoCrack.tooltip = "If checked, the earthquake does not put a crack in the ground.";
 
-           // UI_Earthquake_EvacuationMode = (UIDropDown)earthquakeGroup.AddDropdown(
-           //    "Evacuation mode:",
-           //    Helper.GetEvacuationOptions(),
-           //    disasterContainer.Earthquake.EvacuationMode,
-           //    delegate (int selection)
-           //    {
-           //        if (!freezeUI)
-           //        {
-           //            disasterContainer.Earthquake.EvacuationMode = selection;
-           //        }
-           //    }
-           //);
-
-            ComponentHelpers.AddDropDown(
+           ComponentHelpers.AddDropDown(
                 freezeUI, 
                 ref UI_Earthquake_EvacuationMode, 
                 ref earthquakeGroup, 
@@ -653,21 +594,26 @@ namespace NaturalDisastersRenewal.UI
 
             saveOptionsGroup.AddButton("Save as default for new games", delegate ()
             {
-                Singleton<DisasterServices.DisasterManager>.instance.container.Save();
+                Singleton<DisasterServices.NaturalDisasterManager>.instance.container.Save();
             });
             saveOptionsGroup.AddButton("Reset to the last saved values", delegate ()
             {
-                Singleton<DisasterServices.DisasterManager>.instance.ReadValuesFromFile();
+                Singleton<DisasterServices.NaturalDisasterManager>.instance.ReadValuesFromFile();
                 EnhancedDisastersOptionsUpdateUI();
             });
             saveOptionsGroup.AddButton("Reset to the mod default values", delegate ()
             {
-                Singleton<DisasterServices.DisasterManager>.instance.ResetToDefaultValues();
+                Singleton<DisasterServices.NaturalDisasterManager>.instance.ResetToDefaultValues();
                 EnhancedDisastersOptionsUpdateUI();
             });
 
             #endregion SaveOptions
         }
+
+        private void SetPauseOnSisasterBaseSettings(bool autoFocusOnDisasterStarts)
+        {
+            DisasterManager.instance.m_disableAutomaticFollow = autoFocusOnDisasterStarts;
+        }        
 
         #endregion Options UI
     }

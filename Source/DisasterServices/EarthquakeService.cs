@@ -14,7 +14,7 @@ namespace NaturalDisastersRenewal.DisasterServices
         {
             public void Serialize(DataSerializer s)
             {
-                EarthquakeService d = Singleton<DisasterManager>.instance.container.Earthquake;
+                EarthquakeService d = Singleton<NaturalDisasterManager>.instance.container.Earthquake;
                 SerializeCommonParameters(s, d);
 
                 s.WriteFloat(d.WarmupYears);
@@ -32,7 +32,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                EarthquakeService d = Singleton<DisasterManager>.instance.container.Earthquake;
+                EarthquakeService d = Singleton<NaturalDisasterManager>.instance.container.Earthquake;
                 DeserializeCommonParameters(s, d);
 
                 d.WarmupYears = s.ReadFloat();
@@ -111,6 +111,12 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
 
             return base.GetCurrentOccurrencePerYearLocal();
+        }
+
+        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterID)
+        {
+            disasterInfo.type = DisasterType.Earthquake;
+            base.OnDisasterDetected(disasterInfo, disasterID);
         }
 
         public override void OnDisasterStarted(byte intensity)

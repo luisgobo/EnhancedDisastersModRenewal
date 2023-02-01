@@ -3,9 +3,13 @@ using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Serialization;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
@@ -15,7 +19,7 @@ namespace NaturalDisastersRenewal.DisasterServices
         {
             public void Serialize(DataSerializer s)
             {
-                MeteorStrikeService d = Singleton<DisasterManager>.instance.container.MeteorStrike;
+                MeteorStrikeService d = Singleton<NaturalDisasterManager>.instance.container.MeteorStrike;
                 SerializeCommonParameters(s, d);
 
                 for (int i = 0; i < d.meteorEvents.Length; i++)
@@ -30,7 +34,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                MeteorStrikeService d = Singleton<DisasterManager>.instance.container.MeteorStrike;
+                MeteorStrikeService d = Singleton<NaturalDisasterManager>.instance.container.MeteorStrike;
                 DeserializeCommonParameters(s, d);
 
                 if (s.version <= 2)
@@ -274,6 +278,15 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             return intensity;
         }
+
+        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterId)
+        {
+            disasterInfo.type = DisasterType.MeteorStrike;
+            base.OnDisasterDetected(disasterInfo,disasterId);
+
+        }        
+
+        
 
         public override void OnDisasterStarted(byte intensity)
         {
