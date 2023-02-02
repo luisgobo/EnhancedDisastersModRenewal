@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
@@ -8,22 +9,22 @@ using System;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class ForestFireService : DisasterSerialization
+    public class ForestFireService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                ForestFireService d = Singleton<DisasterManager>.instance.container.ForestFire;
-                serializeCommonParameters(s, d);
+                ForestFireService d = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
+                SerializeCommonParameters(s, d);
                 s.WriteInt32(d.WarmupDays);
                 s.WriteFloat(d.noRainDays);
             }
 
             public void Deserialize(DataSerializer s)
             {
-                ForestFireService d = Singleton<DisasterManager>.instance.container.ForestFire;
-                deserializeCommonParameters(s, d);
+                ForestFireService d = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
+                DeserializeCommonParameters(s, d);
                 d.WarmupDays = s.ReadInt32();
                 if (s.version <= 2)
                 {
@@ -38,7 +39,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("ForestFire");
+                AfterDeserializeLog("ForestFire");
             }
         }
 
@@ -59,7 +60,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             EvacuationMode = 0;
         }
 
-        protected override void onSimulationFrame_local()
+        protected override void OnSimulationFrameLocal()
         {
             WeatherManager wm = Singleton<WeatherManager>.instance;
             if (wm.m_currentRain > 0)
@@ -101,9 +102,9 @@ namespace NaturalDisastersRenewal.DisasterServices
             return base.GetProbabilityTooltip();
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
-            return base.getCurrentOccurrencePerYear_local() * Math.Min(1f, noRainDays / WarmupDays);
+            return base.GetCurrentOccurrencePerYearLocal() * Math.Min(1f, noRainDays / WarmupDays);
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
@@ -116,7 +117,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return "Forest Fire";
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 
@@ -126,5 +127,11 @@ namespace NaturalDisastersRenewal.DisasterServices
                 WarmupDays = d.WarmupDays;
             }
         }
+
+        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        //{
+        //    disasterInfoUnified.DisasterInfo.type = DisasterType.ForestFire;
+        //    base.OnDisasterDetected(disasterInfoUnified);
+        //}
     }
 }

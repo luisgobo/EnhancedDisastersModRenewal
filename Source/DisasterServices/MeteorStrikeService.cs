@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
@@ -9,14 +10,14 @@ using UnityEngine;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class MeteorStrikeService : DisasterSerialization
+    public class MeteorStrikeService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                MeteorStrikeService d = Singleton<DisasterManager>.instance.container.MeteorStrike;
-                serializeCommonParameters(s, d);
+                MeteorStrikeService d = Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike;
+                SerializeCommonParameters(s, d);
 
                 for (int i = 0; i < d.meteorEvents.Length; i++)
                 {
@@ -30,8 +31,8 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                MeteorStrikeService d = Singleton<DisasterManager>.instance.container.MeteorStrike;
-                deserializeCommonParameters(s, d);
+                MeteorStrikeService d = Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike;
+                DeserializeCommonParameters(s, d);
 
                 if (s.version <= 2)
                 {
@@ -60,7 +61,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("EnhancedMeteorStrike");
+                AfterDeserializeLog("EnhancedMeteorStrike");
             }
         }
 
@@ -168,7 +169,7 @@ namespace NaturalDisastersRenewal.DisasterServices
                     return Name + " will be close in " + Helper.FormatTimeSpan(DaysUntilNextEvent);
                 }
             }
-        }
+        }        
 
         MeteorEvent[] meteorEvents;
 
@@ -239,7 +240,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             meteorEvents[index].Enabled = value;
         }
 
-        protected override void onSimulationFrame_local()
+        protected override void OnSimulationFrameLocal()
         {
             for (int i = 0; i < meteorEvents.Length; i++)
             {
@@ -247,9 +248,9 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
-            float baseValue = base.getCurrentOccurrencePerYear_local();
+            float baseValue = base.GetCurrentOccurrencePerYearLocal();
 
             float result = 0;
 
@@ -270,9 +271,30 @@ namespace NaturalDisastersRenewal.DisasterServices
                 intensity = Math.Max(intensity, meteorEvents[i].GetActualMaxIntensity());
             }
 
-            intensity = scaleIntensityByPopulation(intensity);
+            intensity = ScaleIntensityByPopulation(intensity);
 
             return intensity;
+        }
+
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        {
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            
+
+            base.OnDisasterDetected(disasterInfoUnified);
+        }
+
+        public override void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId, int releaseType)
+        {
+            disasterInfo.type |= DisasterType.MeteorStrike;
+            base.OnDisasterDeactivated(disasterInfo, disasterId, EvacuationMode);
+        }
+
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId)
+        {
+            disasterInfo.type |= DisasterType.MeteorStrike;
+            base.OnDisasterActivated(disasterInfo, disasterId);
         }
 
         public override void OnDisasterStarted(byte intensity)
@@ -328,7 +350,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return result;
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 

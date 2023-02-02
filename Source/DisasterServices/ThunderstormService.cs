@@ -1,35 +1,36 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 using System;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class ThunderstormService : DisasterSerialization
+    public class ThunderstormService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                ThunderstormService d = Singleton<DisasterManager>.instance.container.Thunderstorm;
-                serializeCommonParameters(s, d);
+                ThunderstormService d = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
+                SerializeCommonParameters(s, d);
                 s.WriteInt32(d.MaxProbabilityMonth);
                 s.WriteFloat(d.RainFactor);
             }
 
             public void Deserialize(DataSerializer s)
             {
-                ThunderstormService d = Singleton<DisasterManager>.instance.container.Thunderstorm;
-                deserializeCommonParameters(s, d);
+                ThunderstormService d = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
+                DeserializeCommonParameters(s, d);
                 d.MaxProbabilityMonth = s.ReadInt32();
                 d.RainFactor = s.ReadFloat();
             }
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("Thunderstorm");
+                AfterDeserializeLog("Thunderstorm");
             }
         }
 
@@ -68,13 +69,13 @@ namespace NaturalDisastersRenewal.DisasterServices
             return base.GetProbabilityTooltip();
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
             DateTime dt = Singleton<SimulationManager>.instance.m_currentGameTime;
             int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (delta_month > 6) delta_month = 12 - delta_month;
 
-            float occurence = base.getCurrentOccurrencePerYear_local() * (1f - delta_month / 6f);
+            float occurence = base.GetCurrentOccurrencePerYearLocal() * (1f - delta_month / 6f);
 
             WeatherManager wm = Singleton<WeatherManager>.instance;
             if (wm.m_currentRain > 0)
@@ -95,7 +96,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return "Thunderstorm";
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 
@@ -106,5 +107,11 @@ namespace NaturalDisastersRenewal.DisasterServices
                 MaxProbabilityMonth = d.MaxProbabilityMonth;
             }
         }
+
+        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        //{
+        //    disasterInfoUnified.DisasterInfo.type = DisasterType.ThunderStorm;
+        //    base.OnDisasterDetected(disasterInfoUnified);
+        //}
     }
 }

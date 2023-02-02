@@ -1,28 +1,29 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 using System;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class TornadoService : DisasterSerialization
+    public class TornadoService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                TornadoService d = Singleton<DisasterManager>.instance.container.Tornado;
-                serializeCommonParameters(s, d);
+                TornadoService d = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
+                SerializeCommonParameters(s, d);
                 s.WriteInt32(d.MaxProbabilityMonth);
                 s.WriteBool(d.NoTornadoDuringFog);
             }
 
             public void Deserialize(DataSerializer s)
             {
-                TornadoService d = Singleton<DisasterManager>.instance.container.Tornado;
-                deserializeCommonParameters(s, d);
+                TornadoService d = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
+                DeserializeCommonParameters(s, d);
 
                 if (s.version >= 3)
                 {
@@ -33,7 +34,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("Tornado");
+                AfterDeserializeLog("Tornado");
             }
         }
 
@@ -52,7 +53,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             EvacuationMode = 0;
         }
 
-        protected override float getCurrentOccurrencePerYear_local()
+        protected override float GetCurrentOccurrencePerYearLocal()
         {
             if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
             {
@@ -63,7 +64,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (delta_month > 6) delta_month = 12 - delta_month;
 
-            float occurrence = base.getCurrentOccurrencePerYear_local() * (1f - delta_month / 6f);
+            float occurrence = base.GetCurrentOccurrencePerYearLocal() * (1f - delta_month / 6f);
 
             return occurrence;
         }
@@ -91,7 +92,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return "Tornado";
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 
@@ -102,5 +103,11 @@ namespace NaturalDisastersRenewal.DisasterServices
                 NoTornadoDuringFog = d.NoTornadoDuringFog;
             }
         }
+
+        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        //{
+        //    disasterInfoUnified.DisasterInfo.type = DisasterType.Tornado;
+        //    base.OnDisasterDetected(disasterInfoUnified);
+        //}
     }
 }

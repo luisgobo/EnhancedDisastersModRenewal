@@ -2,23 +2,27 @@
 using ColossalFramework.UI;
 using HarmonyLib;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Serialization;
 using NaturalDisastersRenewal.UI;
+using System;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class DisasterManager : Singleton<DisasterManager>
+    public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
-        public DisastersServiceBase container;
+        public DisastersSerializeBase container;
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
         readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
+        private DisasterWrapper _disasterWrapper;
 
-        DisasterManager()
+        NaturalDisasterHandler()
         {
             ReadValuesFromFile();
             harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -26,10 +30,10 @@ namespace NaturalDisastersRenewal.DisasterServices
 
         public void ReadValuesFromFile()
         {
-            DisastersServiceBase newContainer = DisastersServiceBase.CreateFromFile();
+            DisastersSerializeBase newContainer = DisastersSerializeBase.CreateFromFile();
             if (newContainer == null)
             {
-                newContainer = new DisastersServiceBase();
+                newContainer = new DisastersSerializeBase();
             }
 
             newContainer.CheckObjects();
@@ -39,16 +43,12 @@ namespace NaturalDisastersRenewal.DisasterServices
 
         public void ResetToDefaultValues()
         {
-            DisastersServiceBase newContainer = new DisastersServiceBase();
-            DebugLogger.Log("Record disasters Events 1: " + newContainer.RecordDisasterEvents.ToString());
-            newContainer.CheckObjects();
-
-            DebugLogger.Log("Record disasters Events 2: " + newContainer.RecordDisasterEvents.ToString());
-
+            DisastersSerializeBase newContainer = new DisastersSerializeBase();
+            newContainer.CheckObjects();            
             CopySettings(newContainer);
         }
 
-        void CopySettings(DisastersServiceBase fromContainer)
+        void CopySettings(DisastersSerializeBase fromContainer)
         {
             if (container == null)
             {
@@ -64,7 +64,7 @@ namespace NaturalDisastersRenewal.DisasterServices
                 container.AutoFocusOnDisasterStarts = fromContainer.AutoFocusOnDisasterStarts;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
 
-                container.ScaleMaxIntensityWithPopilation = fromContainer.ScaleMaxIntensityWithPopilation;
+                container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
                 container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;
                 container.ShowDisasterPanelButton = fromContainer.ShowDisasterPanelButton;
             }
@@ -74,21 +74,145 @@ namespace NaturalDisastersRenewal.DisasterServices
         {
             CheckUnlocks();
 
-            foreach (DisasterSerialization ed in container.AllDisasters)
+            foreach (DisasterServiceBase ed in container.AllDisasters)
             {
                 ed.OnSimulationFrame();
             }
         }
 
+        public void OnCreated(IDisaster disasters)
+        {
+            DebugLogger.Log("EvacuationService: OnCreated");
+            _disasterWrapper = (DisasterWrapper)disasters;
+        }
+
         public void OnDisasterStarted(DisasterAI dai, byte intensity)
         {
-            foreach (DisasterSerialization ed in container.AllDisasters)
+            foreach (DisasterServiceBase ed in container.AllDisasters)
             {
                 if (ed.CheckDisasterAIType(dai))
                 {
                     ed.OnDisasterStarted(intensity);
                     return;
                 }
+            }
+        }
+
+        public void OnDisasterActivated(DisasterAI dai, ushort disasterId)
+        {
+            var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
+            var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
+            DebugLogger.Log(msg);
+            DebugLogger.Log("Disaster detected");
+
+            foreach (DisasterServiceBase ed in container.AllDisasters)
+            {
+                if (ed.CheckDisasterAIType(dai))
+                {
+                    ed.OnDisasterActivated(disasterInfo, disasterId);
+                    return;
+                }
+            }
+        }
+
+        public void OnDisasterDeactivated(DisasterAI dai, ushort disasterId)
+        {
+            try
+            {
+                var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
+
+                var msg= $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
+                DebugLogger.Log(msg);
+                DebugLogger.Log("Disaster detected");
+                
+                foreach (DisasterServiceBase ed in container.AllDisasters)
+                {
+                    if (ed.CheckDisasterAIType(dai))
+                    {
+                        ed.OnDisasterDeactivated(disasterInfo, disasterId, 0);
+                        return;
+                    }
+                }
+
+
+                //if (disasterInfo.type == DisasterType.Empty)
+                //{
+                //    return;
+                //}
+
+                //if (!IsEvacuating())
+                //{
+                //    _logger.Info("Not evacuating. Clear list of active manual release disasters");
+                //    _manualReleaseDisasters.Clear();
+                //    return;
+                //}
+
+                //if (ShouldAutoRelease(disasterInfo.type) && !_manualReleaseDisasters.Any())
+                //{
+                //    _logger.Info("Auto releasing citizens");
+                //    DisasterManager.instance.EvacuateAll(true);
+                //}
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log(ex.ToString());
+
+                throw;
+            }
+        }
+
+        public void OnDisasterDetected(DisasterAI disasterAI, ushort disasterId)
+        {
+            try
+            {
+                DebugLogger.Log("Disaster detected");
+                foreach (DisasterServiceBase disasterService in container.AllDisasters)
+                {
+                    if (disasterService.CheckDisasterAIType(disasterAI))
+                    {
+                        var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
+                        
+                        var msg = $"disasterInfo1: type: {disasterInfo.type}, name:{disasterInfo.name}, " +
+                                  $"location => x:{disasterInfo.targetX} y:{disasterInfo.targetX} z:{disasterInfo.targetZ}. " +
+                                  $"Angle: {disasterInfo.angle}, intensity: {disasterInfo.intensity} ";
+                        DebugLogger.Log(msg);
+
+                        DisasterInfoModel disasterInfoUnified = new DisasterInfoModel()
+                        {
+                            DisasterInfo = disasterInfo,
+                            DisasterId = disasterId                            
+                        };
+
+                        disasterService.OnDisasterDetected(disasterInfoUnified);
+                        return;
+                    }
+                }
+
+                //if (ShouldAutoEvacuate(disasterInfo.type))
+                //{
+                //    DebugLogger.Log("Is auto-evacuate disaster");
+                //    if (!IsEvacuating())
+                //    {
+                //        DebugLogger.Log("Starting evacuation");
+                //        DisasterManager.instance.EvacuateAll(false);
+                //    }
+                //    else
+                //    {
+                //        DebugLogger.Log("Already evacuating");
+                //    }
+
+                //    if (ShouldManualRelease(disasterInfo.type))
+                //    {
+                //        DebugLogger.Log("Should be manually released");
+                //        _manualReleaseDisasters.Add(disasterId);
+                //    }
+                //}
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log(ex.ToString());
+
+                throw;
             }
         }
 

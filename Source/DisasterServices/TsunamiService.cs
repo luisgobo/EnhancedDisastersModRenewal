@@ -1,34 +1,35 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class TsunamiService : DisasterSerialization
+    public class TsunamiService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                TsunamiService d = Singleton<DisasterManager>.instance.container.Tsunami;
-                serializeCommonParameters(s, d);
+                TsunamiService d = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
+                SerializeCommonParameters(s, d);
 
                 s.WriteFloat(d.WarmupYears);
             }
 
             public void Deserialize(DataSerializer s)
             {
-                TsunamiService d = Singleton<DisasterManager>.instance.container.Tsunami;
-                deserializeCommonParameters(s, d);
+                TsunamiService d = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
+                DeserializeCommonParameters(s, d);
 
                 d.WarmupYears = s.ReadFloat();
             }
 
             public void AfterDeserialize(DataSerializer s)
             {
-                afterDeserializeLog("Tsunami");
+                AfterDeserializeLog("Tsunami");
             }
         }
 
@@ -67,7 +68,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return "Tsunami";
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 
@@ -77,5 +78,11 @@ namespace NaturalDisastersRenewal.DisasterServices
                 WarmupYears = d.WarmupYears;
             }
         }
+
+        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        //{
+        //    disasterInfoUnified.DisasterInfo.type = DisasterType.Tsunami;
+        //    base.OnDisasterDetected(disasterInfoUnified);
+        //}
     }
 }

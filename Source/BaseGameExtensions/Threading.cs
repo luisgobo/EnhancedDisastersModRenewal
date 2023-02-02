@@ -11,7 +11,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             Singleton<DisasterManager>.instance.m_randomDisasterCooldown = 0;
 
             // Give disasters a chance to occur
-            Singleton<DisasterServices.DisasterManager>.instance.OnSimulationFrame();
+            Singleton<DisasterServices.NaturalDisasterHandler>.instance.OnSimulationFrame();
         }
     }
 }
