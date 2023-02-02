@@ -1,24 +1,29 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
+using Epic.OnlineServices.Presence;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
+using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Logger;
+using NaturalDisastersRenewal.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
-namespace NaturalDisastersRenewal.Serialization
+namespace NaturalDisastersRenewal.DisasterServices
 
 {
-    public abstract class DisasterSerialization
+    public abstract class DisasterServiceBase
     {
         public class SerializableDataCommon
         {
-            public void SerializeCommonParameters(DataSerializer s, DisasterSerialization disaster)
+            public void SerializeCommonParameters(DataSerializer s, DisasterServiceBase disaster)
             {
                 s.WriteBool(disaster.Enabled);
                 s.WriteFloat(disaster.BaseOccurrencePerYear);
@@ -28,7 +33,7 @@ namespace NaturalDisastersRenewal.Serialization
                 s.WriteInt32(disaster.EvacuationMode);
             }
 
-            public void DeserializeCommonParameters(DataSerializer s, DisasterSerialization disaster)
+            public void DeserializeCommonParameters(DataSerializer s, DisasterServiceBase disaster)
             {
                 disaster.Enabled = s.ReadBool();
                 disaster.BaseOccurrencePerYear = s.ReadFloat();
@@ -83,11 +88,12 @@ namespace NaturalDisastersRenewal.Serialization
         public float BaseOccurrencePerYear = 1.0f;
 
 
-        // Disaster services
-        private DisasterWrapper disasterWrapper;
+        // Disaster services        
         private FieldInfo evacuatingField;
         private WarningPhasePanel phasePanel;
         private readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
+        
+
         // Public
         public abstract string GetName();
 
@@ -224,7 +230,7 @@ namespace NaturalDisastersRenewal.Serialization
             return result;
         }
 
-        public virtual void CopySettings(DisasterSerialization disaster)
+        public virtual void CopySettings(DisasterServiceBase disaster)
         {
             Enabled = disaster.Enabled;
             BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
@@ -289,7 +295,7 @@ namespace NaturalDisastersRenewal.Serialization
 
         protected byte ScaleIntensityByPopulation(byte intensity)
         {
-            if (Singleton<DisasterServices.NaturalDisasterManager>.instance.container.ScaleMaxIntensityWithPopilation)
+            if (Singleton<NaturalDisasterHandler>.instance.container.ScaleMaxIntensityWithPopulation)
             {
                 int population = Helper.GetPopulation();
                 if (population < FullIntensityPopulation)
@@ -332,9 +338,49 @@ namespace NaturalDisastersRenewal.Serialization
 
         protected virtual void OnSimulationFrameLocal()
         {
-        }             
+        }
 
-         public virtual void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId)
+        public virtual void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId)
+        {
+            var msg = string.Format("EvacuationService.OnDisasterAactivated. Id: {0}, Name: {1}, Type: {2}, Intensity: {3}",
+                disasterId,
+                disasterInfo.name,
+                disasterInfo.type,
+                disasterInfo.intensity);
+            DebugLogger.Log(msg);
+
+            //if (TryDisableDisaster(disasterId, info))
+            //{
+            //    return;
+            //}
+
+            //if (ModConfig.Instance.GetSetting<bool>(SettingKeys.PauseOnDisasterStart) && autoPauseDisasters.Contains(disasterType))
+            //{
+            //    new Thread(
+            //        () =>
+            //        {
+            //            try
+            //            {
+            //                var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(SecondsBeforePausing);
+
+            //                while (DateTime.UtcNow < pauseStart)
+            //                {
+            //                }
+
+            //                DebugLogger.Log("Pausing game");
+            //                SimulationManager.instance.SimulationPaused = true;
+            //            }
+            //            catch (Exception ex)
+            //            {
+            //                DebugLogger.Log(ex.ToString());
+
+            //                throw;
+            //            }
+            //        }).Start();
+            //}
+
+        }
+        public virtual void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId, int releaseType)
         {
             try
             {
@@ -358,9 +404,11 @@ namespace NaturalDisastersRenewal.Serialization
                     return;
                 }
 
+                DebugLogger.Log("ShouldAutoRelease: " + ShouldAutoRelease(releaseType));
+                DebugLogger.Log("Existmanual releases: " + !manualReleaseDisasters.Any());
+
                 //based on dister setup and list of manual releases check if autorelease
-                //if (ShouldAutoRelease(disasterInfo.type) && !manualReleaseDisasters.Any())
-                if(true)
+                if (ShouldAutoRelease(releaseType) && !manualReleaseDisasters.Any())               
                 {
                     DebugLogger.Log("Auto releasing citizens");
                     DisasterManager.instance.EvacuateAll(true);
@@ -374,23 +422,33 @@ namespace NaturalDisastersRenewal.Serialization
             }
         }
 
-        public virtual void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterId)
+        private bool ShouldAutoRelease(int releaseType)
+        {
+            return releaseType == (2 | 3);
+        }
+
+        public virtual void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
         {
             DebugLogger.Log("Execute code to evacuate cims based on type of disaster and also the specification of localization");
-            DebugLogger.Log($"DisasterSettings: Type-{disasterInfo.type}");
+            DebugLogger.Log($"DisasterSettings: Type-{disasterInfoUnified.DisasterInfo.type}");
 
-            var msg = $"disasterInfo2(Base): type: {disasterInfo.type}, name:{disasterInfo.name}, " +
-                                  $"location => x:{disasterInfo.targetX} y:{disasterInfo.targetX} z:{disasterInfo.targetZ}. " +
-                                  $"Angle: {disasterInfo.angle}, intensity: {disasterInfo.intensity} ";
+            var msg = $"disasterInfo2(Base): type: {disasterInfoUnified.DisasterInfo.type}, name:{disasterInfoUnified.DisasterInfo.name}, " +
+                                  $"location => x:{disasterInfoUnified.DisasterInfo.targetX} y:{disasterInfoUnified.DisasterInfo.targetX} z:{disasterInfoUnified.DisasterInfo.targetZ}. " +
+                                  $"Angle: {disasterInfoUnified.DisasterInfo.angle}, intensity: {disasterInfoUnified.DisasterInfo.intensity} " +
+                                  $"EvacuationMode: {disasterInfoUnified.EvacuationMode}";
             DebugLogger.Log(msg);
 
-            var releaseOptions = Helper.GetEvacuationOptions(true);
-            var dummyType = 0;
-            switch (dummyType)
+            //Getting issue check DIsaster extencion and container object
+            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            DisasterExtension.SetAutoFocusOnDisasterBaseSettings(naturalDisasterSetup.AutoFocusOnDisasterStarts);
+
+            switch (disasterInfoUnified.EvacuationMode)
             {
-                case 0:
-                    break;
+                case 0:                    
                 case 1:
+                    //Setup autorelease
+                    DebugLogger.Log("Should be manually released");
+                    manualReleaseDisasters.Add(disasterInfoUnified.DisasterId);
                     break;
                 case 2:
                 case 3:
@@ -399,22 +457,20 @@ namespace NaturalDisastersRenewal.Serialization
                     {
                         DebugLogger.Log("Starting evacuation");
                         DisasterManager.instance.EvacuateAll(false);
+                        //DisasterManager.instance.AddEvacuationArea
                     }
                     else
                     {
                         DebugLogger.Log("Already evacuating");
                     }
-
-                    //Setup autorelease
-                    DebugLogger.Log("Should be manually released");
-                    manualReleaseDisasters.Add(disasterId);
+                    
                     break;
                 default:
                     break;
             }
 
         }
-        
+
         public virtual void OnDisasterStarted(byte intensity)
         {
             float framesPerDay = Helper.FramesPerDay;
@@ -432,7 +488,7 @@ namespace NaturalDisastersRenewal.Serialization
 
         protected void StartDisaster(byte intensity)
         {
-            DisasterInfo disasterInfo = DisasterServices.NaturalDisasterManager.GetDisasterInfo(DType);
+            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
 
             if (disasterInfo == null)
             {

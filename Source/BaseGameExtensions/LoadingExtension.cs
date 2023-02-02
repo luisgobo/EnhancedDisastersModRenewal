@@ -9,16 +9,16 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         {
             if (mode == LoadMode.NewGame || mode == LoadMode.LoadGame || mode == LoadMode.NewGameFromScenario)
             {
-                Singleton<DisasterServices.NaturalDisasterManager>.instance.CreateExtendedDisasterPanel();
-                Singleton<DisasterServices.NaturalDisasterManager>.instance.CheckUnlocks();
+                Singleton<DisasterServices.NaturalDisasterHandler>.instance.CreateExtendedDisasterPanel();
+                Singleton<DisasterServices.NaturalDisasterHandler>.instance.CheckUnlocks();
 
-                Singleton<DisasterServices.NaturalDisasterManager>.instance.container.Earthquake.UpdateDisasterProperties(true);
+                Singleton<DisasterServices.NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(true);
             }
         }
 
         public override void OnLevelUnloading()
         {
-            Singleton<DisasterServices.NaturalDisasterManager>.instance.container.Earthquake.UpdateDisasterProperties(false);
+            Singleton<DisasterServices.NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(false);
         }
     }
 }

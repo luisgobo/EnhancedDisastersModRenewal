@@ -1,6 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
@@ -8,13 +9,13 @@ using UnityEngine;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class EarthquakeService : DisasterSerialization
+    public class EarthquakeService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                EarthquakeService d = Singleton<NaturalDisasterManager>.instance.container.Earthquake;
+                EarthquakeService d = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
                 SerializeCommonParameters(s, d);
 
                 s.WriteFloat(d.WarmupYears);
@@ -32,7 +33,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                EarthquakeService d = Singleton<NaturalDisasterManager>.instance.container.Earthquake;
+                EarthquakeService d = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
                 DeserializeCommonParameters(s, d);
 
                 d.WarmupYears = s.ReadFloat();
@@ -113,11 +114,11 @@ namespace NaturalDisastersRenewal.DisasterServices
             return base.GetCurrentOccurrencePerYearLocal();
         }
 
-        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterID)
-        {
-            disasterInfo.type = DisasterType.Earthquake;
-            base.OnDisasterDetected(disasterInfo, disasterID);
-        }
+        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        //{
+        //    disasterInfoUnified.DisasterInfo.type = DisasterType.Earthquake;
+        //    base.OnDisasterDetected(disasterInfoUnified);
+        //}
 
         public override void OnDisasterStarted(byte intensity)
         {
@@ -196,7 +197,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return "Earthquake";
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 

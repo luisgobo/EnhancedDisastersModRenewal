@@ -66,9 +66,10 @@
     <Compile Include="DisasterServices\Patches\DestroyBuildings2Patch.cs" />
     <Compile Include="BaseGameExtensions\DisasterExtension.cs" />
     <Compile Include="Logger\DisasterLogger.cs" />
-    <Compile Include="DisasterServices\DisastersServiceBase.cs" />
-    <Compile Include="Serialization\DisasterSerialization.cs" />
-    <Compile Include="DisasterServices\NaturalDisasterManager.cs" />
+    <Compile Include="Models\DisasterInfoModel.cs" />
+    <Compile Include="Serialization\DisastersSerializeBase.cs" />
+    <Compile Include="DisasterServices\DisasterServiceBase.cs" />
+    <Compile Include="DisasterServices\NaturalDisasterHandler.cs" />
     <Compile Include="DisasterServices\EarthquakeService.cs" />
     <Compile Include="DisasterServices\ForestFireService.cs" />
     <Compile Include="DisasterServices\MeteorStrikeService.cs" />

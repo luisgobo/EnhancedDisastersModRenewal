@@ -30,9 +30,9 @@ namespace NaturalDisastersRenewal.Serialization
 
                 using (var stream = new MemoryStream())
                 {
-                    DisasterServices.NaturalDisasterManager edm = Singleton<DisasterServices.NaturalDisasterManager>.instance;
+                    DisasterServices.NaturalDisasterHandler edm = Singleton<DisasterServices.NaturalDisasterHandler>.instance;
 
-                    DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new DisastersServiceBase.Data());
+                    DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new DisastersSerializeBase.Data());
 
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new ForestFireService.Data());
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new ThunderstormService.Data());
@@ -66,7 +66,7 @@ namespace NaturalDisastersRenewal.Serialization
 
                 using (var stream = new MemoryStream(data))
                 {
-                    DataSerializer.Deserialize<DisastersServiceBase.Data>(stream, DataSerializer.Mode.Memory);
+                    DataSerializer.Deserialize<DisastersSerializeBase.Data>(stream, DataSerializer.Mode.Memory);
 
                     DataSerializer.Deserialize<ForestFireService.Data>(stream, DataSerializer.Mode.Memory);
                     DataSerializer.Deserialize<ThunderstormService.Data>(stream, DataSerializer.Mode.Memory);

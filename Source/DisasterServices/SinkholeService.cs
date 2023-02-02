@@ -1,19 +1,20 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class SinkholeService : DisasterSerialization
+    public class SinkholeService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                SinkholeService d = Singleton<NaturalDisasterManager>.instance.container.Sinkhole;
+                SinkholeService d = Singleton<NaturalDisasterHandler>.instance.container.Sinkhole;
                 SerializeCommonParameters(s, d);
                 s.WriteFloat(d.GroundwaterCapacity);
                 s.WriteFloat(d.groundwaterAmount);
@@ -21,7 +22,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                SinkholeService d = Singleton<NaturalDisasterManager>.instance.container.Sinkhole;
+                SinkholeService d = Singleton<NaturalDisasterHandler>.instance.container.Sinkhole;
                 DeserializeCommonParameters(s, d);
                 d.GroundwaterCapacity = s.ReadFloat();
                 d.groundwaterAmount = s.ReadFloat();
@@ -72,11 +73,11 @@ namespace NaturalDisastersRenewal.DisasterServices
             base.OnDisasterStarted(intensity);
         }
 
-        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterID)
-        {
-            disasterInfo.type = DisasterType.Sinkhole;
-            base.OnDisasterDetected(disasterInfo,disasterID);
-        }
+        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        //{
+        //    disasterInfoUnified.DisasterInfo.type = DisasterType.Sinkhole;
+        //    base.OnDisasterDetected(disasterInfoUnified);
+        //}
 
         protected override void OnSimulationFrameLocal()
         {
@@ -111,7 +112,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return "Sinkhole";
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 

@@ -8,6 +8,8 @@ using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.UI.ComponentHelper;
 using System;
+using NaturalDisastersRenewal.Serialization;
+using NaturalDisastersRenewal.BaseGameExtensions;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -99,13 +101,13 @@ namespace NaturalDisastersRenewal.UI
             if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisastersServiceBase c = Singleton<DisasterServices.NaturalDisasterManager>.instance.container;
+            DisastersSerializeBase c = Singleton<DisasterServices.NaturalDisasterHandler>.instance.container;
 
             freezeUI = true;
 
             UI_General_AutoFocusOnDisasterStarts.isChecked = c.AutoFocusOnDisasterStarts;
             UI_General_PauseOnDisasterStarts.isChecked = c.PauseOnDisasterStarts;
-            UI_General_ScaleMaxIntensityWithPopulation.isChecked = c.ScaleMaxIntensityWithPopilation;
+            UI_General_ScaleMaxIntensityWithPopulation.isChecked = c.ScaleMaxIntensityWithPopulation;
             UI_General_RecordDisasterEventsChkBox.isChecked = c.RecordDisasterEvents;
             UI_General_ShowDisasterPanelButton.isChecked = c.ShowDisasterPanelButton;
 
@@ -180,7 +182,7 @@ namespace NaturalDisastersRenewal.UI
 
         public void BuildSettingsMenu(UIHelperBase helper)
         {
-            DisastersServiceBase disasterContainer = Singleton<DisasterServices.NaturalDisasterManager>.instance.container;
+            DisastersSerializeBase disasterContainer = Singleton<DisasterServices.NaturalDisasterHandler>.instance.container;
 
             #region Gegeral options
 
@@ -188,27 +190,29 @@ namespace NaturalDisastersRenewal.UI
 
             UI_General_AutoFocusOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Auto focus on disaster starts", disasterContainer.AutoFocusOnDisasterStarts, delegate (bool isChecked)
             {
-                if (!freezeUI)                
+                if (!freezeUI)
+                {
                     disasterContainer.AutoFocusOnDisasterStarts = isChecked;
+                    DebugLogger.Log("000001-                         disasterContainer.AutoFocusOnDisasterStarts changed: " + disasterContainer.AutoFocusOnDisasterStarts);
+                    DisasterExtension.SetAutoFocusOnDisasterBaseSettings(disasterContainer.AutoFocusOnDisasterStarts);
+                }
             });
             //UI_General_AutoFocusOnDisaster.tooltip = "Autofocus on disaster";
 
             UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Pause on disaster starts", disasterContainer.PauseOnDisasterStarts, delegate (bool isChecked)
             {
-                if (!freezeUI)
-                {
+                if (!freezeUI)                
                     disasterContainer.PauseOnDisasterStarts = isChecked;
-                    SetPauseOnSisasterBaseSettings(disasterContainer.AutoFocusOnDisasterStarts);
-                }
+                                    
             });
             //UI_General_PauseOnDisasterStarts.tooltip = "Pause on disaster starts";
 
             generalGroup.AddSpace(10);
 
-            UI_General_ScaleMaxIntensityWithPopulation = (UICheckBox)generalGroup.AddCheckbox("Scale max intensity with population", disasterContainer.ScaleMaxIntensityWithPopilation, delegate (bool isChecked)
+            UI_General_ScaleMaxIntensityWithPopulation = (UICheckBox)generalGroup.AddCheckbox("Scale max intensity with population", disasterContainer.ScaleMaxIntensityWithPopulation, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.ScaleMaxIntensityWithPopilation = isChecked;
+                    disasterContainer.ScaleMaxIntensityWithPopulation = isChecked;
             });
             UI_General_ScaleMaxIntensityWithPopulation.tooltip = "Maximum intensity for all disasters is set to the minimum at the beginning of the game and gradually increases as the city grows.";
 
@@ -224,7 +228,7 @@ namespace NaturalDisastersRenewal.UI
                 if (!freezeUI)
                     disasterContainer.ShowDisasterPanelButton = isChecked;
 
-                Singleton<DisasterServices.NaturalDisasterManager>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<DisasterServices.NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
             });
 
             generalGroup.AddSpace(10);
@@ -594,26 +598,21 @@ namespace NaturalDisastersRenewal.UI
 
             saveOptionsGroup.AddButton("Save as default for new games", delegate ()
             {
-                Singleton<DisasterServices.NaturalDisasterManager>.instance.container.Save();
+                Singleton<DisasterServices.NaturalDisasterHandler>.instance.container.Save();
             });
             saveOptionsGroup.AddButton("Reset to the last saved values", delegate ()
             {
-                Singleton<DisasterServices.NaturalDisasterManager>.instance.ReadValuesFromFile();
+                Singleton<DisasterServices.NaturalDisasterHandler>.instance.ReadValuesFromFile();
                 EnhancedDisastersOptionsUpdateUI();
             });
             saveOptionsGroup.AddButton("Reset to the mod default values", delegate ()
             {
-                Singleton<DisasterServices.NaturalDisasterManager>.instance.ResetToDefaultValues();
+                Singleton<DisasterServices.NaturalDisasterHandler>.instance.ResetToDefaultValues();
                 EnhancedDisastersOptionsUpdateUI();
             });
 
             #endregion SaveOptions
         }
-
-        private void SetPauseOnSisasterBaseSettings(bool autoFocusOnDisasterStarts)
-        {
-            DisasterManager.instance.m_disableAutomaticFollow = autoFocusOnDisasterStarts;
-        }        
 
         #endregion Options UI
     }

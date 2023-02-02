@@ -1,19 +1,20 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 using System;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class TornadoService : DisasterSerialization
+    public class TornadoService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                TornadoService d = Singleton<NaturalDisasterManager>.instance.container.Tornado;
+                TornadoService d = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
                 SerializeCommonParameters(s, d);
                 s.WriteInt32(d.MaxProbabilityMonth);
                 s.WriteBool(d.NoTornadoDuringFog);
@@ -21,7 +22,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                TornadoService d = Singleton<NaturalDisasterManager>.instance.container.Tornado;
+                TornadoService d = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
                 DeserializeCommonParameters(s, d);
 
                 if (s.version >= 3)
@@ -91,7 +92,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return "Tornado";
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 
@@ -103,10 +104,10 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
         }
 
-        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterID)
-        {
-            disasterInfo.type = DisasterType.Tornado;
-            base.OnDisasterDetected(disasterInfo, disasterID);
-        }
+        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        //{
+        //    disasterInfoUnified.DisasterInfo.type = DisasterType.Tornado;
+        //    base.OnDisasterDetected(disasterInfoUnified);
+        //}
     }
 }

@@ -1,25 +1,22 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
-
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class MeteorStrikeService : DisasterSerialization
+    public class MeteorStrikeService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                MeteorStrikeService d = Singleton<NaturalDisasterManager>.instance.container.MeteorStrike;
+                MeteorStrikeService d = Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike;
                 SerializeCommonParameters(s, d);
 
                 for (int i = 0; i < d.meteorEvents.Length; i++)
@@ -34,7 +31,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                MeteorStrikeService d = Singleton<NaturalDisasterManager>.instance.container.MeteorStrike;
+                MeteorStrikeService d = Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike;
                 DeserializeCommonParameters(s, d);
 
                 if (s.version <= 2)
@@ -172,7 +169,7 @@ namespace NaturalDisastersRenewal.DisasterServices
                     return Name + " will be close in " + Helper.FormatTimeSpan(DaysUntilNextEvent);
                 }
             }
-        }
+        }        
 
         MeteorEvent[] meteorEvents;
 
@@ -279,14 +276,26 @@ namespace NaturalDisastersRenewal.DisasterServices
             return intensity;
         }
 
-        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterId)
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
         {
-            disasterInfo.type = DisasterType.MeteorStrike;
-            base.OnDisasterDetected(disasterInfo,disasterId);
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            
 
-        }        
+            base.OnDisasterDetected(disasterInfoUnified);
+        }
 
-        
+        public override void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId, int releaseType)
+        {
+            disasterInfo.type |= DisasterType.MeteorStrike;
+            base.OnDisasterDeactivated(disasterInfo, disasterId, EvacuationMode);
+        }
+
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId)
+        {
+            disasterInfo.type |= DisasterType.MeteorStrike;
+            base.OnDisasterActivated(disasterInfo, disasterId);
+        }
 
         public override void OnDisasterStarted(byte intensity)
         {
@@ -341,7 +350,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return result;
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 

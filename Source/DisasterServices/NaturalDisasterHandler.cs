@@ -2,6 +2,7 @@
 using ColossalFramework.UI;
 using HarmonyLib;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Serialization;
@@ -13,15 +14,15 @@ using UnityEngine;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class NaturalDisasterManager : Singleton<NaturalDisasterManager>
+    public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
-        public DisastersServiceBase container;
+        public DisastersSerializeBase container;
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
         readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
         private DisasterWrapper _disasterWrapper;
 
-        NaturalDisasterManager()
+        NaturalDisasterHandler()
         {
             ReadValuesFromFile();
             harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -29,10 +30,10 @@ namespace NaturalDisastersRenewal.DisasterServices
 
         public void ReadValuesFromFile()
         {
-            DisastersServiceBase newContainer = DisastersServiceBase.CreateFromFile();
+            DisastersSerializeBase newContainer = DisastersSerializeBase.CreateFromFile();
             if (newContainer == null)
             {
-                newContainer = new DisastersServiceBase();
+                newContainer = new DisastersSerializeBase();
             }
 
             newContainer.CheckObjects();
@@ -42,12 +43,12 @@ namespace NaturalDisastersRenewal.DisasterServices
 
         public void ResetToDefaultValues()
         {
-            DisastersServiceBase newContainer = new DisastersServiceBase();
+            DisastersSerializeBase newContainer = new DisastersSerializeBase();
             newContainer.CheckObjects();            
             CopySettings(newContainer);
         }
 
-        void CopySettings(DisastersServiceBase fromContainer)
+        void CopySettings(DisastersSerializeBase fromContainer)
         {
             if (container == null)
             {
@@ -63,7 +64,7 @@ namespace NaturalDisastersRenewal.DisasterServices
                 container.AutoFocusOnDisasterStarts = fromContainer.AutoFocusOnDisasterStarts;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
 
-                container.ScaleMaxIntensityWithPopilation = fromContainer.ScaleMaxIntensityWithPopilation;
+                container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
                 container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;
                 container.ShowDisasterPanelButton = fromContainer.ShowDisasterPanelButton;
             }
@@ -73,7 +74,7 @@ namespace NaturalDisastersRenewal.DisasterServices
         {
             CheckUnlocks();
 
-            foreach (DisasterSerialization ed in container.AllDisasters)
+            foreach (DisasterServiceBase ed in container.AllDisasters)
             {
                 ed.OnSimulationFrame();
             }
@@ -87,11 +88,28 @@ namespace NaturalDisastersRenewal.DisasterServices
 
         public void OnDisasterStarted(DisasterAI dai, byte intensity)
         {
-            foreach (DisasterSerialization ed in container.AllDisasters)
+            foreach (DisasterServiceBase ed in container.AllDisasters)
             {
                 if (ed.CheckDisasterAIType(dai))
                 {
                     ed.OnDisasterStarted(intensity);
+                    return;
+                }
+            }
+        }
+
+        public void OnDisasterActivated(DisasterAI dai, ushort disasterId)
+        {
+            var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
+            var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
+            DebugLogger.Log(msg);
+            DebugLogger.Log("Disaster detected");
+
+            foreach (DisasterServiceBase ed in container.AllDisasters)
+            {
+                if (ed.CheckDisasterAIType(dai))
+                {
+                    ed.OnDisasterActivated(disasterInfo, disasterId);
                     return;
                 }
             }
@@ -107,11 +125,11 @@ namespace NaturalDisastersRenewal.DisasterServices
                 DebugLogger.Log(msg);
                 DebugLogger.Log("Disaster detected");
                 
-                foreach (DisasterSerialization ed in container.AllDisasters)
+                foreach (DisasterServiceBase ed in container.AllDisasters)
                 {
                     if (ed.CheckDisasterAIType(dai))
                     {
-                        ed.OnDisasterDeactivated(disasterInfo, disasterId);
+                        ed.OnDisasterDeactivated(disasterInfo, disasterId, 0);
                         return;
                     }
                 }
@@ -143,14 +161,14 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
         }
 
-        public void OnDisasterDetected(DisasterAI dai, ushort disasterId)
+        public void OnDisasterDetected(DisasterAI disasterAI, ushort disasterId)
         {
             try
             {
                 DebugLogger.Log("Disaster detected");
-                foreach (DisasterSerialization ed in container.AllDisasters)
+                foreach (DisasterServiceBase disasterService in container.AllDisasters)
                 {
-                    if (ed.CheckDisasterAIType(dai))
+                    if (disasterService.CheckDisasterAIType(disasterAI))
                     {
                         var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
                         
@@ -159,7 +177,13 @@ namespace NaturalDisastersRenewal.DisasterServices
                                   $"Angle: {disasterInfo.angle}, intensity: {disasterInfo.intensity} ";
                         DebugLogger.Log(msg);
 
-                        ed.OnDisasterDetected(disasterInfo, disasterId);
+                        DisasterInfoModel disasterInfoUnified = new DisasterInfoModel()
+                        {
+                            DisasterInfo = disasterInfo,
+                            DisasterId = disasterId                            
+                        };
+
+                        disasterService.OnDisasterDetected(disasterInfoUnified);
                         return;
                     }
                 }

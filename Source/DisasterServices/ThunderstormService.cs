@@ -1,19 +1,20 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 using System;
 
 namespace NaturalDisastersRenewal.DisasterServices
 {
-    public class ThunderstormService : DisasterSerialization
+    public class ThunderstormService : DisasterServiceBase
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                ThunderstormService d = Singleton<NaturalDisasterManager>.instance.container.Thunderstorm;
+                ThunderstormService d = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
                 SerializeCommonParameters(s, d);
                 s.WriteInt32(d.MaxProbabilityMonth);
                 s.WriteFloat(d.RainFactor);
@@ -21,7 +22,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
             public void Deserialize(DataSerializer s)
             {
-                ThunderstormService d = Singleton<NaturalDisasterManager>.instance.container.Thunderstorm;
+                ThunderstormService d = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
                 DeserializeCommonParameters(s, d);
                 d.MaxProbabilityMonth = s.ReadInt32();
                 d.RainFactor = s.ReadFloat();
@@ -95,7 +96,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             return "Thunderstorm";
         }
 
-        public override void CopySettings(DisasterSerialization disaster)
+        public override void CopySettings(DisasterServiceBase disaster)
         {
             base.CopySettings(disaster);
 
@@ -107,10 +108,10 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
         }
 
-        public override void OnDisasterDetected(DisasterSettings disasterInfo, ushort disasterID)
-        {
-            disasterInfo.type = DisasterType.ThunderStorm;
-            base.OnDisasterDetected(disasterInfo,disasterID);
-        }
+        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        //{
+        //    disasterInfoUnified.DisasterInfo.type = DisasterType.ThunderStorm;
+        //    base.OnDisasterDetected(disasterInfoUnified);
+        //}
     }
 }

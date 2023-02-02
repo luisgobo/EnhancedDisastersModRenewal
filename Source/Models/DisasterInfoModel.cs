@@ -1,0 +1,16 @@
+﻿using ICities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+
+namespace NaturalDisastersOverhaulRenewal.Models
+{
+    public class DisasterInfoModel
+    {
+        public DisasterSettings DisasterInfo;
+        public ushort DisasterId;
+        public int EvacuationMode = 0;
+    }
+}
