@@ -19,7 +19,7 @@ namespace NaturalDisastersRenewal.UI
         readonly string evacuationModeText = "Evacuation Mode: ";
 
         //General
-        UICheckBox UI_General_AutoFocusOnDisasterStarts;
+        UICheckBox UI_General_DisableAutoFocusOnDisasterStarts;
         UICheckBox UI_General_PauseOnDisasterStarts;
         UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
         UICheckBox UI_General_RecordDisasterEventsChkBox;
@@ -105,7 +105,7 @@ namespace NaturalDisastersRenewal.UI
 
             freezeUI = true;
 
-            UI_General_AutoFocusOnDisasterStarts.isChecked = c.AutoFocusOnDisasterStarts;
+            UI_General_DisableAutoFocusOnDisasterStarts.isChecked = c.DisableAutoFocusOnDisasterStarts;
             UI_General_PauseOnDisasterStarts.isChecked = c.PauseOnDisasterStarts;
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = c.ScaleMaxIntensityWithPopulation;
             UI_General_RecordDisasterEventsChkBox.isChecked = c.RecordDisasterEvents;
@@ -188,13 +188,13 @@ namespace NaturalDisastersRenewal.UI
 
             UIHelperBase generalGroup = helper.AddGroup("General");
 
-            UI_General_AutoFocusOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Auto focus on disaster starts", disasterContainer.AutoFocusOnDisasterStarts, delegate (bool isChecked)
+            UI_General_DisableAutoFocusOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Disable automatic disaster follow when it starts.", disasterContainer.DisableAutoFocusOnDisasterStarts, delegate (bool isChecked)
             {
                 if (!freezeUI)
                 {
-                    disasterContainer.AutoFocusOnDisasterStarts = isChecked;
-                    DebugLogger.Log("000001-                         disasterContainer.AutoFocusOnDisasterStarts changed: " + disasterContainer.AutoFocusOnDisasterStarts);
-                    DisasterExtension.SetAutoFocusOnDisasterBaseSettings(disasterContainer.AutoFocusOnDisasterStarts);
+                    disasterContainer.DisableAutoFocusOnDisasterStarts = isChecked;
+                    DebugLogger.Log("000001-DisasterContainer.AutoFocusOnDisasterStarts changed: " + disasterContainer.DisableAutoFocusOnDisasterStarts);
+                    DisasterExtension.SetAutoFocusOnDisasterBaseSettings(disasterContainer.DisableAutoFocusOnDisasterStarts);
                 }
             });
             //UI_General_AutoFocusOnDisaster.tooltip = "Autofocus on disaster";

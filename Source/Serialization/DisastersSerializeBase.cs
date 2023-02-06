@@ -20,7 +20,7 @@ namespace NaturalDisastersRenewal.Serialization
                 s.WriteBool(c.RecordDisasterEvents);
                 s.WriteBool(c.ShowDisasterPanelButton);
 
-                s.WriteBool(c.AutoFocusOnDisasterStarts);
+                s.WriteBool(c.DisableAutoFocusOnDisasterStarts);
                 s.WriteBool(c.PauseOnDisasterStarts);
 
                 s.WriteFloat(c.ToggleButtonPos.x);
@@ -35,7 +35,7 @@ namespace NaturalDisastersRenewal.Serialization
                 c.ShowDisasterPanelButton = s.ReadBool();
 
                 c.PauseOnDisasterStarts = s.ReadBool();
-                c.AutoFocusOnDisasterStarts = s.ReadBool();
+                c.DisableAutoFocusOnDisasterStarts = s.ReadBool();
 
                 if (s.version >= 1)
                 {
@@ -58,7 +58,7 @@ namespace NaturalDisastersRenewal.Serialization
         public MeteorStrikeService MeteorStrike;
 
         //General options
-        public bool AutoFocusOnDisasterStarts = true;
+        public bool DisableAutoFocusOnDisasterStarts = true;
 
         public bool PauseOnDisasterStarts = true;
         public bool ScaleMaxIntensityWithPopulation = true;

@@ -44,10 +44,10 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             //DisasterLogger.AddDisaster(Singleton<SimulationManager>.instance.m_currentGameTime, disasterData.Info.GetAI().name, disasterData.m_intensity);
         }
 
-        public static void SetAutoFocusOnDisasterBaseSettings(bool autoFocusOnDisasterStarts)
+        public static void SetAutoFocusOnDisasterBaseSettings(bool disableAutoFocusOnDisasterStarts)
         {
-            DebugLogger.Log("m_disableAutomaticFollow: " + !autoFocusOnDisasterStarts);
-            DisasterManager.instance.m_disableAutomaticFollow = !autoFocusOnDisasterStarts;
+            DebugLogger.Log("m_disableAutomaticFollow: " + disableAutoFocusOnDisasterStarts);
+            DisasterManager.instance.m_disableAutomaticFollow = disableAutoFocusOnDisasterStarts;
         }
 
     }

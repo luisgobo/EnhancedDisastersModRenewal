@@ -61,7 +61,7 @@ namespace NaturalDisastersRenewal.DisasterServices
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
                 }
 
-                container.AutoFocusOnDisasterStarts = fromContainer.AutoFocusOnDisasterStarts;
+                container.DisableAutoFocusOnDisasterStarts = fromContainer.DisableAutoFocusOnDisasterStarts;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
 
                 container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
@@ -132,26 +132,7 @@ namespace NaturalDisastersRenewal.DisasterServices
                         ed.OnDisasterDeactivated(disasterInfo, disasterId, 0);
                         return;
                     }
-                }
-
-
-                //if (disasterInfo.type == DisasterType.Empty)
-                //{
-                //    return;
-                //}
-
-                //if (!IsEvacuating())
-                //{
-                //    _logger.Info("Not evacuating. Clear list of active manual release disasters");
-                //    _manualReleaseDisasters.Clear();
-                //    return;
-                //}
-
-                //if (ShouldAutoRelease(disasterInfo.type) && !_manualReleaseDisasters.Any())
-                //{
-                //    _logger.Info("Auto releasing citizens");
-                //    DisasterManager.instance.EvacuateAll(true);
-                //}
+                }                
             }
             catch (Exception ex)
             {
