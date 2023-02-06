@@ -341,13 +341,14 @@ namespace NaturalDisastersRenewal.DisasterServices
 
         public virtual void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId)
         {
-            var msg = string.Format("EvacuationService.OnDisasterAactivated. Id: {0}, Name: {1}, Type: {2}, Intensity: {3}",
+            var msg = string.Format("EvacuationService.OnDisasterActivated. Id: {0}, Name: {1}, Type: {2}, Intensity: {3}",
                 disasterId,
                 disasterInfo.name,
                 disasterInfo.type,
                 disasterInfo.intensity);
             DebugLogger.Log(msg);
 
+            ////Pause when disaster start
             //if (TryDisableDisaster(disasterId, info))
             //{
             //    return;
@@ -461,7 +462,7 @@ namespace NaturalDisastersRenewal.DisasterServices
                     break;
                 case 3:
                     var disasterTarget = new Vector3(disasterInfoUnified.DisasterInfo.targetX, disasterInfoUnified.DisasterInfo.targetY, disasterInfoUnified.DisasterInfo.targetZ);
-                    EvacuatePartially(disasterTarget);
+                    PreparePartialEvacuation(disasterTarget);
                     break;
                 default:
                     break;
@@ -672,31 +673,22 @@ namespace NaturalDisastersRenewal.DisasterServices
             return isEvacuating;
         }
 
-        public void EvacuatePartially(Vector3 disasterTargetPosition, bool release = false)
+        public void PreparePartialEvacuation(Vector3 disasterTargetPosition, bool release = false)
         {
 
             //Get disaster Info
             DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+            float disasterRadioAffectation = 32f;
 
             if (disasterInfo == null)
-            {
-                return;
-            }
-
-            DebugLogger.Log($"Disaster targetPosition x:{disasterTargetPosition.x}, y:{disasterTargetPosition.y}, z:{disasterTargetPosition.z}");
+               return;
 
             //identify Shelters
             BuildingManager buildingManager = Singleton<BuildingManager>.instance;
             FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
-
             if (serviceBuildings == null)
-            {
                 return;
-            }
-
-            DebugLogger.Log("serviceBuildings.m_size:" + serviceBuildings.m_size);
-            List<Vector3> shelterPositions = new List<Vector3>();
 
             //It release all shelters, should be changed
             for (int i = 0; i < serviceBuildings.m_size; i++)
@@ -704,110 +696,14 @@ namespace NaturalDisastersRenewal.DisasterServices
                 ushort num = serviceBuildings.m_buffer[i];
                 if (num != 0)
                 {
-                    DebugLogger.Log($"Identifiying Evacuation Area...");
-
                     //here we got all shelter buildings
                     BuildingInfo info = buildingManager.m_buildings.m_buffer[num].Info;
 
                     var shelterPosition = buildingManager.m_buildings.m_buffer[num].m_position;
-                    if ((info.m_buildingAI as ShelterAI) != null && IsShelterInRiskZone(disasterTargetPosition, shelterPosition, 32f))
-                    {
-                        DebugLogger.Log($"Shelter found. Position:{shelterPosition.x}:{shelterPosition.z} WILL BE EVACUATED!!!");
+                    if ((info.m_buildingAI as ShelterAI) != null && IsShelterInRiskZone(disasterTargetPosition, shelterPosition, disasterRadioAffectation))
                         (info.m_buildingAI as ShelterAI)?.SetEmptying(num, ref buildingManager.m_buildings.m_buffer[num], release);
-                    }
-                    else
-                        DebugLogger.Log($"Shelter found. Position:{shelterPosition.x}:{shelterPosition.z} is in safe zone.");
-
-                    //if ((info.m_buildingAI as ShelterAI) != null)
-                    //{
-                    //    DebugLogger.Log($"Shelter Found...");
-
-                    //    var shelterPosition = buildingManager.m_buildings.m_buffer[num].m_position;
-                    //    shelterPositions.Add(shelterPosition);
-
-                    //    if (IsShelterInRiskZone(disasterTargetPosition, shelterPosition, 32f))
-                    //    {
-                    //        DebugLogger.Log($"Shelter in position:{shelterPosition.x}:{shelterPosition.z} WILL BE EVACUATED!!!");
-                    //        (info.m_buildingAI as ShelterAI)?.SetEmptying(num, ref buildingManager.m_buildings.m_buffer[num], release);
-
-                    //    }
-                    //    else
-                    //        DebugLogger.Log($"Shelter in position:{shelterPosition.x}:{shelterPosition.z} is in safe zone.");
-                    //}
-
-                    //var shelterInfo = (info.m_buildingAI as ShelterAI)?.m_spawnPosition; //dummy data just to verify type
-                    //if ((info.m_buildingAI as ShelterAI) != null)
-                    //{
-                    //    var shelterPosition = buildingManager.m_buildings.m_buffer[num].m_position;
-                    //    shelterPositions.Add(shelterPosition);
-                    //}
-
-                    //if ((object)info != null)
-                    //{
-                    //    (info.m_buildingAI as ShelterAI)?.SetEmptying(num, ref buildingManager.m_buildings.m_buffer[num], release);
-                    //}
                 }
-            }
-
-            //DebugLogger.Log($"Set Evacuation Area");
-            //if (disasterTargetPosition != null)
-            //{
-            //    SetSheltersToEvacuate(disasterTargetPosition, shelterPositions, 32f);
-            //}
-
-
-            //Compare locations
-
-            //select closer
-
-            //evacuate only selected shelters
-
-
-
-            //Get evacuation service buildings
-
-        }
-
-        //Based on AddEvacuationArea's DisasterManeger
-
-        public List<Vector3> SetSheltersToEvacuate(Vector3 disasterPosition, List<Vector3> shelterPositions, float evacuationRadius)
-        {
-            float xDisPosNeg = disasterPosition.x - evacuationRadius;
-            float xDisPosPosit = disasterPosition.x + evacuationRadius;
-            float zDisPosNeg = disasterPosition.z - evacuationRadius;
-            float zDisPosPosit = disasterPosition.z + evacuationRadius;
-            evacuationRadius *= evacuationRadius;
-
-
-            //Convert Sheltercoordinates to fixed values            
-            List<Vector3> affectedShelters = new List<Vector3>();
-
-            DebugLogger.Log("*****Shelter Count :" + shelterPositions.Count() + "*****");
-            DebugLogger.Log($"xDisPosNeg: {xDisPosNeg}, xDisPosPosit: {xDisPosPosit} || zDisPosNeg: {zDisPosNeg}, zDisPosPosit: {zDisPosPosit}");
-
-            int counter = 1;
-            foreach (var shelterPosition in shelterPositions)
-            {
-                DebugLogger.Log($"---------------------");
-                DebugLogger.Log($"Shelter Coordinates # {counter}");
-                var posText = $"Shelter Coordenates: ( xSh:{shelterPosition.x}, zSh:{shelterPosition.z} )";
-                DebugLogger.Log($"{posText}");
-
-                // Compare radius of circle with distance
-                // of its center from given point
-                if ((shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
-                    (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius)
-                {
-                    DebugLogger.Log("Coordinates are into Risk Zone :" + evacuationRadius);
-                    affectedShelters.Add(shelterPosition);
-                }
-                counter += 1;
-            }
-
-            DebugLogger.Log("*****affected Shelters Count :" + affectedShelters.Count() + " *****");
-            return affectedShelters;
-
-
+            }           
         }
 
         public Boolean IsShelterInRiskZone(Vector3 disasterPosition, Vector3 shelterPosition, float evacuationRadius)
@@ -823,23 +719,7 @@ namespace NaturalDisastersRenewal.DisasterServices
 
         }
 
-        private List<Vector3> FixPotencialShelterAffectedPosition(List<Vector3> sheltersPosition, float positionX, float positionZ)
-        {
-            List<Vector3> vecArr = new List<Vector3>();
-            foreach (var shelterPos in sheltersPosition)
-            {
-                int shelterPositionXFixed = (int)((positionX) / 38.4f + 128f);
-                int shelterPositionZFixed = (int)((positionZ) / 38.4f + 128f);
-                //float shelterPositionZFixed = ((float)(positionZ / 38.4f + 128f));
-                //float shelterPositionXFixed = ((float)(positionX / 38.4f + 128f));
-
-                DebugLogger.Log($"Shelter Fixed -> x:{shelterPos.x}, z:{shelterPos.z}, xFix:{shelterPositionXFixed}, zFix:{shelterPositionZFixed}");
-                Vector3 vec = new Vector3(shelterPositionXFixed, shelterPos.y, shelterPositionZFixed);
-                vecArr.Add(vec);
-            }
-
-            return vecArr;
-        }
+        
 
     }
 }
