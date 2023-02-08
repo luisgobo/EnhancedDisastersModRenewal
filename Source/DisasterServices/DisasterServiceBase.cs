@@ -435,8 +435,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             DebugLogger.Log(msg);
 
             //Getting issue check DIsaster extencion and container object
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-            DebugLogger.Log($"AutoFocusOnDisasterStarts value:{naturalDisasterSetup.DisableAutoFocusOnDisasterStarts}");
+            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;            
             DisasterExtension.SetAutoFocusOnDisasterBaseSettings(naturalDisasterSetup.DisableAutoFocusOnDisasterStarts);
 
             switch (disasterInfoUnified.EvacuationMode)
@@ -462,12 +461,11 @@ namespace NaturalDisastersRenewal.DisasterServices
                     break;
                 case 3:
                     var disasterTarget = new Vector3(disasterInfoUnified.DisasterInfo.targetX, disasterInfoUnified.DisasterInfo.targetY, disasterInfoUnified.DisasterInfo.targetZ);
-                    PreparePartialEvacuation(disasterTarget);
+                    PreparePartialEvacuation(disasterTarget, disasterInfoUnified.DisasterInfo.intensity);
                     break;
                 default:
                     break;
             }
-
         }
 
         protected virtual void DisasterStarting(DisasterInfo disasterInfo)
@@ -673,12 +671,14 @@ namespace NaturalDisastersRenewal.DisasterServices
             return isEvacuating;
         }
 
-        public void PreparePartialEvacuation(Vector3 disasterTargetPosition, bool release = false)
+        public void PreparePartialEvacuation(Vector3 disasterTargetPosition, byte disasterIntensity, bool release = false)
         {
 
             //Get disaster Info
             DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
-            float disasterRadioAffectation = 32f;
+            float disasterRadioAffectation = 32f; 
+            //Create a calculation based on disaster intensity
+            //***
 
             if (disasterInfo == null)
                return;
@@ -708,18 +708,15 @@ namespace NaturalDisastersRenewal.DisasterServices
 
         public Boolean IsShelterInRiskZone(Vector3 disasterPosition, Vector3 shelterPosition, float evacuationRadius)
         {
-            evacuationRadius *= evacuationRadius;
+            evacuationRadius *= evacuationRadius;           
             // Compare radius of circle with distance
             // of its center from given point
             return (
                 (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
-                (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= 
-                    evacuationRadius * evacuationRadius
+                (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius
             );
 
         }
-
-        
 
     }
 }
