@@ -67,6 +67,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
                 container.DisableAutoFocusOnDisasterStarts = fromContainer.DisableAutoFocusOnDisasterStarts;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
+                container.PartialEvacuationRadius = fromContainer.PartialEvacuationRadius;
 
                 container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
                 container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;

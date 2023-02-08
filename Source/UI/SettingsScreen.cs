@@ -21,6 +21,7 @@ namespace NaturalDisastersRenewal.UI
         //General
         UICheckBox UI_General_DisableAutoFocusOnDisasterStarts;
         UICheckBox UI_General_PauseOnDisasterStarts;
+        UISlider UI_General_PartialEvacuationRadius;
         UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
         UICheckBox UI_General_RecordDisasterEventsChkBox;
         UICheckBox UI_General_ShowDisasterPanelButton;
@@ -107,6 +108,8 @@ namespace NaturalDisastersRenewal.UI
             
             UI_General_DisableAutoFocusOnDisasterStarts.isChecked = c.DisableAutoFocusOnDisasterStarts;
             UI_General_PauseOnDisasterStarts.isChecked = c.PauseOnDisasterStarts;
+            UI_General_PartialEvacuationRadius.value = c.PartialEvacuationRadius;
+
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = c.ScaleMaxIntensityWithPopulation;
             UI_General_RecordDisasterEventsChkBox.isChecked = c.RecordDisasterEvents;
             UI_General_ShowDisasterPanelButton.isChecked = c.ShowDisasterPanelButton;
@@ -192,8 +195,7 @@ namespace NaturalDisastersRenewal.UI
             {
                 if (!freezeUI)
                 {
-                    disasterContainer.DisableAutoFocusOnDisasterStarts = isChecked;
-                    //DebugLogger.Log("000001-DisasterContainer.AutoFocusOnDisasterStarts changed: " + disasterContainer.DisableAutoFocusOnDisasterStarts);
+                    disasterContainer.DisableAutoFocusOnDisasterStarts = isChecked;                    
                     DisasterExtension.SetAutoFocusOnDisasterBaseSettings(disasterContainer.DisableAutoFocusOnDisasterStarts);
                 }
             });
@@ -206,6 +208,14 @@ namespace NaturalDisastersRenewal.UI
                                     
             });
             //UI_General_PauseOnDisasterStarts.tooltip = "Pause on disaster starts";
+
+            UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius", 300f, 4000f, 1000f, disasterContainer.PartialEvacuationRadius, delegate (float val)
+            {
+                if (!freezeUI)
+                    disasterContainer.PartialEvacuationRadius = val;
+            });
+            AddLabelToSlider(UI_General_PartialEvacuationRadius);
+            UI_General_PartialEvacuationRadius.tooltip = "Select the Radius (In meters) for Focused evacuations.";
 
             generalGroup.AddSpace(10);
 

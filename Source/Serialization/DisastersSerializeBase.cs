@@ -22,6 +22,7 @@ namespace NaturalDisastersRenewal.Serialization
 
                 s.WriteBool(c.DisableAutoFocusOnDisasterStarts);
                 s.WriteBool(c.PauseOnDisasterStarts);
+                s.WriteFloat(c.PartialEvacuationRadius);
 
                 s.WriteFloat(c.ToggleButtonPos.x);
                 s.WriteFloat(c.ToggleButtonPos.y);
@@ -36,6 +37,7 @@ namespace NaturalDisastersRenewal.Serialization
 
                 c.PauseOnDisasterStarts = s.ReadBool();
                 c.DisableAutoFocusOnDisasterStarts = s.ReadBool();
+                c.PartialEvacuationRadius = s.ReadFloat();
 
                 if (s.version >= 1)
                 {
@@ -60,6 +62,7 @@ namespace NaturalDisastersRenewal.Serialization
         //General options
         public bool DisableAutoFocusOnDisasterStarts = true;
         public bool PauseOnDisasterStarts = true;
+        public float PartialEvacuationRadius = 1000f;
 
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;

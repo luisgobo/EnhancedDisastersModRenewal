@@ -434,13 +434,8 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                                   $"EvacuationMode: {disasterInfoUnified.EvacuationMode}";
             DebugLogger.Log(msg);
 
-            //Getting issue check Disaster extencion and container object
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-
-            //var asd = $"ScaleMaxIntensityWithPopulation: {naturalDisasterSetup.ScaleMaxIntensityWithPopulation}. " +
-            //        $"RecordDisasterEvents: {naturalDisasterSetup.RecordDisasterEvents}. ShowDisasterPanelButton: {naturalDisasterSetup.ShowDisasterPanelButton} " +
-            //        $"PauseOnDisasterStarts: {naturalDisasterSetup.PauseOnDisasterStarts}. DisableAutoFocusOnDisasterStarts: {naturalDisasterSetup.DisableAutoFocusOnDisasterStarts}";
-            //DebugLogger.Log(asd);
+            //Getting issue check Disaster extension and container object
+            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;            
 
             DebugLogger.Log("SetAutoFocusOnDisasterBaseSettings: " + naturalDisasterSetup.DisableAutoFocusOnDisasterStarts);
             DisasterExtension.SetAutoFocusOnDisasterBaseSettings(naturalDisasterSetup.DisableAutoFocusOnDisasterStarts);
@@ -455,7 +450,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                     SetupAutomaticEvacuation();
                     break;
                 case 3:
-                    SetupAutomaticFocusedEvacuation(disasterInfoUnified.DisasterInfo, disasterInfoUnified.IgnoreDestructionZone);
+                    SetupAutomaticFocusedEvacuation(disasterInfoUnified.DisasterInfo, disasterInfoUnified.IgnoreDestructionZone, naturalDisasterSetup.PartialEvacuationRadius);
                     break;
                 default:
                     break;
@@ -686,7 +681,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             }
         }
 
-        void SetupAutomaticFocusedEvacuation(DisasterSettings disasterInfoSettings, bool ignoreDestructionZone, bool release = false)
+        void SetupAutomaticFocusedEvacuation(DisasterSettings disasterInfoSettings, bool ignoreDestructionZone, float disasterRadius, bool release = false)
         {
             var disasterTargetPosition = new Vector3(disasterInfoSettings.targetX, disasterInfoSettings.targetY, disasterInfoSettings.targetZ);
 
@@ -694,11 +689,8 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
 
             //Get Disaster Radio from Settings property
-            float disasterRadioEvacuation = 32f;
-
-            //Create a calculation based on disaster intensity            
-
-            //***
+            //float disasterRadioEvacuation = 32f;
+            float disasterRadioEvacuation = (float)Math.Sqrt(disasterRadius);
 
             if (disasterInfo == null)
                 return;
@@ -720,15 +712,17 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                     BuildingInfo info = buildingManager.m_buildings.m_buffer[num].Info;
 
                     var shelterPosition = buildingManager.m_buildings.m_buffer[num].m_position;
-                    if ((info.m_buildingAI as ShelterAI) != null && IsShelterInRiskZone(disasterTargetPosition, shelterPosition, disasterRadioEvacuation))
+                    if ((info.m_buildingAI as ShelterAI) != null && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterRadioEvacuation))
                     {
                         DebugLogger.Log($"Shelter is located in risk zone");
+                        
+                        //Once this is located into Risk Zone, it's needed verify if building would be ddestroyed by Natural disaster (setup in each one)                                                
+                        //Getting diaster core 
                         var disasterRadioDestruction = disasterRadioEvacuation / 3f;
+                        
                         //if Shelter will be destroyed, do not evacuate
-                        if (IsShelterInDestructionZone(disasterTargetPosition, shelterPosition, disasterRadioDestruction) && !ignoreDestructionZone)
-                        {
-                            DebugLogger.Log($"Shelter is located in Destruction Zone zone. DON'T EVACUATE");
-                        }
+                        if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterRadioDestruction) && !ignoreDestructionZone)
+                            DebugLogger.Log($"Shelter is located in Destruction Zone. DON'T EVACUATE");
                         else
                             (info.m_buildingAI as ShelterAI)?.SetEmptying(num, ref buildingManager.m_buildings.m_buffer[num], release);
 
@@ -738,7 +732,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
         }
 
-        Boolean IsShelterInRiskZone(Vector3 disasterPosition, Vector3 shelterPosition, float evacuationRadius)
+        Boolean IsShelterInDisasterZone(Vector3 disasterPosition, Vector3 shelterPosition, float evacuationRadius)
         {
             //First Squared Is required for correct calculation
             evacuationRadius *= evacuationRadius;
@@ -751,27 +745,27 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             );
         }
 
-        Boolean IsShelterInDestructionZone(Vector3 disasterPosition, Vector3 shelterPosition, float evacuationRadius)
-        {
-            DebugLogger.Log($"EvacuationRadius: {evacuationRadius}");
-            //First Squared Is required for correct calculation
-            evacuationRadius *= evacuationRadius;
-            DebugLogger.Log($"EvacuationRadius Squared: {evacuationRadius}");
+        //Boolean IsShelterInDestructionZone(Vector3 disasterPosition, Vector3 shelterPosition, float evacuationRadius)
+        //{
+        //    DebugLogger.Log($"EvacuationRadius: {evacuationRadius}");
+        //    //First Squared Is required for correct calculation
+        //    evacuationRadius *= evacuationRadius;
+        //    DebugLogger.Log($"EvacuationRadius Squared: {evacuationRadius}");
 
-            var formula = (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
-                (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z);
-            var erSqr2 = evacuationRadius * evacuationRadius;
+        //    var formula = (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
+        //        (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z);
+        //    var erSqr2 = evacuationRadius * evacuationRadius;
 
-            DebugLogger.Log($"Formula: {formula}");
-            DebugLogger.Log($"ErSqr: {erSqr2}");
+        //    DebugLogger.Log($"Formula: {formula}");
+        //    DebugLogger.Log($"ErSqr: {erSqr2}");
 
-            // Compare radius of circle with distance
-            // of its center from given point
-            return (
-                (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
-                (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= erSqr2
-            );
-        }
+        //    // Compare radius of circle with distance
+        //    // of its center from given point
+        //    return (
+        //        (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
+        //        (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= erSqr2
+        //    );
+        //}
 
     }
 }
