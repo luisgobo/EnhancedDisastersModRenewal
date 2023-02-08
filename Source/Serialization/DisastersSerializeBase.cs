@@ -29,7 +29,7 @@ namespace NaturalDisastersRenewal.Serialization
 
             public void Deserialize(DataSerializer s)
             {
-                DisastersSerializeBase c = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container;
+                DisastersSerializeBase c = Singleton<NaturalDisasterHandler>.instance.container;
                 c.ScaleMaxIntensityWithPopulation = s.ReadBool();
                 c.RecordDisasterEvents = s.ReadBool();
                 c.ShowDisasterPanelButton = s.ReadBool();
@@ -45,7 +45,7 @@ namespace NaturalDisastersRenewal.Serialization
 
             public void AfterDeserialize(DataSerializer s)
             {
-                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
             }
         }
 
@@ -59,8 +59,8 @@ namespace NaturalDisastersRenewal.Serialization
 
         //General options
         public bool DisableAutoFocusOnDisasterStarts = true;
-
         public bool PauseOnDisasterStarts = true;
+
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;
         public bool ShowDisasterPanelButton = true;

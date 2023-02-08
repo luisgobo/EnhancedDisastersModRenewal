@@ -13,6 +13,7 @@ namespace NaturalDisastersRenewal.Common
         public const string xmlSubPath = "Cities_Skylines";
         public const string xmlFilename = "NaturalDisastersRenewalModOptions.xml";
         public const string logFilename = "NaturalDisastersRenewalMod.log";
+        public const string dataId = "NaturalDisastersRenewalMod";
         public const string disasterListFileName = "Disasters.csv";
         public const string LogMsgPrefix = ">>> " + ModName + ": ";
 

@@ -263,6 +263,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.IgnoreDestructionZone = false;
 
             base.OnDisasterDetected(disasterInfoUnified);
         }

@@ -8,7 +8,6 @@ using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Serialization;
 using NaturalDisastersRenewal.UI;
 using System;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -38,24 +37,29 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
             newContainer.CheckObjects();
 
+            //DebugLogger.Log($"ReadFromFile - newContainer.DisableAutoFocusOnDisasterStarts: {newContainer.DisableAutoFocusOnDisasterStarts}");
+
             CopySettings(newContainer);
         }
 
         public void ResetToDefaultValues()
         {
             DisastersSerializeBase newContainer = new DisastersSerializeBase();
-            newContainer.CheckObjects();            
+            newContainer.CheckObjects();
             CopySettings(newContainer);
         }
 
         void CopySettings(DisastersSerializeBase fromContainer)
-        {
+        {            
             if (container == null)
             {
+                DebugLogger.Log($"container == null");
                 container = fromContainer;
             }
             else
             {
+                DebugLogger.Log($"container != null");
+
                 for (int i = 0; i < container.AllDisasters.Count; i++)
                 {
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
@@ -121,10 +125,10 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             {
                 var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
 
-                var msg= $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
+                var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
                 DebugLogger.Log(msg);
                 DebugLogger.Log("Disaster detected");
-                
+
                 foreach (DisasterServiceBase ed in container.AllDisasters)
                 {
                     if (ed.CheckDisasterAIType(dai))
@@ -132,7 +136,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                         ed.OnDisasterDeactivated(disasterInfo, disasterId, 0);
                         return;
                     }
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -152,7 +156,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                     if (disasterService.CheckDisasterAIType(disasterAI))
                     {
                         var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
-                        
+
                         var msg = $"disasterInfo1: type: {disasterInfo.type}, name:{disasterInfo.name}, " +
                                   $"location => x:{disasterInfo.targetX} y:{disasterInfo.targetX} z:{disasterInfo.targetZ}. " +
                                   $"Angle: {disasterInfo.angle}, intensity: {disasterInfo.intensity} ";
@@ -161,7 +165,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                         DisasterInfoModel disasterInfoUnified = new DisasterInfoModel()
                         {
                             DisasterInfo = disasterInfo,
-                            DisasterId = disasterId                            
+                            DisasterId = disasterId
                         };
 
                         disasterService.OnDisasterDetected(disasterInfoUnified);

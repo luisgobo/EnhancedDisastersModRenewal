@@ -12,5 +12,6 @@ namespace NaturalDisastersOverhaulRenewal.Models
         public DisasterSettings DisasterInfo;
         public ushort DisasterId;
         public int EvacuationMode = 0;
+        public bool IgnoreDestructionZone = true;
     }
 }

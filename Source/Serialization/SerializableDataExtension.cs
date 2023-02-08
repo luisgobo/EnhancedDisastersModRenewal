@@ -13,7 +13,7 @@ namespace NaturalDisastersRenewal.Serialization
 {
     public class SerializableDataExtension : ISerializableDataExtension
     {
-        public const string DataID = "EnhancedDisastersMod";
+        public const string DataID = CommonProperties.dataId;
         public const uint DataVersion = 3;
         ISerializableData serializableData;
 
@@ -30,7 +30,7 @@ namespace NaturalDisastersRenewal.Serialization
 
                 using (var stream = new MemoryStream())
                 {
-                    DisasterServices.LegacyStructure.NaturalDisasterHandler edm = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance;
+                    NaturalDisasterHandler edm = Singleton<NaturalDisasterHandler>.instance;
 
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new DisastersSerializeBase.Data());
 

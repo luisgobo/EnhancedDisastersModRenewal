@@ -7,10 +7,9 @@ using UnityEngine;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.UI.ComponentHelper;
-using System;
 using NaturalDisastersRenewal.Serialization;
 using NaturalDisastersRenewal.BaseGameExtensions;
-using NaturalDisastersRenewal.DisasterServices.LegacyStructure;
+
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -105,7 +104,7 @@ namespace NaturalDisastersRenewal.UI
             DisastersSerializeBase c = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container;
 
             freezeUI = true;
-
+            
             UI_General_DisableAutoFocusOnDisasterStarts.isChecked = c.DisableAutoFocusOnDisasterStarts;
             UI_General_PauseOnDisasterStarts.isChecked = c.PauseOnDisasterStarts;
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = c.ScaleMaxIntensityWithPopulation;
@@ -194,7 +193,7 @@ namespace NaturalDisastersRenewal.UI
                 if (!freezeUI)
                 {
                     disasterContainer.DisableAutoFocusOnDisasterStarts = isChecked;
-                    DebugLogger.Log("000001-DisasterContainer.AutoFocusOnDisasterStarts changed: " + disasterContainer.DisableAutoFocusOnDisasterStarts);
+                    //DebugLogger.Log("000001-DisasterContainer.AutoFocusOnDisasterStarts changed: " + disasterContainer.DisableAutoFocusOnDisasterStarts);
                     DisasterExtension.SetAutoFocusOnDisasterBaseSettings(disasterContainer.DisableAutoFocusOnDisasterStarts);
                 }
             });
