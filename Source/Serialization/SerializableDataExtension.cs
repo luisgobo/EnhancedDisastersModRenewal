@@ -2,7 +2,7 @@
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.DisasterServices;
+using NaturalDisastersRenewal.DisasterServices.LegacyStructure;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.UI;
 using System;
@@ -30,7 +30,7 @@ namespace NaturalDisastersRenewal.Serialization
 
                 using (var stream = new MemoryStream())
                 {
-                    DisasterServices.NaturalDisasterHandler edm = Singleton<DisasterServices.NaturalDisasterHandler>.instance;
+                    DisasterServices.LegacyStructure.NaturalDisasterHandler edm = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance;
 
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new DisastersSerializeBase.Data());
 

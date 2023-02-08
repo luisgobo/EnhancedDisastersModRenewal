@@ -7,7 +7,7 @@ using NaturalDisastersRenewal.Common.enums;
 using System;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class MeteorStrikeService : DisasterServiceBase
     {

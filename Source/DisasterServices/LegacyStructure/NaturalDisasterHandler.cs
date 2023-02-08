@@ -12,7 +12,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {

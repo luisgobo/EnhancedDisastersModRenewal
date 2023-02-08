@@ -15,7 +15,7 @@ using UnityEngine;
 using static PathUnit;
 using UnityObject = UnityEngine.Object;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
 {
     public abstract class DisasterServiceBase

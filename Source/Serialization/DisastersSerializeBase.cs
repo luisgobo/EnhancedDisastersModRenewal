@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.DisasterServices;
+using NaturalDisastersRenewal.DisasterServices.LegacyStructure;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
@@ -29,7 +29,7 @@ namespace NaturalDisastersRenewal.Serialization
 
             public void Deserialize(DataSerializer s)
             {
-                DisastersSerializeBase c = Singleton<DisasterServices.NaturalDisasterHandler>.instance.container;
+                DisastersSerializeBase c = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container;
                 c.ScaleMaxIntensityWithPopulation = s.ReadBool();
                 c.RecordDisasterEvents = s.ReadBool();
                 c.ShowDisasterPanelButton = s.ReadBool();
@@ -45,7 +45,7 @@ namespace NaturalDisastersRenewal.Serialization
 
             public void AfterDeserialize(DataSerializer s)
             {
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
             }
         }
 

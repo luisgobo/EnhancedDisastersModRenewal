@@ -7,7 +7,7 @@ using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class EarthquakeService : DisasterServiceBase
     {

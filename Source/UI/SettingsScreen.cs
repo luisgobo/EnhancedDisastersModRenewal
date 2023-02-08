@@ -10,6 +10,7 @@ using NaturalDisastersRenewal.UI.ComponentHelper;
 using System;
 using NaturalDisastersRenewal.Serialization;
 using NaturalDisastersRenewal.BaseGameExtensions;
+using NaturalDisastersRenewal.DisasterServices.LegacyStructure;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -101,7 +102,7 @@ namespace NaturalDisastersRenewal.UI
             if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisastersSerializeBase c = Singleton<DisasterServices.NaturalDisasterHandler>.instance.container;
+            DisastersSerializeBase c = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container;
 
             freezeUI = true;
 
@@ -182,7 +183,7 @@ namespace NaturalDisastersRenewal.UI
 
         public void BuildSettingsMenu(UIHelperBase helper)
         {
-            DisastersSerializeBase disasterContainer = Singleton<DisasterServices.NaturalDisasterHandler>.instance.container;
+            DisastersSerializeBase disasterContainer = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container;
 
             #region Gegeral options
 
@@ -228,7 +229,7 @@ namespace NaturalDisastersRenewal.UI
                 if (!freezeUI)
                     disasterContainer.ShowDisasterPanelButton = isChecked;
 
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
             });
 
             generalGroup.AddSpace(10);
@@ -598,16 +599,16 @@ namespace NaturalDisastersRenewal.UI
 
             saveOptionsGroup.AddButton("Save as default for new games", delegate ()
             {
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.container.Save();
+                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container.Save();
             });
             saveOptionsGroup.AddButton("Reset to the last saved values", delegate ()
             {
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.ReadValuesFromFile();
+                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.ReadValuesFromFile();
                 EnhancedDisastersOptionsUpdateUI();
             });
             saveOptionsGroup.AddButton("Reset to the mod default values", delegate ()
             {
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.ResetToDefaultValues();
+                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.ResetToDefaultValues();
                 EnhancedDisastersOptionsUpdateUI();
             });
 

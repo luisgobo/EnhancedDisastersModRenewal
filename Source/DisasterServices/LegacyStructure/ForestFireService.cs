@@ -7,7 +7,7 @@ using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 using System;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class ForestFireService : DisasterServiceBase
     {

@@ -5,7 +5,7 @@ using NaturalDisastersOverhaulRenewal.Models;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class TsunamiService : DisasterServiceBase
     {
