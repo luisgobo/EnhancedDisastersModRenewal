@@ -466,7 +466,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                                     DebugLogger.Log($"Shelter to be released: {shelterId}");
                                     //It's comming here but release is not beig executed, probably ref element
                                     var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
-                                    SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);                                    
+                                    SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);
                                 }
                             }
                             break;
@@ -474,7 +474,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                             break;
                     }
 
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -515,11 +515,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                     break;
             }
         }
-
-        protected virtual void DisasterStarting(DisasterInfo disasterInfo)
-        {
-        }
-
+        
         public virtual void OnDisasterStarted(byte intensity)
         {
             float framesPerDay = Helper.FramesPerDay;
@@ -527,6 +523,10 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             calmDaysLeft = calmDays * intensity / 100; // TO DO: May be define minimum calmDays
             probabilityWarmupDaysLeft = probabilityWarmupDays;
             intensityWarmupDaysLeft = intensityWarmupDays;
+        }
+
+        protected virtual void DisasterStarting(DisasterInfo disasterInfo)
+        {
         }
 
         public abstract bool CheckDisasterAIType(object disasterAI);
@@ -781,7 +781,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                         else
                         {
                             DebugLogger.Log($"Shelter wont be destroyed, Lets evacuate!!!");
-                            SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);                            
+                            SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                         }
                     }
                 }
@@ -792,7 +792,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
         }
 
-        private void SetBuidingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
+        void SetBuidingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
         {
             shelterAI?.SetEmptying(num, ref buildingData, release);
         }
