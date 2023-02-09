@@ -40,8 +40,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                 DebugLogger.Log("newContainer has something, then check it: ");
     
             newContainer.CheckObjects();
-
-            //DebugLogger.Log($"ReadFromFile - newContainer.DisableAutoFocusOnDisasterStarts: {newContainer.DisableDisasterFocus}");
+            
             CopySettings(newContainer);
         }
 
@@ -180,26 +179,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                         return;
                     }
                 }
-
-                //if (ShouldAutoEvacuate(disasterInfo.type))
-                //{
-                //    DebugLogger.Log("Is auto-evacuate disaster");
-                //    if (!IsEvacuating())
-                //    {
-                //        DebugLogger.Log("Starting evacuation");
-                //        DisasterManager.instance.EvacuateAll(false);
-                //    }
-                //    else
-                //    {
-                //        DebugLogger.Log("Already evacuating");
-                //    }
-
-                //    if (ShouldManualRelease(disasterInfo.type))
-                //    {
-                //        DebugLogger.Log("Should be manually released");
-                //        _manualReleaseDisasters.Add(disasterId);
-                //    }
-                //}
+                
             }
             catch (Exception ex)
             {

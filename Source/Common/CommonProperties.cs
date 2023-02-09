@@ -21,8 +21,7 @@ namespace NaturalDisastersRenewal.Common
             => string.Format("Natural Disaster Overhaul Base including Ragnarokg's mod enhancements and more. (Version \" {0} \")", ModLastVersionYear);
 
         public static string GetOptionsFilePath()
-        {
-            //return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Colossal Order", "Cities_Skylines", optionsFileName);
+        {            
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             path = Path.Combine(path, xmlMainPath);
             path = Path.Combine(path, xmlSubPath);
