@@ -62,7 +62,6 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
         // Cooldown variables
         protected int calmDays = 0;
-
         protected float calmDaysLeft = 0;
         protected int probabilityWarmupDays = 0;
         protected float probabilityWarmupDaysLeft = 0;
@@ -89,9 +88,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
         FieldInfo evacuatingField;
         WarningPhasePanel phasePanel;
         readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
-        List<DisasterInfoModel> activeDisasters = new List<DisasterInfoModel>();
-
-
+        List<DisasterInfoModel> activeFocusedDisasters = new List<DisasterInfoModel>();
 
         // Public
         public abstract string GetName();
@@ -406,41 +403,43 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                     return;
                 }
 
-                var disasterFinishing = activeDisasters.Where(ad => ad.DisasterId == disasterInfoUnified.DisasterId).FirstOrDefault();
+                var disasterFinishing = activeFocusedDisasters.Where(ad => ad.DisasterId == disasterInfoUnified.DisasterId).FirstOrDefault();
 
                 if (disasterFinishing != null)
                 {
-                    activeDisasters.Remove(disasterFinishing);
-                    DebugLogger.Log("Active disasters: " + activeDisasters.Count);
+                    activeFocusedDisasters.Remove(disasterFinishing);
+                    DebugLogger.Log("Active disasters: " + activeFocusedDisasters.Count);
 
                     switch (disasterInfoUnified.EvacuationMode)
                     {
                         case EvacuationOptions.ManualEvacuation:
                             break;
                         case EvacuationOptions.AutoEvacuation:
-                            if (!manualReleaseDisasters.Any())
-                            {
-                                DebugLogger.Log("Auto releasing citizens");
-                                DisasterManager.instance.EvacuateAll(true);
-                            }
-                            break;
+                            //if (!manualReleaseDisasters.Any())
+                            //{
+                            //    DebugLogger.Log("Auto releasing citizens");
+                            //    DisasterManager.instance.EvacuateAll(true);
+                            //}
+                            //break;
                         case EvacuationOptions.FocusedAutoEvacuation:
 
-                            if (!manualReleaseDisasters.Any() && activeDisasters.Count == 0)
+                            if (!manualReleaseDisasters.Any() && !activeFocusedDisasters.Any())
                             {
                                 DebugLogger.Log("Auto releasing citizens");
                                 DisasterManager.instance.EvacuateAll(true);
+                                activeFocusedDisasters.Clear();
+                                break;
                             }
 
                             if (manualReleaseDisasters.Any())
                                 break;
 
-                            if (activeDisasters.Count > 0)
+                            if (activeFocusedDisasters.Any())
                             {
                                 var pendingShelters = new List<ushort>();
+                                
                                 //If pending disaster then get all pending shelters that souldnt be released
-
-                                foreach (var disaster in activeDisasters)
+                                foreach (var disaster in activeFocusedDisasters)
                                 {
                                     //this is not being filled
                                     foreach (var shelterId in disaster.ShelterList)
@@ -787,7 +786,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                 }
             }
 
-            activeDisasters.Add(disasterInfoModel);
+            activeFocusedDisasters.Add(disasterInfoModel);
             DebugLogger.Log($"Shelters registered: {disasterInfoModel.ShelterList.Count}");
 
         }
