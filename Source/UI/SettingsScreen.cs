@@ -18,8 +18,10 @@ namespace NaturalDisastersRenewal.UI
         bool freezeUI = false;
         readonly string evacuationModeText = "Evacuation Mode: ";
 
+        #region UI Components
+
         //General
-        UICheckBox UI_General_DisableAutoFocusOnDisasterStarts;
+        UICheckBox UI_General_DisableDisasterFocus;
         UICheckBox UI_General_PauseOnDisasterStarts;
         UISlider UI_General_PartialEvacuationRadius;
         UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
@@ -77,6 +79,8 @@ namespace NaturalDisastersRenewal.UI
         //Next enhancements
         //UIDropDown UI_StructureCollapse_AutoEvacuateRelease;
         //UIDropDown UI_StructureFire_AutoEvacuateRelease;        
+        
+        #endregion
 
         #region Options UI
 
@@ -103,10 +107,10 @@ namespace NaturalDisastersRenewal.UI
                 return;
 
             DisastersSerializeBase c = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container;
-
+            //DebugLogger.Log("<<<<<<<< c.DisableDisasterFocus:" + c.DisableDisasterFocus);
             freezeUI = true;
             
-            UI_General_DisableAutoFocusOnDisasterStarts.isChecked = c.DisableAutoFocusOnDisasterStarts;
+            UI_General_DisableDisasterFocus.isChecked = c.DisableDisasterFocus;
             UI_General_PauseOnDisasterStarts.isChecked = c.PauseOnDisasterStarts;
             UI_General_PartialEvacuationRadius.value = c.PartialEvacuationRadius;
 
@@ -186,20 +190,21 @@ namespace NaturalDisastersRenewal.UI
         public void BuildSettingsMenu(UIHelperBase helper)
         {
             DisastersSerializeBase disasterContainer = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container;
+            //DebugLogger.Log("Deserializing and getting focusOn disaster: "+ disasterContainer.DisableDisasterFocus);
 
             #region Gegeral options
 
             UIHelperBase generalGroup = helper.AddGroup("General");
 
-            UI_General_DisableAutoFocusOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Disable automatic disaster follow when it starts.", disasterContainer.DisableAutoFocusOnDisasterStarts, delegate (bool isChecked)
+            UI_General_DisableDisasterFocus = (UICheckBox)generalGroup.AddCheckbox("Disable automatic disaster follow when it starts.", disasterContainer.DisableDisasterFocus, delegate (bool isChecked)
             {
                 if (!freezeUI)
                 {
-                    disasterContainer.DisableAutoFocusOnDisasterStarts = isChecked;                    
-                    DisasterExtension.SetAutoFocusOnDisasterBaseSettings(disasterContainer.DisableAutoFocusOnDisasterStarts);
+                    disasterContainer.DisableDisasterFocus = isChecked;
+                    DisasterExtension.SetDisableDisasterFocus(disasterContainer.DisableDisasterFocus);
                 }
             });
-            //UI_General_AutoFocusOnDisaster.tooltip = "Autofocus on disaster";
+            
 
             UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Pause on disaster starts", disasterContainer.PauseOnDisasterStarts, delegate (bool isChecked)
             {
@@ -207,7 +212,7 @@ namespace NaturalDisastersRenewal.UI
                     disasterContainer.PauseOnDisasterStarts = isChecked;
                                     
             });
-            //UI_General_PauseOnDisasterStarts.tooltip = "Pause on disaster starts";
+            
 
             UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius", 300f, 4000f, 1000f, disasterContainer.PartialEvacuationRadius, delegate (float val)
             {

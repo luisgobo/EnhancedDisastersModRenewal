@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace NaturalDisastersOverhaulRenewal.Models
+namespace NaturalDisastersRenewal.Models
 {
     public class DisasterInfoModel
     {

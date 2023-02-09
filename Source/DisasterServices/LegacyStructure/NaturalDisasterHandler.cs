@@ -2,7 +2,7 @@
 using ColossalFramework.UI;
 using HarmonyLib;
 using ICities;
-using NaturalDisastersOverhaulRenewal.Models;
+using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Serialization;
@@ -32,13 +32,15 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             DisastersSerializeBase newContainer = DisastersSerializeBase.CreateFromFile();
             if (newContainer == null)
             {
+                DebugLogger.Log("newContainer is null");
                 newContainer = new DisastersSerializeBase();
             }
-
+            else
+                DebugLogger.Log("newContainer has something, then check it: ");
+    
             newContainer.CheckObjects();
 
-            //DebugLogger.Log($"ReadFromFile - newContainer.DisableAutoFocusOnDisasterStarts: {newContainer.DisableAutoFocusOnDisasterStarts}");
-
+            //DebugLogger.Log($"ReadFromFile - newContainer.DisableAutoFocusOnDisasterStarts: {newContainer.DisableDisasterFocus}");
             CopySettings(newContainer);
         }
 
@@ -64,8 +66,8 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                 {
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
                 }
-
-                container.DisableAutoFocusOnDisasterStarts = fromContainer.DisableAutoFocusOnDisasterStarts;
+                
+                container.DisableDisasterFocus = fromContainer.DisableDisasterFocus;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
                 container.PartialEvacuationRadius = fromContainer.PartialEvacuationRadius;
 

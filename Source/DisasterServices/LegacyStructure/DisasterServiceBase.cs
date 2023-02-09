@@ -2,7 +2,7 @@
 using ColossalFramework.IO;
 using HarmonyLib;
 using ICities;
-using NaturalDisastersOverhaulRenewal.Models;
+using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
@@ -42,7 +42,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                     disaster.calmDaysLeft = s.ReadInt32() * daysPerFrame;
                     disaster.probabilityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
                     disaster.intensityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
-                    disaster.EvacuationMode = s.ReadInt32();
+                    disaster.EvacuationMode = s.ReadInt32();                    
                 }
                 else
                 {
@@ -436,9 +436,8 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
             //Getting issue check Disaster extension and container object
             var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;            
-
-            DebugLogger.Log("SetAutoFocusOnDisasterBaseSettings: " + naturalDisasterSetup.DisableAutoFocusOnDisasterStarts);
-            DisasterExtension.SetAutoFocusOnDisasterBaseSettings(naturalDisasterSetup.DisableAutoFocusOnDisasterStarts);
+            
+            DisasterExtension.SetDisableDisasterFocus(naturalDisasterSetup.DisableDisasterFocus);
 
             switch (disasterInfoUnified.EvacuationMode)
             {

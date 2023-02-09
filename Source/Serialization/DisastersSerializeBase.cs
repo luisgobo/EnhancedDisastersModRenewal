@@ -20,7 +20,7 @@ namespace NaturalDisastersRenewal.Serialization
                 s.WriteBool(c.RecordDisasterEvents);
                 s.WriteBool(c.ShowDisasterPanelButton);
 
-                s.WriteBool(c.DisableAutoFocusOnDisasterStarts);
+                s.WriteBool(c.DisableDisasterFocus);
                 s.WriteBool(c.PauseOnDisasterStarts);
                 s.WriteFloat(c.PartialEvacuationRadius);
 
@@ -36,7 +36,7 @@ namespace NaturalDisastersRenewal.Serialization
                 c.ShowDisasterPanelButton = s.ReadBool();
 
                 c.PauseOnDisasterStarts = s.ReadBool();
-                c.DisableAutoFocusOnDisasterStarts = s.ReadBool();
+                c.DisableDisasterFocus = s.ReadBool();
                 c.PartialEvacuationRadius = s.ReadFloat();
 
                 if (s.version >= 1)
@@ -60,7 +60,7 @@ namespace NaturalDisastersRenewal.Serialization
         public MeteorStrikeService MeteorStrike;
 
         //General options
-        public bool DisableAutoFocusOnDisasterStarts = true;
+        public bool DisableDisasterFocus = true;
         public bool PauseOnDisasterStarts = true;
         public float PartialEvacuationRadius = 1000f;
 
