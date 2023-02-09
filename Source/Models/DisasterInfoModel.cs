@@ -14,5 +14,6 @@ namespace NaturalDisastersRenewal.Models
         public ushort DisasterId;
         public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
         public bool IgnoreDestructionZone = true;
+        public List<ShelterInfoModel> ShelterList= new List<ShelterInfoModel>();
     }
 }

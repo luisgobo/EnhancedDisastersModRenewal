@@ -178,7 +178,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
             BaseOccurrencePerYear = 10.0f;
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
-            EvacuationMode = 0;
+            EvacuationMode = EvacuationOptions.ManualEvacuation;
 
             meteorEvents = new MeteorEvent[] {
                 MeteorEvent.Init("Long period meteor", 9, 100),
@@ -253,10 +253,12 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             base.OnDisasterActivated(disasterInfo, disasterId);
         }
 
-        public override void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId, EvacuationOptions releaseType)
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified)
         {
-            disasterInfo.type |= DisasterType.MeteorStrike;
-            base.OnDisasterDeactivated(disasterInfo, disasterId, EvacuationMode);
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.IgnoreDestructionZone = false;
+            base.OnDisasterDeactivated(disasterInfoUnified);
         }
 
         public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)

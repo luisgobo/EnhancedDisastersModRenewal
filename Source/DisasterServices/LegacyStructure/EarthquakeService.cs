@@ -75,7 +75,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
             WarmupYears = 3;
-            EvacuationMode = 0;
+            EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
         [System.Xml.Serialization.XmlElement]

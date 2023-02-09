@@ -48,7 +48,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             calmDays = 60;
             probabilityWarmupDays = 30;
             intensityWarmupDays = 60;
-            EvacuationMode = 0;
+            EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
         public override string GetProbabilityTooltip()

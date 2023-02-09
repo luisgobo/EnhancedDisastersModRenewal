@@ -10,6 +10,7 @@ using NaturalDisastersRenewal.UI;
 using System;
 using System.Reflection;
 using UnityEngine;
+using NaturalDisastersRenewal.Common.enums;
 
 namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
@@ -136,7 +137,11 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                 {
                     if (ed.CheckDisasterAIType(dai))
                     {
-                        ed.OnDisasterDeactivated(disasterInfo, disasterId, 0);
+
+                        ed.OnDisasterDeactivated(new DisasterInfoModel(){ 
+                            DisasterInfo = disasterInfo, 
+                            DisasterId =  disasterId                            
+                        });
                         return;
                     }
                 }

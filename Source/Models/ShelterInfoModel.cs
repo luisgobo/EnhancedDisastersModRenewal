@@ -4,6 +4,10 @@
     {
         public ushort ShelterId;
         public Building BuildingData;
-        public ShelterAI ShelterData;
+        public ShelterAI ShelterData {
+            get {
+                return BuildingData.Info?.m_buildingAI as ShelterAI;
+            } 
+        }
     }
 }

@@ -57,7 +57,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             calmDays = 7;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
-            EvacuationMode = 0;
+            EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
         protected override void OnSimulationFrameLocal()
