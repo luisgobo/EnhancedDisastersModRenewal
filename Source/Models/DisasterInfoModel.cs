@@ -1,4 +1,5 @@
 ﻿using ICities;
+using NaturalDisastersRenewal.Common.enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace NaturalDisastersRenewal.Models
     {
         public DisasterSettings DisasterInfo;
         public ushort DisasterId;
-        public int EvacuationMode = 0;
+        public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
         public bool IgnoreDestructionZone = true;
     }
 }

@@ -253,7 +253,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             base.OnDisasterActivated(disasterInfo, disasterId);
         }
 
-        public override void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId, int releaseType)
+        public override void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId, EvacuationOptions releaseType)
         {
             disasterInfo.type |= DisasterType.MeteorStrike;
             base.OnDisasterDeactivated(disasterInfo, disasterId, EvacuationMode);

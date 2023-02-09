@@ -29,7 +29,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                 s.WriteFloat(disaster.calmDaysLeft);
                 s.WriteFloat(disaster.probabilityWarmupDaysLeft);
                 s.WriteFloat(disaster.intensityWarmupDaysLeft);
-                s.WriteInt32(disaster.EvacuationMode);
+                s.WriteInt32((int)disaster.EvacuationMode);
             }
 
             public void DeserializeCommonParameters(DataSerializer s, DisasterServiceBase disaster)
@@ -42,14 +42,14 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                     disaster.calmDaysLeft = s.ReadInt32() * daysPerFrame;
                     disaster.probabilityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
                     disaster.intensityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
-                    disaster.EvacuationMode = s.ReadInt32();                    
+                    disaster.EvacuationMode = (EvacuationOptions)s.ReadInt32();
                 }
                 else
                 {
                     disaster.calmDaysLeft = s.ReadFloat();
                     disaster.probabilityWarmupDaysLeft = s.ReadFloat();
                     disaster.intensityWarmupDaysLeft = s.ReadFloat();
-                    disaster.EvacuationMode = s.ReadInt32();
+                    disaster.EvacuationMode = (EvacuationOptions)s.ReadInt32();
                 }
             }
 
@@ -83,7 +83,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
         // Disaster public properties (to be saved in xml)
         public bool Enabled = true;
 
-        public int EvacuationMode = 0;
+        public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
         public float BaseOccurrencePerYear = 1.0f;
 
 
@@ -381,7 +381,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
         }
 
-        public virtual void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId, int releaseType)
+        public virtual void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId, EvacuationOptions releaseType)
         {
             try
             {
@@ -405,11 +405,11 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                     return;
                 }
 
-                DebugLogger.Log("ShouldAutoRelease: " + ShouldAutoRelease(releaseType));
+                DebugLogger.Log("ShouldAutoRelease: " + ShouldAutoRelease((int)releaseType));
                 DebugLogger.Log("Existmanual releases: " + !manualReleaseDisasters.Any());
 
                 //based on dister setup and list of manual releases check if autorelease
-                if (ShouldAutoRelease(releaseType) && !manualReleaseDisasters.Any())
+                if (ShouldAutoRelease((int)releaseType) && !manualReleaseDisasters.Any())
                 {
                     DebugLogger.Log("Auto releasing citizens");
                     DisasterManager.instance.EvacuateAll(true);
@@ -440,15 +440,14 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             DisasterExtension.SetDisableDisasterFocus(naturalDisasterSetup.DisableDisasterFocus);
 
             switch (disasterInfoUnified.EvacuationMode)
-            {
-                case 0:
-                case 1:
+            {                
+                case EvacuationOptions.ManualEvacuation:
                     SetupManualEvacuation(disasterInfoUnified.DisasterId);
                     break;
-                case 2: //Auto evacuate all shelters
+                case EvacuationOptions.AutoEvacuation: //Auto evacuate all shelters
                     SetupAutomaticEvacuation();
                     break;
-                case 3:
+                case EvacuationOptions.FocusedAutoEvacuation:
                     SetupAutomaticFocusedEvacuation(disasterInfoUnified.DisasterInfo, disasterInfoUnified.IgnoreDestructionZone, naturalDisasterSetup.PartialEvacuationRadius);
                     break;
                 default:

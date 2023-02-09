@@ -9,7 +9,7 @@ using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.UI.ComponentHelper;
 using NaturalDisastersRenewal.Serialization;
 using NaturalDisastersRenewal.BaseGameExtensions;
-
+using NaturalDisastersRenewal.Common.enums;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -119,41 +119,41 @@ namespace NaturalDisastersRenewal.UI
             UI_General_ShowDisasterPanelButton.isChecked = c.ShowDisasterPanelButton;
 
             UI_ForestFire_Enabled.isChecked = c.ForestFire.Enabled;
-            UI_ForestFire_EvacuationMode.selectedIndex = c.ForestFire.EvacuationMode;
+            UI_ForestFire_EvacuationMode.selectedIndex = (int)c.ForestFire.EvacuationMode;
             UI_ForestFireMaxProbability.value = c.ForestFire.BaseOccurrencePerYear;
             UI_ForestFire_WarmupDays.value = c.ForestFire.WarmupDays;
 
             UI_Thunderstorm_Enabled.isChecked = c.Thunderstorm.Enabled;
-            UI_Thunderstorm_EvacuationMode.selectedIndex = c.Thunderstorm.EvacuationMode;
+            UI_Thunderstorm_EvacuationMode.selectedIndex = (int)c.Thunderstorm.EvacuationMode;
             UI_Thunderstorm_MaxProbability.value = c.Thunderstorm.BaseOccurrencePerYear;
             UI_Thunderstorm_MaxProbabilityMonth.selectedIndex = c.Thunderstorm.MaxProbabilityMonth - 1;
             UI_Thunderstorm_RainFactor.value = c.Thunderstorm.RainFactor;
 
             UI_Sinkhole_Enabled.isChecked = c.Sinkhole.Enabled;
-            UI_Sinkhole_EvacuationMode.selectedIndex = c.Sinkhole.EvacuationMode;
+            UI_Sinkhole_EvacuationMode.selectedIndex = (int)c.Sinkhole.EvacuationMode;
             UI_Sinkhole_MaxProbability.value = c.Sinkhole.BaseOccurrencePerYear;
             UI_Sinkhole_GroundwaterCapacity.value = c.Sinkhole.GroundwaterCapacity;
 
             UI_Tornado_Enabled.isChecked = c.Tornado.Enabled;
-            UI_Tornado_EvacuationMode.selectedIndex = c.Tornado.EvacuationMode;
+            UI_Tornado_EvacuationMode.selectedIndex = (int)c.Tornado.EvacuationMode;
             UI_Tornado_MaxProbability.value = c.Tornado.BaseOccurrencePerYear;
             UI_Tornado_MaxProbabilityMonth.selectedIndex = c.Tornado.MaxProbabilityMonth - 1;
             UI_Tornado_NoDuringFog.isChecked = c.Tornado.NoTornadoDuringFog;
 
             UI_Tsunami_Enabled.isChecked = c.Tsunami.Enabled;
-            UI_Tsunami_EvacuationMode.selectedIndex = c.Tsunami.EvacuationMode;
+            UI_Tsunami_EvacuationMode.selectedIndex = (int)c.Tsunami.EvacuationMode;
             UI_Tsunami_MaxProbability.value = c.Tsunami.BaseOccurrencePerYear;
             UI_Tsunami_WarmupYears.value = c.Tsunami.WarmupYears;
 
             UI_Earthquake_Enabled.isChecked = c.Earthquake.Enabled;
-            UI_Earthquake_EvacuationMode.selectedIndex = c.Earthquake.EvacuationMode;
+            UI_Earthquake_EvacuationMode.selectedIndex = (int)c.Earthquake.EvacuationMode;
             UI_Earthquake_MaxProbability.value = c.Earthquake.BaseOccurrencePerYear;
             UI_Earthquake_WarmupYears.value = c.Earthquake.WarmupYears;
             UI_Earthquake_AftershocksEnabled.isChecked = c.Earthquake.AftershocksEnabled;
             UI_Earthquake_NoCrack.isChecked = c.Earthquake.NoCracks;
 
             UI_MeteorStrike_Enabled.isChecked = c.MeteorStrike.Enabled;
-            UI_MeteorStrike_EvacuationMode.selectedIndex = c.MeteorStrike.EvacuationMode;
+            UI_MeteorStrike_EvacuationMode.selectedIndex = (int)c.MeteorStrike.EvacuationMode;
             UI_MeteorStrike_MaxProbability.value = c.MeteorStrike.BaseOccurrencePerYear;
             UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(0);
             UI_MeteorStrike_MeteorMediumPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(1);
@@ -319,7 +319,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.ForestFire.EvacuationMode = selection;                        
+                        disasterContainer.ForestFire.EvacuationMode = (EvacuationOptions)selection;                        
                     }
                 }
             );
@@ -368,7 +368,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Thunderstorm.EvacuationMode = selection;
+                        disasterContainer.Thunderstorm.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
             );
@@ -408,7 +408,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Sinkhole.EvacuationMode = selection;
+                        disasterContainer.Sinkhole.EvacuationMode = (EvacuationOptions)selection;
                     }
                 });
 
@@ -453,7 +453,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Tornado.EvacuationMode = selection;
+                        disasterContainer.Tornado.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
             );
@@ -492,7 +492,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Tsunami.EvacuationMode = selection;
+                        disasterContainer.Tsunami.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
            );
@@ -547,7 +547,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Earthquake.EvacuationMode = selection;
+                        disasterContainer.Earthquake.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
             );
@@ -597,7 +597,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.MeteorStrike.EvacuationMode = selection;
+                        disasterContainer.MeteorStrike.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
             );
