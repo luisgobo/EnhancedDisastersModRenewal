@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.DisasterServices;
+using NaturalDisastersRenewal.DisasterServices.LegacyStructure;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
@@ -20,8 +20,9 @@ namespace NaturalDisastersRenewal.Serialization
                 s.WriteBool(c.RecordDisasterEvents);
                 s.WriteBool(c.ShowDisasterPanelButton);
 
-                s.WriteBool(c.AutoFocusOnDisasterStarts);
+                s.WriteBool(c.DisableDisasterFocus);
                 s.WriteBool(c.PauseOnDisasterStarts);
+                s.WriteFloat(c.PartialEvacuationRadius);
 
                 s.WriteFloat(c.ToggleButtonPos.x);
                 s.WriteFloat(c.ToggleButtonPos.y);
@@ -29,13 +30,14 @@ namespace NaturalDisastersRenewal.Serialization
 
             public void Deserialize(DataSerializer s)
             {
-                DisastersSerializeBase c = Singleton<DisasterServices.NaturalDisasterHandler>.instance.container;
+                DisastersSerializeBase c = Singleton<NaturalDisasterHandler>.instance.container;
                 c.ScaleMaxIntensityWithPopulation = s.ReadBool();
                 c.RecordDisasterEvents = s.ReadBool();
                 c.ShowDisasterPanelButton = s.ReadBool();
 
                 c.PauseOnDisasterStarts = s.ReadBool();
-                c.AutoFocusOnDisasterStarts = s.ReadBool();
+                c.DisableDisasterFocus = s.ReadBool();
+                c.PartialEvacuationRadius = s.ReadFloat();
 
                 if (s.version >= 1)
                 {
@@ -45,7 +47,7 @@ namespace NaturalDisastersRenewal.Serialization
 
             public void AfterDeserialize(DataSerializer s)
             {
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
             }
         }
 
@@ -58,9 +60,10 @@ namespace NaturalDisastersRenewal.Serialization
         public MeteorStrikeService MeteorStrike;
 
         //General options
-        public bool AutoFocusOnDisasterStarts = true;
-
+        public bool DisableDisasterFocus = true;
         public bool PauseOnDisasterStarts = true;
+        public float PartialEvacuationRadius = 1000f;
+
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;
         public bool ShowDisasterPanelButton = true;

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using NaturalDisastersRenewal.Common;
+using System;
 using System.IO;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Logger
 {
     public static class DebugLogger
-    {
-        static string fileName = "EnhancedDisastersMod.log";
+    {        
         public static bool IsDebug = true;
         public static bool IsLogInFile = false;
 
@@ -28,9 +28,9 @@ namespace NaturalDisastersRenewal.Logger
         static string geFilePath()
         {
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            path = Path.Combine(path, "Colossal Order");
-            path = Path.Combine(path, "Cities_Skylines");
-            path = Path.Combine(path, fileName);
+            path = Path.Combine(path, CommonProperties.xmlMainPath);
+            path = Path.Combine(path, CommonProperties.xmlSubPath);
+            path = Path.Combine(path, CommonProperties.logFilename);
             return path;
         }
     }

@@ -1,13 +1,13 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersOverhaulRenewal.Models;
+using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 using System;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class ForestFireService : DisasterServiceBase
     {
@@ -57,7 +57,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             calmDays = 7;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
-            EvacuationMode = 0;
+            EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
         protected override void OnSimulationFrameLocal()

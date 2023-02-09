@@ -13,15 +13,14 @@ namespace NaturalDisastersRenewal.Common
 
         public static string[] GetEvacuationOptions(bool allowsFocusedEvacuation = false)
         {
-            string[] evacuationOptions = {
-                "Disabled",
-                "Enabled - manual release",
-                "Enabled - auto release"
+            string[] evacuationOptions = {                
+                "Manual evacuation",
+                "Auto evacuation"
             };
 
             if (allowsFocusedEvacuation)
             {
-                string focusedEvacuation = "Enabled - focused auto evacuation/release";
+                string focusedEvacuation = "Focused auto evacuation/release";
                 Array.Resize(ref evacuationOptions, evacuationOptions.Length + 1);
                 evacuationOptions[evacuationOptions.Length - 1] = focusedEvacuation;
             }

@@ -12,6 +12,8 @@ namespace NaturalDisastersRenewal.Common
         public const string xmlMainPath = "Colossal Order";
         public const string xmlSubPath = "Cities_Skylines";
         public const string xmlFilename = "NaturalDisastersRenewalModOptions.xml";
+        public const string logFilename = "NaturalDisastersRenewalMod.log";
+        public const string dataId = "NaturalDisastersRenewalMod";
         public const string disasterListFileName = "Disasters.csv";
         public const string LogMsgPrefix = ">>> " + ModName + ": ";
 
@@ -19,8 +21,7 @@ namespace NaturalDisastersRenewal.Common
             => string.Format("Natural Disaster Overhaul Base including Ragnarokg's mod enhancements and more. (Version \" {0} \")", ModLastVersionYear);
 
         public static string GetOptionsFilePath()
-        {
-            //return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Colossal Order", "Cities_Skylines", optionsFileName);
+        {            
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             path = Path.Combine(path, xmlMainPath);
             path = Path.Combine(path, xmlSubPath);

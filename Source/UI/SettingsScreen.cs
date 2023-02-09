@@ -7,9 +7,9 @@ using UnityEngine;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.UI.ComponentHelper;
-using System;
 using NaturalDisastersRenewal.Serialization;
 using NaturalDisastersRenewal.BaseGameExtensions;
+using NaturalDisastersRenewal.Common.enums;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -18,9 +18,12 @@ namespace NaturalDisastersRenewal.UI
         bool freezeUI = false;
         readonly string evacuationModeText = "Evacuation Mode: ";
 
+        #region UI Components
+
         //General
-        UICheckBox UI_General_AutoFocusOnDisasterStarts;
+        UICheckBox UI_General_DisableDisasterFocus;
         UICheckBox UI_General_PauseOnDisasterStarts;
+        UISlider UI_General_PartialEvacuationRadius;
         UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
         UICheckBox UI_General_RecordDisasterEventsChkBox;
         UICheckBox UI_General_ShowDisasterPanelButton;
@@ -76,6 +79,8 @@ namespace NaturalDisastersRenewal.UI
         //Next enhancements
         //UIDropDown UI_StructureCollapse_AutoEvacuateRelease;
         //UIDropDown UI_StructureFire_AutoEvacuateRelease;        
+        
+        #endregion
 
         #region Options UI
 
@@ -101,52 +106,54 @@ namespace NaturalDisastersRenewal.UI
             if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisastersSerializeBase c = Singleton<DisasterServices.NaturalDisasterHandler>.instance.container;
-
+            DisastersSerializeBase c = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container;
+            //DebugLogger.Log("<<<<<<<< c.DisableDisasterFocus:" + c.DisableDisasterFocus);
             freezeUI = true;
-
-            UI_General_AutoFocusOnDisasterStarts.isChecked = c.AutoFocusOnDisasterStarts;
+            
+            UI_General_DisableDisasterFocus.isChecked = c.DisableDisasterFocus;
             UI_General_PauseOnDisasterStarts.isChecked = c.PauseOnDisasterStarts;
+            UI_General_PartialEvacuationRadius.value = c.PartialEvacuationRadius;
+
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = c.ScaleMaxIntensityWithPopulation;
             UI_General_RecordDisasterEventsChkBox.isChecked = c.RecordDisasterEvents;
             UI_General_ShowDisasterPanelButton.isChecked = c.ShowDisasterPanelButton;
 
             UI_ForestFire_Enabled.isChecked = c.ForestFire.Enabled;
-            UI_ForestFire_EvacuationMode.selectedIndex = c.ForestFire.EvacuationMode;
+            UI_ForestFire_EvacuationMode.selectedIndex = (int)c.ForestFire.EvacuationMode;
             UI_ForestFireMaxProbability.value = c.ForestFire.BaseOccurrencePerYear;
             UI_ForestFire_WarmupDays.value = c.ForestFire.WarmupDays;
 
             UI_Thunderstorm_Enabled.isChecked = c.Thunderstorm.Enabled;
-            UI_Thunderstorm_EvacuationMode.selectedIndex = c.Thunderstorm.EvacuationMode;
+            UI_Thunderstorm_EvacuationMode.selectedIndex = (int)c.Thunderstorm.EvacuationMode;
             UI_Thunderstorm_MaxProbability.value = c.Thunderstorm.BaseOccurrencePerYear;
             UI_Thunderstorm_MaxProbabilityMonth.selectedIndex = c.Thunderstorm.MaxProbabilityMonth - 1;
             UI_Thunderstorm_RainFactor.value = c.Thunderstorm.RainFactor;
 
             UI_Sinkhole_Enabled.isChecked = c.Sinkhole.Enabled;
-            UI_Sinkhole_EvacuationMode.selectedIndex = c.Sinkhole.EvacuationMode;
+            UI_Sinkhole_EvacuationMode.selectedIndex = (int)c.Sinkhole.EvacuationMode;
             UI_Sinkhole_MaxProbability.value = c.Sinkhole.BaseOccurrencePerYear;
             UI_Sinkhole_GroundwaterCapacity.value = c.Sinkhole.GroundwaterCapacity;
 
             UI_Tornado_Enabled.isChecked = c.Tornado.Enabled;
-            UI_Tornado_EvacuationMode.selectedIndex = c.Tornado.EvacuationMode;
+            UI_Tornado_EvacuationMode.selectedIndex = (int)c.Tornado.EvacuationMode;
             UI_Tornado_MaxProbability.value = c.Tornado.BaseOccurrencePerYear;
             UI_Tornado_MaxProbabilityMonth.selectedIndex = c.Tornado.MaxProbabilityMonth - 1;
             UI_Tornado_NoDuringFog.isChecked = c.Tornado.NoTornadoDuringFog;
 
             UI_Tsunami_Enabled.isChecked = c.Tsunami.Enabled;
-            UI_Tsunami_EvacuationMode.selectedIndex = c.Tsunami.EvacuationMode;
+            UI_Tsunami_EvacuationMode.selectedIndex = (int)c.Tsunami.EvacuationMode;
             UI_Tsunami_MaxProbability.value = c.Tsunami.BaseOccurrencePerYear;
             UI_Tsunami_WarmupYears.value = c.Tsunami.WarmupYears;
 
             UI_Earthquake_Enabled.isChecked = c.Earthquake.Enabled;
-            UI_Earthquake_EvacuationMode.selectedIndex = c.Earthquake.EvacuationMode;
+            UI_Earthquake_EvacuationMode.selectedIndex = (int)c.Earthquake.EvacuationMode;
             UI_Earthquake_MaxProbability.value = c.Earthquake.BaseOccurrencePerYear;
             UI_Earthquake_WarmupYears.value = c.Earthquake.WarmupYears;
             UI_Earthquake_AftershocksEnabled.isChecked = c.Earthquake.AftershocksEnabled;
             UI_Earthquake_NoCrack.isChecked = c.Earthquake.NoCracks;
 
             UI_MeteorStrike_Enabled.isChecked = c.MeteorStrike.Enabled;
-            UI_MeteorStrike_EvacuationMode.selectedIndex = c.MeteorStrike.EvacuationMode;
+            UI_MeteorStrike_EvacuationMode.selectedIndex = (int)c.MeteorStrike.EvacuationMode;
             UI_MeteorStrike_MaxProbability.value = c.MeteorStrike.BaseOccurrencePerYear;
             UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(0);
             UI_MeteorStrike_MeteorMediumPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(1);
@@ -182,22 +189,22 @@ namespace NaturalDisastersRenewal.UI
 
         public void BuildSettingsMenu(UIHelperBase helper)
         {
-            DisastersSerializeBase disasterContainer = Singleton<DisasterServices.NaturalDisasterHandler>.instance.container;
+            DisastersSerializeBase disasterContainer = Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container;
+            //DebugLogger.Log("Deserializing and getting focusOn disaster: "+ disasterContainer.DisableDisasterFocus);
 
             #region Gegeral options
 
             UIHelperBase generalGroup = helper.AddGroup("General");
 
-            UI_General_AutoFocusOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Auto focus on disaster starts", disasterContainer.AutoFocusOnDisasterStarts, delegate (bool isChecked)
+            UI_General_DisableDisasterFocus = (UICheckBox)generalGroup.AddCheckbox("Disable automatic disaster follow when it starts.", disasterContainer.DisableDisasterFocus, delegate (bool isChecked)
             {
                 if (!freezeUI)
                 {
-                    disasterContainer.AutoFocusOnDisasterStarts = isChecked;
-                    DebugLogger.Log("000001-                         disasterContainer.AutoFocusOnDisasterStarts changed: " + disasterContainer.AutoFocusOnDisasterStarts);
-                    DisasterExtension.SetAutoFocusOnDisasterBaseSettings(disasterContainer.AutoFocusOnDisasterStarts);
+                    disasterContainer.DisableDisasterFocus = isChecked;
+                    DisasterExtension.SetDisableDisasterFocus(disasterContainer.DisableDisasterFocus);
                 }
             });
-            //UI_General_AutoFocusOnDisaster.tooltip = "Autofocus on disaster";
+            
 
             UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Pause on disaster starts", disasterContainer.PauseOnDisasterStarts, delegate (bool isChecked)
             {
@@ -205,7 +212,15 @@ namespace NaturalDisastersRenewal.UI
                     disasterContainer.PauseOnDisasterStarts = isChecked;
                                     
             });
-            //UI_General_PauseOnDisasterStarts.tooltip = "Pause on disaster starts";
+            
+
+            UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius", 300f, 4000f, 1000f, disasterContainer.PartialEvacuationRadius, delegate (float val)
+            {
+                if (!freezeUI)
+                    disasterContainer.PartialEvacuationRadius = val;
+            });
+            AddLabelToSlider(UI_General_PartialEvacuationRadius);
+            UI_General_PartialEvacuationRadius.tooltip = "Select the Radius (In meters) for Focused evacuations.";
 
             generalGroup.AddSpace(10);
 
@@ -228,7 +243,7 @@ namespace NaturalDisastersRenewal.UI
                 if (!freezeUI)
                     disasterContainer.ShowDisasterPanelButton = isChecked;
 
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
             });
 
             generalGroup.AddSpace(10);
@@ -304,7 +319,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.ForestFire.EvacuationMode = selection;                        
+                        disasterContainer.ForestFire.EvacuationMode = (EvacuationOptions)selection;                        
                     }
                 }
             );
@@ -353,7 +368,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Thunderstorm.EvacuationMode = selection;
+                        disasterContainer.Thunderstorm.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
             );
@@ -393,7 +408,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Sinkhole.EvacuationMode = selection;
+                        disasterContainer.Sinkhole.EvacuationMode = (EvacuationOptions)selection;
                     }
                 });
 
@@ -438,7 +453,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Tornado.EvacuationMode = selection;
+                        disasterContainer.Tornado.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
             );
@@ -477,7 +492,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Tsunami.EvacuationMode = selection;
+                        disasterContainer.Tsunami.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
            );
@@ -532,7 +547,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.Earthquake.EvacuationMode = selection;
+                        disasterContainer.Earthquake.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
             );
@@ -582,7 +597,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                     {
-                        disasterContainer.MeteorStrike.EvacuationMode = selection;
+                        disasterContainer.MeteorStrike.EvacuationMode = (EvacuationOptions)selection;
                     }
                 }
             );
@@ -598,16 +613,16 @@ namespace NaturalDisastersRenewal.UI
 
             saveOptionsGroup.AddButton("Save as default for new games", delegate ()
             {
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.container.Save();
+                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container.Save();
             });
             saveOptionsGroup.AddButton("Reset to the last saved values", delegate ()
             {
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.ReadValuesFromFile();
+                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.ReadValuesFromFile();
                 EnhancedDisastersOptionsUpdateUI();
             });
             saveOptionsGroup.AddButton("Reset to the mod default values", delegate ()
             {
-                Singleton<DisasterServices.NaturalDisasterHandler>.instance.ResetToDefaultValues();
+                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.ResetToDefaultValues();
                 EnhancedDisastersOptionsUpdateUI();
             });
 

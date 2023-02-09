@@ -1,12 +1,12 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersOverhaulRenewal.Models;
+using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 using System;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class ThunderstormService : DisasterServiceBase
     {
@@ -48,7 +48,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             calmDays = 60;
             probabilityWarmupDays = 30;
             intensityWarmupDays = 60;
-            EvacuationMode = 0;
+            EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
         public override string GetProbabilityTooltip()

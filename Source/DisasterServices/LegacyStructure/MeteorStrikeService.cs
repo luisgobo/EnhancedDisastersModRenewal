@@ -1,14 +1,13 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersOverhaulRenewal.Models;
+using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Serialization;
 using System;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class MeteorStrikeService : DisasterServiceBase
     {
@@ -169,7 +168,7 @@ namespace NaturalDisastersRenewal.DisasterServices
                     return Name + " will be close in " + Helper.FormatTimeSpan(DaysUntilNextEvent);
                 }
             }
-        }        
+        }
 
         MeteorEvent[] meteorEvents;
 
@@ -179,7 +178,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
             BaseOccurrencePerYear = 10.0f;
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
-            EvacuationMode = 0;
+            EvacuationMode = EvacuationOptions.ManualEvacuation;
 
             meteorEvents = new MeteorEvent[] {
                 MeteorEvent.Init("Long period meteor", 9, 100),
@@ -248,53 +247,27 @@ namespace NaturalDisastersRenewal.DisasterServices
             }
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId)
         {
-            float baseValue = base.GetCurrentOccurrencePerYearLocal();
-
-            float result = 0;
-
-            for (int i = 0; i < meteorEvents.Length; i++)
-            {
-                result += baseValue * meteorEvents[i].GetProbabilityMultiplier();
-            }
-
-            return result;
+            disasterInfo.type |= DisasterType.MeteorStrike;
+            base.OnDisasterActivated(disasterInfo, disasterId);
         }
 
-        public override byte GetMaximumIntensity()
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified)
         {
-            byte intensity = 10;
-
-            for (int i = 0; i < meteorEvents.Length; i++)
-            {
-                intensity = Math.Max(intensity, meteorEvents[i].GetActualMaxIntensity());
-            }
-
-            intensity = ScaleIntensityByPopulation(intensity);
-
-            return intensity;
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.IgnoreDestructionZone = false;
+            base.OnDisasterDeactivated(disasterInfoUnified);
         }
 
         public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
-            
+            disasterInfoUnified.IgnoreDestructionZone = false;
 
             base.OnDisasterDetected(disasterInfoUnified);
-        }
-
-        public override void OnDisasterDeactivated(DisasterSettings disasterInfo, ushort disasterId, int releaseType)
-        {
-            disasterInfo.type |= DisasterType.MeteorStrike;
-            base.OnDisasterDeactivated(disasterInfo, disasterId, EvacuationMode);
-        }
-
-        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId)
-        {
-            disasterInfo.type |= DisasterType.MeteorStrike;
-            base.OnDisasterActivated(disasterInfo, disasterId);
         }
 
         public override void OnDisasterStarted(byte intensity)
@@ -321,6 +294,34 @@ namespace NaturalDisastersRenewal.DisasterServices
             meteorEvents[meteorIndex].OnMeteorFallen();
 
             base.OnDisasterStarted(intensity);
+        }
+
+        protected override float GetCurrentOccurrencePerYearLocal()
+        {
+            float baseValue = base.GetCurrentOccurrencePerYearLocal();
+
+            float result = 0;
+
+            for (int i = 0; i < meteorEvents.Length; i++)
+            {
+                result += baseValue * meteorEvents[i].GetProbabilityMultiplier();
+            }
+
+            return result;
+        }
+
+        public override byte GetMaximumIntensity()
+        {
+            byte intensity = 10;
+
+            for (int i = 0; i < meteorEvents.Length; i++)
+            {
+                intensity = Math.Max(intensity, meteorEvents[i].GetActualMaxIntensity());
+            }
+
+            intensity = ScaleIntensityByPopulation(intensity);
+
+            return intensity;
         }
 
         public override bool CheckDisasterAIType(object disasterAI)

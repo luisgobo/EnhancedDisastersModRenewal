@@ -1,13 +1,13 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersOverhaulRenewal.Models;
+using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class EarthquakeService : DisasterServiceBase
     {
@@ -75,7 +75,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
             WarmupYears = 3;
-            EvacuationMode = 0;
+            EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
         [System.Xml.Serialization.XmlElement]

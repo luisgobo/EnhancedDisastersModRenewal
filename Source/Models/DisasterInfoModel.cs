@@ -1,16 +1,19 @@
 ﻿using ICities;
+using NaturalDisastersRenewal.Common.enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 
-namespace NaturalDisastersOverhaulRenewal.Models
+namespace NaturalDisastersRenewal.Models
 {
     public class DisasterInfoModel
     {
         public DisasterSettings DisasterInfo;
         public ushort DisasterId;
-        public int EvacuationMode = 0;
+        public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
+        public bool IgnoreDestructionZone = true;
+        public List<ushort> ShelterList= new List<ushort>();
     }
 }

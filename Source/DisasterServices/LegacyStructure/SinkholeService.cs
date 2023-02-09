@@ -1,12 +1,12 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersOverhaulRenewal.Models;
+using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Serialization;
 
-namespace NaturalDisastersRenewal.DisasterServices
+namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 {
     public class SinkholeService : DisasterServiceBase
     {
@@ -47,7 +47,7 @@ namespace NaturalDisastersRenewal.DisasterServices
             calmDays = 30;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
-            EvacuationMode = 0;
+            EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
         public override string GetProbabilityTooltip()
