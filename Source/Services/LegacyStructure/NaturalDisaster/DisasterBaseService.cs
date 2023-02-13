@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
@@ -91,6 +92,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
         WarningPhasePanel phasePanel;
         readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
         List<DisasterInfoModel> activeFocusedDisasters = new List<DisasterInfoModel>();
+        readonly double secondsBeforePausing = 5;
 
         // Public
         public abstract string GetName();
@@ -347,36 +349,36 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                 disasterInfo.intensity);
             DebugLogger.Log(msg);
 
-            ////Pause when disaster start
-            //if (TryDisableDisaster(disasterId, info))
-            //{
-            //    return;
-            //}
+            //Pause when disaster start
+            if (TryDisableDisaster(disasterId, disasterInfo))
+            {
+                return;
+            }
+            
+            if (Singleton<NaturalDisasterHandler>.instance.container.PauseOnDisasterStarts)
+            {
+                new Thread(
+                    () =>
+                    {
+                        try
+                        {
+                            var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(secondsBeforePausing);
 
-            //if (ModConfig.Instance.GetSetting<bool>(SettingKeys.PauseOnDisasterStart) && autoPauseDisasters.Contains(disasterType))
-            //{
-            //    new Thread(
-            //        () =>
-            //        {
-            //            try
-            //            {
-            //                var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(SecondsBeforePausing);
+                            while (DateTime.UtcNow < pauseStart)
+                            {
+                            }
 
-            //                while (DateTime.UtcNow < pauseStart)
-            //                {
-            //                }
+                            DebugLogger.Log("Pausing game");
+                            SimulationManager.instance.SimulationPaused = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            DebugLogger.Log(ex.ToString());
 
-            //                DebugLogger.Log("Pausing game");
-            //                SimulationManager.instance.SimulationPaused = true;
-            //            }
-            //            catch (Exception ex)
-            //            {
-            //                DebugLogger.Log(ex.ToString());
-
-            //                throw;
-            //            }
-            //        }).Start();
-            //}
+                            throw;
+                        }
+                    }).Start();
+            }
         }
 
         public virtual void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified)
@@ -811,6 +813,18 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                 (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
                 (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius
             );
+        }
+
+        private bool TryDisableDisaster(ushort disasterId, DisasterSettings disasterInfo)
+        {
+            var disasterHandler = Singleton<NaturalDisasterHandler>.instance;            
+            if (!Enabled)
+            {
+                DebugLogger.Log("DDS: Deactivating disaster");                
+                disasterHandler.GetDisasterWrapper().EndDisaster(disasterId);
+            }
+
+            return false;
         }
     }
 }

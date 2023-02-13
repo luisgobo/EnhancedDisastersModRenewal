@@ -20,7 +20,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
         readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
-        private DisasterWrapper _disasterWrapper;
+        private DisasterWrapper disasterWrapper;
 
         NaturalDisasterHandler()
         {
@@ -90,7 +90,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         public void OnCreated(IDisaster disasters)
         {
             DebugLogger.Log("EvacuationService: OnCreated");
-            _disasterWrapper = (DisasterWrapper)disasters;
+            disasterWrapper = (DisasterWrapper)disasters;
         }
 
         public void OnDisasterStarted(DisasterAI dai, byte intensity)
@@ -107,7 +107,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
 
         public void OnDisasterActivated(DisasterAI dai, ushort disasterId)
         {
-            var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
+            var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
             var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
             DebugLogger.Log(msg);
             DebugLogger.Log("Disaster detected");
@@ -126,7 +126,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         {
             try
             {
-                var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
+                var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
 
                 var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
                 DebugLogger.Log(msg);
@@ -162,7 +162,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
                 {
                     if (disasterService.CheckDisasterAIType(disasterAI))
                     {
-                        var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
+                        var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
 
                         var msg = $"disasterInfo1: type: {disasterInfo.type}, name:{disasterInfo.name}, " +
                                   $"location => x:{disasterInfo.targetX} y:{disasterInfo.targetX} z:{disasterInfo.targetZ}. " +
@@ -345,6 +345,11 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
                     toggleButton.absolutePosition = container.ToggleButtonPos;
                 }
             }
+        }
+
+        public DisasterWrapper GetDisasterWrapper()
+        {
+            return disasterWrapper;
         }
     }
 }
