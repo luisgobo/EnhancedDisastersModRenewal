@@ -32,12 +32,9 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         {
             DisasterSetupService newContainer = DisasterSetupService.CreateFromFile();
             if (newContainer == null)
-            {
-                DebugLogger.Log("newContainer is null");
+            {                
                 newContainer = new DisasterSetupService();
-            }
-            else
-                DebugLogger.Log("newContainer has something, then check it: ");
+            }            
 
             newContainer.CheckObjects();
 
@@ -54,14 +51,11 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         void CopySettings(DisasterSetupService fromContainer)
         {
             if (container == null)
-            {
-                DebugLogger.Log($"container == null");
+            {                
                 container = fromContainer;
             }
             else
             {
-                DebugLogger.Log($"container != null");
-
                 for (int i = 0; i < container.AllDisasters.Count; i++)
                 {
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
@@ -88,8 +82,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         }
 
         public void OnCreated(IDisaster disasters)
-        {
-            DebugLogger.Log("EvacuationService: OnCreated");
+        {            
             disasterWrapper = (DisasterWrapper)disasters;
         }
 

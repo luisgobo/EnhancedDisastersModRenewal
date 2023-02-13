@@ -364,9 +364,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                         {
                             var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(-secondsBeforePausing);
 
-                            while (DateTime.UtcNow < pauseStart)
-                            {
-                            }
+                            while (DateTime.UtcNow < pauseStart){}
 
                             DebugLogger.Log("Pausing game");
                             SimulationManager.instance.SimulationPaused = true;
@@ -418,13 +416,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                         case EvacuationOptions.ManualEvacuation:
                             break;
 
-                        case EvacuationOptions.AutoEvacuation:
-                        //if (!manualReleaseDisasters.Any())
-                        //{
-                        //    DebugLogger.Log("Auto releasing citizens");
-                        //    DisasterManager.instance.EvacuateAll(true);
-                        //}
-                        //break;
+                        case EvacuationOptions.AutoEvacuation:                        
                         case EvacuationOptions.FocusedAutoEvacuation:
 
                             if (!manualReleaseDisasters.Any() && !activeFocusedDisasters.Any())
@@ -453,20 +445,11 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                                     }
                                 }
 
-                                string asd = "";
-                                foreach (var item in pendingShelters)
-                                {
-                                    asd += $"{item},";
-                                }
-                                DebugLogger.Log($"Shelters Added: {pendingShelters.Count}: {asd} ");
-
                                 var sheltersToBeReleased = disasterFinishing.ShelterList.Where(disFinishing => pendingShelters.All(pendSh => pendSh != disFinishing)).ToList();
-                                DebugLogger.Log($"result: {sheltersToBeReleased.Count}");
 
                                 BuildingManager buildingManager = Singleton<BuildingManager>.instance;
                                 foreach (var shelterId in sheltersToBeReleased)
                                 {
-                                    DebugLogger.Log($"Shelter to be released: {shelterId}");
                                     //It's comming here but release is not beig executed, probably ref element
                                     var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
                                     SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);
@@ -498,7 +481,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                                   $"EvacuationMode: {disasterInfoUnified.EvacuationMode}";
             DebugLogger.Log(msg);
 
-            //Getting issue check Disaster extension and container object
             var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
 
             DisasterExtension.SetDisableDisasterFocus(naturalDisasterSetup.DisableDisasterFocus);
@@ -579,8 +561,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
         protected virtual bool FindTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
         {
-            OccurrenceAreas area = unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock;
-            DebugLogger.Log($"area {area}");
+            OccurrenceAreas area = unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock;            
 
             switch (area)
             {
@@ -676,8 +657,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                         target.y = 0f;
                         target.z = minZ + (maxZ - minZ) * randZ;
                         target.y = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(target, false, 0f);
-                        angle = (float)sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;
-                        DebugLogger.Log(string.Format("findRandomTargetInLockedAreas, j = {0}, i = {1}, areaCount = {2}", j, i, gam.m_areaCount));
+                        angle = (float)sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;                        
                         return true;
                     }
                 }
@@ -772,29 +752,25 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                     {
                         DebugLogger.Log($"Shelter is located in risk zone");
 
-                        //Add Building/Shelter Data to disaster
-                        DebugLogger.Log($"Add shelter to List");
+                        //Add Building/Shelter Data to disaster                        
                         disasterInfoModel.ShelterList.Add(num);
 
                         //Once this is located into Risk Zone, it's needed verify if building would be ddestroyed by Natural disaster (setup in each one)
-                        //Getting diaster core
-                        DebugLogger.Log($"Check if Shelter is located in destruction zone");
+                        //Getting diaster core                        
                         var disasterRadioDestruction = disasterRadioEvacuation / 3f;
 
                         //if Shelter will be destroyed, do not evacuate
                         if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterRadioDestruction) && !disasterInfoModel.IgnoreDestructionZone)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. DON'T EVACUATE");
                         else
-                        {
-                            DebugLogger.Log($"Shelter wont be destroyed, Lets evacuate!!!");
+                        {                            
                             SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                         }
                     }
                 }
             }
 
-            activeFocusedDisasters.Add(disasterInfoModel);
-            DebugLogger.Log($"Shelters registered: {disasterInfoModel.ShelterList.Count}");
+            activeFocusedDisasters.Add(disasterInfoModel);            
         }
 
         void SetBuidingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
