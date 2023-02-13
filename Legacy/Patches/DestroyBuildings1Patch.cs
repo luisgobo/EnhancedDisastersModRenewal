@@ -1,8 +1,4 @@
-﻿using System;
-using HarmonyLib;
-using ColossalFramework.Math;
-
-namespace EnhancedDisastersMod.Patches
+﻿namespace EnhancedDisastersMod.Patches
 {
     //[HarmonyPatch(typeof(DisasterHelpers))]
     //[HarmonyPatch("DestroyBuildings")]

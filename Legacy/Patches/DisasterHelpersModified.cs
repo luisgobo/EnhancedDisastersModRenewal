@@ -1,6 +1,6 @@
-﻿using System;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.Math;
+using System;
 using UnityEngine;
 
 namespace EnhancedDisastersMod.Patches
@@ -85,9 +85,11 @@ namespace EnhancedDisastersMod.Patches
                                             case ItemClass.Level.Level1:
                                                 p = 1f;
                                                 break;
+
                                             case ItemClass.Level.Level2:
                                                 p = 0.6f;
                                                 break;
+
                                             case ItemClass.Level.Level3:
                                                 p = 0.2f;
                                                 break;
@@ -100,15 +102,19 @@ namespace EnhancedDisastersMod.Patches
                                             case ItemClass.Level.Level1:
                                                 p = 1f;
                                                 break;
+
                                             case ItemClass.Level.Level2:
                                                 p = 0.8f;
                                                 break;
+
                                             case ItemClass.Level.Level3:
                                                 p = 0.6f;
                                                 break;
+
                                             case ItemClass.Level.Level4:
                                                 p = 0.4f;
                                                 break;
+
                                             case ItemClass.Level.Level5:
                                                 p = 0.2f;
                                                 break;

@@ -1,9 +1,9 @@
-﻿using System.Reflection;
-using UnityEngine;
-using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.UI;
 using HarmonyLib;
+using ICities;
+using System.Reflection;
+using UnityEngine;
 
 namespace EnhancedDisastersMod
 {
@@ -92,27 +92,35 @@ namespace EnhancedDisastersMod
                         case DisasterType.Earthquake:
                             if (disasterInfo.m_disasterAI as EarthquakeAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.ForestFire:
                             if (disasterInfo.m_disasterAI as ForestFireAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.MeteorStrike:
                             if (disasterInfo.m_disasterAI as MeteorStrikeAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.ThunderStorm:
                             if (disasterInfo.m_disasterAI as ThunderStormAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.Tornado:
                             if (disasterInfo.m_disasterAI as TornadoAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.Tsunami:
                             if (disasterInfo.m_disasterAI as TsunamiAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.StructureCollapse:
                             if (disasterInfo.m_disasterAI as StructureCollapseAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.StructureFire:
                             if (disasterInfo.m_disasterAI as StructureFireAI != null) return disasterInfo;
                             break;
+
                         case DisasterType.Sinkhole:
                             if (disasterInfo.m_disasterAI as SinkholeAI != null) return disasterInfo;
                             break;

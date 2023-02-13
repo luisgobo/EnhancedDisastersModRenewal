@@ -63,26 +63,26 @@
     <Compile Include="Common\CommonProperties.cs" />
     <Compile Include="Common\enums\EvacuationOptions.cs" />
     <Compile Include="Logger\DebugLogger.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\Patches\DestroyBuildings2Patch.cs" />
+    <Compile Include="Services\LegacyStructure\Patches\DestroyBuildings2Patch.cs" />
     <Compile Include="BaseGameExtensions\DisasterExtension.cs" />
     <Compile Include="Logger\DisasterLogger.cs" />
     <Compile Include="Models\DisasterInfoModel.cs" />
     <Compile Include="Models\ShelterInfoModel.cs" />
-    <Compile Include="Serialization\DisastersSerializeBase.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\DisasterServiceBase.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\NaturalDisasterHandler.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\EarthquakeService.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\ForestFireService.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\MeteorStrikeService.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\SinkholeService.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\ThunderstormService.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\TornadoService.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\TsunamiService.cs" />
+    <Compile Include="Services\LegacyStructure\Setup\DisasterSetupService.cs" />
+    <Compile Include="Services\LegacyStructure\NaturalDisaster\DisasterBaseService.cs" />
+    <Compile Include="Services\LegacyStructure\Handlers\NaturalDisasterHandler.cs" />
+    <Compile Include="Services\LegacyStructure\NaturalDisaster\EarthquakeService.cs" />
+    <Compile Include="Services\LegacyStructure\NaturalDisaster\ForestFireService.cs" />
+    <Compile Include="Services\LegacyStructure\NaturalDisaster\MeteorStrikeService.cs" />
+    <Compile Include="Services\LegacyStructure\NaturalDisaster\SinkholeService.cs" />
+    <Compile Include="Services\LegacyStructure\NaturalDisaster\ThunderstormService.cs" />
+    <Compile Include="Services\LegacyStructure\NaturalDisaster\TornadoService.cs" />
+    <Compile Include="Services\LegacyStructure\NaturalDisaster\TsunamiService.cs" />
     <Compile Include="UI\ExtendedDisastersPanel.cs" />
     <Compile Include="Common\Helper.cs" />
     <Compile Include="BaseGameExtensions\LoadingExtension.cs" />
     <Compile Include="Common\enums\OccurrenceAreas.cs" />
-    <Compile Include="DisasterServices\LegacyStructure\Patches\DisasterHelpersModified.cs" />
+    <Compile Include="Services\LegacyStructure\Patches\DisasterHelpersModified.cs" />
     <Compile Include="Common\enums\ProbabilityDistributions.cs" />
     <Compile Include="Serialization\SerializableDataExtension.cs" />
     <Compile Include="BaseGameExtensions\Threading.cs" />
@@ -94,6 +94,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"

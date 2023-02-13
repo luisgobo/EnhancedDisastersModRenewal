@@ -2,8 +2,9 @@
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.DisasterServices.LegacyStructure;
-using NaturalDisastersRenewal.Logger;
+using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
+using NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster;
+using NaturalDisastersRenewal.Services.LegacyStructure.Setup;
 using NaturalDisastersRenewal.UI;
 using System;
 using System.IO;
@@ -32,7 +33,7 @@ namespace NaturalDisastersRenewal.Serialization
                 {
                     NaturalDisasterHandler edm = Singleton<NaturalDisasterHandler>.instance;
 
-                    DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new DisastersSerializeBase.Data());
+                    DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new DisasterSetupService.Data());
 
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new ForestFireService.Data());
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new ThunderstormService.Data());
@@ -66,7 +67,7 @@ namespace NaturalDisastersRenewal.Serialization
 
                 using (var stream = new MemoryStream(data))
                 {
-                    DataSerializer.Deserialize<DisastersSerializeBase.Data>(stream, DataSerializer.Mode.Memory);
+                    DataSerializer.Deserialize<DisasterSetupService.Data>(stream, DataSerializer.Mode.Memory);
 
                     DataSerializer.Deserialize<ForestFireService.Data>(stream, DataSerializer.Mode.Memory);
                     DataSerializer.Deserialize<ThunderstormService.Data>(stream, DataSerializer.Mode.Memory);
@@ -81,7 +82,7 @@ namespace NaturalDisastersRenewal.Serialization
             {
                 Debug.Log(CommonProperties.LogMsgPrefix + "(load error) " + ex.Message);
             }
-            
+
             SettingsScreen.UpdateUISettingsOptions();
         }
 

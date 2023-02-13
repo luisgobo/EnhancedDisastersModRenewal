@@ -2,6 +2,6 @@
 {
     public class ShelterInfoModel
     {
-        public ushort ShelterId;        
+        public ushort ShelterId;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ICities;
+using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
 {
@@ -9,16 +10,16 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         {
             if (mode == LoadMode.NewGame || mode == LoadMode.LoadGame || mode == LoadMode.NewGameFromScenario)
             {
-                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.CreateExtendedDisasterPanel();
-                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.CheckUnlocks();
+                Singleton<NaturalDisasterHandler>.instance.CreateExtendedDisasterPanel();
+                Singleton<NaturalDisasterHandler>.instance.CheckUnlocks();
 
-                Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(true);
+                Singleton<NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(true);
             }
         }
 
         public override void OnLevelUnloading()
         {
-            Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(false);
+            Singleton<NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(false);
         }
     }
 }

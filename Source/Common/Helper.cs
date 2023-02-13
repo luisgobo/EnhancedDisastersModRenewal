@@ -13,7 +13,7 @@ namespace NaturalDisastersRenewal.Common
 
         public static string[] GetEvacuationOptions(bool allowsFocusedEvacuation = false)
         {
-            string[] evacuationOptions = {                
+            string[] evacuationOptions = {
                 "Manual evacuation",
                 "Auto evacuation"
             };

@@ -2,21 +2,21 @@
 using ColossalFramework.UI;
 using HarmonyLib;
 using ICities;
-using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Serialization;
+using NaturalDisastersRenewal.Models;
+using NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster;
+using NaturalDisastersRenewal.Services.LegacyStructure.Setup;
 using NaturalDisastersRenewal.UI;
 using System;
 using System.Reflection;
 using UnityEngine;
-using NaturalDisastersRenewal.Common.enums;
 
-namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
+namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
 {
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
-        public DisastersSerializeBase container;
+        public DisasterSetupService container;
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
         readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
@@ -30,29 +30,29 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
         public void ReadValuesFromFile()
         {
-            DisastersSerializeBase newContainer = DisastersSerializeBase.CreateFromFile();
+            DisasterSetupService newContainer = DisasterSetupService.CreateFromFile();
             if (newContainer == null)
             {
                 DebugLogger.Log("newContainer is null");
-                newContainer = new DisastersSerializeBase();
+                newContainer = new DisasterSetupService();
             }
             else
                 DebugLogger.Log("newContainer has something, then check it: ");
-    
+
             newContainer.CheckObjects();
-            
+
             CopySettings(newContainer);
         }
 
         public void ResetToDefaultValues()
         {
-            DisastersSerializeBase newContainer = new DisastersSerializeBase();
+            DisasterSetupService newContainer = new DisasterSetupService();
             newContainer.CheckObjects();
             CopySettings(newContainer);
         }
 
-        void CopySettings(DisastersSerializeBase fromContainer)
-        {            
+        void CopySettings(DisasterSetupService fromContainer)
+        {
             if (container == null)
             {
                 DebugLogger.Log($"container == null");
@@ -66,7 +66,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                 {
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
                 }
-                
+
                 container.DisableDisasterFocus = fromContainer.DisableDisasterFocus;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
                 container.PartialEvacuationRadius = fromContainer.PartialEvacuationRadius;
@@ -81,7 +81,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
         {
             CheckUnlocks();
 
-            foreach (DisasterServiceBase ed in container.AllDisasters)
+            foreach (DisasterBaseService ed in container.AllDisasters)
             {
                 ed.OnSimulationFrame();
             }
@@ -95,7 +95,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
         public void OnDisasterStarted(DisasterAI dai, byte intensity)
         {
-            foreach (DisasterServiceBase ed in container.AllDisasters)
+            foreach (DisasterBaseService ed in container.AllDisasters)
             {
                 if (ed.CheckDisasterAIType(dai))
                 {
@@ -112,7 +112,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             DebugLogger.Log(msg);
             DebugLogger.Log("Disaster detected");
 
-            foreach (DisasterServiceBase ed in container.AllDisasters)
+            foreach (DisasterBaseService ed in container.AllDisasters)
             {
                 if (ed.CheckDisasterAIType(dai))
                 {
@@ -132,14 +132,14 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                 DebugLogger.Log(msg);
                 DebugLogger.Log("Disaster detected");
 
-                foreach (DisasterServiceBase ed in container.AllDisasters)
+                foreach (DisasterBaseService ed in container.AllDisasters)
                 {
                     if (ed.CheckDisasterAIType(dai))
                     {
-
-                        ed.OnDisasterDeactivated(new DisasterInfoModel(){ 
-                            DisasterInfo = disasterInfo, 
-                            DisasterId =  disasterId                            
+                        ed.OnDisasterDeactivated(new DisasterInfoModel()
+                        {
+                            DisasterInfo = disasterInfo,
+                            DisasterId = disasterId
                         });
                         return;
                     }
@@ -158,7 +158,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             try
             {
                 DebugLogger.Log("Disaster detected");
-                foreach (DisasterServiceBase disasterService in container.AllDisasters)
+                foreach (DisasterBaseService disasterService in container.AllDisasters)
                 {
                     if (disasterService.CheckDisasterAIType(disasterAI))
                     {
@@ -179,7 +179,6 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                         return;
                     }
                 }
-                
             }
             catch (Exception ex)
             {

@@ -1,15 +1,16 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Models;
+using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 using System;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
+namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 {
-    public class MeteorStrikeService : DisasterServiceBase
+    public class MeteorStrikeService : DisasterBaseService
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
@@ -351,7 +352,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             return result;
         }
 
-        public override void CopySettings(DisasterServiceBase disaster)
+        public override void CopySettings(DisasterBaseService disaster)
         {
             base.CopySettings(disaster);
 

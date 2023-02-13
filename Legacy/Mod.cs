@@ -1,9 +1,9 @@
-using ICities;
 using ColossalFramework;
-using ColossalFramework.UI;
-using UnityEngine;
 using ColossalFramework.Plugins;
+using ColossalFramework.UI;
+using ICities;
 using System.Reflection;
+using UnityEngine;
 
 namespace EnhancedDisastersMod
 {
@@ -211,7 +211,7 @@ namespace EnhancedDisastersMod
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion ForestFire
 
             #region Thunderstorm
 
@@ -240,8 +240,8 @@ namespace EnhancedDisastersMod
             UI_Thunderstorm_RainFactor.tooltip = "Thunderstorm probability increases by this factor during rain.";
 
             helper.AddSpace(20);
-            
-            #endregion
+
+            #endregion Thunderstorm
 
             #region Sinkhole
 
@@ -263,7 +263,7 @@ namespace EnhancedDisastersMod
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion Sinkhole
 
             #region Tornado
 
@@ -292,7 +292,7 @@ namespace EnhancedDisastersMod
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion Tornado
 
             #region Tsunami
 
@@ -314,7 +314,7 @@ namespace EnhancedDisastersMod
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion Tsunami
 
             #region Earthquake
 
@@ -349,7 +349,7 @@ namespace EnhancedDisastersMod
 
             helper.AddSpace(20);
 
-            #endregion
+            #endregion Earthquake
 
             #region MeteorStrike
 
@@ -379,8 +379,7 @@ namespace EnhancedDisastersMod
 
             helper.AddSpace(20);
 
-            #endregion
-
+            #endregion MeteorStrike
 
             // Save buttons
             helper.AddButton("Save as default for new games", delegate ()
@@ -421,6 +420,6 @@ namespace EnhancedDisastersMod
             helper.AddSpace(20);
         }
 
-        #endregion
+        #endregion Options UI
     }
 }

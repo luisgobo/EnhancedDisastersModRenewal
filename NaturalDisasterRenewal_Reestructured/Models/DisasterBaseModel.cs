@@ -1,11 +1,10 @@
 ﻿using ColossalFramework;
-using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersRenewal.BaseGameExtensions;
-using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Models;
+using NaturalDisasterRenewal_Reestructured.BaseGameExtensions;
+using NaturalDisasterRenewal_Reestructured.Common;
+using NaturalDisasterRenewal_Reestructured.Common.Enums;
+using NaturalDisasterRenewal_Reestructured.Handlers;
+using NaturalDisasterRenewal_Reestructured.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,50 +12,10 @@ using System.Reflection;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
-namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
-
+namespace NaturalDisasterRenewal_Reestructured.Models
 {
-    public abstract class DisasterServiceBase
+    public abstract class DisasterBaseModel: Singleton<DisasterBaseModel>
     {
-        public class SerializableDataCommon
-        {
-            public void SerializeCommonParameters(DataSerializer s, DisasterServiceBase disaster)
-            {
-                s.WriteBool(disaster.Enabled);
-                s.WriteFloat(disaster.BaseOccurrencePerYear);
-                s.WriteFloat(disaster.calmDaysLeft);
-                s.WriteFloat(disaster.probabilityWarmupDaysLeft);
-                s.WriteFloat(disaster.intensityWarmupDaysLeft);
-                s.WriteInt32((int)disaster.EvacuationMode);
-            }
-
-            public void DeserializeCommonParameters(DataSerializer s, DisasterServiceBase disaster)
-            {
-                disaster.Enabled = s.ReadBool();
-                disaster.BaseOccurrencePerYear = s.ReadFloat();
-                if (s.version <= 2)
-                {
-                    float daysPerFrame = 1f / 585f;
-                    disaster.calmDaysLeft = s.ReadInt32() * daysPerFrame;
-                    disaster.probabilityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
-                    disaster.intensityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
-                    disaster.EvacuationMode = (EvacuationOptions)s.ReadInt32();
-                }
-                else
-                {
-                    disaster.calmDaysLeft = s.ReadFloat();
-                    disaster.probabilityWarmupDaysLeft = s.ReadFloat();
-                    disaster.intensityWarmupDaysLeft = s.ReadFloat();
-                    disaster.EvacuationMode = (EvacuationOptions)s.ReadInt32();
-                }
-            }
-
-            public void AfterDeserializeLog(string className)
-            {
-                Debug.Log(CommonProperties.LogMsgPrefix + className + " data loaded.");
-            }
-        }
-
         // Constants
         protected const uint randomizerRange = 67108864u;
 
@@ -226,12 +185,12 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             return result;
         }
 
-        public virtual void CopySettings(DisasterServiceBase disaster)
-        {
-            Enabled = disaster.Enabled;
-            BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
-            EvacuationMode = disaster.EvacuationMode;
-        }
+        //public virtual void CopySettings(DisasterServiceBase disaster)
+        //{
+        //    Enabled = disaster.Enabled;
+        //    BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
+        //    EvacuationMode = disaster.EvacuationMode;
+        //}
 
         public DisasterType GetDisasterType() => DType;
 
@@ -291,7 +250,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
         protected byte ScaleIntensityByPopulation(byte intensity)
         {
-            if (Singleton<NaturalDisasterHandler>.instance.container.ScaleMaxIntensityWithPopulation)
+            if (Singleton<DisasterGeneralSetupHandler>.instance.disasterGeneralSetup.ScaleMaxIntensityWithPopulation)
             {
                 int population = Helper.GetPopulation();
                 if (population < FullIntensityPopulation)
@@ -415,12 +374,12 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                         case EvacuationOptions.ManualEvacuation:
                             break;
                         case EvacuationOptions.AutoEvacuation:
-                            //if (!manualReleaseDisasters.Any())
-                            //{
-                            //    DebugLogger.Log("Auto releasing citizens");
-                            //    DisasterManager.instance.EvacuateAll(true);
-                            //}
-                            //break;
+                        //if (!manualReleaseDisasters.Any())
+                        //{
+                        //    DebugLogger.Log("Auto releasing citizens");
+                        //    DisasterManager.instance.EvacuateAll(true);
+                        //}
+                        //break;
                         case EvacuationOptions.FocusedAutoEvacuation:
 
                             if (!manualReleaseDisasters.Any() && !activeFocusedDisasters.Any())
@@ -437,7 +396,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                             if (activeFocusedDisasters.Any())
                             {
                                 var pendingShelters = new List<ushort>();
-                                
+
                                 //If pending disaster then get all pending shelters that souldnt be released
                                 foreach (var disaster in activeFocusedDisasters)
                                 {
@@ -495,7 +454,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             DebugLogger.Log(msg);
 
             //Getting issue check Disaster extension and container object
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            var naturalDisasterSetup = Singleton<DisasterGeneralSetupHandler>.instance.disasterGeneralSetup;
 
             DisasterExtension.SetDisableDisasterFocus(naturalDisasterSetup.DisableDisasterFocus);
 
@@ -514,7 +473,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                     break;
             }
         }
-        
+
         public virtual void OnDisasterStarted(byte intensity)
         {
             float framesPerDay = Helper.FramesPerDay;
@@ -532,7 +491,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
         protected void StartDisaster(byte intensity)
         {
-            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+            DisasterInfo disasterInfo = DisasterGeneralSetupHandler.GetDisasterInfo(DType);
 
             if (disasterInfo == null)
             {
@@ -736,7 +695,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
 
             //Get disaster Info
-            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+            DisasterInfo disasterInfo = DisasterGeneralSetupHandler.GetDisasterInfo(DType);
 
             //Get Disaster Radio from Settings property            
             float disasterRadioEvacuation = (float)Math.Sqrt(disasterRadius); //32f as default aprox;
@@ -808,6 +767,5 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
                 (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius
             );
         }
-
     }
 }

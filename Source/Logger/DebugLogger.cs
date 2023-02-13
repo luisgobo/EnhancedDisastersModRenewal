@@ -6,7 +6,7 @@ using UnityEngine;
 namespace NaturalDisastersRenewal.Logger
 {
     public static class DebugLogger
-    {        
+    {
         public static bool IsDebug = true;
         public static bool IsLogInFile = false;
 

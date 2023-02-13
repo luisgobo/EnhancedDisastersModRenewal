@@ -1,9 +1,9 @@
-using ICities;
 using ColossalFramework;
+using ICities;
 
 namespace EnhancedDisastersMod
 {
-    public class Threading: ThreadingExtensionBase
+    public class Threading : ThreadingExtensionBase
     {
         public override void OnAfterSimulationFrame()
         {
