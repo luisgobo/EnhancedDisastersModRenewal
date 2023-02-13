@@ -92,7 +92,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
         WarningPhasePanel phasePanel;
         readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
         List<DisasterInfoModel> activeFocusedDisasters = new List<DisasterInfoModel>();
-        readonly double secondsBeforePausing = 5;
+        readonly double secondsBeforePausing = 3;
 
         // Public
         public abstract string GetName();
@@ -362,7 +362,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                     {
                         try
                         {
-                            var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(secondsBeforePausing);
+                            var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(-secondsBeforePausing);
 
                             while (DateTime.UtcNow < pauseStart)
                             {
