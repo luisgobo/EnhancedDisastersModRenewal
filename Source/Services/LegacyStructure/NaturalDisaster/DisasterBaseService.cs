@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
@@ -349,34 +348,8 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                 disasterInfo.intensity);
             DebugLogger.Log(msg);
 
-            //Pause when disaster start
-            if (TryDisableDisaster(disasterId, disasterInfo))
-            {
-                return;
-            }
-            
-            if (Singleton<NaturalDisasterHandler>.instance.container.PauseOnDisasterStarts)
-            {
-                new Thread(
-                    () =>
-                    {
-                        try
-                        {
-                            var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(-secondsBeforePausing);
-
-                            while (DateTime.UtcNow < pauseStart){}
-
-                            DebugLogger.Log("Pausing game");
-                            SimulationManager.instance.SimulationPaused = true;
-                        }
-                        catch (Exception ex)
-                        {
-                            DebugLogger.Log(ex.ToString());
-
-                            throw;
-                        }
-                    }).Start();
-            }
+            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, secondsBeforePausing, disasterId, disasterInfo, Enabled);
         }
 
         public virtual void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified)
@@ -411,12 +384,14 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                     activeFocusedDisasters.Remove(disasterFinishing);
                     DebugLogger.Log("Active disasters: " + activeFocusedDisasters.Count);
 
+                    DebugLogger.Log("EvacuationMode: " + disasterInfoUnified.EvacuationMode);
+
                     switch (disasterInfoUnified.EvacuationMode)
                     {
                         case EvacuationOptions.ManualEvacuation:
                             break;
 
-                        case EvacuationOptions.AutoEvacuation:                        
+                        case EvacuationOptions.AutoEvacuation:
                         case EvacuationOptions.FocusedAutoEvacuation:
 
                             if (!manualReleaseDisasters.Any() && !activeFocusedDisasters.Any())
@@ -472,9 +447,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
         public virtual void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
         {
-            DebugLogger.Log("Execute code to evacuate cims based on type of disaster and also the specification of localization");
-            DebugLogger.Log($"DisasterSettings: Type-{disasterInfoUnified.DisasterInfo.type}");
-
             var msg = $"disasterInfo(Base): type: {disasterInfoUnified.DisasterInfo.type}, name:{disasterInfoUnified.DisasterInfo.name}, " +
                                   $"location => x:{disasterInfoUnified.DisasterInfo.targetX} y:{disasterInfoUnified.DisasterInfo.targetX} z:{disasterInfoUnified.DisasterInfo.targetZ}. " +
                                   $"Angle: {disasterInfoUnified.DisasterInfo.angle}, intensity: {disasterInfoUnified.DisasterInfo.intensity} " +
@@ -485,17 +457,21 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
             DisasterExtension.SetDisableDisasterFocus(naturalDisasterSetup.DisableDisasterFocus);
 
+            DebugLogger.Log($"EvacuationMode: {disasterInfoUnified.EvacuationMode}");
             switch (disasterInfoUnified.EvacuationMode)
             {
                 case EvacuationOptions.ManualEvacuation:
+                    DebugLogger.Log($"Apply Manual Evacuation");
                     SetupManualEvacuation(disasterInfoUnified.DisasterId);
                     break;
 
                 case EvacuationOptions.AutoEvacuation: //Auto evacuate all shelters
+                    DebugLogger.Log($"Apply Automatic Evacuation");
                     SetupAutomaticEvacuation();
                     break;
 
                 case EvacuationOptions.FocusedAutoEvacuation:
+                    DebugLogger.Log($"Apply Focused Evacuation");
                     SetupAutomaticFocusedEvacuation(disasterInfoUnified, naturalDisasterSetup.PartialEvacuationRadius);
                     break;
 
@@ -561,7 +537,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
         protected virtual bool FindTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
         {
-            OccurrenceAreas area = unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock;            
+            OccurrenceAreas area = unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock;
 
             switch (area)
             {
@@ -657,7 +633,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                         target.y = 0f;
                         target.z = minZ + (maxZ - minZ) * randZ;
                         target.y = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(target, false, 0f);
-                        angle = (float)sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;                        
+                        angle = (float)sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;
                         return true;
                     }
                 }
@@ -752,25 +728,25 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                     {
                         DebugLogger.Log($"Shelter is located in risk zone");
 
-                        //Add Building/Shelter Data to disaster                        
+                        //Add Building/Shelter Data to disaster
                         disasterInfoModel.ShelterList.Add(num);
 
                         //Once this is located into Risk Zone, it's needed verify if building would be ddestroyed by Natural disaster (setup in each one)
-                        //Getting diaster core                        
+                        //Getting diaster core
                         var disasterRadioDestruction = disasterRadioEvacuation / 3f;
 
                         //if Shelter will be destroyed, do not evacuate
                         if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterRadioDestruction) && !disasterInfoModel.IgnoreDestructionZone)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. DON'T EVACUATE");
                         else
-                        {                            
+                        {
                             SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                         }
                     }
                 }
             }
 
-            activeFocusedDisasters.Add(disasterInfoModel);            
+            activeFocusedDisasters.Add(disasterInfoModel);
         }
 
         void SetBuidingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
@@ -789,18 +765,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                 (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
                 (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius
             );
-        }
-
-        private bool TryDisableDisaster(ushort disasterId, DisasterSettings disasterInfo)
-        {
-            var disasterHandler = Singleton<NaturalDisasterHandler>.instance;            
-            if (!Enabled)
-            {
-                DebugLogger.Log("DDS: Deactivating disaster");                
-                disasterHandler.GetDisasterWrapper().EndDisaster(disasterId);
-            }
-
-            return false;
         }
     }
 }

@@ -73,8 +73,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             BaseOccurrencePerYear = 1.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            WarmupYears = 3;
-            EvacuationMode = EvacuationOptions.ManualEvacuation;
+            WarmupYears = 3;            
         }
 
         [System.Xml.Serialization.XmlElement]

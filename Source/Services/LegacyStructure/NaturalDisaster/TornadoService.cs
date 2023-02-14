@@ -48,8 +48,8 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
             calmDays = 360 * 2;
             probabilityWarmupDays = 180;
-            intensityWarmupDays = 180;
-            EvacuationMode = EvacuationOptions.ManualEvacuation;
+            intensityWarmupDays = 180;            
+            intensityWarmupDays = 180;            
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()

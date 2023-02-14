@@ -11,6 +11,7 @@ using NaturalDisastersRenewal.UI;
 using System;
 using System.Reflection;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
 {
@@ -24,12 +25,14 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
 
         NaturalDisasterHandler()
         {
+            DebugLogger.Log("******* INITIALIZING NATURAL DISASTER HANDLER *******");
             ReadValuesFromFile();
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
 
         public void ReadValuesFromFile()
         {
+
             DisasterSetupService newContainer = DisasterSetupService.CreateFromFile();
             if (newContainer == null)
             {                
@@ -38,6 +41,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
 
             newContainer.CheckObjects();
 
+            DebugLogger.Log("ReadValuesFromFile-CopySettings");
             CopySettings(newContainer);
         }
 
@@ -48,6 +52,14 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
             CopySettings(newContainer);
         }
 
+        public void RedefineDisasterMaxIntensity()
+        {
+            var optionPanel = UnityObject.FindObjectOfType<DisastersOptionPanel>();
+            var slider = optionPanel.GetComponentInChildren<UISlider>();
+            slider.maxValue = byte.MaxValue;
+            slider.minValue = byte.MinValue;
+        }
+
         void CopySettings(DisasterSetupService fromContainer)
         {
             if (container == null)
@@ -56,6 +68,8 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
             }
             else
             {
+                DebugLogger.Log("container Different of null");
+
                 for (int i = 0; i < container.AllDisasters.Count; i++)
                 {
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);

@@ -3,6 +3,7 @@ using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 using System;
@@ -178,8 +179,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             DType = DisasterType.MeteorStrike;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
             BaseOccurrencePerYear = 10.0f;
-            ProbabilityDistribution = ProbabilityDistributions.Uniform;
-            EvacuationMode = EvacuationOptions.ManualEvacuation;
+            ProbabilityDistribution = ProbabilityDistributions.Uniform;            
 
             meteorEvents = new MeteorEvent[] {
                 MeteorEvent.Init("Long period meteor", 9, 100),
@@ -257,6 +257,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
         public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
+            DebugLogger.Log($"MeteorStrike-OnDisasterDeactivated-EvacuationMode: {EvacuationMode}");
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
             base.OnDisasterDeactivated(disasterInfoUnified);
@@ -265,6 +266,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
         public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
+            DebugLogger.Log($"MeteorStrike-OnDisasterDetected-EvacuationMode: {EvacuationMode}");
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
 

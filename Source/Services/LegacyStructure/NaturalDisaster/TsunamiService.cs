@@ -37,9 +37,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             DType = DisasterType.Tsunami;
             BaseOccurrencePerYear = 1.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
-
-            WarmupYears = 4;
-            EvacuationMode = EvacuationOptions.ManualEvacuation;
+            WarmupYears = 4;            
         }
 
         public float WarmupYears

@@ -2,6 +2,8 @@
 using ICities;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
+using System;
+using System.Threading;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
 {
@@ -42,6 +44,51 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         {
             DebugLogger.Log("m_disableAutomaticFollow: " + disableDisasterFocus);
             DisasterManager.instance.m_disableAutomaticFollow = disableDisasterFocus;
+        }
+
+        public static void SetPauseOnDisasterStarts(bool disablePause, double secondsBeforePausing, ushort disasterId, DisasterSettings disasterInfo, bool enabled)
+        {
+            //Pause when disaster start
+            if (TryDisableDisaster(disasterId, disasterInfo, enabled))
+            {
+                return;
+            }            
+            DebugLogger.Log($"PauseOnDisasterStarts: {disablePause}");
+
+            if (disablePause)
+            {
+                new Thread(
+                    () =>
+                    {
+                        try
+                        {
+                            var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(-secondsBeforePausing);
+
+                            while (DateTime.UtcNow < pauseStart) { }
+
+                            DebugLogger.Log("Pausing game");
+                            SimulationManager.instance.SimulationPaused = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            DebugLogger.Log(ex.ToString());
+
+                            throw;
+                        }
+                    }).Start();
+            }
+        }
+
+        static bool TryDisableDisaster(ushort disasterId, DisasterSettings disasterInfo, bool enabled)
+        {
+            var disasterHandler = Singleton<NaturalDisasterHandler>.instance;
+            if (!enabled)
+            {
+                DebugLogger.Log("DDS: Deactivating disaster");
+                disasterHandler.GetDisasterWrapper().EndDisaster(disasterId);
+            }
+
+            return false;
         }
     }
 }

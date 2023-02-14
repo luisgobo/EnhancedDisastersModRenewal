@@ -5,6 +5,7 @@ using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 using NaturalDisastersRenewal.Services.LegacyStructure.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
@@ -215,6 +216,8 @@ namespace NaturalDisastersRenewal.UI
             {
                 if (!freezeUI)
                     disasterContainer.PauseOnDisasterStarts = isChecked;
+
+                DebugLogger.Log($"PauseOnDisasterStarts: {disasterContainer.PauseOnDisasterStarts}");
             });
 
             UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius", 300f, 4200f, 300f, disasterContainer.PartialEvacuationRadius, delegate (float val)

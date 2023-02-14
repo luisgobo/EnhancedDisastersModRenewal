@@ -62,9 +62,8 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Setup
 
         //General options
         public bool DisableDisasterFocus = true;
-
-        public bool PauseOnDisasterStarts = true;
-        public float PartialEvacuationRadius = 1000f;
+        public bool PauseOnDisasterStarts = false;
+        public float PartialEvacuationRadius = 900f;
 
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;
