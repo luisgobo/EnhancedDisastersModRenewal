@@ -84,7 +84,6 @@
     <Compile Include="Common\enums\OccurrenceAreas.cs" />
     <Compile Include="Services\LegacyStructure\Patches\DisasterHelpersModified.cs" />
     <Compile Include="Common\enums\ProbabilityDistributions.cs" />
-    <Compile Include="Serialization\SerializableDataExtension.cs" />
     <Compile Include="BaseGameExtensions\Threading.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,6 +96,7 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"
