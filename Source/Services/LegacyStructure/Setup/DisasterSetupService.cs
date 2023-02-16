@@ -1,21 +1,22 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.DisasterServices.LegacyStructure;
+using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
+using NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.Serialization
+namespace NaturalDisastersRenewal.Services.LegacyStructure.Setup
 {
-    public class DisastersSerializeBase
+    public class DisasterSetupService
     {
         public class Data : IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
-                DisastersSerializeBase c = Singleton<NaturalDisasterHandler>.instance.container;
+                DisasterSetupService c = Singleton<NaturalDisasterHandler>.instance.container;
                 s.WriteBool(c.ScaleMaxIntensityWithPopulation);
                 s.WriteBool(c.RecordDisasterEvents);
                 s.WriteBool(c.ShowDisasterPanelButton);
@@ -30,7 +31,7 @@ namespace NaturalDisastersRenewal.Serialization
 
             public void Deserialize(DataSerializer s)
             {
-                DisastersSerializeBase c = Singleton<NaturalDisasterHandler>.instance.container;
+                DisasterSetupService c = Singleton<NaturalDisasterHandler>.instance.container;
                 c.ScaleMaxIntensityWithPopulation = s.ReadBool();
                 c.RecordDisasterEvents = s.ReadBool();
                 c.ShowDisasterPanelButton = s.ReadBool();
@@ -61,8 +62,8 @@ namespace NaturalDisastersRenewal.Serialization
 
         //General options
         public bool DisableDisasterFocus = true;
-        public bool PauseOnDisasterStarts = true;
-        public float PartialEvacuationRadius = 1000f;
+        public bool PauseOnDisasterStarts = false;
+        public float PartialEvacuationRadius = 900f;
 
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;
@@ -70,11 +71,11 @@ namespace NaturalDisastersRenewal.Serialization
         public Vector3 ToggleButtonPos = new Vector3(90, 62);
 
         [XmlIgnore]
-        public List<DisasterServiceBase> AllDisasters = new List<DisasterServiceBase>();
+        public List<DisasterBaseService> AllDisasters = new List<DisasterBaseService>();
 
         public void Save()
         {
-            XmlSerializer ser = new XmlSerializer(typeof(DisastersSerializeBase));
+            XmlSerializer ser = new XmlSerializer(typeof(DisasterSetupService));
             TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath());
             ser.Serialize(writer, this);
             writer.Close();
@@ -100,7 +101,7 @@ namespace NaturalDisastersRenewal.Serialization
             AllDisasters.Add(MeteorStrike);
         }
 
-        public static DisastersSerializeBase CreateFromFile()
+        public static DisasterSetupService CreateFromFile()
         {
             string path = CommonProperties.GetOptionsFilePath();
 
@@ -108,9 +109,9 @@ namespace NaturalDisastersRenewal.Serialization
 
             try
             {
-                XmlSerializer ser = new XmlSerializer(typeof(DisastersSerializeBase));
+                XmlSerializer ser = new XmlSerializer(typeof(DisasterSetupService));
                 TextReader reader = new StreamReader(path);
-                DisastersSerializeBase instance = (DisastersSerializeBase)ser.Deserialize(reader);
+                DisasterSetupService instance = (DisasterSetupService)ser.Deserialize(reader);
                 reader.Close();
 
                 instance.CheckObjects();

@@ -1,13 +1,12 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Serialization;
+using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 
-namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
+namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 {
-    public class TsunamiService : DisasterServiceBase
+    public class TsunamiService : DisasterBaseService
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
@@ -38,9 +37,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             DType = DisasterType.Tsunami;
             BaseOccurrencePerYear = 1.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
-
-            WarmupYears = 4;
-            EvacuationMode = EvacuationOptions.ManualEvacuation;
+            WarmupYears = 4;            
         }
 
         public float WarmupYears
@@ -68,7 +65,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             return "Tsunami";
         }
 
-        public override void CopySettings(DisasterServiceBase disaster)
+        public override void CopySettings(DisasterBaseService disaster)
         {
             base.CopySettings(disaster);
 

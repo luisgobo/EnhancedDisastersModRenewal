@@ -1,7 +1,7 @@
-﻿using System;
-using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
+using ICities;
+using System;
 using UnityEngine;
 
 namespace EnhancedDisastersMod
@@ -44,12 +44,12 @@ namespace EnhancedDisastersMod
             }
         }
 
-
         // Constants
         protected const uint randomizerRange = 67108864u;
 
         // Cooldown variables
         protected int calmDays = 0;
+
         protected float calmDaysLeft = 0;
         protected int probabilityWarmupDays = 0;
         protected float probabilityWarmupDaysLeft = 0;
@@ -58,6 +58,7 @@ namespace EnhancedDisastersMod
 
         // Disaster properties
         protected DisasterType DType = DisasterType.Empty;
+
         protected ProbabilityDistributions ProbabilityDistribution = ProbabilityDistributions.Uniform;
         protected int FullIntensityPopulation = 20000;
         protected OccurrenceAreas OccurrenceAreaBeforeUnlock = OccurrenceAreas.Nowhere;
@@ -66,8 +67,8 @@ namespace EnhancedDisastersMod
 
         // Disaster public properties (to be saved in xml)
         public bool Enabled = true;
-        public float BaseOccurrencePerYear = 1.0f;
 
+        public float BaseOccurrencePerYear = 1.0f;
 
         // Public
 
@@ -212,7 +213,6 @@ namespace EnhancedDisastersMod
             BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
         }
 
-
         // Utilities
 
         protected virtual float getCurrentOccurrencePerYear_local()
@@ -308,12 +308,10 @@ namespace EnhancedDisastersMod
             return DType.ToString() + ", " + Singleton<SimulationManager>.instance.m_currentGameTime.ToShortDateString() + ", ";
         }
 
-
         // Disaster
 
         protected virtual void onSimulationFrame_local()
         {
-
         }
 
         public virtual void OnDisasterStarted(byte intensity)
@@ -327,7 +325,6 @@ namespace EnhancedDisastersMod
 
         protected virtual void disasterStarting(DisasterInfo disasterInfo)
         {
-
         }
 
         public abstract bool CheckDisasterAIType(object disasterAI);
@@ -383,10 +380,13 @@ namespace EnhancedDisastersMod
             {
                 case OccurrenceAreas.LockedAreas:
                     return findRandomTargetInLockedAreas(out targetPosition, out angle);
+
                 case OccurrenceAreas.Everywhere:
                     return findRandomTargetEverywhere(out targetPosition, out angle);
+
                 case OccurrenceAreas.UnlockedAreas: // Vanilla default
                     return disasterInfo.m_disasterAI.FindRandomTarget(out targetPosition, out angle);
+
                 default:
                     targetPosition = new Vector3();
                     angle = 0;

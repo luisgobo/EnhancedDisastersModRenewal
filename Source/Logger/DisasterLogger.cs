@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 using System;
 using System.IO;
 
@@ -11,7 +12,7 @@ namespace NaturalDisastersRenewal.Logger
 
         public static void AddDisaster(DateTime dt, string disasterName, byte intensity)
         {
-            if (!Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.container.RecordDisasterEvents) return;
+            if (!Singleton<NaturalDisasterHandler>.instance.container.RecordDisasterEvents) return;
 
             string filePath = getDisasterListFilePath();
 

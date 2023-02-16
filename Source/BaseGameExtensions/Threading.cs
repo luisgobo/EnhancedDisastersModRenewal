@@ -1,5 +1,6 @@
 using ColossalFramework;
 using ICities;
+using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
 {
@@ -11,7 +12,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             Singleton<DisasterManager>.instance.m_randomDisasterCooldown = 0;
 
             // Give disasters a chance to occur
-            Singleton<DisasterServices.LegacyStructure.NaturalDisasterHandler>.instance.OnSimulationFrame();
+            Singleton<NaturalDisasterHandler>.instance.OnSimulationFrame();
         }
     }
 }

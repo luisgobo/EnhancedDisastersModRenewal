@@ -1,7 +1,7 @@
-﻿using System;
-using UnityEngine;
+﻿using HarmonyLib;
 using ICities;
-using HarmonyLib;
+using System;
+using UnityEngine;
 
 namespace EnhancedDisastersMod.Patches
 {

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using ColossalFramework;
+using ColossalFramework.IO;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
-using System.Collections.Generic;
-using ColossalFramework;
-using ColossalFramework.IO;
 using UnityEngine;
 
 namespace EnhancedDisastersMod
@@ -40,7 +40,6 @@ namespace EnhancedDisastersMod
                 Singleton<EnhancedDisastersManager>.instance.UpdateDisastersPanelToggleBtn();
             }
         }
-
 
         private static string optionsFileName = "EnhancedDisastersModOptions.xml";
 

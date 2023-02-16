@@ -1,15 +1,14 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Serialization;
+using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 using System;
 
-namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
+namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 {
-    public class ForestFireService : DisasterServiceBase
+    public class ForestFireService : DisasterBaseService
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
@@ -56,8 +55,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
             calmDays = 7;
             probabilityWarmupDays = 0;
-            intensityWarmupDays = 0;
-            EvacuationMode = EvacuationOptions.ManualEvacuation;
+            intensityWarmupDays = 0;            
         }
 
         protected override void OnSimulationFrameLocal()
@@ -117,7 +115,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             return "Forest Fire";
         }
 
-        public override void CopySettings(DisasterServiceBase disaster)
+        public override void CopySettings(DisasterBaseService disaster)
         {
             base.CopySettings(disaster);
 

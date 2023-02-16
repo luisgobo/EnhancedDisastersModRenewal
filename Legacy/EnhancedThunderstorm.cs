@@ -1,12 +1,11 @@
-﻿using System;
-using ICities;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.IO;
-using UnityEngine;
+using ICities;
+using System;
 
 namespace EnhancedDisastersMod
 {
-    public class EnhancedThunderstorm: EnhancedDisaster
+    public class EnhancedThunderstorm : EnhancedDisaster
     {
         public class Data : SerializableDataCommon, IDataContainer
         {

@@ -1,14 +1,13 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
-using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Serialization;
+using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 using System;
 
-namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
+namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 {
-    public class TornadoService : DisasterServiceBase
+    public class TornadoService : DisasterBaseService
     {
         public class Data : SerializableDataCommon, IDataContainer
         {
@@ -49,8 +48,8 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
 
             calmDays = 360 * 2;
             probabilityWarmupDays = 180;
-            intensityWarmupDays = 180;
-            EvacuationMode = EvacuationOptions.ManualEvacuation;
+            intensityWarmupDays = 180;            
+            intensityWarmupDays = 180;            
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()
@@ -92,7 +91,7 @@ namespace NaturalDisastersRenewal.DisasterServices.LegacyStructure
             return "Tornado";
         }
 
-        public override void CopySettings(DisasterServiceBase disaster)
+        public override void CopySettings(DisasterBaseService disaster)
         {
             base.CopySettings(disaster);
 
