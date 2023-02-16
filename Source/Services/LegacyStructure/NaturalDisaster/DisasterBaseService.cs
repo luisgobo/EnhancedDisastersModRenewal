@@ -557,6 +557,13 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             }
         }
 
+        public virtual float CalculateDestructionRadio(byte intensity)
+        {
+            float radio  = 5.656854249f; //min Value Radio
+            DebugLogger.Log($"Radio calculated (Base method): {radio}");
+            return radio;
+        }
+
         bool FindRandomTargetEverywhere(out Vector3 target, out float angle)
         {
             GameAreaManager gam = Singleton<GameAreaManager>.instance;
@@ -733,10 +740,15 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
                         //Once this is located into Risk Zone, it's needed verify if building would be ddestroyed by Natural disaster (setup in each one)
                         //Getting diaster core
-                        var disasterRadioDestruction = disasterRadioEvacuation / 3f;
+                        var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);                        
+                        DebugLogger.Log(
+                            $"Disaster intensity: {disasterInfoModel.DisasterInfo.intensity}. " +
+                            $"DisasterRadioEvacuation: {disasterRadioEvacuation}. " +                                                        
+                            $"DisasterRadioEvacuation into destruction (New Calculation): {disasterDestructionRadius}"
+                        );
 
                         //if Shelter will be destroyed, do not evacuate
-                        if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterRadioDestruction) && !disasterInfoModel.IgnoreDestructionZone)
+                        if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius) && !disasterInfoModel.IgnoreDestructionZone)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. DON'T EVACUATE");
                         else
                         {
@@ -747,7 +759,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             }
 
             activeFocusedDisasters.Add(disasterInfoModel);
-        }
+        }        
 
         void SetBuidingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
         {

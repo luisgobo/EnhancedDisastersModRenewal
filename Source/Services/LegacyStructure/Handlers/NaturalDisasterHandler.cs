@@ -25,7 +25,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
 
         NaturalDisasterHandler()
         {
-            DebugLogger.Log("******* INITIALIZING NATURAL DISASTER HANDLER *******");
             ReadValuesFromFile();
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }

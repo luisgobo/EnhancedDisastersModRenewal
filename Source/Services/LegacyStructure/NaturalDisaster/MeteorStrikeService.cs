@@ -366,5 +366,43 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                 MeteorShortPeriodEnabled = d.MeteorShortPeriodEnabled;
             }
         }
+
+        public override float CalculateDestructionRadio(byte intensity)
+        {
+            DebugLogger.Log($"CalculateDestructionRadio");
+            int unitSize = 8;
+            int unitsBase = 24; //24 Original, Distance Fix for proximity            
+            float unitCalculation;
+            int intensityInt = intensity / 10;
+            int intensityDec = intensity % 10;
+
+            DebugLogger.Log($"IntensityInt: {intensityInt}");
+            DebugLogger.Log($"IntensityDec: {intensityDec}");
+
+            DebugLogger.Log($"Intensity: {intensity}");
+            if (intensity < 25)
+            {
+                DebugLogger.Log($"intensity < 25");
+                unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 4;
+            }
+            if (intensity >= 25 && intensity < 50)
+            {
+                DebugLogger.Log($"intensity >= 25 && intensity < 50");
+                unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.24f) + unitsBase;
+            }
+
+            if (intensity >= 50 && intensity <= 250)
+            {
+                DebugLogger.Log($"intensity >= 50 && intensity <= 250");
+                unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + unitsBase;
+            }
+            else
+            {
+                DebugLogger.Log($"intensity > 250");                
+                unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + (0.24f * intensityDec) + unitsBase;
+            }
+                        
+            return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
+        }
     }
 }
