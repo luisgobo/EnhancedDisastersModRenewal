@@ -220,7 +220,7 @@ namespace NaturalDisastersRenewal.UI
                 DebugLogger.Log($"PauseOnDisasterStarts: {disasterContainer.PauseOnDisasterStarts}");
             });
 
-            UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius", 300f, 4200f, 300f, disasterContainer.PartialEvacuationRadius, delegate (float val)
+            UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius", 300f, 4200f, 100f, disasterContainer.PartialEvacuationRadius, delegate (float val)
             {
                 if (!freezeUI)
                     disasterContainer.PartialEvacuationRadius = val;

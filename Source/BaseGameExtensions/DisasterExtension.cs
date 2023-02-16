@@ -41,8 +41,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         }
 
         public static void SetDisableDisasterFocus(bool disableDisasterFocus)
-        {
-            DebugLogger.Log("m_disableAutomaticFollow: " + disableDisasterFocus);
+        {            
             DisasterManager.instance.m_disableAutomaticFollow = disableDisasterFocus;
         }
 
@@ -53,7 +52,6 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             {
                 return;
             }            
-            DebugLogger.Log($"PauseOnDisasterStarts: {disablePause}");
 
             if (disablePause)
             {
@@ -65,8 +63,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
                             var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(-secondsBeforePausing);
 
                             while (DateTime.UtcNow < pauseStart) { }
-
-                            DebugLogger.Log("Pausing game");
+                            
                             SimulationManager.instance.SimulationPaused = true;
                         }
                         catch (Exception ex)

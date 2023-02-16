@@ -372,7 +372,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
                 if (!IsEvacuating())
                 {
-                    DebugLogger.Log("Not evacuating. Clear list of active manual release disasters");
+                    //Not evacuating. Clear list of active manual release disasters
                     manualReleaseDisasters.Clear();
                     return;
                 }
@@ -382,9 +382,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                 if (disasterFinishing != null)
                 {
                     activeFocusedDisasters.Remove(disasterFinishing);
-                    DebugLogger.Log("Active disasters: " + activeFocusedDisasters.Count);
-
-                    DebugLogger.Log("EvacuationMode: " + disasterInfoUnified.EvacuationMode);
 
                     switch (disasterInfoUnified.EvacuationMode)
                     {
@@ -396,7 +393,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
                             if (!manualReleaseDisasters.Any() && !activeFocusedDisasters.Any())
                             {
-                                DebugLogger.Log("Auto releasing citizens");
+                                //Auto releasing citizens
                                 DisasterManager.instance.EvacuateAll(true);
                                 activeFocusedDisasters.Clear();
                                 break;
@@ -457,21 +454,17 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
             DisasterExtension.SetDisableDisasterFocus(naturalDisasterSetup.DisableDisasterFocus);
 
-            DebugLogger.Log($"EvacuationMode: {disasterInfoUnified.EvacuationMode}");
             switch (disasterInfoUnified.EvacuationMode)
             {
                 case EvacuationOptions.ManualEvacuation:
-                    DebugLogger.Log($"Apply Manual Evacuation");
                     SetupManualEvacuation(disasterInfoUnified.DisasterId);
                     break;
 
                 case EvacuationOptions.AutoEvacuation: //Auto evacuate all shelters
-                    DebugLogger.Log($"Apply Automatic Evacuation");
                     SetupAutomaticEvacuation();
                     break;
 
                 case EvacuationOptions.FocusedAutoEvacuation:
-                    DebugLogger.Log($"Apply Focused Evacuation");
                     SetupAutomaticFocusedEvacuation(disasterInfoUnified, naturalDisasterSetup.PartialEvacuationRadius);
                     break;
 
@@ -506,19 +499,13 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
             bool targetFound = FindTarget(disasterInfo, out Vector3 targetPosition, out float angle);
             if (!targetFound)
-            {
-                DebugLogger.Log(GetDebugStr() + "target not found");
                 return;
-            }
 
             DisasterManager dm = Singleton<DisasterManager>.instance;
 
             bool disasterCreated = dm.CreateDisaster(out ushort disasterIndex, disasterInfo);
             if (!disasterCreated)
-            {
                 DebugLogger.Log(GetDebugStr() + "could not create disaster");
-                return;
-            }
 
             DisasterLogger.StartedByMod = true;
 
@@ -672,18 +659,12 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
         bool IsEvacuating()
         {
             FindPhasePanel();
-
-            var isEvacuating = (bool)evacuatingField.GetValue(phasePanel);
-
-            DebugLogger.Log("Is evacuating: " + isEvacuating);
-
-            return isEvacuating;
+            return (bool)evacuatingField.GetValue(phasePanel);            
         }
 
         void SetupManualEvacuation(ushort disasterId)
-        {
-            //Setup autorelease
-            DebugLogger.Log("Should be manually released");
+        {            
+            //Should be manually released
             manualReleaseDisasters.Add(disasterId);
         }
 
@@ -733,8 +714,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
                     if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterRadioEvacuation))
                     {
-                        DebugLogger.Log($"Shelter is located in risk zone");
-
                         //Add Building/Shelter Data to disaster
                         disasterInfoModel.ShelterList.Add(num);
 
@@ -749,11 +728,9 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
                         //if Shelter will be destroyed, do not evacuate
                         if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius) && !disasterInfoModel.IgnoreDestructionZone)
-                            DebugLogger.Log($"Shelter is located in Destruction Zone. DON'T EVACUATE");
+                            DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
-                        {
                             SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
-                        }
                     }
                 }
             }

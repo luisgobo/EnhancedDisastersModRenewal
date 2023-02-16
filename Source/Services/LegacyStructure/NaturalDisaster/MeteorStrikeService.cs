@@ -257,7 +257,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
         public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
-            DebugLogger.Log($"MeteorStrike-OnDisasterDeactivated-EvacuationMode: {EvacuationMode}");
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
             base.OnDisasterDeactivated(disasterInfoUnified);
@@ -266,7 +265,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
         public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
-            DebugLogger.Log($"MeteorStrike-OnDisasterDetected-EvacuationMode: {EvacuationMode}");
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
 
@@ -369,38 +367,29 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
         public override float CalculateDestructionRadio(byte intensity)
         {
-            DebugLogger.Log($"CalculateDestructionRadio");
             int unitSize = 8;
             int unitsBase = 24; //24 Original, Distance Fix for proximity            
             float unitCalculation;
             int intensityInt = intensity / 10;
             int intensityDec = intensity % 10;
 
-            DebugLogger.Log($"IntensityInt: {intensityInt}");
-            DebugLogger.Log($"IntensityDec: {intensityDec}");
+            switch (intensity)
+            {   
+                case byte n when (n < 25):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 4;
+                    break;
+                case byte n when (n >= 25 && n < 50):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.24f) + unitsBase;
+                    break;
 
-            DebugLogger.Log($"Intensity: {intensity}");
-            if (intensity < 25)
-            {
-                DebugLogger.Log($"intensity < 25");
-                unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 4;
-            }
-            if (intensity >= 25 && intensity < 50)
-            {
-                DebugLogger.Log($"intensity >= 25 && intensity < 50");
-                unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.24f) + unitsBase;
-            }
+                case byte n when (n >= 50 && n <= 250):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + unitsBase;
+                    break;                
 
-            if (intensity >= 50 && intensity <= 250)
-            {
-                DebugLogger.Log($"intensity >= 50 && intensity <= 250");
-                unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + unitsBase;
-            }
-            else
-            {
-                DebugLogger.Log($"intensity > 250");                
-                unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + (0.24f * intensityDec) + unitsBase;
-            }
+                default:
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + (0.24f * intensityDec) + unitsBase;
+                    break;
+            }                  
                         
             return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
         }

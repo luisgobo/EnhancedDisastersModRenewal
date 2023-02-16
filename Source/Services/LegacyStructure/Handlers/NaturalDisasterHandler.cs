@@ -39,8 +39,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
             }            
 
             newContainer.CheckObjects();
-
-            DebugLogger.Log("ReadValuesFromFile-CopySettings");
+            
             CopySettings(newContainer);
         }
 
@@ -67,8 +66,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
             }
             else
             {
-                DebugLogger.Log("container Different of null");
-
                 for (int i = 0; i < container.AllDisasters.Count; i++)
                 {
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
@@ -115,8 +112,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         {
             var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
             var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
-            DebugLogger.Log(msg);
-            DebugLogger.Log("Disaster detected");
+            DebugLogger.Log(msg);            
 
             foreach (DisasterBaseService ed in container.AllDisasters)
             {
@@ -135,8 +131,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
                 var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
 
                 var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
-                DebugLogger.Log(msg);
-                DebugLogger.Log("Disaster detected");
+                DebugLogger.Log(msg);                
 
                 foreach (DisasterBaseService ed in container.AllDisasters)
                 {
@@ -162,8 +157,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         public void OnDisasterDetected(DisasterAI disasterAI, ushort disasterId)
         {
             try
-            {
-                DebugLogger.Log("Disaster detected");
+            {                
                 foreach (DisasterBaseService disasterService in container.AllDisasters)
                 {
                     if (disasterService.CheckDisasterAIType(disasterAI))
@@ -189,7 +183,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
             catch (Exception ex)
             {
                 DebugLogger.Log(ex.ToString());
-
                 throw;
             }
         }
