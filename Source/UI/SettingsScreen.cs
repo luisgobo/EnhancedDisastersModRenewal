@@ -248,6 +248,8 @@ namespace NaturalDisastersRenewal.UI
                     disasterContainer.ShowDisasterPanelButton = isChecked;
 
                 Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
+                
             });
 
             generalGroup.AddSpace(10);
