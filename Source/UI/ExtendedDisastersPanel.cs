@@ -26,7 +26,7 @@ namespace NaturalDisastersRenewal.UI
             //this.isInteractive = true;
 
             height = 250;
-            width = 400;
+            width = 410;
 
             isVisible = false;
         }
@@ -49,8 +49,8 @@ namespace NaturalDisastersRenewal.UI
             AddAxisLabel(200, y, "0.1");
             AddAxisLabel(240, y, "1");
             AddAxisLabel(275, y, "10");
-            AddAxisLabel(300, y, "1");
-            AddAxisLabel(375, y, "10");
+            AddAxisLabel(300, y, "0.0");
+            AddAxisLabel(375, y, "25.5");
             y -= 15;
 
             int disasterCount = Singleton<NaturalDisasterHandler>.instance.container.AllDisasters.Count;
@@ -91,7 +91,7 @@ namespace NaturalDisastersRenewal.UI
             bigRedBtnLabel.text = "← Emergency Button (stop all disasters)";
 
             UIButton btn = this.AddUIComponent<UIButton>();
-            btn.position = new Vector3(365, -5);
+            btn.position = new Vector3(375, -5);
             btn.size = new Vector2(30, 30);
             btn.normalFgSprite = "buttonclose";
             btn.eventClick += Btn_eventClick;

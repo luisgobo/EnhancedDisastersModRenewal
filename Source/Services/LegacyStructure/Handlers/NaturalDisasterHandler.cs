@@ -34,12 +34,12 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
 
             DisasterSetupService newContainer = DisasterSetupService.CreateFromFile();
             if (newContainer == null)
-            {                
+            {
                 newContainer = new DisasterSetupService();
-            }            
+            }
 
             newContainer.CheckObjects();
-            
+
             CopySettings(newContainer);
         }
 
@@ -61,7 +61,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         void CopySettings(DisasterSetupService fromContainer)
         {
             if (container == null)
-            {                
+            {
                 container = fromContainer;
             }
             else
@@ -92,7 +92,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         }
 
         public void OnCreated(IDisaster disasters)
-        {            
+        {
             disasterWrapper = (DisasterWrapper)disasters;
         }
 
@@ -112,7 +112,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         {
             var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
             var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
-            DebugLogger.Log(msg);            
+            DebugLogger.Log(msg);
 
             foreach (DisasterBaseService ed in container.AllDisasters)
             {
@@ -131,7 +131,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
                 var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
 
                 var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
-                DebugLogger.Log(msg);                
+                DebugLogger.Log(msg);
 
                 foreach (DisasterBaseService ed in container.AllDisasters)
                 {
@@ -157,7 +157,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         public void OnDisasterDetected(DisasterAI disasterAI, ushort disasterId)
         {
             try
-            {                
+            {
                 foreach (DisasterBaseService disasterService in container.AllDisasters)
                 {
                     if (disasterService.CheckDisasterAIType(disasterAI))
@@ -284,8 +284,12 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
             toggleButton.eventClick += ToggleButton_eventClick;
             toggleButton.isVisible = container.ShowDisasterPanelButton;
             toggleButton.eventMouseMove += ToggleButton_eventMouseMove;
+            
+            dPanel.tooltip= "Drag by right-click to set the panel position.";
+            dPanel.eventMouseMove += DPanel_eventMouseMove;               
 
             UpdateDisastersPanelToggleBtn();
+            UpdateDisastersDPanel();
 
             UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
         }
@@ -304,6 +308,25 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
             }
         }
 
+        void ToggleButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            ToggleDisasterPanel();
+        }
+
+        void DPanel_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
+            {
+                var ratio = UIView.GetAView().ratio;
+                dPanel.position = new Vector3(
+                    dPanel.position.x + (eventParam.moveDelta.x * ratio),
+                    dPanel.position.y + (eventParam.moveDelta.y * ratio),
+                    dPanel.position.z);
+
+                container.DPanelPos = dPanel.absolutePosition;
+            }
+        }        
+
         void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
             if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
@@ -317,12 +340,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
                 ToggleDisasterPanel();
             }
         }
-
-        void ToggleButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            ToggleDisasterPanel();
-        }
-
         void ToggleDisasterPanel()
         {
             dPanel.isVisible = !dPanel.isVisible;
@@ -342,6 +359,17 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
                 if (container.ToggleButtonPos.x > 10 && container.ToggleButtonPos.y > 10)
                 {
                     toggleButton.absolutePosition = container.ToggleButtonPos;
+                }
+            }
+        }
+
+        public void UpdateDisastersDPanel()
+        {
+            if (dPanel != null && container != null)
+            {               
+                if (container.DPanelPos.x > 10 && container.DPanelPos.y > 10)
+                {
+                    dPanel.absolutePosition = container.DPanelPos;
                 }
             }
         }

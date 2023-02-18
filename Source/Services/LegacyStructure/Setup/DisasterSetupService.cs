@@ -27,6 +27,9 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Setup
 
                 s.WriteFloat(c.ToggleButtonPos.x);
                 s.WriteFloat(c.ToggleButtonPos.y);
+
+                s.WriteFloat(c.DPanelPos.x);
+                s.WriteFloat(c.DPanelPos.y);
             }
 
             public void Deserialize(DataSerializer s)
@@ -43,12 +46,15 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Setup
                 if (s.version >= 1)
                 {
                     c.ToggleButtonPos = new Vector3(s.ReadFloat(), s.ReadFloat());
+                    c.DPanelPos = new Vector3(s.ReadFloat(), s.ReadFloat());
                 }
             }
 
             public void AfterDeserialize(DataSerializer s)
             {
                 Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
+                
             }
         }
 
@@ -69,6 +75,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Setup
         public bool RecordDisasterEvents = false;
         public bool ShowDisasterPanelButton = true;
         public Vector3 ToggleButtonPos = new Vector3(90, 62);
+        public Vector3 DPanelPos = new Vector3(90, 40);
 
         [XmlIgnore]
         public List<DisasterBaseService> AllDisasters = new List<DisasterBaseService>();
