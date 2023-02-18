@@ -215,9 +215,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Pause on disaster starts", disasterContainer.PauseOnDisasterStarts, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.PauseOnDisasterStarts = isChecked;
-
-                DebugLogger.Log($"PauseOnDisasterStarts: {disasterContainer.PauseOnDisasterStarts}");
+                    disasterContainer.PauseOnDisasterStarts = isChecked;                
             });
 
             UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius", 300f, 4200f, 100f, disasterContainer.PartialEvacuationRadius, delegate (float val)

@@ -3,7 +3,6 @@ using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
 using System;
@@ -179,7 +178,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             DType = DisasterType.MeteorStrike;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
             BaseOccurrencePerYear = 10.0f;
-            ProbabilityDistribution = ProbabilityDistributions.Uniform;            
+            ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
             meteorEvents = new MeteorEvent[] {
                 MeteorEvent.Init("Long period meteor", 9, 100),
@@ -352,6 +351,36 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             return result;
         }
 
+        public override float CalculateDestructionRadio(byte intensity)
+        {
+            int unitSize = 8;
+            int unitsBase = 24; //24 Original, Distance Fix for proximity
+            float unitCalculation;
+            int intensityInt = intensity / 10;
+            int intensityDec = intensity % 10;
+
+            switch (intensity)
+            {
+                case byte n when (n < 25):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 4;
+                    break;
+
+                case byte n when (n >= 25 && n < 50):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.24f) + unitsBase;
+                    break;
+
+                case byte n when (n >= 50 && n <= 250):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + unitsBase;
+                    break;
+
+                default:
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + (0.24f * intensityDec) + unitsBase;
+                    break;
+            }
+
+            return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
+        }
+
         public override void CopySettings(DisasterBaseService disaster)
         {
             base.CopySettings(disaster);
@@ -363,35 +392,6 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                 MeteorMediumPeriodEnabled = d.MeteorMediumPeriodEnabled;
                 MeteorShortPeriodEnabled = d.MeteorShortPeriodEnabled;
             }
-        }
-
-        public override float CalculateDestructionRadio(byte intensity)
-        {
-            int unitSize = 8;
-            int unitsBase = 24; //24 Original, Distance Fix for proximity            
-            float unitCalculation;
-            int intensityInt = intensity / 10;
-            int intensityDec = intensity % 10;
-
-            switch (intensity)
-            {   
-                case byte n when (n < 25):
-                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 4;
-                    break;
-                case byte n when (n >= 25 && n < 50):
-                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.24f) + unitsBase;
-                    break;
-
-                case byte n when (n >= 50 && n <= 250):
-                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + unitsBase;
-                    break;                
-
-                default:
-                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + (0.24f * intensityDec) + unitsBase;
-                    break;
-            }                  
-                        
-            return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
         }
     }
 }

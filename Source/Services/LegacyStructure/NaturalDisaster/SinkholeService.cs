@@ -47,7 +47,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
             calmDays = 30;
             probabilityWarmupDays = 0;
-            intensityWarmupDays = 0;            
+            intensityWarmupDays = 0;
         }
 
         public override string GetProbabilityTooltip()
@@ -147,7 +147,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
                 case byte n when (n >= 101 && n < 126):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - 3f;
                     break;
-                case byte n when (n >= 126 && n <151):
+                case byte n when (n >= 126 && n < 151):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - ((intensityDec - 5) * 0.04f) - ((intensityInt - 2) * 0.3f) - ((intensityDec - 5) * 0.04f) - (0.5f * (intensityInt - 12));
                     break;
                 case byte n when (n >= 151 && n < 176):
