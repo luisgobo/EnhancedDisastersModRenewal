@@ -1,14 +1,14 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
-using NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster;
+using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Services.NaturalDisaster;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.Services.LegacyStructure.Setup
+namespace NaturalDisastersRenewal.Services.Setup
 {
     public class DisasterSetupService
     {
@@ -60,11 +60,11 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Setup
 
         public ForestFireService ForestFire;
         public ThunderstormService Thunderstorm;
-        public SinkholeService Sinkhole;
+        public SinkholeModel Sinkhole;
         public TsunamiService Tsunami;
         public TornadoService Tornado;
-        public EarthquakeService Earthquake;
-        public MeteorStrikeService MeteorStrike;
+        public EarthquakeModel Earthquake;
+        public MeteorStrikeModel MeteorStrike;
 
         //General options
         public bool DisableDisasterFocus = true;
@@ -78,7 +78,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Setup
         public Vector3 DPanelPos = new Vector3(90, 40);
 
         [XmlIgnore]
-        public List<DisasterBaseService> AllDisasters = new List<DisasterBaseService>();
+        public List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();
 
         public void Save()
         {
@@ -92,11 +92,11 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Setup
         {
             if (ForestFire == null) ForestFire = new ForestFireService();
             if (Thunderstorm == null) Thunderstorm = new ThunderstormService();
-            if (Sinkhole == null) Sinkhole = new SinkholeService();
+            if (Sinkhole == null) Sinkhole = new SinkholeModel();
             if (Tsunami == null) Tsunami = new TsunamiService();
             if (Tornado == null) Tornado = new TornadoService();
-            if (Earthquake == null) Earthquake = new EarthquakeService();
-            if (MeteorStrike == null) MeteorStrike = new MeteorStrikeService();
+            if (Earthquake == null) Earthquake = new EarthquakeModel();
+            if (MeteorStrike == null) MeteorStrike = new MeteorStrikeModel();
 
             AllDisasters.Clear();
             AllDisasters.Add(ForestFire);

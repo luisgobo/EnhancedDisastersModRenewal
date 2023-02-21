@@ -7,12 +7,12 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
     public class ComponentHelpers
     {
-        public static void AddDropDown(bool freezeUI, ref UIDropDown dropDown, ref UIHelperBase group, string description, string[] itemList, ref EvacuationOptions value, OnDropdownSelectionChanged eventCallback)
+        public static void AddDropDown<T>(bool freezeUI, ref UIDropDown dropDown, ref UIHelperBase group, string description, string[] itemList, ref T value, OnDropdownSelectionChanged eventCallback)
         {
             dropDown = (UIDropDown)group.AddDropdown(
                 description,
                 itemList,
-                (int)value,
+                Convert.ToInt32(value),
                 eventCallback
             );
 

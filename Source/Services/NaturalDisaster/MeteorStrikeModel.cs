@@ -4,68 +4,17 @@ using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
+using NaturalDisastersRenewal.Services.Handlers;
 using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
+namespace NaturalDisastersRenewal.Services.NaturalDisaster
 {
-    public class MeteorStrikeService : DisasterBaseService
+    public class MeteorStrikeModel : DisasterBaseModel
     {
-        public class Data : SerializableDataCommon, IDataContainer
-        {
-            public void Serialize(DataSerializer s)
-            {
-                MeteorStrikeService d = Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike;
-                SerializeCommonParameters(s, d);
-
-                for (int i = 0; i < d.meteorEvents.Length; i++)
-                {
-                    s.WriteBool(d.meteorEvents[i].Enabled);
-                    s.WriteFloat(d.meteorEvents[i].PeriodDays);
-                    s.WriteInt8(d.meteorEvents[i].MaxIntensity);
-                    s.WriteFloat(d.meteorEvents[i].DaysUntilNextEvent);
-                    s.WriteInt32(d.meteorEvents[i].MeteorsFallen);
-                }
-            }
-
-            public void Deserialize(DataSerializer s)
-            {
-                MeteorStrikeService d = Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike;
-                DeserializeCommonParameters(s, d);
-
-                if (s.version <= 2)
-                {
-                    float daysPerFrame = Helper.DaysPerFrame;
-                    for (int i = 0; i < d.meteorEvents.Length; i++)
-                    {
-                        d.meteorEvents[i].Enabled = s.ReadBool();
-                        d.meteorEvents[i].PeriodDays = s.ReadInt32() * daysPerFrame;
-                        d.meteorEvents[i].MaxIntensity = (byte)s.ReadInt8();
-                        d.meteorEvents[i].DaysUntilNextEvent = s.ReadInt32() * daysPerFrame;
-                        d.meteorEvents[i].MeteorsFallen = s.ReadInt32();
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < d.meteorEvents.Length; i++)
-                    {
-                        d.meteorEvents[i].Enabled = s.ReadBool();
-                        d.meteorEvents[i].PeriodDays = s.ReadFloat();
-                        d.meteorEvents[i].MaxIntensity = (byte)s.ReadInt8();
-                        d.meteorEvents[i].DaysUntilNextEvent = s.ReadFloat();
-                        d.meteorEvents[i].MeteorsFallen = s.ReadInt32();
-                    }
-                }
-            }
-
-            public void AfterDeserialize(DataSerializer s)
-            {
-                AfterDeserializeLog("EnhancedMeteorStrike");
-            }
-        }
-
-        struct MeteorEvent
+        public struct MeteorEvent
         {
             public string Name;
             public float PeriodDays;
@@ -171,9 +120,9 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             }
         }
 
-        MeteorEvent[] meteorEvents;
+        [XmlIgnore] public MeteorEvent[] meteorEvents;
 
-        public MeteorStrikeService()
+        public MeteorStrikeModel()
         {
             DType = DisasterType.MeteorStrike;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
@@ -247,27 +196,27 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             }
         }
 
-        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId)
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfo.type |= DisasterType.MeteorStrike;
-            base.OnDisasterActivated(disasterInfo, disasterId);
+            base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
-        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified)
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
-            base.OnDisasterDeactivated(disasterInfoUnified);
+            base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
         }
 
-        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
 
-            base.OnDisasterDetected(disasterInfoUnified);
+            base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
         }
 
         public override void OnDisasterStarted(byte intensity)
@@ -381,11 +330,11 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
         }
 
-        public override void CopySettings(DisasterBaseService disaster)
+        public override void CopySettings(DisasterBaseModel disaster)
         {
             base.CopySettings(disaster);
 
-            MeteorStrikeService d = disaster as MeteorStrikeService;
+            MeteorStrikeModel d = disaster as MeteorStrikeModel;
             if (d != null)
             {
                 MeteorLongPeriodEnabled = d.MeteorLongPeriodEnabled;

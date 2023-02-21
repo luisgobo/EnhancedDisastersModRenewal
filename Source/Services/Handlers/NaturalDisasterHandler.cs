@@ -5,23 +5,25 @@ using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models;
-using NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster;
-using NaturalDisastersRenewal.Services.LegacyStructure.Setup;
+using NaturalDisastersRenewal.Services.NaturalDisaster;
+using NaturalDisastersRenewal.Services.Setup;
 using NaturalDisastersRenewal.UI;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
-namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
+namespace NaturalDisastersRenewal.Services.Handlers
 {
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
         public DisasterSetupService container;
+        List<DisasterInfoModel> activeDisasters = new List<DisasterInfoModel>();
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
         readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
-        private DisasterWrapper disasterWrapper;
+        DisasterWrapper disasterWrapper;
 
         NaturalDisasterHandler()
         {
@@ -85,7 +87,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         {
             CheckUnlocks();
 
-            foreach (DisasterBaseService ed in container.AllDisasters)
+            foreach (DisasterBaseModel ed in container.AllDisasters)
             {
                 ed.OnSimulationFrame();
             }
@@ -98,7 +100,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
 
         public void OnDisasterStarted(DisasterAI dai, byte intensity)
         {
-            foreach (DisasterBaseService ed in container.AllDisasters)
+            foreach (DisasterBaseModel ed in container.AllDisasters)
             {
                 if (ed.CheckDisasterAIType(dai))
                 {
@@ -114,11 +116,13 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
             var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
             DebugLogger.Log(msg);
 
-            foreach (DisasterBaseService ed in container.AllDisasters)
+
+
+            foreach (DisasterBaseModel ed in container.AllDisasters)
             {
                 if (ed.CheckDisasterAIType(dai))
                 {
-                    ed.OnDisasterActivated(disasterInfo, disasterId);
+                    ed.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
                     return;
                 }
             }
@@ -133,7 +137,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
                 var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
                 DebugLogger.Log(msg);
 
-                foreach (DisasterBaseService ed in container.AllDisasters)
+                foreach (DisasterBaseModel ed in container.AllDisasters)
                 {
                     if (ed.CheckDisasterAIType(dai))
                     {
@@ -141,7 +145,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
                         {
                             DisasterInfo = disasterInfo,
                             DisasterId = disasterId
-                        });
+                        }, ref activeDisasters);
                         return;
                     }
                 }
@@ -158,7 +162,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
         {
             try
             {
-                foreach (DisasterBaseService disasterService in container.AllDisasters)
+                foreach (DisasterBaseModel disasterService in container.AllDisasters)
                 {
                     if (disasterService.CheckDisasterAIType(disasterAI))
                     {
@@ -175,7 +179,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.Handlers
                             DisasterId = disasterId
                         };
 
-                        disasterService.OnDisasterDetected(disasterInfoUnified);
+                        disasterService.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
                         return;
                     }
                 }

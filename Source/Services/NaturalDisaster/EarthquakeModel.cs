@@ -3,70 +3,27 @@ using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
+using NaturalDisastersRenewal.Logger;
+using NaturalDisastersRenewal.Models;
+using NaturalDisastersRenewal.Services.Handlers;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
+namespace NaturalDisastersRenewal.Services.NaturalDisaster
 {
-    public class EarthquakeService : DisasterBaseService
+    public class EarthquakeModel : DisasterBaseModel
     {
-        public class Data : SerializableDataCommon, IDataContainer
-        {
-            public void Serialize(DataSerializer s)
-            {
-                EarthquakeService d = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
-                SerializeCommonParameters(s, d);
+        public bool AftershocksEnabled = true;        
+        public EarthquakeCrackOptions EarthquakeCrackMode = EarthquakeCrackOptions.NoCracks;
+        
+        [XmlIgnore] public byte aftershocksCount = 0;
+        [XmlIgnore] public byte aftershockMaxIntensity = 0;
+        [XmlIgnore] public byte mainStrikeIntensity = 0;
+        [XmlIgnore] public Vector3 lastTargetPosition = new Vector3();
+        [XmlIgnore] public float lastAngle = 0;
 
-                s.WriteFloat(d.WarmupYears);
-                s.WriteBool(d.NoCracks);
-
-                s.WriteInt8(d.aftershocksCount);
-                s.WriteInt8(d.aftershockMaxIntensity);
-                s.WriteInt8(d.mainStrikeIntensity);
-
-                s.WriteFloat(d.lastTargetPosition.x);
-                s.WriteFloat(d.lastTargetPosition.y);
-                s.WriteFloat(d.lastTargetPosition.z);
-                s.WriteFloat(d.lastAngle);
-            }
-
-            public void Deserialize(DataSerializer s)
-            {
-                EarthquakeService d = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
-                DeserializeCommonParameters(s, d);
-
-                d.WarmupYears = s.ReadFloat();
-                if (s.version >= 3)
-                {
-                    d.NoCracks = s.ReadBool();
-                }
-
-                d.aftershocksCount = (byte)s.ReadInt8();
-                d.aftershockMaxIntensity = (byte)s.ReadInt8();
-                if (s.version >= 2)
-                {
-                    d.mainStrikeIntensity = (byte)s.ReadInt8();
-                }
-
-                d.lastTargetPosition = new Vector3(s.ReadFloat(), s.ReadFloat(), s.ReadFloat());
-                d.lastAngle = s.ReadFloat();
-            }
-
-            public void AfterDeserialize(DataSerializer s)
-            {
-                AfterDeserializeLog("EnhancedEarthquake");
-            }
-        }
-
-        public bool AftershocksEnabled = true;
-        public bool NoCracks = true;
-        byte aftershocksCount = 0;
-        byte aftershockMaxIntensity = 0;
-        byte mainStrikeIntensity = 0;
-        Vector3 lastTargetPosition = new Vector3();
-        float lastAngle = 0;
-
-        public EarthquakeService()
+        public EarthquakeModel()
         {
             DType = DisasterType.Earthquake;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
@@ -112,11 +69,28 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             return base.GetCurrentOccurrencePerYearLocal();
         }
 
-        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
-        //{
-        //    disasterInfoUnified.DisasterInfo.type = DisasterType.Earthquake;
-        //    base.OnDisasterDetected(disasterInfoUnified);
-        //}
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfo.type |= DisasterType.Earthquake;
+            base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
+        }
+
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.Earthquake;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.IgnoreDestructionZone = false;
+            base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
+        }
+
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.Earthquake;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.IgnoreDestructionZone = false;
+
+            base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
+        }
 
         public override void OnDisasterStarted(byte intensity)
         {
@@ -195,11 +169,11 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             return "Earthquake";
         }
 
-        public override void CopySettings(DisasterBaseService disaster)
+        public override void CopySettings(DisasterBaseModel disaster)
         {
             base.CopySettings(disaster);
 
-            EarthquakeService d = disaster as EarthquakeService;
+            EarthquakeModel d = disaster as EarthquakeModel;
             if (d != null)
             {
                 AftershocksEnabled = d.AftershocksEnabled;
@@ -218,16 +192,37 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
 
                 if (di.m_disasterAI as EarthquakeAI != null)
                 {
-                    if (isSet && NoCracks)
+                    DebugLogger.Log($"Eartquake Found");
+                    if (isSet)
                     {
-                        ((EarthquakeAI)di.m_disasterAI).m_crackLength = 0;
-                        ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 0;
+                        DebugLogger.Log($"IsSet: {isSet}");
+                        switch (EarthquakeCrackMode)
+                        {
+                            case EarthquakeCrackOptions.NoCracks:
+                                DebugLogger.Log($"NoCracks");
+                                ((EarthquakeAI)di.m_disasterAI).m_crackLength = 0;
+                                ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 0;
+                                break;
+                            case EarthquakeCrackOptions.AlwaysCracks:
+                                DebugLogger.Log($"AlwaysCracks");
+                                ((EarthquakeAI)di.m_disasterAI).m_crackLength = 1000;
+                                ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 100;
+                                break;                            
+                            default:
+                                DebugLogger.Log($"CracksBasedOnIntensity");
+                                break;
+                        }
                     }
-                    else
-                    {
-                        ((EarthquakeAI)di.m_disasterAI).m_crackLength = 1000;
-                        ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 100;
-                    }
+                    //if (isSet && EarthquakeCrackMode == EarthquakeCrackOptions.NoCracks)
+                    //{
+                    //    ((EarthquakeAI)di.m_disasterAI).m_crackLength = 0;
+                    //    ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 0;
+                    //}
+                    //else
+                    //{
+                    //    ((EarthquakeAI)di.m_disasterAI).m_crackLength = 1000;
+                    //    ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 100;
+                    //}
                 }
             }
         }

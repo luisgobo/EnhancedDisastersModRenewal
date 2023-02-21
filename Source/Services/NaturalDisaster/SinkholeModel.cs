@@ -4,41 +4,20 @@ using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
+using NaturalDisastersRenewal.Services.Handlers;
 using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
-namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
+namespace NaturalDisastersRenewal.Services.NaturalDisaster
 {
-    public class SinkholeService : DisasterBaseService
+    public class SinkholeModel : DisasterBaseModel
     {
-        public class Data : SerializableDataCommon, IDataContainer
-        {
-            public void Serialize(DataSerializer s)
-            {
-                SinkholeService d = Singleton<NaturalDisasterHandler>.instance.container.Sinkhole;
-                SerializeCommonParameters(s, d);
-                s.WriteFloat(d.GroundwaterCapacity);
-                s.WriteFloat(d.groundwaterAmount);
-            }
-
-            public void Deserialize(DataSerializer s)
-            {
-                SinkholeService d = Singleton<NaturalDisasterHandler>.instance.container.Sinkhole;
-                DeserializeCommonParameters(s, d);
-                d.GroundwaterCapacity = s.ReadFloat();
-                d.groundwaterAmount = s.ReadFloat();
-            }
-
-            public void AfterDeserialize(DataSerializer s)
-            {
-                AfterDeserializeLog("Sinkhole");
-            }
-        }
 
         public float GroundwaterCapacity = 50;
-        float groundwaterAmount = 0; // groundwaterAmount=1 means rain of intensity 1 during 1 day
+        [XmlIgnore] public float groundwaterAmount = 0; // groundwaterAmount=1 means rain of intensity 1 during 1 day
 
-        public SinkholeService()
+        public SinkholeModel()
         {
             DType = DisasterType.Sinkhole;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
@@ -84,27 +63,27 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             }
         }
 
-        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId)
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfo.type |= DisasterType.Sinkhole;
-            base.OnDisasterActivated(disasterInfo, disasterId);
+            base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
-        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified)
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Sinkhole;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
-            base.OnDisasterDeactivated(disasterInfoUnified);
+            base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
         }
 
-        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Sinkhole;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
 
-            base.OnDisasterDetected(disasterInfoUnified);
+            base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
         }
 
         public override void OnDisasterStarted(byte intensity)
@@ -170,11 +149,11 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
         }
 
-        public override void CopySettings(DisasterBaseService disaster)
+        public override void CopySettings(DisasterBaseModel disaster)
         {
             base.CopySettings(disaster);
 
-            SinkholeService d = disaster as SinkholeService;
+            SinkholeModel d = disaster as SinkholeModel;
             if (d != null)
             {
                 GroundwaterCapacity = d.GroundwaterCapacity;

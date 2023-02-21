@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
-using NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster;
+using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Services.NaturalDisaster;
 using System.Text;
 using UnityEngine;
 
@@ -61,7 +61,7 @@ namespace NaturalDisastersRenewal.UI
             NaturalDisasterHandler edm = Singleton<NaturalDisasterHandler>.instance;
             for (int i = 0; i < disasterCount; i++)
             {
-                DisasterBaseService d = edm.container.AllDisasters[i];
+                DisasterBaseModel d = edm.container.AllDisasters[i];
                 labels[i] = AddLabel(10, y);
                 labels[i].text = string.Format(labelFormat, d.GetName(), 0, 0);
                 progressBars_probability[i] = AddProgressBar(200, y);
@@ -219,7 +219,7 @@ namespace NaturalDisastersRenewal.UI
 
             for (int i = 0; i < disasterCount; i++)
             {
-                DisasterBaseService d = edm.container.AllDisasters[i];
+                DisasterBaseModel d = edm.container.AllDisasters[i];
                 float p = d.GetCurrentOccurrencePerYear();
                 byte maxIntensity = d.GetMaximumIntensity();
                 if (d.Enabled)

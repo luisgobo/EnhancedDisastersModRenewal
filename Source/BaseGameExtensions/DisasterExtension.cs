@@ -1,8 +1,10 @@
 ﻿using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
+using NaturalDisastersRenewal.Models;
+using NaturalDisastersRenewal.Services.Handlers;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
@@ -29,13 +31,13 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         }
 
         public override void OnDisasterDeactivated(ushort disasterID)
-        {
+        {            
             DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
             Singleton<NaturalDisasterHandler>.instance.OnDisasterDeactivated(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public override void OnDisasterDetected(ushort disasterID)
-        {
+        {            
             DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
             Singleton<NaturalDisasterHandler>.instance.OnDisasterDetected(disasterData.Info.m_disasterAI, disasterID);
         }
