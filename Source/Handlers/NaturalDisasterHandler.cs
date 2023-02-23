@@ -3,10 +3,9 @@ using ColossalFramework.UI;
 using HarmonyLib;
 using ICities;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Models;
-using NaturalDisastersRenewal.Services.NaturalDisaster;
-using NaturalDisastersRenewal.Services.Setup;
+using NaturalDisastersRenewal.Models.Disaster;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
+using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI;
 using System;
 using System.Collections.Generic;
@@ -14,11 +13,11 @@ using System.Reflection;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
-namespace NaturalDisastersRenewal.Services.Handlers
+namespace NaturalDisastersRenewal.Handlers
 {
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
-        public DisasterSetupService container;
+        public DisasterSetupModel container;
         List<DisasterInfoModel> activeDisasters = new List<DisasterInfoModel>();
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
@@ -33,11 +32,10 @@ namespace NaturalDisastersRenewal.Services.Handlers
 
         public void ReadValuesFromFile()
         {
-
-            DisasterSetupService newContainer = DisasterSetupService.CreateFromFile();
+            DisasterSetupModel newContainer = DisasterSetupModel.CreateFromFile();
             if (newContainer == null)
             {
-                newContainer = new DisasterSetupService();
+                newContainer = new DisasterSetupModel();
             }
 
             newContainer.CheckObjects();
@@ -47,7 +45,7 @@ namespace NaturalDisastersRenewal.Services.Handlers
 
         public void ResetToDefaultValues()
         {
-            DisasterSetupService newContainer = new DisasterSetupService();
+            DisasterSetupModel newContainer = new DisasterSetupModel();
             newContainer.CheckObjects();
             CopySettings(newContainer);
         }
@@ -60,7 +58,7 @@ namespace NaturalDisastersRenewal.Services.Handlers
             slider.minValue = byte.MinValue;
         }
 
-        void CopySettings(DisasterSetupService fromContainer)
+        void CopySettings(DisasterSetupModel fromContainer)
         {
             if (container == null)
             {
@@ -115,8 +113,6 @@ namespace NaturalDisastersRenewal.Services.Handlers
             var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
             var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
             DebugLogger.Log(msg);
-
-
 
             foreach (DisasterBaseModel ed in container.AllDisasters)
             {
@@ -288,9 +284,9 @@ namespace NaturalDisastersRenewal.Services.Handlers
             toggleButton.eventClick += ToggleButton_eventClick;
             toggleButton.isVisible = container.ShowDisasterPanelButton;
             toggleButton.eventMouseMove += ToggleButton_eventMouseMove;
-            
-            dPanel.tooltip= "Drag by right-click to set the panel position.";
-            dPanel.eventMouseMove += DPanel_eventMouseMove;               
+
+            dPanel.tooltip = "Drag by right-click to set the panel position.";
+            dPanel.eventMouseMove += DPanel_eventMouseMove;
 
             UpdateDisastersPanelToggleBtn();
             UpdateDisastersDPanel();
@@ -329,7 +325,7 @@ namespace NaturalDisastersRenewal.Services.Handlers
 
                 container.DPanelPos = dPanel.absolutePosition;
             }
-        }        
+        }
 
         void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
@@ -344,6 +340,7 @@ namespace NaturalDisastersRenewal.Services.Handlers
                 ToggleDisasterPanel();
             }
         }
+
         void ToggleDisasterPanel()
         {
             dPanel.isVisible = !dPanel.isVisible;
@@ -370,7 +367,7 @@ namespace NaturalDisastersRenewal.Services.Handlers
         public void UpdateDisastersDPanel()
         {
             if (dPanel != null && container != null)
-            {               
+            {
                 if (container.DPanelPos.x > 10 && container.DPanelPos.y > 10)
                 {
                     dPanel.absolutePosition = container.DPanelPos;

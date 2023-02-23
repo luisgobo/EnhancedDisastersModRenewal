@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.Logger
+namespace NaturalDisastersRenewal.Models.Disaster
 {
     public static class DebugLogger
     {

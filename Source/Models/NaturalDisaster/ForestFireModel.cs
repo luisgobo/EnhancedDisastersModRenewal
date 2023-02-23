@@ -1,52 +1,18 @@
 ﻿using ColossalFramework;
-using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Serialization;
-using NaturalDisastersRenewal.Services.Handlers;
 using System;
+using System.Xml.Serialization;
 
-namespace NaturalDisastersRenewal.Services.NaturalDisaster
+namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
-    public class ForestFireService : DisasterBaseModel
+    public class ForestFireModel : DisasterBaseModel
     {
-        public class Data : SerializableDataDisasterBase, IDataContainer
-        {
-            public void Serialize(DataSerializer s)
-            {
-                ForestFireService d = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
-                SerializeCommonParameters(s, d);
-                s.WriteInt32(d.WarmupDays);
-                s.WriteFloat(d.noRainDays);
-            }
-
-            public void Deserialize(DataSerializer s)
-            {
-                ForestFireService d = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
-                DeserializeCommonParameters(s, d);
-                d.WarmupDays = s.ReadInt32();
-                if (s.version <= 2)
-                {
-                    float daysPerFrame = Helper.DaysPerFrame;
-                    d.noRainDays = s.ReadInt32() * daysPerFrame;
-                }
-                else
-                {
-                    d.noRainDays = s.ReadFloat();
-                }
-            }
-
-            public void AfterDeserialize(DataSerializer s)
-            {
-                AfterDeserializeLog("ForestFire");
-            }
-        }
-
         public int WarmupDays = 180;
-        float noRainDays = 0;
+        [XmlIgnore] public float noRainDays = 0;
 
-        public ForestFireService()
+        public ForestFireModel()
         {
             DType = DisasterType.ForestFire;
             OccurrenceAreaBeforeUnlock = OccurrenceAreas.LockedAreas;
@@ -56,7 +22,7 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
 
             calmDays = 7;
             probabilityWarmupDays = 0;
-            intensityWarmupDays = 0;            
+            intensityWarmupDays = 0;
         }
 
         protected override void OnSimulationFrameLocal()
@@ -120,17 +86,12 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
         {
             base.CopySettings(disaster);
 
-            ForestFireService d = disaster as ForestFireService;
+            ForestFireModel d = disaster as ForestFireModel;
             if (d != null)
             {
                 WarmupDays = d.WarmupDays;
             }
         }
-
-        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
-        //{
-        //    disasterInfoUnified.DisasterInfo.type = DisasterType.ForestFire;
-        //    base.OnDisasterDetected(disasterInfoUnified);
-        //}
+        
     }
 }

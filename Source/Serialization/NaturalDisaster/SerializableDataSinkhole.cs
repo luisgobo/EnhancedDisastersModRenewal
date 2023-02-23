@@ -1,16 +1,9 @@
-﻿using ColossalFramework.IO;
-using ColossalFramework;
-using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Services.Handlers;
-using NaturalDisastersRenewal.Services.NaturalDisaster;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using static NaturalDisastersRenewal.Services.NaturalDisaster.DisasterBaseModel;
+﻿using ColossalFramework;
+using ColossalFramework.IO;
+using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
 
-namespace NaturalDisastersRenewal.Serialization
+namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     public class SerializableDataSinkhole : SerializableDataDisasterBase, IDataContainer
     {

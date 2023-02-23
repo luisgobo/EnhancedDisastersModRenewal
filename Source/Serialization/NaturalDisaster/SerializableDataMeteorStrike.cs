@@ -1,11 +1,10 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Services.Handlers;
-using NaturalDisastersRenewal.Services.NaturalDisaster;
-using static NaturalDisastersRenewal.Services.NaturalDisaster.DisasterBaseModel;
+using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
 
-namespace NaturalDisastersRenewal.Serialization
+namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     public class SerializableDataMeteorStrike : SerializableDataDisasterBase, IDataContainer
     {

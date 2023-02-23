@@ -1,9 +1,6 @@
 ﻿using ColossalFramework;
-using ColossalFramework.UI;
 using ICities;
-using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Services.Handlers;
-using NaturalDisastersRenewal.Services.NaturalDisaster;
+using NaturalDisastersRenewal.Handlers;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
 {
@@ -15,8 +12,8 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             {
                 Singleton<NaturalDisasterHandler>.instance.CreateExtendedDisasterPanel();
                 Singleton<NaturalDisasterHandler>.instance.CheckUnlocks();
-                
-                Singleton<NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(true);                
+
+                Singleton<NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(true);
                 Singleton<NaturalDisasterHandler>.instance.RedefineDisasterMaxIntensity();
             }
         }

@@ -1,10 +1,9 @@
 ﻿using ColossalFramework;
 using ICities;
+using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Models;
-using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
@@ -31,19 +30,19 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         }
 
         public override void OnDisasterDeactivated(ushort disasterID)
-        {            
+        {
             DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
             Singleton<NaturalDisasterHandler>.instance.OnDisasterDeactivated(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public override void OnDisasterDetected(ushort disasterID)
-        {            
+        {
             DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
             Singleton<NaturalDisasterHandler>.instance.OnDisasterDetected(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public static void SetDisableDisasterFocus(bool disableDisasterFocus)
-        {            
+        {
             DisasterManager.instance.m_disableAutomaticFollow = disableDisasterFocus;
         }
 
@@ -53,7 +52,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             if (TryDisableDisaster(disasterId, disasterInfo, enabled))
             {
                 return;
-            }            
+            }
 
             if (disablePause)
             {
@@ -65,7 +64,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
                             var pauseStart = DateTime.UtcNow + TimeSpan.FromSeconds(-secondsBeforePausing);
 
                             while (DateTime.UtcNow < pauseStart) { }
-                            
+
                             SimulationManager.instance.SimulationPaused = true;
                         }
                         catch (Exception ex)

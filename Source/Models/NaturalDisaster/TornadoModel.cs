@@ -2,46 +2,18 @@
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Serialization;
-using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Serialization.NaturalDisaster;
 using System;
 
-namespace NaturalDisastersRenewal.Services.NaturalDisaster
+namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
-    public class TornadoService : DisasterBaseModel
+    public class TornadoModel : DisasterBaseModel
     {
-        public class Data : SerializableDataDisasterBase, IDataContainer
-        {
-            public void Serialize(DataSerializer s)
-            {
-                TornadoService d = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
-                SerializeCommonParameters(s, d);
-                s.WriteInt32(d.MaxProbabilityMonth);
-                s.WriteBool(d.NoTornadoDuringFog);
-            }
-
-            public void Deserialize(DataSerializer s)
-            {
-                TornadoService d = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
-                DeserializeCommonParameters(s, d);
-
-                if (s.version >= 3)
-                {
-                    d.MaxProbabilityMonth = s.ReadInt32();
-                }
-                d.NoTornadoDuringFog = s.ReadBool();
-            }
-
-            public void AfterDeserialize(DataSerializer s)
-            {
-                AfterDeserializeLog("Tornado");
-            }
-        }
-
         public int MaxProbabilityMonth = 5;
         public bool NoTornadoDuringFog = true;
 
-        public TornadoService()
+        public TornadoModel()
         {
             DType = DisasterType.Tornado;
             BaseOccurrencePerYear = 1.5f;
@@ -49,8 +21,8 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
 
             calmDays = 360 * 2;
             probabilityWarmupDays = 180;
-            intensityWarmupDays = 180;            
-            intensityWarmupDays = 180;            
+            intensityWarmupDays = 180;
+            intensityWarmupDays = 180;
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()
@@ -96,7 +68,7 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
         {
             base.CopySettings(disaster);
 
-            TornadoService d = disaster as TornadoService;
+            TornadoModel d = disaster as TornadoModel;
             if (d != null)
             {
                 MaxProbabilityMonth = d.MaxProbabilityMonth;

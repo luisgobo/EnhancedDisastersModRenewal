@@ -2,7 +2,7 @@
 using NaturalDisastersRenewal.Common.enums;
 using System.Collections.Generic;
 
-namespace NaturalDisastersRenewal.Models
+namespace NaturalDisastersRenewal.Models.Disaster
 {
     public class DisasterInfoModel
     {

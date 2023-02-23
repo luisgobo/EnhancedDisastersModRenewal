@@ -2,42 +2,18 @@
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Serialization;
-using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Serialization.NaturalDisaster;
 using System;
 
-namespace NaturalDisastersRenewal.Services.NaturalDisaster
+namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
-    public class ThunderstormService : DisasterBaseModel
+    public class ThunderstormModel : DisasterBaseModel
     {
-        public class Data : SerializableDataDisasterBase, IDataContainer
-        {
-            public void Serialize(DataSerializer s)
-            {
-                ThunderstormService d = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
-                SerializeCommonParameters(s, d);
-                s.WriteInt32(d.MaxProbabilityMonth);
-                s.WriteFloat(d.RainFactor);
-            }
-
-            public void Deserialize(DataSerializer s)
-            {
-                ThunderstormService d = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
-                DeserializeCommonParameters(s, d);
-                d.MaxProbabilityMonth = s.ReadInt32();
-                d.RainFactor = s.ReadFloat();
-            }
-
-            public void AfterDeserialize(DataSerializer s)
-            {
-                AfterDeserializeLog("Thunderstorm");
-            }
-        }
-
         public float RainFactor = 2.0f;
         public int MaxProbabilityMonth = 7;
 
-        public ThunderstormService()
+        public ThunderstormModel()
         {
             DType = DisasterType.ThunderStorm;
             OccurrenceAreaBeforeUnlock = OccurrenceAreas.LockedAreas;
@@ -100,7 +76,7 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
         {
             base.CopySettings(disaster);
 
-            ThunderstormService d = disaster as ThunderstormService;
+            ThunderstormModel d = disaster as ThunderstormModel;
             if (d != null)
             {
                 RainFactor = d.RainFactor;

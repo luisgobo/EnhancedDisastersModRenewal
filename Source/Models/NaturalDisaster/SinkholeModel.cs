@@ -1,19 +1,16 @@
 ﻿using ColossalFramework;
-using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Models;
-using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace NaturalDisastersRenewal.Services.NaturalDisaster
+namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class SinkholeModel : DisasterBaseModel
     {
-
         public float GroundwaterCapacity = 50;
         [XmlIgnore] public float groundwaterAmount = 0; // groundwaterAmount=1 means rain of intensity 1 during 1 day
 
@@ -120,27 +117,35 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
                 case byte n when (n < 26):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f);
                     break;
+
                 case byte n when (n >= 26 && n < 101):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - ((intensityDec - 5) * 0.04f) - ((intensityInt - 2) * 0.4f);
                     break;
+
                 case byte n when (n >= 101 && n < 126):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - 3f;
                     break;
+
                 case byte n when (n >= 126 && n < 151):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - ((intensityDec - 5) * 0.04f) - ((intensityInt - 2) * 0.3f) - ((intensityDec - 5) * 0.04f) - (0.5f * (intensityInt - 12));
                     break;
+
                 case byte n when (n >= 151 && n < 176):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - ((intensityDec - 5) * 0.04f) - ((intensityInt - 2) * 0.4f);
                     break;
+
                 case byte n when (n >= 176 && n < 201):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - ((intensityDec - 5) * 0.04f) - ((intensityInt - 2) * 0.4f) + ((intensityDec - 5) * 0.08f) + ((intensityInt - 17) * 0.8f);
                     break;
+
                 case byte n when (n >= 201 && n < 226):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - ((intensityDec - 5) * 0.04f) - ((intensityInt - 2) * 0.3f) - ((intensityDec - 5) * 0.04f) - (0.5f * (intensityInt - 12)) + 4f;
                     break;
+
                 case byte n when (n >= 226 && n < 251):
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - ((intensityDec - 5) * 0.04f) - ((intensityInt - 2) * 0.4f) + 1;
                     break;
+
                 default:
                     unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - (0.28f * intensityDec) - (intensityInt * 2.8f) - ((intensityDec - 5) * 0.04f) - ((intensityInt - 2) * 0.3f) - ((intensityDec - 5) * 0.04f) - (0.5f * (intensityInt - 12)) + 5 + (intensityDec * 0.36f);
                     break;

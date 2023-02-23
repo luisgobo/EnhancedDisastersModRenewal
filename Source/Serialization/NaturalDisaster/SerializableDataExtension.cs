@@ -1,18 +1,8 @@
-﻿using ColossalFramework;
-using ColossalFramework.IO;
-using ICities;
-using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Services.Handlers;
-using NaturalDisastersRenewal.Services.NaturalDisaster;
-using NaturalDisastersRenewal.Services.Setup;
-using NaturalDisastersRenewal.UI;
-using System;
-using System.IO;
-using UnityEngine;
+﻿using ICities;
+using NaturalDisastersRenewal.Models.Disaster;
 
 //THIS STRUCTURE IS GETTING ISSUES WITH SERIALIZATION AND LOADING DATA
-namespace NaturalDisastersRenewal.Serialization
+namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     //public class SerializableDataExtension : ISerializableDataExtension
     public class SerializableDataExtension
