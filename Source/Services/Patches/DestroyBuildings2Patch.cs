@@ -1,10 +1,10 @@
 ﻿using HarmonyLib;
 using ICities;
-using NaturalDisastersRenewal.DisasterServices.LegacyStructure.Patches;
+using NaturalDisastersRenewal.DisasterServices.Patches;
 using System;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.LegacyStructure.Patches
+namespace NaturalDisastersRenewal.Patches
 {
     [HarmonyPatch(typeof(DisasterHelpers))]
     [HarmonyPatch("DestroyBuildings")]

@@ -28,6 +28,16 @@ namespace NaturalDisastersRenewal.Common
             return evacuationOptions;
         }
 
+        public static string[] GetCrackModes(bool allowsFocusedEvacuation = false)
+        {
+            string[] crackModes = {
+                "No Cracks",
+                "Always Cracks",
+                "Allow Cracks Based on intensity"
+            };            
+            return crackModes;
+        }
+
         public static float FramesPerDay
         {
             get

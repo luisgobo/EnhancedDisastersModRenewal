@@ -2,13 +2,14 @@
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
+using NaturalDisastersRenewal.Serialization;
+using NaturalDisastersRenewal.Services.Handlers;
 
-namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
+namespace NaturalDisastersRenewal.Services.NaturalDisaster
 {
-    public class TsunamiService : DisasterBaseService
+    public class TsunamiService : DisasterBaseModel
     {
-        public class Data : SerializableDataCommon, IDataContainer
+        public class Data : SerializableDataDisasterBase, IDataContainer
         {
             public void Serialize(DataSerializer s)
             {
@@ -65,7 +66,7 @@ namespace NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster
             return "Tsunami";
         }
 
-        public override void CopySettings(DisasterBaseService disaster)
+        public override void CopySettings(DisasterBaseModel disaster)
         {
             base.CopySettings(disaster);
 

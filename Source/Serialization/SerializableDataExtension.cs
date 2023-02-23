@@ -2,9 +2,10 @@
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
-using NaturalDisastersRenewal.Services.LegacyStructure.NaturalDisaster;
-using NaturalDisastersRenewal.Services.LegacyStructure.Setup;
+using NaturalDisastersRenewal.Logger;
+using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Services.NaturalDisaster;
+using NaturalDisastersRenewal.Services.Setup;
 using NaturalDisastersRenewal.UI;
 using System;
 using System.IO;
@@ -22,11 +23,13 @@ namespace NaturalDisastersRenewal.Serialization
 
         public void OnCreated(ISerializableData serializedData)
         {
+            DebugLogger.Log(">>>>>>>&&&&&&&>>>>>>>>>OnCreated");
             //serializableData = serializedData;
         }
 
         public void OnSaveData()
         {
+            DebugLogger.Log(">>>>>>>&&&&&&&>>>>>>>>>OnSaveData");
             //try
             //{
             //    byte[] data;
@@ -57,6 +60,7 @@ namespace NaturalDisastersRenewal.Serialization
 
         public void OnLoadData()
         {
+            DebugLogger.Log(">>>>>>>&&&&&&&>>>>>>>>>OnLoadData");
             //try
             //{
             //    byte[] data = serializableData.LoadData(DataID);
@@ -90,6 +94,7 @@ namespace NaturalDisastersRenewal.Serialization
 
         public void OnReleased()
         {
+            DebugLogger.Log(">>>>>>>&&&&&&&>>>>>>>>>OnReleased");
             //serializableData = null;
         }
     }

@@ -6,8 +6,8 @@ using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
-using NaturalDisastersRenewal.Services.LegacyStructure.Setup;
+using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Services.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
 using System.Reflection;
 using UnityEngine;
@@ -73,7 +73,8 @@ namespace NaturalDisastersRenewal.UI
         UISlider UI_Earthquake_MaxProbability;
         UISlider UI_Earthquake_WarmupYears;
         UICheckBox UI_Earthquake_AftershocksEnabled;
-        UICheckBox UI_Earthquake_NoCrack;
+        //UICheckBox UI_Earthquake_NoCrack;
+        UIDropDown UI_Earthquake_CrackMode;
         UIDropDown UI_Earthquake_EvacuationMode;
 
         //Meteor Strike
@@ -158,7 +159,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Earthquake_MaxProbability.value = c.Earthquake.BaseOccurrencePerYear;
             UI_Earthquake_WarmupYears.value = c.Earthquake.WarmupYears;
             UI_Earthquake_AftershocksEnabled.isChecked = c.Earthquake.AftershocksEnabled;
-            UI_Earthquake_NoCrack.isChecked = c.Earthquake.NoCracks;
+            UI_Earthquake_CrackMode.selectedIndex = (int)c.Earthquake.EarthquakeCrackMode;
 
             UI_MeteorStrike_Enabled.isChecked = c.MeteorStrike.Enabled;
             UI_MeteorStrike_EvacuationMode.selectedIndex = (int)c.MeteorStrike.EvacuationMode;
@@ -166,10 +167,6 @@ namespace NaturalDisastersRenewal.UI
             UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(0);
             UI_MeteorStrike_MeteorMediumPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(1);
             UI_MeteorStrike_MeteorShortPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(2);
-
-            //AutoEvacuateRelease options
-            //UI_StructureCollapse_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.EvacuationMode;
-            //UI_StructureFire_AutoEvacuateRelease.selectedIndex = c.AutoEvacuateSettings.EvacuationMode;
 
             freezeUI = false;
         }
@@ -533,14 +530,22 @@ namespace NaturalDisastersRenewal.UI
             });
             UI_Earthquake_AftershocksEnabled.tooltip = "Several aftershocks may occur after a big earthquake. Aftershocks strike the same place.";
 
-            UI_Earthquake_NoCrack = (UICheckBox)earthquakeGroup.AddCheckbox("No cracks in the ground", disasterContainer.Earthquake.NoCracks, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.Earthquake.NoCracks = isChecked;
-
-                disasterContainer.Earthquake.UpdateDisasterProperties(true);
-            });
-            UI_Earthquake_NoCrack.tooltip = "If checked, the earthquake does not put a crack in the ground.";
+            ComponentHelpers.AddDropDown(
+                 freezeUI,
+                 ref UI_Earthquake_CrackMode,
+                 ref earthquakeGroup,
+                 evacuationModeText,
+                 Helper.GetCrackModes(),
+                 ref disasterContainer.Earthquake.EarthquakeCrackMode,
+                 delegate (int selection)
+                 {
+                     if (!freezeUI)
+                     {
+                         disasterContainer.Earthquake.EarthquakeCrackMode = (EarthquakeCrackOptions)selection;
+                     }
+                 }
+             );
+             UI_Earthquake_CrackMode.tooltip = "Based on selection you can put a crack in the ground, ignoring it or put it based on intensity.";
 
             ComponentHelpers.AddDropDown(
                  freezeUI,

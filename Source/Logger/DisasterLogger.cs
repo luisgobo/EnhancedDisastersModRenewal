@@ -1,6 +1,6 @@
 ﻿using ColossalFramework;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Services.LegacyStructure.Handlers;
+using NaturalDisastersRenewal.Services.Handlers;
 using System;
 using System.IO;
 
