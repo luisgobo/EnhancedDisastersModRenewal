@@ -1,6 +1,6 @@
 using ColossalFramework;
 using ICities;
-using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Handlers;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
 {

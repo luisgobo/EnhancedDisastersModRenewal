@@ -1,12 +1,11 @@
 ﻿using ColossalFramework;
-using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Models;
-using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +14,7 @@ using System.Xml.Serialization;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
-namespace NaturalDisastersRenewal.Services.NaturalDisaster
-
+namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public abstract class DisasterBaseModel
     {
@@ -43,6 +41,7 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
 
         // Disaster public properties (to be saved in xml)
         public bool Enabled = true;
+
         public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
         public float BaseOccurrencePerYear = 1.0f;
 
@@ -50,7 +49,7 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
         FieldInfo evacuatingField;
 
         WarningPhasePanel phasePanel;
-        readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();        
+        readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
         readonly double secondsBeforePausing = 3;
 
         // Public
@@ -329,24 +328,23 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
                 {
                     return;
                 }
-                
+
                 if (!IsEvacuating())
                 {
                     //Not evacuating. Clear list of active manual release disasters
                     manualReleaseDisasters.Clear();
                     return;
                 }
-                
+
                 //Evaluate Disaster finishing
                 var disasterFinishing = activeDisasters.Where(activeDisaster => activeDisaster.DisasterId == disasterInfoUnified.DisasterId).FirstOrDefault();
-
 
                 if (disasterFinishing != null)
                     activeDisasters.Remove(disasterFinishing);
 
                 switch (disasterFinishing.EvacuationMode)
                 {
-                    case EvacuationOptions.ManualEvacuation:                        
+                    case EvacuationOptions.ManualEvacuation:
                         break;
 
                     case EvacuationOptions.AutoEvacuation:
@@ -361,8 +359,8 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
 
                         //Verify shelters when there are pending disasters
                         if (activeDisasters.Any())
-                        {                            
-                            var pendingShelters = new List<ushort>();                            
+                        {
+                            var pendingShelters = new List<ushort>();
                             //If pending disaster then get all pending shelters that souldnt be released
                             foreach (var disaster in activeDisasters)
                             {
@@ -378,7 +376,7 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
                             BuildingManager buildingManager = Singleton<BuildingManager>.instance;
 
                             foreach (var shelterId in sheltersToBeReleased)
-                            {                                
+                            {
                                 var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
                                 SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);
                             }
@@ -388,7 +386,6 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
                     default:
                         break;
                 }
-
             }
             catch (Exception ex)
             {
@@ -548,9 +545,8 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
                     }
                 }
             }
-            
+
             activeDisasters.Add(disasterInfoModel);
-            
         }
 
         bool FindRandomTargetEverywhere(out Vector3 target, out float angle)
@@ -660,7 +656,6 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
 
         bool IsEvacuating()
         {
-
             FindPhasePanel();
             return (bool)evacuatingField.GetValue(phasePanel);
         }
@@ -669,11 +664,10 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
         {
             //Should be manually released
             manualReleaseDisasters.Add(disasterId);
-        }        
+        }
 
         void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
         {
-
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
 
             //Get disaster Info
@@ -724,7 +718,7 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
                     }
                 }
             }
-            
+
             activeDisasters.Add(disasterInfoModel);
         }
 

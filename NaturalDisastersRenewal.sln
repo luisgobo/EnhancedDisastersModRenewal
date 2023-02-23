@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnhancedDisastersMod_Legacy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalDisastersRenewal", "Source\NaturalDisastersRenewal.csproj", "{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalDisasterRenewal_Reestructured", "NaturalDisasterRenewal_Reestructured\NaturalDisasterRenewal_Reestructured.csproj", "{CE8678E2-8668-4A13-B705-3B9D4D1C8E32}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE8678E2-8668-4A13-B705-3B9D4D1C8E32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE8678E2-8668-4A13-B705-3B9D4D1C8E32}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE8678E2-8668-4A13-B705-3B9D4D1C8E32}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE8678E2-8668-4A13-B705-3B9D4D1C8E32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

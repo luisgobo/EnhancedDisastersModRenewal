@@ -2,43 +2,19 @@
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Serialization;
-using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Serialization.NaturalDisaster;
 
-namespace NaturalDisastersRenewal.Services.NaturalDisaster
+namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
-    public class TsunamiService : DisasterBaseModel
+    public class TsunamiModel : DisasterBaseModel
     {
-        public class Data : SerializableDataDisasterBase, IDataContainer
-        {
-            public void Serialize(DataSerializer s)
-            {
-                TsunamiService d = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
-                SerializeCommonParameters(s, d);
-
-                s.WriteFloat(d.WarmupYears);
-            }
-
-            public void Deserialize(DataSerializer s)
-            {
-                TsunamiService d = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
-                DeserializeCommonParameters(s, d);
-
-                d.WarmupYears = s.ReadFloat();
-            }
-
-            public void AfterDeserialize(DataSerializer s)
-            {
-                AfterDeserializeLog("Tsunami");
-            }
-        }
-
-        public TsunamiService()
+        public TsunamiModel()
         {
             DType = DisasterType.Tsunami;
             BaseOccurrencePerYear = 1.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
-            WarmupYears = 4;            
+            WarmupYears = 4;
         }
 
         public float WarmupYears
@@ -70,7 +46,7 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
         {
             base.CopySettings(disaster);
 
-            TsunamiService d = disaster as TsunamiService;
+            TsunamiModel d = disaster as TsunamiModel;
             if (d != null)
             {
                 WarmupYears = d.WarmupYears;

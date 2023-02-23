@@ -5,9 +5,8 @@ using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Services.Handlers;
-using NaturalDisastersRenewal.Services.Setup;
+using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
 using System.Reflection;
 using UnityEngine;
@@ -73,8 +72,10 @@ namespace NaturalDisastersRenewal.UI
         UISlider UI_Earthquake_MaxProbability;
         UISlider UI_Earthquake_WarmupYears;
         UICheckBox UI_Earthquake_AftershocksEnabled;
+
         //UICheckBox UI_Earthquake_NoCrack;
         UIDropDown UI_Earthquake_CrackMode;
+
         UIDropDown UI_Earthquake_EvacuationMode;
 
         //Meteor Strike
@@ -116,7 +117,7 @@ namespace NaturalDisastersRenewal.UI
             if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisasterSetupService c = Singleton<NaturalDisasterHandler>.instance.container;
+            DisasterSetupModel c = Singleton<NaturalDisasterHandler>.instance.container;
             freezeUI = true;
 
             UI_General_DisableDisasterFocus.isChecked = c.DisableDisasterFocus;
@@ -194,7 +195,7 @@ namespace NaturalDisastersRenewal.UI
 
         public void BuildSettingsMenu(UIHelperBase helper)
         {
-            DisasterSetupService disasterContainer = Singleton<NaturalDisasterHandler>.instance.container;
+            DisasterSetupModel disasterContainer = Singleton<NaturalDisasterHandler>.instance.container;
 
             #region Gegeral options
 
@@ -212,7 +213,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Pause on disaster starts", disasterContainer.PauseOnDisasterStarts, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.PauseOnDisasterStarts = isChecked;                
+                    disasterContainer.PauseOnDisasterStarts = isChecked;
             });
 
             UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius", 300f, 4200f, 100f, disasterContainer.PartialEvacuationRadius, delegate (float val)
@@ -246,7 +247,6 @@ namespace NaturalDisastersRenewal.UI
 
                 Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
                 Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
-                
             });
 
             generalGroup.AddSpace(10);
@@ -545,7 +545,7 @@ namespace NaturalDisastersRenewal.UI
                      }
                  }
              );
-             UI_Earthquake_CrackMode.tooltip = "Based on selection you can put a crack in the ground, ignoring it or put it based on intensity.";
+            UI_Earthquake_CrackMode.tooltip = "Based on selection you can put a crack in the ground, ignoring it or put it based on intensity.";
 
             ComponentHelpers.AddDropDown(
                  freezeUI,

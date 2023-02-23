@@ -2,15 +2,14 @@
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Logger;
-using NaturalDisastersRenewal.Models;
-using NaturalDisastersRenewal.Services.Handlers;
+using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.Services.NaturalDisaster
+namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class EarthquakeModel : DisasterBaseModel
     {

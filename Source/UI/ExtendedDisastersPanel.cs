@@ -1,7 +1,7 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
-using NaturalDisastersRenewal.Services.Handlers;
-using NaturalDisastersRenewal.Services.NaturalDisaster;
+using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
 using System.Text;
 using UnityEngine;
 
