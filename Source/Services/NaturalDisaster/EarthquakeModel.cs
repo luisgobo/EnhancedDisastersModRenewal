@@ -1,11 +1,11 @@
 ﻿using ColossalFramework;
-using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models;
 using NaturalDisastersRenewal.Services.Handlers;
+using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -14,9 +14,11 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
 {
     public class EarthquakeModel : DisasterBaseModel
     {
-        public bool AftershocksEnabled = true;        
+        public bool AftershocksEnabled = true;
         public EarthquakeCrackOptions EarthquakeCrackMode = EarthquakeCrackOptions.NoCracks;
-        
+
+        [XmlIgnore] bool NoCracksInTheGroud = false;
+        [XmlIgnore] public byte MinimalIntensityForCracks = 100;
         [XmlIgnore] public byte aftershocksCount = 0;
         [XmlIgnore] public byte aftershockMaxIntensity = 0;
         [XmlIgnore] public byte mainStrikeIntensity = 0;
@@ -30,7 +32,7 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
             BaseOccurrencePerYear = 1.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            WarmupYears = 3;            
+            WarmupYears = 3;
         }
 
         [System.Xml.Serialization.XmlElement]
@@ -88,6 +90,9 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Earthquake;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
+
+            //setup Cracks based on intensity and game setup
+            SetupCracksOnMap(disasterInfoUnified.DisasterInfo.intensity);
 
             base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
         }
@@ -169,6 +174,152 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
             return "Earthquake";
         }
 
+        public override float CalculateDestructionRadio(byte intensity)
+        {
+            int unitSize = 8;
+            int unitsBase = 30; //24 Original, Distance Fix for proximity
+            float unitCalculation;
+            int intensityInt = intensity / 10;
+            int intensityDec = intensity % 10;
+
+            switch (intensity)
+            {
+                case byte n when (n < 25):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + (((intensityDec) * 0.24f) + (intensityInt * 10.4f));
+                    break;
+
+                case byte n when (n >= 25 && n <= 50):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 22f + (((intensityDec - 2f) * 11.6f) + ((intensityInt - 5f) * 0.36f));
+                    break;
+
+                case byte n when (n > 50 && n <= 75):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 55f + ((intensityInt - 5f) * 8f);
+                    break;
+
+                case byte n when (n > 75 && n <= 100):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 71f + +(((intensityInt - 7f) * 10.8f) + (((intensityDec - 5f) * 0.28f)));
+                    break;
+
+                case byte n when (n > 100 && n <= 125):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 102f + (((intensityInt - 10f) * 11.2f) + ((intensityDec * 0.32f)));
+                    break;
+
+                case byte n when (n > 125 && n <= 150):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 126f + ((intensityInt - 12f) * 8f);
+                    break;
+
+                case byte n when (n > 150 && n <= 175):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 150 + (intensityDec * 0.2f) + ((intensityInt - 15f) * 10f);
+                    break;
+
+                case byte n when (n > 175 && n <= 200):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 171 + ((intensityDec - 5) * 0.12f + ((intensityInt - 17) * 9.2f));
+                    break;
+
+                case byte n when (n > 200 && n <= 250):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 198 + ((intensityDec * 0.2f) + ((intensityInt - 20f) * 10f));
+                    break;
+
+                default:
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 248;
+                    break;
+            }
+
+            return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
+        }
+
+        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        {
+            var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
+
+            //Get disaster Info
+            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+
+            if (disasterInfo == null)
+                return;
+
+            //Identify Shelters
+            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+            FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
+
+            if (serviceBuildings == null)
+                return;
+
+            //Release all shelters but Potentyally destroyed
+            for (int i = 0; i < serviceBuildings.m_size; i++)
+            {
+                ushort num = serviceBuildings.m_buffer[i];
+                if (num != 0)
+                {
+                    //here we got all shelter buildings
+                    var buildingInfo = buildingManager.m_buildings.m_buffer[num];
+                    var shelterPosition = buildingInfo.m_position;
+
+                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
+                    {
+                        //Add Building/Shelter Data to disaster
+                        disasterInfoModel.ShelterList.Add(num);
+
+                        //Getting diaster core
+                        var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
+                        bool IgnoreDestructionZoneForEarthquake = false;
+                        switch (EarthquakeCrackMode)
+                        {
+                            case EarthquakeCrackOptions.NoCracks:
+                                IgnoreDestructionZoneForEarthquake = true;
+                                break;
+
+                            case EarthquakeCrackOptions.AlwaysCracks:
+                                IgnoreDestructionZoneForEarthquake = false;
+                                break;
+
+                            case EarthquakeCrackOptions eci when (eci == EarthquakeCrackOptions.CracksBasedOnIntensity && disasterInfoModel.DisasterInfo.intensity >= MinimalIntensityForCracks):
+                                IgnoreDestructionZoneForEarthquake = false;
+                                break;
+
+                            default:
+                                IgnoreDestructionZoneForEarthquake = true;
+                                break;
+                        }
+
+                        //if Shelter will be destroyed, don't evacuate
+                        if (base.IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
+                            DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
+                        else
+                            base.SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                    }
+                }
+            }
+
+            DebugLogger.Log($"Add disasterInfoModel into activeDisasters");
+            activeDisasters.Add(disasterInfoModel);
+            DebugLogger.Log($"activeDisasters count: {activeDisasters.Count}");
+        }
+
+        void SetupCracksOnMap(byte intensity)
+        {
+            switch (EarthquakeCrackMode)
+            {
+                case EarthquakeCrackOptions.NoCracks:
+                    NoCracksInTheGroud = true;
+                    break;
+
+                case EarthquakeCrackOptions.AlwaysCracks:
+                    NoCracksInTheGroud = false;
+                    break;
+
+                case EarthquakeCrackOptions ecp when (ecp == EarthquakeCrackOptions.CracksBasedOnIntensity && intensity >= MinimalIntensityForCracks):
+                    NoCracksInTheGroud = false;
+                    break;
+
+                default:
+                    NoCracksInTheGroud = true;
+                    break;
+            }
+
+            UpdateDisasterProperties(true);
+        }
+
         public override void CopySettings(DisasterBaseModel disaster)
         {
             base.CopySettings(disaster);
@@ -193,36 +344,16 @@ namespace NaturalDisastersRenewal.Services.NaturalDisaster
                 if (di.m_disasterAI as EarthquakeAI != null)
                 {
                     DebugLogger.Log($"Eartquake Found");
-                    if (isSet)
+                    if (isSet && NoCracksInTheGroud)
                     {
-                        DebugLogger.Log($"IsSet: {isSet}");
-                        switch (EarthquakeCrackMode)
-                        {
-                            case EarthquakeCrackOptions.NoCracks:
-                                DebugLogger.Log($"NoCracks");
-                                ((EarthquakeAI)di.m_disasterAI).m_crackLength = 0;
-                                ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 0;
-                                break;
-                            case EarthquakeCrackOptions.AlwaysCracks:
-                                DebugLogger.Log($"AlwaysCracks");
-                                ((EarthquakeAI)di.m_disasterAI).m_crackLength = 1000;
-                                ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 100;
-                                break;                            
-                            default:
-                                DebugLogger.Log($"CracksBasedOnIntensity");
-                                break;
-                        }
+                        ((EarthquakeAI)di.m_disasterAI).m_crackLength = 0;
+                        ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 0;
                     }
-                    //if (isSet && EarthquakeCrackMode == EarthquakeCrackOptions.NoCracks)
-                    //{
-                    //    ((EarthquakeAI)di.m_disasterAI).m_crackLength = 0;
-                    //    ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 0;
-                    //}
-                    //else
-                    //{
-                    //    ((EarthquakeAI)di.m_disasterAI).m_crackLength = 1000;
-                    //    ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 100;
-                    //}
+                    else
+                    {
+                        ((EarthquakeAI)di.m_disasterAI).m_crackLength = 1000;
+                        ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 100;
+                    }
                 }
             }
         }
