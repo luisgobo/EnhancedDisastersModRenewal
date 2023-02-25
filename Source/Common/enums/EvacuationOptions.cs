@@ -2,8 +2,8 @@
 {
     public enum EvacuationOptions
     {
-        ManualEvacuation,
-        AutoEvacuation,
-        FocusedAutoEvacuation
-    }
+        ManualEvacuation, //Value = 0
+        AutoEvacuation, //Value = 1
+        FocusedAutoEvacuation //Value = 2
+    }    
 }

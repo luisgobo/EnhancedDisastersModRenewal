@@ -261,7 +261,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                         //Getting diaster core
                         var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
-                        bool IgnoreDestructionZoneForEarthquake = false;
+                        bool IgnoreDestructionZoneForEarthquake;
                         switch (EarthquakeCrackMode)
                         {
                             case EarthquakeCrackOptions.NoCracks:

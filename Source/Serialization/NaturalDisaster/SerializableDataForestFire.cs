@@ -8,33 +8,33 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     public class SerializableDataForestFire : SerializableDataDisasterBase, IDataContainer
     {
-        public void Serialize(DataSerializer s)
+        public void Serialize(DataSerializer dataSerializer)
         {
-            ForestFireModel d = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
-            SerializeCommonParameters(s, d);
-            s.WriteInt32(d.WarmupDays);
-            s.WriteFloat(d.noRainDays);
+            ForestFireModel forestFire = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
+            SerializeCommonParameters(dataSerializer, forestFire);
+            dataSerializer.WriteInt32(forestFire.WarmupDays);
+            dataSerializer.WriteFloat(forestFire.noRainDays);
         }
 
-        public void Deserialize(DataSerializer s)
+        public void Deserialize(DataSerializer dataSeralizer)
         {
-            ForestFireModel d = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
-            DeserializeCommonParameters(s, d);
-            d.WarmupDays = s.ReadInt32();
-            if (s.version <= 2)
+            ForestFireModel forestFire = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
+            DeserializeCommonParameters(dataSeralizer, forestFire, 2);
+            forestFire.WarmupDays = dataSeralizer.ReadInt32();
+            if (dataSeralizer.version <= 2)
             {
                 float daysPerFrame = Helper.DaysPerFrame;
-                d.noRainDays = s.ReadInt32() * daysPerFrame;
+                forestFire.noRainDays = dataSeralizer.ReadInt32() * daysPerFrame;
             }
             else
             {
-                d.noRainDays = s.ReadFloat();
+                forestFire.noRainDays = dataSeralizer.ReadFloat();
             }
         }
 
-        public void AfterDeserialize(DataSerializer s)
+        public void AfterDeserialize(DataSerializer dataSeralizer)
         {
-            AfterDeserializeLog("ForestFire");
+            AfterDeserializeLog("ForestFireModel");
         }
     }
 }

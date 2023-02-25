@@ -7,29 +7,29 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     public class SerializableDataTornado : SerializableDataDisasterBase, IDataContainer
     {
-        public void Serialize(DataSerializer s)
+        public void Serialize(DataSerializer dataSerializer)
         {
-            TornadoModel d = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
-            SerializeCommonParameters(s, d);
-            s.WriteInt32(d.MaxProbabilityMonth);
-            s.WriteBool(d.NoTornadoDuringFog);
+            TornadoModel tornado = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
+            SerializeCommonParameters(dataSerializer, tornado);
+            dataSerializer.WriteInt32(tornado.MaxProbabilityMonth);
+            dataSerializer.WriteBool(tornado.NoTornadoDuringFog);
         }
 
-        public void Deserialize(DataSerializer s)
+        public void Deserialize(DataSerializer dataSerializer)
         {
-            TornadoModel d = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
-            DeserializeCommonParameters(s, d);
+            TornadoModel tornado = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
+            DeserializeCommonParameters(dataSerializer, tornado);
 
-            if (s.version >= 3)
+            if (dataSerializer.version >= 3)
             {
-                d.MaxProbabilityMonth = s.ReadInt32();
+                tornado.MaxProbabilityMonth = dataSerializer.ReadInt32();
             }
-            d.NoTornadoDuringFog = s.ReadBool();
+            tornado.NoTornadoDuringFog = dataSerializer.ReadBool();
         }
 
-        public void AfterDeserialize(DataSerializer s)
+        public void AfterDeserialize(DataSerializer dataSerializer)
         {
-            AfterDeserializeLog("Tornado");
+            AfterDeserializeLog("TornadoModel");
         }
     }
 }

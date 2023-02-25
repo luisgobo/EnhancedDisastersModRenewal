@@ -7,25 +7,25 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     public class SerializableDataTsunami : SerializableDataDisasterBase, IDataContainer
     {
-        public void Serialize(DataSerializer s)
+        public void Serialize(DataSerializer dataSerializer)
         {
-            TsunamiModel d = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
-            SerializeCommonParameters(s, d);
+            TsunamiModel tsunami = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
+            SerializeCommonParameters(dataSerializer, tsunami);
 
-            s.WriteFloat(d.WarmupYears);
+            dataSerializer.WriteFloat(tsunami.WarmupYears);
         }
 
-        public void Deserialize(DataSerializer s)
+        public void Deserialize(DataSerializer dataSerializer)
         {
-            TsunamiModel d = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
-            DeserializeCommonParameters(s, d);
+            TsunamiModel tsunami = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
+            DeserializeCommonParameters(dataSerializer, tsunami);
 
-            d.WarmupYears = s.ReadFloat();
+            tsunami.WarmupYears = dataSerializer.ReadFloat();
         }
 
-        public void AfterDeserialize(DataSerializer s)
+        public void AfterDeserialize(DataSerializer dataSerializer)
         {
-            AfterDeserializeLog("Tsunami");
+            AfterDeserializeLog("TsunamiModel");
         }
     }
 }

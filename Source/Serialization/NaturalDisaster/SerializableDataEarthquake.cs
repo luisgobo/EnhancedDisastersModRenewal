@@ -9,49 +9,49 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     public class SerializableDataEarthquake : SerializableDataDisasterBase, IDataContainer
     {
-        public void Serialize(DataSerializer s)
+        public void Serialize(DataSerializer dataSerializer)
         {
-            EarthquakeModel d = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
-            SerializeCommonParameters(s, d);
+            EarthquakeModel earthquake = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
+            SerializeCommonParameters(dataSerializer, earthquake);
 
-            s.WriteFloat(d.WarmupYears);
-            s.WriteInt8((int)d.EarthquakeCrackMode);
+            dataSerializer.WriteFloat(earthquake.WarmupYears);
+            dataSerializer.WriteInt8((int)earthquake.EarthquakeCrackMode);
 
-            s.WriteInt8(d.aftershocksCount);
-            s.WriteInt8(d.aftershockMaxIntensity);
-            s.WriteInt8(d.mainStrikeIntensity);
+            dataSerializer.WriteInt8(earthquake.aftershocksCount);
+            dataSerializer.WriteInt8(earthquake.aftershockMaxIntensity);
+            dataSerializer.WriteInt8(earthquake.mainStrikeIntensity);
 
-            s.WriteFloat(d.lastTargetPosition.x);
-            s.WriteFloat(d.lastTargetPosition.y);
-            s.WriteFloat(d.lastTargetPosition.z);
-            s.WriteFloat(d.lastAngle);
+            dataSerializer.WriteFloat(earthquake.lastTargetPosition.x);
+            dataSerializer.WriteFloat(earthquake.lastTargetPosition.y);
+            dataSerializer.WriteFloat(earthquake.lastTargetPosition.z);
+            dataSerializer.WriteFloat(earthquake.lastAngle);
         }
 
-        public void Deserialize(DataSerializer s)
+        public void Deserialize(DataSerializer dataSerializer)
         {
-            EarthquakeModel d = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
-            DeserializeCommonParameters(s, d);
+            EarthquakeModel earthquake = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
+            DeserializeCommonParameters(dataSerializer, earthquake);
 
-            d.WarmupYears = s.ReadFloat();
-            if (s.version >= 3)
+            earthquake.WarmupYears = dataSerializer.ReadFloat();
+            if (dataSerializer.version >= 3)
             {
-                d.EarthquakeCrackMode = (EarthquakeCrackOptions)s.ReadInt8();
+                earthquake.EarthquakeCrackMode = (EarthquakeCrackOptions)dataSerializer.ReadInt8();
             }
 
-            d.aftershocksCount = (byte)s.ReadInt8();
-            d.aftershockMaxIntensity = (byte)s.ReadInt8();
-            if (s.version >= 2)
+            earthquake.aftershocksCount = (byte)dataSerializer.ReadInt8();
+            earthquake.aftershockMaxIntensity = (byte)dataSerializer.ReadInt8();
+            if (dataSerializer.version >= 2)
             {
-                d.mainStrikeIntensity = (byte)s.ReadInt8();
+                earthquake.mainStrikeIntensity = (byte)dataSerializer.ReadInt8();
             }
 
-            d.lastTargetPosition = new Vector3(s.ReadFloat(), s.ReadFloat(), s.ReadFloat());
-            d.lastAngle = s.ReadFloat();
+            earthquake.lastTargetPosition = new Vector3(dataSerializer.ReadFloat(), dataSerializer.ReadFloat(), dataSerializer.ReadFloat());
+            earthquake.lastAngle = dataSerializer.ReadFloat();
         }
 
         public void AfterDeserialize(DataSerializer s)
         {
-            AfterDeserializeLog("EnhancedEarthquake");
+            AfterDeserializeLog("EarthquakeModel");
         }
     }
 }

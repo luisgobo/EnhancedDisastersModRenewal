@@ -71,7 +71,7 @@
     <Compile Include="Serialization\NaturalDisaster\SerializableDataThunderstorm.cs" />
     <Compile Include="Serialization\NaturalDisaster\SerializableDataSinkhole.cs" />
     <Compile Include="Serialization\NaturalDisaster\SerializableDataMeteorStrike.cs" />
-    <Compile Include="Serialization\NaturalDisaster\SerializableDataExtension.cs" />
+    <Compile Include="Serialization\NaturalDisaster\LoadedGameSerializableDataExtension.cs" />
     <Compile Include="Serialization\NaturalDisaster\SerializableDataEarthquake.cs" />
     <Compile Include="Serialization\Setup\SerializableDataDisasterSetup.cs" />
     <Compile Include="Services\Patches\DestroyBuildings2Patch.cs" />
