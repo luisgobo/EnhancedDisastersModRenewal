@@ -102,7 +102,9 @@ namespace NaturalDisastersRenewal.UI
                 if (current.isEnabled)
                 {
                     IUserMod[] instances = current.GetInstances<IUserMod>();
+
                     MethodInfo method = instances[0].GetType().GetMethod("EnhancedDisastersOptionsUpdateUI", BindingFlags.Instance | BindingFlags.Public);
+
                     if (method != null)
                     {
                         method.Invoke(instances[0], new object[] { });
@@ -112,62 +114,62 @@ namespace NaturalDisastersRenewal.UI
             }
         }
 
-        void EnhancedDisastersOptionsUpdateUI()
+        public void UpdateSetupContentUI()
         {
             if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisasterSetupModel c = Singleton<NaturalDisasterHandler>.instance.container;
+            DisasterSetupModel disasterSetupModel = Singleton<NaturalDisasterHandler>.instance.container;
             freezeUI = true;
 
-            UI_General_DisableDisasterFocus.isChecked = c.DisableDisasterFocus;
-            UI_General_PauseOnDisasterStarts.isChecked = c.PauseOnDisasterStarts;
-            UI_General_PartialEvacuationRadius.value = c.PartialEvacuationRadius;
+            UI_General_DisableDisasterFocus.isChecked = disasterSetupModel.DisableDisasterFocus;
+            UI_General_PauseOnDisasterStarts.isChecked = disasterSetupModel.PauseOnDisasterStarts;
+            UI_General_PartialEvacuationRadius.value = disasterSetupModel.PartialEvacuationRadius;
 
-            UI_General_ScaleMaxIntensityWithPopulation.isChecked = c.ScaleMaxIntensityWithPopulation;
-            UI_General_RecordDisasterEventsChkBox.isChecked = c.RecordDisasterEvents;
-            UI_General_ShowDisasterPanelButton.isChecked = c.ShowDisasterPanelButton;
+            UI_General_ScaleMaxIntensityWithPopulation.isChecked = disasterSetupModel.ScaleMaxIntensityWithPopulation;
+            UI_General_RecordDisasterEventsChkBox.isChecked = disasterSetupModel.RecordDisasterEvents;
+            UI_General_ShowDisasterPanelButton.isChecked = disasterSetupModel.ShowDisasterPanelButton;
 
-            UI_ForestFire_Enabled.isChecked = c.ForestFire.Enabled;
-            UI_ForestFire_EvacuationMode.selectedIndex = (int)c.ForestFire.EvacuationMode;
-            UI_ForestFireMaxProbability.value = c.ForestFire.BaseOccurrencePerYear;
-            UI_ForestFire_WarmupDays.value = c.ForestFire.WarmupDays;
+            UI_ForestFire_Enabled.isChecked = disasterSetupModel.ForestFire.Enabled;
+            UI_ForestFire_EvacuationMode.selectedIndex = (int)disasterSetupModel.ForestFire.EvacuationMode;
+            UI_ForestFireMaxProbability.value = disasterSetupModel.ForestFire.BaseOccurrencePerYear;
+            UI_ForestFire_WarmupDays.value = disasterSetupModel.ForestFire.WarmupDays;
 
-            UI_Thunderstorm_Enabled.isChecked = c.Thunderstorm.Enabled;
-            UI_Thunderstorm_EvacuationMode.selectedIndex = (int)c.Thunderstorm.EvacuationMode;
-            UI_Thunderstorm_MaxProbability.value = c.Thunderstorm.BaseOccurrencePerYear;
-            UI_Thunderstorm_MaxProbabilityMonth.selectedIndex = c.Thunderstorm.MaxProbabilityMonth - 1;
-            UI_Thunderstorm_RainFactor.value = c.Thunderstorm.RainFactor;
+            UI_Thunderstorm_Enabled.isChecked = disasterSetupModel.Thunderstorm.Enabled;
+            UI_Thunderstorm_EvacuationMode.selectedIndex = (int)disasterSetupModel.Thunderstorm.EvacuationMode;
+            UI_Thunderstorm_MaxProbability.value = disasterSetupModel.Thunderstorm.BaseOccurrencePerYear;
+            UI_Thunderstorm_MaxProbabilityMonth.selectedIndex = disasterSetupModel.Thunderstorm.MaxProbabilityMonth - 1;
+            UI_Thunderstorm_RainFactor.value = disasterSetupModel.Thunderstorm.RainFactor;
 
-            UI_Sinkhole_Enabled.isChecked = c.Sinkhole.Enabled;
-            UI_Sinkhole_EvacuationMode.selectedIndex = (int)c.Sinkhole.EvacuationMode;
-            UI_Sinkhole_MaxProbability.value = c.Sinkhole.BaseOccurrencePerYear;
-            UI_Sinkhole_GroundwaterCapacity.value = c.Sinkhole.GroundwaterCapacity;
+            UI_Sinkhole_Enabled.isChecked = disasterSetupModel.Sinkhole.Enabled;
+            UI_Sinkhole_EvacuationMode.selectedIndex = (int)disasterSetupModel.Sinkhole.EvacuationMode;
+            UI_Sinkhole_MaxProbability.value = disasterSetupModel.Sinkhole.BaseOccurrencePerYear;
+            UI_Sinkhole_GroundwaterCapacity.value = disasterSetupModel.Sinkhole.GroundwaterCapacity;
 
-            UI_Tornado_Enabled.isChecked = c.Tornado.Enabled;
-            UI_Tornado_EvacuationMode.selectedIndex = (int)c.Tornado.EvacuationMode;
-            UI_Tornado_MaxProbability.value = c.Tornado.BaseOccurrencePerYear;
-            UI_Tornado_MaxProbabilityMonth.selectedIndex = c.Tornado.MaxProbabilityMonth - 1;
-            UI_Tornado_NoDuringFog.isChecked = c.Tornado.NoTornadoDuringFog;
+            UI_Tornado_Enabled.isChecked = disasterSetupModel.Tornado.Enabled;
+            UI_Tornado_EvacuationMode.selectedIndex = (int)disasterSetupModel.Tornado.EvacuationMode;
+            UI_Tornado_MaxProbability.value = disasterSetupModel.Tornado.BaseOccurrencePerYear;
+            UI_Tornado_MaxProbabilityMonth.selectedIndex = disasterSetupModel.Tornado.MaxProbabilityMonth - 1;
+            UI_Tornado_NoDuringFog.isChecked = disasterSetupModel.Tornado.NoTornadoDuringFog;
 
-            UI_Tsunami_Enabled.isChecked = c.Tsunami.Enabled;
-            UI_Tsunami_EvacuationMode.selectedIndex = (int)c.Tsunami.EvacuationMode;
-            UI_Tsunami_MaxProbability.value = c.Tsunami.BaseOccurrencePerYear;
-            UI_Tsunami_WarmupYears.value = c.Tsunami.WarmupYears;
+            UI_Tsunami_Enabled.isChecked = disasterSetupModel.Tsunami.Enabled;
+            UI_Tsunami_EvacuationMode.selectedIndex = (int)disasterSetupModel.Tsunami.EvacuationMode;
+            UI_Tsunami_MaxProbability.value = disasterSetupModel.Tsunami.BaseOccurrencePerYear;
+            UI_Tsunami_WarmupYears.value = disasterSetupModel.Tsunami.WarmupYears;
 
-            UI_Earthquake_Enabled.isChecked = c.Earthquake.Enabled;
-            UI_Earthquake_EvacuationMode.selectedIndex = (int)c.Earthquake.EvacuationMode;
-            UI_Earthquake_MaxProbability.value = c.Earthquake.BaseOccurrencePerYear;
-            UI_Earthquake_WarmupYears.value = c.Earthquake.WarmupYears;
-            UI_Earthquake_AftershocksEnabled.isChecked = c.Earthquake.AftershocksEnabled;
-            UI_Earthquake_CrackMode.selectedIndex = (int)c.Earthquake.EarthquakeCrackMode;
+            UI_Earthquake_Enabled.isChecked = disasterSetupModel.Earthquake.Enabled;
+            UI_Earthquake_EvacuationMode.selectedIndex = (int)disasterSetupModel.Earthquake.EvacuationMode;
+            UI_Earthquake_MaxProbability.value = disasterSetupModel.Earthquake.BaseOccurrencePerYear;
+            UI_Earthquake_WarmupYears.value = disasterSetupModel.Earthquake.WarmupYears;
+            UI_Earthquake_AftershocksEnabled.isChecked = disasterSetupModel.Earthquake.AftershocksEnabled;
+            UI_Earthquake_CrackMode.selectedIndex = (int)disasterSetupModel.Earthquake.EarthquakeCrackMode;
 
-            UI_MeteorStrike_Enabled.isChecked = c.MeteorStrike.Enabled;
-            UI_MeteorStrike_EvacuationMode.selectedIndex = (int)c.MeteorStrike.EvacuationMode;
-            UI_MeteorStrike_MaxProbability.value = c.MeteorStrike.BaseOccurrencePerYear;
-            UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(0);
-            UI_MeteorStrike_MeteorMediumPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(1);
-            UI_MeteorStrike_MeteorShortPeriodEnabled.isChecked = c.MeteorStrike.GetEnabled(2);
+            UI_MeteorStrike_Enabled.isChecked = disasterSetupModel.MeteorStrike.Enabled;
+            UI_MeteorStrike_EvacuationMode.selectedIndex = (int)disasterSetupModel.MeteorStrike.EvacuationMode;
+            UI_MeteorStrike_MaxProbability.value = disasterSetupModel.MeteorStrike.BaseOccurrencePerYear;
+            UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(0);
+            UI_MeteorStrike_MeteorMediumPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(1);
+            UI_MeteorStrike_MeteorShortPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(2);
 
             freezeUI = false;
         }
@@ -311,7 +313,7 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_ForestFire_WarmupDays, " days");
             UI_ForestFire_WarmupDays.tooltip = "No-rain period during wich the probability of Forest Fire increases";
 
-            ComponentHelpers.AddDropDown(                
+            ComponentHelpers.AddDropDown(
                 ref UI_ForestFire_EvacuationMode,
                 ref forestFireGroup,
                 evacuationModeText,
@@ -321,7 +323,7 @@ namespace NaturalDisastersRenewal.UI
                 {
                     if (!freezeUI)
                         disasterContainer.ForestFire.EvacuationMode = (EvacuationOptions)(selection * 2);
-                }                
+                }
             );
 
             helper.AddSpace(20);
@@ -394,7 +396,7 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_Sinkhole_GroundwaterCapacity);
             UI_Sinkhole_GroundwaterCapacity.tooltip = "Set how fast groundwater fills up during rain and causes a sinkhole to appear.";
 
-            ComponentHelpers.AddDropDown(                
+            ComponentHelpers.AddDropDown(
                 ref UI_Sinkhole_EvacuationMode,
                 ref sinkholeGroup,
                 evacuationModeText,
@@ -416,7 +418,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Tornado_MaxProbability = (UISlider)tornadoGroup.AddSlider("Max probability", 0.1f, 10f, 0.1f, disasterContainer.Tornado.BaseOccurrencePerYear, delegate (float val)
             {
-                if (!freezeUI) 
+                if (!freezeUI)
                     disasterContainer.Tornado.BaseOccurrencePerYear = val;
             });
             AddLabelToSlider(UI_Tornado_MaxProbability, " times per year");
@@ -496,7 +498,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Earthquake_MaxProbability = (UISlider)earthquakeGroup.AddSlider("Max probability", 0.1f, 10, 0.1f, disasterContainer.Earthquake.BaseOccurrencePerYear, delegate (float val)
             {
-                if (!freezeUI) 
+                if (!freezeUI)
                     disasterContainer.Earthquake.BaseOccurrencePerYear = val;
             });
             AddLabelToSlider(UI_Earthquake_MaxProbability, " times per year");
@@ -517,7 +519,7 @@ namespace NaturalDisastersRenewal.UI
             });
             UI_Earthquake_AftershocksEnabled.tooltip = "Several aftershocks may occur after a big earthquake. Aftershocks strike the same place.";
 
-            ComponentHelpers.AddDropDown(                 
+            ComponentHelpers.AddDropDown(
                  ref UI_Earthquake_CrackMode,
                  ref earthquakeGroup,
                  evacuationModeText,
@@ -540,7 +542,7 @@ namespace NaturalDisastersRenewal.UI
                  delegate (int selection)
                  {
                      if (!freezeUI)
-                        disasterContainer.Earthquake.EvacuationMode = (EvacuationOptions)selection;
+                         disasterContainer.Earthquake.EvacuationMode = (EvacuationOptions)selection;
                  }
              );
 
@@ -607,12 +609,12 @@ namespace NaturalDisastersRenewal.UI
             saveOptionsGroup.AddButton("Reset to the last saved values", delegate ()
             {
                 Singleton<NaturalDisasterHandler>.instance.ReadValuesFromFile();
-                EnhancedDisastersOptionsUpdateUI();
+                UpdateSetupContentUI();
             });
             saveOptionsGroup.AddButton("Reset to the mod default values", delegate ()
             {
                 Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues();
-                EnhancedDisastersOptionsUpdateUI();
+                UpdateSetupContentUI();
             });
 
             #endregion SaveOptions

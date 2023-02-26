@@ -22,5 +22,10 @@ namespace NaturalDisastersRenewal
         {
             settings.BuildSettingsMenu(helper);
         }
+
+        public void EnhancedDisastersOptionsUpdateUI()
+        {
+            settings.UpdateSetupContentUI();
+        }
     }
 }

@@ -8,15 +8,13 @@ using System;
 using System.IO;
 using UnityEngine;
 
-//This class allows to save /load specific configuration for loadded game. This config is not necesarelly reflected in setup menu (It should)
-//PROBABLY A NEW ENHANCEMENT WITH CURRENT LOADED GAME INFO SHOULD BE NEEDED TO AVOID CONFUSIONS
+//This class allows to save /load specific configuration for loadded game.
 namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
-{
-    //public class SerializableDataExtension : ISerializableDataExtension
-    public class LoadedGameSerializableDataExtension
+{    
+    public class LoadedGameSerializableDataExtension : ISerializableDataExtension
     {
         public const string DataID = CommonProperties.dataId;
-        public const uint DataVersion = 3;
+        public const uint DataVersion = 4; //3;
         ISerializableData serializableData;
 
         public void OnCreated(ISerializableData serializedData)
@@ -48,6 +46,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 }
 
                 serializableData.SaveData(DataID, data);
+                Debug.Log($"Disaster setup saved for current game");
             }
             catch (Exception ex)
             {
@@ -67,11 +66,10 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                     Debug.Log(CommonProperties.LogMsgPrefix + "No saved data");
                     return;
                 }
-
+                
                 using (var stream = new MemoryStream(data))
                 {
                     DataSerializer.Deserialize<SerializableDataDisasterSetup>(stream, DataSerializer.Mode.Memory);
-
                     DataSerializer.Deserialize<SerializableDataForestFire>(stream, DataSerializer.Mode.Memory);
                     DataSerializer.Deserialize<SerializableDataThunderstorm>(stream, DataSerializer.Mode.Memory);
                     DataSerializer.Deserialize<SerializableDataSinkhole>(stream, DataSerializer.Mode.Memory);
@@ -80,13 +78,13 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                     DataSerializer.Deserialize<SerializableDataEarthquake>(stream, DataSerializer.Mode.Memory);
                     DataSerializer.Deserialize<SerializableDataMeteorStrike>(stream, DataSerializer.Mode.Memory);
                 }
+                SettingsScreen.UpdateUISettingsOptions();
+                Debug.Log($"Disaster setup data loaded for current game");
             }
             catch (Exception ex)
             {
                 Debug.Log(CommonProperties.LogMsgPrefix + "(load error) " + ex.Message);
             }
-
-            SettingsScreen.UpdateUISettingsOptions();
         }
 
         public void OnReleased()

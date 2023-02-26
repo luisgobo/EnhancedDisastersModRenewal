@@ -32,16 +32,11 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void ReadValuesFromFile()
         {
-            DisasterSetupModel newContainer = DisasterSetupModel.CreateFromFile();
-            if (newContainer == null)
-            {
-                newContainer = new DisasterSetupModel();
-            }
-
+            DisasterSetupModel newContainer = DisasterSetupModel.CreateFromFile() ?? new DisasterSetupModel();
             newContainer.CheckObjects();
 
             CopySettings(newContainer);
-        }
+        }        
 
         public void ResetToDefaultValues()
         {
@@ -373,7 +368,7 @@ namespace NaturalDisastersRenewal.Handlers
                     dPanel.absolutePosition = container.DPanelPos;
                 }
             }
-        }
+        }        
 
         public DisasterWrapper GetDisasterWrapper()
         {

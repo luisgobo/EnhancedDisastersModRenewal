@@ -8,46 +8,46 @@ namespace NaturalDisastersRenewal.Serialization
 {
     public class SerializableDataDisasterSetup : IDataContainer
     {
-        public void Serialize(DataSerializer s)
+        public void Serialize(DataSerializer dataSerializer)
         {
-            DisasterSetupModel c = Singleton<NaturalDisasterHandler>.instance.container;
-            s.WriteBool(c.ScaleMaxIntensityWithPopulation);
-            s.WriteBool(c.RecordDisasterEvents);
-            s.WriteBool(c.ShowDisasterPanelButton);
+            DisasterSetupModel disasterSetupmodel = Singleton<NaturalDisasterHandler>.instance.container;
+            dataSerializer.WriteBool(disasterSetupmodel.ScaleMaxIntensityWithPopulation);
+            dataSerializer.WriteBool(disasterSetupmodel.RecordDisasterEvents);
+            dataSerializer.WriteBool(disasterSetupmodel.ShowDisasterPanelButton);
 
-            s.WriteBool(c.DisableDisasterFocus);
-            s.WriteBool(c.PauseOnDisasterStarts);
-            s.WriteFloat(c.PartialEvacuationRadius);
+            dataSerializer.WriteBool(disasterSetupmodel.DisableDisasterFocus);
+            dataSerializer.WriteBool(disasterSetupmodel.PauseOnDisasterStarts);
+            dataSerializer.WriteFloat(disasterSetupmodel.PartialEvacuationRadius);
 
-            s.WriteFloat(c.ToggleButtonPos.x);
-            s.WriteFloat(c.ToggleButtonPos.y);
+            dataSerializer.WriteFloat(disasterSetupmodel.ToggleButtonPos.x);
+            dataSerializer.WriteFloat(disasterSetupmodel.ToggleButtonPos.y);
 
-            s.WriteFloat(c.DPanelPos.x);
-            s.WriteFloat(c.DPanelPos.y);
+            dataSerializer.WriteFloat(disasterSetupmodel.DPanelPos.x);
+            dataSerializer.WriteFloat(disasterSetupmodel.DPanelPos.y);
         }
 
-        public void Deserialize(DataSerializer s)
+        public void Deserialize(DataSerializer dataSerializer)
         {
-            DisasterSetupModel c = Singleton<NaturalDisasterHandler>.instance.container;
-            c.ScaleMaxIntensityWithPopulation = s.ReadBool();
-            c.RecordDisasterEvents = s.ReadBool();
-            c.ShowDisasterPanelButton = s.ReadBool();
+            DisasterSetupModel disasterSetupmodel = Singleton<NaturalDisasterHandler>.instance.container;
+            disasterSetupmodel.ScaleMaxIntensityWithPopulation = dataSerializer.ReadBool();
+            disasterSetupmodel.RecordDisasterEvents = dataSerializer.ReadBool();
+            disasterSetupmodel.ShowDisasterPanelButton = dataSerializer.ReadBool();
 
-            c.PauseOnDisasterStarts = s.ReadBool();
-            c.DisableDisasterFocus = s.ReadBool();
-            c.PartialEvacuationRadius = s.ReadFloat();
+            disasterSetupmodel.PauseOnDisasterStarts = dataSerializer.ReadBool();
+            disasterSetupmodel.DisableDisasterFocus = dataSerializer.ReadBool();
+            disasterSetupmodel.PartialEvacuationRadius = dataSerializer.ReadFloat();
 
-            if (s.version >= 1)
+            if (dataSerializer.version >= 1)
             {
-                c.ToggleButtonPos = new Vector3(s.ReadFloat(), s.ReadFloat());
-                c.DPanelPos = new Vector3(s.ReadFloat(), s.ReadFloat());
+                disasterSetupmodel.ToggleButtonPos = new Vector3(dataSerializer.ReadFloat(), dataSerializer.ReadFloat());
+                disasterSetupmodel.DPanelPos = new Vector3(dataSerializer.ReadFloat(), dataSerializer.ReadFloat());
             }
         }
 
-        public void AfterDeserialize(DataSerializer s)
+        public void AfterDeserialize(DataSerializer dataSerializer)
         {
             Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
-            Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
+            Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();            
         }
     }
 }

@@ -290,9 +290,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
-            DebugLogger.Log($"Add disasterInfoModel into activeDisasters");
             activeDisasters.Add(disasterInfoModel);
-            DebugLogger.Log($"activeDisasters count: {activeDisasters.Count}");
+
         }
 
         void SetupCracksOnMap(byte intensity)
