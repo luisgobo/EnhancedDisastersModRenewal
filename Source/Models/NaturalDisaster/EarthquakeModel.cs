@@ -261,7 +261,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                         //Getting diaster core
                         var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
-                        bool IgnoreDestructionZoneForEarthquake = false;
+                        bool IgnoreDestructionZoneForEarthquake;
                         switch (EarthquakeCrackMode)
                         {
                             case EarthquakeCrackOptions.NoCracks:
@@ -290,9 +290,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
-            DebugLogger.Log($"Add disasterInfoModel into activeDisasters");
             activeDisasters.Add(disasterInfoModel);
-            DebugLogger.Log($"activeDisasters count: {activeDisasters.Count}");
+
         }
 
         void SetupCracksOnMap(byte intensity)

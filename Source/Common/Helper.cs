@@ -11,7 +11,7 @@ namespace NaturalDisastersRenewal.Common
             return new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
         }
 
-        public static string[] GetEvacuationOptions(bool allowsFocusedEvacuation = false)
+        public static string[] GetAllEvacuationOptions(bool allowsFocusedEvacuation = false)
         {
             string[] evacuationOptions = {
                 "Manual evacuation",
@@ -27,8 +27,18 @@ namespace NaturalDisastersRenewal.Common
 
             return evacuationOptions;
         }
+        
+        public static string[] GetManualAndFocusedEvacuationOptions()
+        {
+            string[] evacuationOptions = {
+                "Manual evacuation",
+                "Focused auto evacuation/release"
+            };
 
-        public static string[] GetCrackModes(bool allowsFocusedEvacuation = false)
+            return evacuationOptions;
+        }
+
+        public static string[] GetCrackModes()
         {
             string[] crackModes = {
                 "No Cracks",

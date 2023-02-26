@@ -8,34 +8,34 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     public class SerializableDataDisasterBase
     {
-        public void SerializeCommonParameters(DataSerializer s, DisasterBaseModel disaster)
+        public void SerializeCommonParameters(DataSerializer dataSeralizer, DisasterBaseModel disaster, int disasterIndex = 1)
         {
-            s.WriteBool(disaster.Enabled);
-            s.WriteFloat(disaster.BaseOccurrencePerYear);
-            s.WriteFloat(disaster.calmDaysLeft);
-            s.WriteFloat(disaster.probabilityWarmupDaysLeft);
-            s.WriteFloat(disaster.intensityWarmupDaysLeft);
-            s.WriteInt32((int)disaster.EvacuationMode);
+            dataSeralizer.WriteBool(disaster.Enabled);
+            dataSeralizer.WriteFloat(disaster.BaseOccurrencePerYear);
+            dataSeralizer.WriteFloat(disaster.calmDaysLeft);
+            dataSeralizer.WriteFloat(disaster.probabilityWarmupDaysLeft);
+            dataSeralizer.WriteFloat(disaster.intensityWarmupDaysLeft);
+            dataSeralizer.WriteInt32((int)disaster.EvacuationMode * disasterIndex);
         }
 
-        public void DeserializeCommonParameters(DataSerializer s, DisasterBaseModel disaster)
+        public void DeserializeCommonParameters(DataSerializer dataSeralizer, DisasterBaseModel disaster, int disasterIndex = 1)
         {
-            disaster.Enabled = s.ReadBool();
-            disaster.BaseOccurrencePerYear = s.ReadFloat();
-            if (s.version <= 2)
+            disaster.Enabled = dataSeralizer.ReadBool();
+            disaster.BaseOccurrencePerYear = dataSeralizer.ReadFloat();
+            if (dataSeralizer.version <= 2)
             {
                 float daysPerFrame = 1f / 585f;
-                disaster.calmDaysLeft = s.ReadInt32() * daysPerFrame;
-                disaster.probabilityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
-                disaster.intensityWarmupDaysLeft = s.ReadInt32() * daysPerFrame;
-                disaster.EvacuationMode = (EvacuationOptions)s.ReadInt32();
+                disaster.calmDaysLeft = dataSeralizer.ReadInt32() * daysPerFrame;
+                disaster.probabilityWarmupDaysLeft = dataSeralizer.ReadInt32() * daysPerFrame;
+                disaster.intensityWarmupDaysLeft = dataSeralizer.ReadInt32() * daysPerFrame;
+                disaster.EvacuationMode = (EvacuationOptions)(dataSeralizer.ReadInt32() * disasterIndex);
             }
             else
             {
-                disaster.calmDaysLeft = s.ReadFloat();
-                disaster.probabilityWarmupDaysLeft = s.ReadFloat();
-                disaster.intensityWarmupDaysLeft = s.ReadFloat();
-                disaster.EvacuationMode = (EvacuationOptions)s.ReadInt32();
+                disaster.calmDaysLeft = dataSeralizer.ReadFloat();
+                disaster.probabilityWarmupDaysLeft = dataSeralizer.ReadFloat();
+                disaster.intensityWarmupDaysLeft = dataSeralizer.ReadFloat();
+                disaster.EvacuationMode = (EvacuationOptions)(dataSeralizer.ReadInt32() * disasterIndex);
             }
         }
 

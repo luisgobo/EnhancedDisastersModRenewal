@@ -7,25 +7,25 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     public class SerializableDataThunderstorm : SerializableDataDisasterBase, IDataContainer
     {
-        public void Serialize(DataSerializer s)
+        public void Serialize(DataSerializer dataSerializer)
         {
-            ThunderstormModel d = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
-            SerializeCommonParameters(s, d);
-            s.WriteInt32(d.MaxProbabilityMonth);
-            s.WriteFloat(d.RainFactor);
+            ThunderstormModel thunderstorm = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
+            SerializeCommonParameters(dataSerializer, thunderstorm);
+            dataSerializer.WriteInt32(thunderstorm.MaxProbabilityMonth);
+            dataSerializer.WriteFloat(thunderstorm.RainFactor);
         }
 
-        public void Deserialize(DataSerializer s)
+        public void Deserialize(DataSerializer dataSerializer)
         {
-            ThunderstormModel d = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
-            DeserializeCommonParameters(s, d);
-            d.MaxProbabilityMonth = s.ReadInt32();
-            d.RainFactor = s.ReadFloat();
+            ThunderstormModel thunderstorm = Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm;
+            DeserializeCommonParameters(dataSerializer, thunderstorm);
+            thunderstorm.MaxProbabilityMonth = dataSerializer.ReadInt32();
+            thunderstorm.RainFactor = dataSerializer.ReadFloat();
         }
 
-        public void AfterDeserialize(DataSerializer s)
+        public void AfterDeserialize(DataSerializer dataSerializer)
         {
-            AfterDeserializeLog("Thunderstorm");
+            AfterDeserializeLog("ThunderstormModel");
         }
     }
 }
