@@ -538,7 +538,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius) && !disasterInfoModel.IgnoreDestructionZone)
+                        if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius))
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
                             SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
