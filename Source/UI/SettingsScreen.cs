@@ -68,7 +68,7 @@ namespace NaturalDisastersRenewal.UI
 
         //Earthquake
         UICheckBox UI_Earthquake_Enabled;
-
+        UISlider UI_Earthquake_MinIntensityToCrack;
         UISlider UI_Earthquake_MaxProbability;
         UISlider UI_Earthquake_WarmupYears;
         UICheckBox UI_Earthquake_AftershocksEnabled;
@@ -159,6 +159,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Earthquake_Enabled.isChecked = disasterSetupModel.Earthquake.Enabled;
             UI_Earthquake_EvacuationMode.selectedIndex = (int)disasterSetupModel.Earthquake.EvacuationMode;
+            UI_Earthquake_MinIntensityToCrack.value = (int)disasterSetupModel.Earthquake.MinimalIntensityForCracks;
             UI_Earthquake_MaxProbability.value = disasterSetupModel.Earthquake.BaseOccurrencePerYear;
             UI_Earthquake_WarmupYears.value = disasterSetupModel.Earthquake.WarmupYears;
             UI_Earthquake_AftershocksEnabled.isChecked = disasterSetupModel.Earthquake.AftershocksEnabled;
@@ -532,6 +533,15 @@ namespace NaturalDisastersRenewal.UI
                  }
              );
             UI_Earthquake_CrackMode.tooltip = "Based on selection you can put a crack in the ground, ignoring it or put it based on intensity.";
+
+            UI_Earthquake_MinIntensityToCrack = (UISlider)earthquakeGroup.AddSlider("Minimal intensity for cracks", 10f, 25.5f, 0.1f, disasterContainer.Earthquake.MinimalIntensityForCracks, delegate (float val)
+            {
+                if (!freezeUI)
+                    disasterContainer.Earthquake.MinimalIntensityForCracks = (byte)val;
+            });
+            AddLabelToSlider(UI_Earthquake_MinIntensityToCrack, " minimal Intensity");
+            UI_Earthquake_MinIntensityToCrack.tooltip = "Minimal intensity to see cracks on the ground";
+            earthquakeGroup.AddSpace(15);
 
             ComponentHelpers.AddDropDown(
                  ref UI_Earthquake_EvacuationMode,

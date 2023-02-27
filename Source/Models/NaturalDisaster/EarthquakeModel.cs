@@ -15,9 +15,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
     {
         public bool AftershocksEnabled = true;
         public EarthquakeCrackOptions EarthquakeCrackMode = EarthquakeCrackOptions.NoCracks;
+        public float MinimalIntensityForCracks = 12.0f;
 
         [XmlIgnore] bool NoCracksInTheGroud = false;
-        [XmlIgnore] public byte MinimalIntensityForCracks = 100;
         [XmlIgnore] public byte aftershocksCount = 0;
         [XmlIgnore] public byte aftershockMaxIntensity = 0;
         [XmlIgnore] public byte mainStrikeIntensity = 0;
@@ -306,7 +306,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     NoCracksInTheGroud = false;
                     break;
 
-                case EarthquakeCrackOptions ecp when (ecp == EarthquakeCrackOptions.CracksBasedOnIntensity && intensity >= MinimalIntensityForCracks):
+                case EarthquakeCrackOptions ecp when (ecp == EarthquakeCrackOptions.CracksBasedOnIntensity && intensity >= MinimalIntensityForCracks * 10):
                     NoCracksInTheGroud = false;
                     break;
 
