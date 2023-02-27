@@ -1,10 +1,13 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
+using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Serialization.NaturalDisaster;
 using System;
+using System.Collections.Generic;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -60,6 +63,34 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
 
             return occurence;
+        }
+
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfo.type |= DisasterType.ThunderStorm;
+            base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
+        }
+
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.ThunderStorm;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.IgnoreDestructionZone = true;
+            base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
+        }
+
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.ThunderStorm;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.IgnoreDestructionZone = true;
+
+            base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
+        }
+
+        public override void OnDisasterStarted(byte intensity)
+        {
+            base.OnDisasterStarted(intensity);            
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
