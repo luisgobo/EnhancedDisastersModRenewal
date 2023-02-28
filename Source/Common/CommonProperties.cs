@@ -28,6 +28,10 @@ namespace NaturalDisastersRenewal.Common
             path = Path.Combine(path, contentMainPath);
             path = Path.Combine(path, contentSubPath);
             path = Path.Combine(path, contentFolder);
+
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
             path = Path.Combine(path, filename);
             return path;
         }
