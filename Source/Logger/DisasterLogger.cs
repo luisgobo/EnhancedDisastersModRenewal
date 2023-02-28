@@ -14,7 +14,7 @@ namespace NaturalDisastersRenewal.Logger
         {
             if (!Singleton<NaturalDisasterHandler>.instance.container.RecordDisasterEvents) return;
 
-            string filePath = getDisasterListFilePath();
+            string filePath = GetDisasterListFilePath();
 
             if (!File.Exists(filePath))
             {
@@ -31,13 +31,9 @@ namespace NaturalDisastersRenewal.Logger
             File.AppendAllText(filePath, dt.ToString("yyyy/MM/dd HH:mm") + "," + disasterName + "," + intensity.ToString() + "," + startedBy + Environment.NewLine);
         }
 
-        static string getDisasterListFilePath()
+        static string GetDisasterListFilePath()
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            path = Path.Combine(path, CommonProperties.xmlMainPath);
-            path = Path.Combine(path, CommonProperties.xmlSubPath);
-            path = Path.Combine(path, CommonProperties.disasterListFileName);
-            return path;
+            return CommonProperties.GetOptionsFilePath(CommonProperties.disasterListFileName);
         }
     }
 }

@@ -54,7 +54,7 @@ namespace NaturalDisastersRenewal.DisasterServices.Patches
                                         Vector2 vector2 = new Vector2(vector.y, -vector.x);
                                         vector *= (float)buildings.m_buffer[(int)num5].Width * 4f;
                                         vector2 *= (float)buildings.m_buffer[(int)num5].Length * 4f;
-                                        Quad2 quad = default(Quad2);
+                                        Quad2 quad = default;
                                         quad.a = a - vector - vector2;
                                         quad.b = a + vector - vector2;
                                         quad.c = a + vector + vector2;

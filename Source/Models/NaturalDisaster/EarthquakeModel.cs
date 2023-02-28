@@ -322,11 +322,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             base.CopySettings(disaster);
 
-            EarthquakeModel d = disaster as EarthquakeModel;
-            if (d != null)
+            if (disaster is EarthquakeModel earthquake)
             {
-                AftershocksEnabled = d.AftershocksEnabled;
-                WarmupYears = d.WarmupYears;
+                AftershocksEnabled = earthquake.AftershocksEnabled;
+                WarmupYears = earthquake.WarmupYears;
             }
         }
 
