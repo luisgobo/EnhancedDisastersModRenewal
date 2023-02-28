@@ -331,61 +331,65 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 if (!IsEvacuating())
                 {
-                    //Not evacuating. Clear list of active manual release disasters
+                    //Not evacuating. Clear list of active manual release disasters                    
                     manualReleaseDisasters.Clear();
                     return;
                 }
 
-                //Evaluate Disaster finishing
+                //Evaluate Disaster finishing                
                 var disasterFinishing = activeDisasters.Where(activeDisaster => activeDisaster.DisasterId == disasterInfoUnified.DisasterId).FirstOrDefault();
 
                 if (disasterFinishing != null)
+                {
                     activeDisasters.Remove(disasterFinishing);
 
-                switch (disasterFinishing.EvacuationMode)
-                {
-                    case EvacuationOptions.ManualEvacuation:
-                        break;
-
-                    case EvacuationOptions.AutoEvacuation:
-                    case EvacuationOptions.FocusedAutoEvacuation:
-                        //When all list empty, then release all using basegame code for it.
-                        if (!manualReleaseDisasters.Any() && !activeDisasters.Any())
-                        {
-                            //Auto releasing citizens
-                            DisasterManager.instance.EvacuateAll(true);
+                    switch (disasterFinishing.EvacuationMode)
+                    {
+                        case EvacuationOptions.ManualEvacuation:
                             break;
-                        }
 
-                        //Verify shelters when there are pending disasters
-                        if (activeDisasters.Any())
-                        {
-                            var pendingShelters = new List<ushort>();
-                            //If pending disaster then get all pending shelters that souldnt be released
-                            foreach (var disaster in activeDisasters)
+                        case EvacuationOptions.AutoEvacuation:
+                        case EvacuationOptions.FocusedAutoEvacuation:
+                            //When all list empty, then release all using basegame code for it.
+                            if (!manualReleaseDisasters.Any() && !activeDisasters.Any())
                             {
-                                //this is not being filled
-                                foreach (var shelterId in disaster.ShelterList)
+                                //Auto releasing citizens
+                                DisasterManager.instance.EvacuateAll(true);
+                                break;
+                            }
+
+                            //Verify shelters when there are pending disasters
+                            if (activeDisasters.Any())
+                            {
+                                var pendingShelters = new List<ushort>();
+                                //If pending disaster then get all pending shelters that souldnt be released
+                                foreach (var disaster in activeDisasters)
                                 {
-                                    if (!pendingShelters.Contains(shelterId))
-                                        pendingShelters.Add(shelterId);
+                                    //this is not being filled
+                                    foreach (var shelterId in disaster.ShelterList)
+                                    {
+                                        if (!pendingShelters.Contains(shelterId))
+                                            pendingShelters.Add(shelterId);
+                                    }
+                                }
+
+                                var sheltersToBeReleased = disasterFinishing.ShelterList.Where(disFinishing => pendingShelters.All(pendSh => pendSh != disFinishing)).ToList();
+                                BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+
+                                foreach (var shelterId in sheltersToBeReleased)
+                                {
+                                    var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
+                                    SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);
                                 }
                             }
+                            break;
 
-                            var sheltersToBeReleased = disasterFinishing.ShelterList.Where(disFinishing => pendingShelters.All(pendSh => pendSh != disFinishing)).ToList();
-                            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
-
-                            foreach (var shelterId in sheltersToBeReleased)
-                            {
-                                var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
-                                SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);
-                            }
-                        }
-                        break;
-
-                    default:
-                        break;
+                        default:
+                            break;
+                    }
                 }
+
+
             }
             catch (Exception ex)
             {
@@ -646,9 +650,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             DebugLogger.Log("ES: Find Phase Panel");
 
             if (phasePanel != null)
-            {
                 return;
-            }
 
             phasePanel = UnityObject.FindObjectOfType<WarningPhasePanel>();
             evacuatingField = phasePanel.GetType().GetField("m_isEvacuating", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -695,15 +697,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     //here we got all shelter buildings
                     var buildingInfo = buildingManager.m_buildings.m_buffer[num];
                     var shelterPosition = buildingInfo.m_position;
+                    
+                    //Once this is located into Risk Zone, it's needed verify if building would be destroyed by Natural disaster (setup in each one)
+                    //Getting diaster core
+                    var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
 
-                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterRadioEvacuation))
+                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius > disasterRadioEvacuation? disasterDestructionRadius : disasterRadioEvacuation))
                     {
                         //Add Building/Shelter Data to disaster
                         disasterInfoModel.ShelterList.Add(num);
 
-                        //Once this is located into Risk Zone, it's needed verify if building would be destroyed by Natural disaster (setup in each one)
-                        //Getting diaster core
-                        var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
                         DebugLogger.Log(
                             $"Disaster intensity: {disasterInfoModel.DisasterInfo.intensity}. " +
                             $"DisasterRadioEvacuation: {disasterRadioEvacuation}. " +
