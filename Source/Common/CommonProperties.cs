@@ -29,11 +29,16 @@ namespace NaturalDisastersRenewal.Common
             path = Path.Combine(path, contentSubPath);
             path = Path.Combine(path, contentFolder);
 
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
+            CheckFolderExistence(path);            
 
             path = Path.Combine(path, filename);
             return path;
+        }
+
+        static void CheckFolderExistence(string path)
+        {
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
         }
     }
 }
