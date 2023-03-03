@@ -1,10 +1,10 @@
 ﻿using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.DisasterServices.HarmonyPatches;
 using NaturalDisastersRenewal.Models.Disaster;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -62,6 +62,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfo.type |= DisasterType.Tornado;
+            DisasterHelpersModified.disasterIntensity = disasterInfo.intensity;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
@@ -70,6 +71,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Tornado;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = true;
+            DisasterHelpersModified.disasterIntensity = 0;
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
         }
 
@@ -155,8 +157,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 MaxProbabilityMonth = tornado.MaxProbabilityMonth;
                 NoTornadoDuringFog = tornado.NoTornadoDuringFog;
             }
-        }        
+        }
     }
-
-   
 }

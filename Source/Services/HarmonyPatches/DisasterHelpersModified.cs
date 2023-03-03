@@ -1,12 +1,16 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Math;
+using ICities;
 using System;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.DisasterServices.Patches
+namespace NaturalDisastersRenewal.DisasterServices.HarmonyPatches
 {
     static class DisasterHelpersModified
     {
+        public static byte disasterIntensity = 0;
+        public static DisasterType disasterType = DisasterType.Empty;
+
         public static void DestroyBuildings(int seed, InstanceManager.Group group, Vector3 position, float preRadius, float removeRadius,
             float destructionRadiusMin, float destructionRadiusMax, float burnRadiusMin, float burnRadiusMax, float probability)
         {
