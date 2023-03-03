@@ -1,10 +1,10 @@
 ﻿using ColossalFramework;
-using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Handlers;
-using NaturalDisastersRenewal.Serialization.NaturalDisaster;
+using NaturalDisastersRenewal.DisasterServices.HarmonyPatches;
+using NaturalDisastersRenewal.Models.Disaster;
 using System;
+using System.Collections.Generic;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -59,27 +59,104 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return disasterAI as TornadoAI != null;
         }
 
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfo.type |= DisasterType.Tornado;
+            DisasterHelpersModified.disasterIntensity = disasterInfo.intensity;
+            base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
+        }
+
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.Tornado;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.IgnoreDestructionZone = true;
+            DisasterHelpersModified.disasterIntensity = 0;
+            base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
+        }
+
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.Tornado;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.IgnoreDestructionZone = true;
+
+            base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
+        }
+
         public override string GetName()
         {
             return "Tornado";
+        }
+
+        public override float CalculateDestructionRadio(byte intensity)
+        {
+            int unitSize = 8;
+            int unitsBase = 72;
+            float unitCalculation;
+            int intensityInt = intensity / 10;
+            int intensityDec = intensity % 10;
+
+            switch (intensity)
+            {
+                case byte n when (n <= 25):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + ((intensityDec * 2.48f) + (intensityInt * 32.8f));
+                    break;
+
+                case byte n when (n > 25 && n <= 50):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase - 4f + ((intensityDec * 2.64f) + (intensityInt * 34.4f));
+                    break;
+
+                case byte n when (n > 50 && n <= 75):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 170f + (intensityDec * 0.16f) + ((intensityDec - 1) * 2) + ((intensityInt - 5) * 29.6f);
+                    break;
+
+                case byte n when (n > 75 && n <= 100):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 240f + ((intensityDec - 5) * 0.48f) + ((intensityDec - 6) * 2) + ((intensityInt - 7) * 32.8f);
+                    break;
+
+                case byte n when (n > 100 && n <= 125):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 326f + (intensityDec * 0.08f) + ((intensityDec - 1) * 2) + (((intensityInt - 10) * 28.8f));
+                    break;
+
+                case byte n when (n > 125 && n <= 150):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 393f + ((intensityDec - 5) * 0.68f) + ((intensityDec - 6)) + ((intensityInt - 12) * 24.8f);
+                    break;
+
+                case byte n when (n > 150 && n <= 175):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 461f + (intensityDec * 0.28f) + ((intensityDec - 1) * 3) + ((intensityInt - 15) * 40.8f);
+                    break;
+
+                case byte n when (n > 175 && n <= 200):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 534f + ((intensityDec - 5) * 0.24f) + ((intensityDec + 6) * 2) + ((intensityInt - 17) * 30.4f);
+                    break;
+
+                case byte n when (n > 200 && n <= 250):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 638f + ((intensityDec - 1) * 2) + ((intensityInt - 20) * 28);
+                    break;
+
+                case byte n when (n > 225 && n <= 250):
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 702 + ((intensityDec - 5) * 2.16f) + ((intensityInt - 22) * 29.6f);
+                    break;
+
+                default:
+                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 702 + ((intensityDec - 5) * 2.16f) + ((intensityInt - 22) * 29.6f) + (intensityDec * 0.24f);
+                    break;
+            }
+
+            return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
         }
 
         public override void CopySettings(DisasterBaseModel disaster)
         {
             base.CopySettings(disaster);
 
-            TornadoModel d = disaster as TornadoModel;
-            if (d != null)
+            TornadoModel tornado = disaster as TornadoModel;
+            if (tornado != null)
             {
-                MaxProbabilityMonth = d.MaxProbabilityMonth;
-                NoTornadoDuringFog = d.NoTornadoDuringFog;
+                MaxProbabilityMonth = tornado.MaxProbabilityMonth;
+                NoTornadoDuringFog = tornado.NoTornadoDuringFog;
             }
         }
-
-        //public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified)
-        //{
-        //    disasterInfoUnified.DisasterInfo.type = DisasterType.Tornado;
-        //    base.OnDisasterDetected(disasterInfoUnified);
-        //}
     }
 }

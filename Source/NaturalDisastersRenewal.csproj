@@ -74,7 +74,8 @@
     <Compile Include="Serialization\NaturalDisaster\LoadedGameSerializableDataExtension.cs" />
     <Compile Include="Serialization\NaturalDisaster\SerializableDataEarthquake.cs" />
     <Compile Include="Serialization\Setup\SerializableDataDisasterSetup.cs" />
-    <Compile Include="Services\Patches\DestroyBuildings2Patch.cs" />
+    <Compile Include="Services\HarmonyPatches\DestroyRoadsPatch.cs" />
+    <Compile Include="Services\HarmonyPatches\DestroyBuildings2Patch.cs" />
     <Compile Include="BaseGameExtensions\DisasterExtension.cs" />
     <Compile Include="Logger\DisasterLogger.cs" />
     <Compile Include="Models\Disaster\DisasterInfoModel.cs" />
@@ -93,7 +94,7 @@
     <Compile Include="Common\Helper.cs" />
     <Compile Include="BaseGameExtensions\LoadingExtension.cs" />
     <Compile Include="Common\enums\OccurrenceAreas.cs" />
-    <Compile Include="Services\Patches\DisasterHelpersModified.cs" />
+    <Compile Include="Services\HarmonyPatches\DisasterHelpersModified.cs" />
     <Compile Include="Common\enums\ProbabilityDistributions.cs" />
     <Compile Include="BaseGameExtensions\Threading.cs" />
     <Compile Include="Mod.cs" />

@@ -8,13 +8,13 @@ using System;
 using System.IO;
 using UnityEngine;
 
-//This class allows to save /load specific configuration for loadded game.
+//This class allows to save/load specific configuration for loadded game.
 namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {    
     public class LoadedGameSerializableDataExtension : ISerializableDataExtension
     {
         public const string DataID = CommonProperties.dataId;
-        public const uint DataVersion = 4; //3;
+        public const uint DataVersion = 3;
         ISerializableData serializableData;
 
         public void OnCreated(ISerializableData serializedData)
@@ -70,6 +70,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 using (var stream = new MemoryStream(data))
                 {
                     DataSerializer.Deserialize<SerializableDataDisasterSetup>(stream, DataSerializer.Mode.Memory);
+
                     DataSerializer.Deserialize<SerializableDataForestFire>(stream, DataSerializer.Mode.Memory);
                     DataSerializer.Deserialize<SerializableDataThunderstorm>(stream, DataSerializer.Mode.Memory);
                     DataSerializer.Deserialize<SerializableDataSinkhole>(stream, DataSerializer.Mode.Memory);

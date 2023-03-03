@@ -15,7 +15,7 @@ namespace NaturalDisastersRenewal
 
         public string Description
         {
-            get { return CommonProperties.getModDescription(); }
+            get { return CommonProperties.GetModDescription(); }
         }
 
         public void OnSettingsUI(UIHelperBase helper)

@@ -37,7 +37,7 @@ namespace NaturalDisastersRenewal.Models.Setup
         public void Save()
         {
             XmlSerializer ser = new XmlSerializer(typeof(DisasterSetupModel));
-            TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath());
+            TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath(CommonProperties.xmlFilename));
             ser.Serialize(writer, this);
             writer.Close();
         }
@@ -64,7 +64,7 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         public static DisasterSetupModel CreateFromFile()
         {
-            string path = CommonProperties.GetOptionsFilePath();
+            string path = CommonProperties.GetOptionsFilePath(CommonProperties.xmlFilename);
 
             if (!File.Exists(path)) return null;
 

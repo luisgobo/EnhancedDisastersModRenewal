@@ -14,24 +14,14 @@ namespace NaturalDisastersRenewal.Models.Disaster
         {
             if (IsDebug)
             {
-                if (IsLogInFile)
-                {
-                    File.AppendAllText(geFilePath(), msg + Environment.NewLine);
-                }
-                else
-                {
-                    Debug.Log(msg);
-                }
+                File.AppendAllText(GeFilePath(), msg + Environment.NewLine);
+                Debug.Log(msg);
             }
         }
 
-        static string geFilePath()
-        {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            path = Path.Combine(path, CommonProperties.xmlMainPath);
-            path = Path.Combine(path, CommonProperties.xmlSubPath);
-            path = Path.Combine(path, CommonProperties.logFilename);
-            return path;
+        static string GeFilePath()
+        {            
+            return CommonProperties.GetOptionsFilePath(CommonProperties.logFilename);
         }
     }
 }

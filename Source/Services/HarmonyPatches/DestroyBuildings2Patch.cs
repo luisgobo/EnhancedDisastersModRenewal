@@ -1,18 +1,17 @@
 ﻿using HarmonyLib;
 using ICities;
-using NaturalDisastersRenewal.DisasterServices.Patches;
+using NaturalDisastersRenewal.DisasterServices.HarmonyPatches;
 using System;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.Patches
+namespace NaturalDisastersRenewal.HarmonyPatches
 {
     [HarmonyPatch(typeof(DisasterHelpers))]
     [HarmonyPatch("DestroyBuildings")]
     [HarmonyPatch(new Type[] { typeof(int), typeof(InstanceManager.Group), typeof(Vector3), typeof(float), typeof(float), typeof(float), typeof(float), typeof(float), typeof(float), typeof(float) })]
     class DestroyBuildings2Patch
     {
-        static bool Prefix(int seed, InstanceManager.Group group, Vector3 position, float preRadius, float removeRadius,
-            float destructionRadiusMin, float destructionRadiusMax, float burnRadiusMin, float burnRadiusMax, float probability)
+        static bool Prefix(int seed, InstanceManager.Group group, Vector3 position, float preRadius, float removeRadius, float destructionRadiusMin, float destructionRadiusMax, float burnRadiusMin, float burnRadiusMax, float probability)
         {
             DisasterType dt = DisasterType.Empty;
 
@@ -23,6 +22,7 @@ namespace NaturalDisastersRenewal.Patches
             else if (burnRadiusMin == 0 && burnRadiusMax == 0)
             {
                 dt = DisasterType.Tornado;
+                DisasterHelpersModified.disasterType = dt;
             }
 
             if (dt == DisasterType.Earthquake)

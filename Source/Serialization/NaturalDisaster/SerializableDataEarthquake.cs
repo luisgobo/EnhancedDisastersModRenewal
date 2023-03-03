@@ -16,6 +16,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
             dataSerializer.WriteFloat(earthquake.WarmupYears);
             dataSerializer.WriteInt8((int)earthquake.EarthquakeCrackMode);
+            dataSerializer.WriteInt8((int)earthquake.MinimalIntensityForCracks);
 
             dataSerializer.WriteInt8(earthquake.aftershocksCount);
             dataSerializer.WriteInt8(earthquake.aftershockMaxIntensity);
@@ -36,6 +37,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             if (dataSerializer.version >= 3)
             {
                 earthquake.EarthquakeCrackMode = (EarthquakeCrackOptions)dataSerializer.ReadInt8();
+                earthquake.MinimalIntensityForCracks = (int)dataSerializer.ReadInt8();
             }
 
             earthquake.aftershocksCount = (byte)dataSerializer.ReadInt8();
