@@ -1,16 +1,19 @@
 ﻿using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.Setup;
+using System;
 using UnityEngine;
 
-namespace NaturalDisastersRenewal.Serialization
+namespace NaturalDisastersRenewal.Serialization.Setup
 {
     public class SerializableDataDisasterSetup : IDataContainer
     {
         public void Serialize(DataSerializer dataSerializer)
         {
             DisasterSetupModel disasterSetupmodel = Singleton<NaturalDisasterHandler>.instance.container;
+            
             dataSerializer.WriteBool(disasterSetupmodel.ScaleMaxIntensityWithPopulation);
             dataSerializer.WriteBool(disasterSetupmodel.RecordDisasterEvents);
             dataSerializer.WriteBool(disasterSetupmodel.ShowDisasterPanelButton);
@@ -29,12 +32,13 @@ namespace NaturalDisastersRenewal.Serialization
         public void Deserialize(DataSerializer dataSerializer)
         {
             DisasterSetupModel disasterSetupmodel = Singleton<NaturalDisasterHandler>.instance.container;
+            
             disasterSetupmodel.ScaleMaxIntensityWithPopulation = dataSerializer.ReadBool();
             disasterSetupmodel.RecordDisasterEvents = dataSerializer.ReadBool();
             disasterSetupmodel.ShowDisasterPanelButton = dataSerializer.ReadBool();
 
-            disasterSetupmodel.PauseOnDisasterStarts = dataSerializer.ReadBool();
             disasterSetupmodel.DisableDisasterFocus = dataSerializer.ReadBool();
+            disasterSetupmodel.PauseOnDisasterStarts = dataSerializer.ReadBool();
             disasterSetupmodel.PartialEvacuationRadius = dataSerializer.ReadFloat();
 
             if (dataSerializer.version >= 1)
