@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 using System.Xml.Serialization;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
@@ -541,8 +542,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         //Getting diaster core
                         var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
 
+                        float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
+
                         //if Shelter will be destroyed, don't evacuate
-                        if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius))
+                        if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
                             SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
@@ -697,12 +700,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     //here we got all shelter buildings
                     var buildingInfo = buildingManager.m_buildings.m_buffer[num];
                     var shelterPosition = buildingInfo.m_position;
-                    
+
                     //Once this is located into Risk Zone, it's needed verify if building would be destroyed by Natural disaster (setup in each one)
                     //Getting diaster core
                     var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
 
-                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius > disasterRadioEvacuation? disasterDestructionRadius : disasterRadioEvacuation))
+                    float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
+
+                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius > disasterRadioEvacuation ? disasterDestructionRadius : disasterRadioEvacuation))
                     {
                         //Add Building/Shelter Data to disaster
                         disasterInfoModel.ShelterList.Add(num);
@@ -714,7 +719,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         );
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius))
+                        if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
                             SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
@@ -730,17 +735,43 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             shelterAI?.SetEmptying(num, ref buildingData, release);
         }
 
-        protected Boolean IsShelterInDisasterZone(Vector3 disasterPosition, Vector3 shelterPosition, float evacuationRadius)
+        protected Boolean IsShelterInDisasterZone(Vector3 disasterPosition, Vector3 shelterPosition, float shelterRadius, float evacuationRadius)
         {
+
             //First Squared Is required for correct calculation
             evacuationRadius *= evacuationRadius;
-
             // Compare radius of circle with distance
             // of its center from given point
-            return (
-                (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
-                (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius
-            );
-        }
+            
+            //DebugLogger.Log($"Circle Params: " +
+            //    $"{Environment.NewLine}x1:{disasterPosition.x}," +
+            //    $"{Environment.NewLine}y1:{disasterPosition.z}," +
+            //    $"{Environment.NewLine}x2:{shelterPosition.x}," +
+            //    $"{Environment.NewLine}y2:{shelterPosition.z}," +
+            //    $"{Environment.NewLine}r1:{evacuationRadius}," +
+            //    $"{Environment.NewLine}r2:{shelterRadius}");
+            
+            float distanceBetweenTwoPoints = (float)Math.Sqrt((disasterPosition.x - shelterPosition.x) * (disasterPosition.x - shelterPosition.x) + (disasterPosition.z - shelterPosition.z) * (disasterPosition.z - shelterPosition.z));
+
+            if (distanceBetweenTwoPoints <= evacuationRadius - shelterRadius)
+                return true;
+
+            if (distanceBetweenTwoPoints <= shelterRadius - evacuationRadius)
+                return true;
+
+            if (distanceBetweenTwoPoints < evacuationRadius + shelterRadius)
+                return true;
+
+            if (distanceBetweenTwoPoints == evacuationRadius + shelterRadius)
+                return true;
+            else
+                return false;
+
+            //return (
+            //    (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
+            //    (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius
+            //);
+
+        }        
     }
 }

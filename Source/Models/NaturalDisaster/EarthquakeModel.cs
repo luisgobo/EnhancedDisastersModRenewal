@@ -254,6 +254,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     var buildingInfo = buildingManager.m_buildings.m_buffer[num];
                     var shelterPosition = buildingInfo.m_position;
 
+
                     if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
                     {
                         //Add Building/Shelter Data to disaster
@@ -261,6 +262,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                         //Getting diaster core
                         var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
+                        float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
+                        
                         bool IgnoreDestructionZoneForEarthquake;
                         switch (EarthquakeCrackMode)
                         {
@@ -282,7 +285,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         }
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (base.IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
+                        if (base.IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
                             base.SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
