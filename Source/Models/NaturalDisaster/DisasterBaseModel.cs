@@ -659,7 +659,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             evacuatingField = phasePanel.GetType().GetField("m_isEvacuating", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
-        bool IsEvacuating()
+        protected bool IsEvacuating()
         {
             FindPhasePanel();
             return (bool)evacuatingField.GetValue(phasePanel);
@@ -772,6 +772,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             //    (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius
             //);
 
-        }        
+        }
+
+        public virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)
+        {
+            priority = 0f;            
+            bool canAffect =  (data.m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) != 0;            
+            return canAffect;
+        }
     }
 }

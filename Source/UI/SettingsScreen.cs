@@ -483,7 +483,7 @@ namespace NaturalDisastersRenewal.UI
                 ref UI_Tsunami_EvacuationMode,
                 ref tsunamiGroup,
                 evacuationModeText,
-                Helper.GetAllEvacuationOptions(true),
+                Helper.GetAllEvacuationOptions(),
                 ref disasterContainer.Tsunami.EvacuationMode, delegate (int selection)
                 {
                     if (!freezeUI)

@@ -338,21 +338,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             for (uint i = 0; i < prefabsCount; i++)
             {
-                DisasterInfo di = PrefabCollection<DisasterInfo>.GetPrefab(i);
-                if (di == null) continue;
+                DisasterInfo disasterInfo = PrefabCollection<DisasterInfo>.GetPrefab(i);
+                if (disasterInfo == null) continue;
 
-                if (di.m_disasterAI as EarthquakeAI != null)
-                {
-                    DebugLogger.Log($"Eartquake Found");
+                if (disasterInfo.m_disasterAI as EarthquakeAI != null)
+                {                    
                     if (isSet && NoCracksInTheGroud)
                     {
-                        ((EarthquakeAI)di.m_disasterAI).m_crackLength = 0;
-                        ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 0;
+                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackLength = 0;
+                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackWidth = 0;
                     }
                     else
                     {
-                        ((EarthquakeAI)di.m_disasterAI).m_crackLength = 1000;
-                        ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 100;
+                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackLength = 1000;
+                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackWidth = 100;
                     }
                 }
             }

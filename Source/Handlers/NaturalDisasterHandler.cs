@@ -91,11 +91,11 @@ namespace NaturalDisastersRenewal.Handlers
             disasterWrapper = (DisasterWrapper)disasters;
         }
 
-        public void OnDisasterStarted(DisasterAI dai, byte intensity)
+        public void OnDisasterStarted(DisasterAI disasterAI, byte intensity)
         {
             foreach (DisasterBaseModel ed in container.AllDisasters)
             {
-                if (ed.CheckDisasterAIType(dai))
+                if (ed.CheckDisasterAIType(disasterAI))
                 {
                     ed.OnDisasterStarted(intensity);
                     return;
@@ -103,7 +103,7 @@ namespace NaturalDisastersRenewal.Handlers
             }
         }
 
-        public void OnDisasterActivated(DisasterAI dai, ushort disasterId)
+        public void OnDisasterActivated(DisasterAI disasterAI, ushort disasterId)
         {
             var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
             var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
@@ -111,7 +111,7 @@ namespace NaturalDisastersRenewal.Handlers
 
             foreach (DisasterBaseModel ed in container.AllDisasters)
             {
-                if (ed.CheckDisasterAIType(dai))
+                if (ed.CheckDisasterAIType(disasterAI))
                 {
                     ed.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
                     return;
@@ -119,7 +119,7 @@ namespace NaturalDisastersRenewal.Handlers
             }
         }
 
-        public void OnDisasterDeactivated(DisasterAI dai, ushort disasterId)
+        public void OnDisasterDeactivated(DisasterAI disasterAI, ushort disasterId)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace NaturalDisastersRenewal.Handlers
 
                 foreach (DisasterBaseModel ed in container.AllDisasters)
                 {
-                    if (ed.CheckDisasterAIType(dai))
+                    if (ed.CheckDisasterAIType(disasterAI))
                     {
                         ed.OnDisasterDeactivated(new DisasterInfoModel()
                         {
