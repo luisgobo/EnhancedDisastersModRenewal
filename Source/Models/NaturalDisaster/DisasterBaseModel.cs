@@ -301,7 +301,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisaster)
         {
-            var msg = string.Format("EvacuationService.OnDisasterActivated. Id: {0}, Name: {1}, Type: {2}, Intensity: {3}",
+            var msg = string.Format("Disaster Activated. Id: {0}, Name: {1}, Type: {2}, Intensity: {3}",
                 disasterId,
                 disasterInfo.name,
                 disasterInfo.type,
@@ -316,12 +316,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             try
             {
-                var msg = string.Format("Disaster Deactivated: Id: {0}, Name: {1}, Type: {2}, Intensity: {3}, EvacuationMode:{4}",
+                var msg = string.Format("Disaster Deactivated: Id: {0}, Name: {1}, Type: {2}, Intensity: {3}, EvacuationMode:{4}, FinishOnDeactivate:{5}",
                 disasterInfoUnified.DisasterId,
                 disasterInfoUnified.DisasterInfo.name,
                 disasterInfoUnified.DisasterInfo.type,
                 disasterInfoUnified.DisasterInfo.intensity,
-                disasterInfoUnified.EvacuationMode);
+                disasterInfoUnified.EvacuationMode,
+                disasterInfoUnified.FinishOnDeactivate);
 
                 DebugLogger.Log(msg);
 
@@ -340,7 +341,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 //Evaluate Disaster finishing                
                 var disasterFinishing = activeDisasters.Where(activeDisaster => activeDisaster.DisasterId == disasterInfoUnified.DisasterId).FirstOrDefault();
 
-                if (disasterFinishing != null)
+                DebugLogger.Log($"disasterInfoUnified.FinishOnDeactivate: {disasterInfoUnified.FinishOnDeactivate + Environment.NewLine }" +
+                    $"disasterFinishing != null: {disasterFinishing != null}");
+
+                if (disasterFinishing != null && disasterInfoUnified.FinishOnDeactivate)
                 {
                     activeDisasters.Remove(disasterFinishing);
 
@@ -402,7 +406,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
-            var msg = $"disasterInfo(Base): type: {disasterInfoUnified.DisasterInfo.type}, name:{disasterInfoUnified.DisasterInfo.name}, " +
+            var msg = $"Disaster Detected. type: {disasterInfoUnified.DisasterInfo.type}, name:{disasterInfoUnified.DisasterInfo.name}, " +
                                   $"location => x:{disasterInfoUnified.DisasterInfo.targetX} y:{disasterInfoUnified.DisasterInfo.targetX} z:{disasterInfoUnified.DisasterInfo.targetZ}. " +
                                   $"Angle: {disasterInfoUnified.DisasterInfo.angle}, intensity: {disasterInfoUnified.DisasterInfo.intensity} " +
                                   $"EvacuationMode: {disasterInfoUnified.EvacuationMode}";
@@ -430,7 +434,17 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     break;
             }
         }
-
+        
+        public virtual void OnDisasterFinished(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        {
+            var msg = $"Disaster Finished: type: {disasterInfoUnified.DisasterInfo.type}, name:{disasterInfoUnified.DisasterInfo.name}, " +
+                                  $"location => x:{disasterInfoUnified.DisasterInfo.targetX} y:{disasterInfoUnified.DisasterInfo.targetX} z:{disasterInfoUnified.DisasterInfo.targetZ}. " +
+                                  $"Angle: {disasterInfoUnified.DisasterInfo.angle}, intensity: {disasterInfoUnified.DisasterInfo.intensity} " +
+                                  $"EvacuationMode: {disasterInfoUnified.EvacuationMode}" +
+                                  $"FinishOnDeactivate: {disasterInfoUnified.FinishOnDeactivate}";
+            DebugLogger.Log(msg);
+            
+        }
         public virtual void OnDisasterStarted(byte intensity)
         {
             float framesPerDay = Helper.FramesPerDay;

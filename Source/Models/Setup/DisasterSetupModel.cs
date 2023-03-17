@@ -2,6 +2,7 @@
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using System.Collections.Generic;
 using System.IO;
@@ -30,6 +31,10 @@ namespace NaturalDisastersRenewal.Models.Setup
         public bool ShowDisasterPanelButton = true;
         public Vector3 ToggleButtonPos = new Vector3(90, 62);
         public Vector3 DPanelPos = new Vector3(90, 40);
+
+        //Disaster list
+        [XmlIgnore] //for now it's needed to read it when on load and save game
+        public List<DisasterInfoModel> activeDisasters = new List<DisasterInfoModel>();
 
         [XmlIgnore]
         public List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();

@@ -40,7 +40,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfo.type |= DisasterType.Tsunami;
+            disasterInfo.type |= DisasterType.Tsunami;            
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
@@ -48,6 +48,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Tsunami;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.FinishOnDeactivate = false;
             disasterInfoUnified.IgnoreDestructionZone = true;
 
             if (!IsEvacuating())
@@ -61,9 +62,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Tsunami;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.FinishOnDeactivate = false;
             disasterInfoUnified.IgnoreDestructionZone = true;
 
             base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
+        }
+
+        public override void OnDisasterFinished(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        {
+            disasterInfoUnified.DisasterInfo.type |= DisasterType.Tsunami;
+            disasterInfoUnified.EvacuationMode = EvacuationMode;
+            disasterInfoUnified.FinishOnDeactivate = true;
+            disasterInfoUnified.IgnoreDestructionZone = true;
+
+            base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);            
         }
 
         public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
