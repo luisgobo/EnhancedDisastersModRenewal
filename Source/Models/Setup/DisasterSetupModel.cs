@@ -33,7 +33,7 @@ namespace NaturalDisastersRenewal.Models.Setup
         public Vector3 DPanelPos = new Vector3(90, 40);
 
         //Disaster list
-        [XmlIgnore] //for now it's needed to read it when on load and save game
+        //[XmlIgnore] //for now it's needed to read it when on load and save game
         public List<DisasterInfoModel> activeDisasters = new List<DisasterInfoModel>();
 
         [XmlIgnore]
