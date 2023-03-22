@@ -41,6 +41,12 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             Singleton<NaturalDisasterHandler>.instance.OnDisasterDetected(disasterData.Info.m_disasterAI, disasterID);
         }
 
+        public override void OnDisasterFinished(ushort disasterID)
+        {
+            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
+            Singleton<NaturalDisasterHandler>.instance.OnDisasterFinished(disasterData.Info.m_disasterAI, disasterID);
+        }
+
         public static void SetDisableDisasterFocus(bool disableDisasterFocus)
         {
             DisasterManager.instance.m_disableAutomaticFollow = disableDisasterFocus;

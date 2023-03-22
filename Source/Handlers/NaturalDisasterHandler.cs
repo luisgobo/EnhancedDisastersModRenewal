@@ -17,8 +17,7 @@ namespace NaturalDisastersRenewal.Handlers
 {
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
-        public DisasterSetupModel container;
-        List<DisasterInfoModel> activeDisasters = new List<DisasterInfoModel>();
+        public DisasterSetupModel container;        
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
         readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
@@ -91,11 +90,11 @@ namespace NaturalDisastersRenewal.Handlers
             disasterWrapper = (DisasterWrapper)disasters;
         }
 
-        public void OnDisasterStarted(DisasterAI dai, byte intensity)
+        public void OnDisasterStarted(DisasterAI disasterAI, byte intensity)
         {
             foreach (DisasterBaseModel ed in container.AllDisasters)
             {
-                if (ed.CheckDisasterAIType(dai))
+                if (ed.CheckDisasterAIType(disasterAI))
                 {
                     ed.OnDisasterStarted(intensity);
                     return;
@@ -103,23 +102,23 @@ namespace NaturalDisastersRenewal.Handlers
             }
         }
 
-        public void OnDisasterActivated(DisasterAI dai, ushort disasterId)
+        public void OnDisasterActivated(DisasterAI disasterAI, ushort disasterId)
         {
             var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
-            var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
+            var msg = $"EvacuationService.OnDisasterActivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
             DebugLogger.Log(msg);
 
             foreach (DisasterBaseModel ed in container.AllDisasters)
             {
-                if (ed.CheckDisasterAIType(dai))
+                if (ed.CheckDisasterAIType(disasterAI))
                 {
-                    ed.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
+                    ed.OnDisasterActivated(disasterInfo, disasterId, ref container.activeDisasters);
                     return;
                 }
             }
         }
 
-        public void OnDisasterDeactivated(DisasterAI dai, ushort disasterId)
+        public void OnDisasterDeactivated(DisasterAI disasterAI, ushort disasterId)
         {
             try
             {
@@ -130,13 +129,13 @@ namespace NaturalDisastersRenewal.Handlers
 
                 foreach (DisasterBaseModel ed in container.AllDisasters)
                 {
-                    if (ed.CheckDisasterAIType(dai))
+                    if (ed.CheckDisasterAIType(disasterAI))
                     {
                         ed.OnDisasterDeactivated(new DisasterInfoModel()
                         {
                             DisasterInfo = disasterInfo,
                             DisasterId = disasterId
-                        }, ref activeDisasters);
+                        }, ref container.activeDisasters);
                         return;
                     }
                 }
@@ -153,24 +152,22 @@ namespace NaturalDisastersRenewal.Handlers
         {
             try
             {
+
                 foreach (DisasterBaseModel disasterService in container.AllDisasters)
                 {
                     if (disasterService.CheckDisasterAIType(disasterAI))
                     {
+
                         var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
-
-                        var msg = $"disasterInfo1: type: {disasterInfo.type}, name:{disasterInfo.name}, " +
-                                  $"location => x:{disasterInfo.targetX} y:{disasterInfo.targetX} z:{disasterInfo.targetZ}. " +
-                                  $"Angle: {disasterInfo.angle}, intensity: {disasterInfo.intensity} ";
+                        var msg = $"EvacuationService.OnDisasterDetected. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
                         DebugLogger.Log(msg);
-
                         DisasterInfoModel disasterInfoUnified = new DisasterInfoModel()
                         {
                             DisasterInfo = disasterInfo,
                             DisasterId = disasterId
                         };
 
-                        disasterService.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
+                        disasterService.OnDisasterDetected(disasterInfoUnified, ref container.activeDisasters);
                         return;
                     }
                 }
@@ -181,6 +178,40 @@ namespace NaturalDisastersRenewal.Handlers
                 throw;
             }
         }
+
+        public void OnDisasterFinished(DisasterAI disasterAI, ushort disasterId)
+        {
+            try
+            {
+                foreach (DisasterBaseModel disasterService in container.AllDisasters)
+                {
+                    if (disasterService.CheckDisasterAIType(disasterAI))
+                    {
+                        var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
+                        var msg = $"EvacuationService.OnDisasterFinished. Id: {disasterId}, " +
+                            $"Name: {disasterInfo.name}, " +
+                            $"Type: {disasterInfo.type}, " +
+                            $"Intensity: {disasterInfo.intensity}";
+                        DebugLogger.Log(msg);
+
+                        DisasterInfoModel disasterInfoUnified = new DisasterInfoModel()
+                        {
+                            DisasterInfo = disasterInfo,
+                            DisasterId = disasterId
+                        };
+
+                        disasterService.OnDisasterFinished(disasterInfoUnified, ref container.activeDisasters);
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Log(ex.ToString());
+                throw;
+            }
+        }
+        
 
         public static DisasterInfo GetDisasterInfo(DisasterType disasterType)
         {

@@ -3,13 +3,15 @@ using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Serialization.NaturalDisaster;
 using NaturalDisastersRenewal.UI;
 using System;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 //This class allows to save/load specific configuration for loadded game.
-namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
+namespace NaturalDisastersRenewal.Serialization.Setup
 {    
     public class LoadedGameSerializableDataExtension : ISerializableDataExtension
     {
@@ -44,7 +46,13 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new SerializableDataMeteorStrike());
                     data = stream.ToArray();
                 }
+                
+                //Remove Current Data
+                serializableData.EraseData(DataID);
+                if (serializableData.LoadData(DataID)!= null)
+                    throw new Exception("There was an issue cleaning disaster in-game setup. Try saving again");
 
+                //Save new etup
                 serializableData.SaveData(DataID, data);
                 Debug.Log($"Disaster setup saved for current game");
             }

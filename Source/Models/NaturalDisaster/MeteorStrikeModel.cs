@@ -309,19 +309,43 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (intensity)
             {
                 case byte n when (n < 25):
-                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 4;
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 4 - (intensityDec * 0.04f) - (intensityInt * 0.4f);
                     break;
 
                 case byte n when (n >= 25 && n < 50):
-                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.24f) + unitsBase;
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 3 - ((intensityInt - 2) * 0.8f) - ((intensityDec - 5) * 0.08f);
                     break;
 
-                case byte n when (n >= 50 && n <= 250):
-                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + unitsBase;
+                case byte n when (n >= 50 && n <= 55):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 1;
+                    break;
+
+                case byte n when (n > 55 && n <= 75):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase + 1 - ((intensityInt - 5) * 0.5f) - ((intensityDec - 5) * 0.05f);
+                    break;
+
+                case byte n when (n > 75 && n <= 100):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - ((intensityInt - 7) * 0.8f) - ((intensityDec - 5) * 0.08f);
+                    break;
+
+                case byte n when (n > 100 && n <= 125):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - 2 - ((intensityInt - 10) * 0.4f) - ((intensityDec) * 0.04f);
+                    break;
+
+                case byte n when (n > 125 && n <= 150):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - 3 + ((intensityInt - 12) * 0.4f) + ((intensityDec - 5) * 0.04f);
+                    break;
+
+                case byte n when (n > 150 && n <= 175):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - 2 - ((intensityInt - 15) * 1.2f) - (intensityDec * 0.12f);
+                    break;
+
+                case byte n when (n > 175 && n <= 250):
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - 5 - ((intensityInt - 17) * 0.4f) - ((intensityDec - 5) * 0.04f);
                     break;
 
                 default:
-                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.36f) + (0.24f * intensityDec) + unitsBase;
+                    unitCalculation = ((((intensityInt - 5) * 10) + intensityDec) * 0.4f) + unitsBase - 5 - ((intensityInt - 17) * 0.4f) - ((intensityDec - 5) * 0.04f) + (intensityDec * 0.24f);
                     break;
             }
 

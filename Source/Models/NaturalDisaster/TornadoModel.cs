@@ -72,6 +72,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = true;
             DisasterHelpersModified.disasterIntensity = 0;
+            DisasterHelpersModified.disasterType = DisasterType.Empty;
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
         }
 

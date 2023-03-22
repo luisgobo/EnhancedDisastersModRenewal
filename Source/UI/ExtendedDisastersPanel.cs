@@ -25,7 +25,7 @@ namespace NaturalDisastersRenewal.UI
             this.canFocus = true;
             //this.isInteractive = true;
 
-            height = 250;
+            height = 280;
             width = 410;
 
             isVisible = false;
@@ -69,6 +69,8 @@ namespace NaturalDisastersRenewal.UI
                 y += h;
             }
 
+            #region bigRedBtn
+
             UIButton bigRedBtn = this.AddUIComponent<UIButton>();
             bigRedBtn.name = "bigRedBtn";
             bigRedBtn.position = new Vector3(10, -height + 30);
@@ -90,13 +92,43 @@ namespace NaturalDisastersRenewal.UI
             //bigRedBtnLabel.textScale = 0.7f;
             bigRedBtnLabel.text = "← Emergency Button (stop all disasters)";
 
-            UIButton btn = this.AddUIComponent<UIButton>();
-            btn.position = new Vector3(375, -5);
-            btn.size = new Vector2(30, 30);
-            btn.normalFgSprite = "buttonclose";
-            btn.eventClick += Btn_eventClick;
-        }
+            #endregion
 
+            #region CloseBtn
+            UIButton closeBtn = this.AddUIComponent<UIButton>();
+            closeBtn.position = new Vector3(375, -5);
+            closeBtn.size = new Vector2(30, 30);
+            closeBtn.normalFgSprite = "buttonclose";
+            closeBtn.eventClick += CloseBtn_eventClick;
+
+            #endregion
+
+            //#region displayHazardBtn
+
+            //UIButton displayHazardMapBtn = this.AddUIComponent<UIButton>();
+            //displayHazardMapBtn.name = "displayHazardMapBtn";
+            //displayHazardMapBtn.position = new Vector3(10, -height + 60);
+            //displayHazardMapBtn.size = new Vector2(22, 22);
+            ////displayHazardMapBtn.color = Color.red;
+            //displayHazardMapBtn.focusedColor = Color.blue;
+            //displayHazardMapBtn.textColor = Color.blue;
+            //displayHazardMapBtn.focusedTextColor = Color.blue;
+            //displayHazardMapBtn.text = "‽";
+            //displayHazardMapBtn.normalBgSprite = "ButtonMenu";
+            //displayHazardMapBtn.hoveredBgSprite = "ButtonMenuHovered";
+            //displayHazardMapBtn.eventClick += DisplayHazardMapBtn_eventClick;
+
+            //UILabel displayHazardMapBtnLabel = this.AddUIComponent<UILabel>();
+            //displayHazardMapBtnLabel.name = "displayHazardMapBtnLabel";
+            //displayHazardMapBtnLabel.position = new Vector3(40, -height + 57);
+            //displayHazardMapBtnLabel.size = new Vector2(width - 30, 20);
+            //displayHazardMapBtnLabel.textColor = Color.white;
+            ////displayHazardMapBtnLabel.textScale = 0.7f;
+            //displayHazardMapBtnLabel.text = "← Display Hazard Map)";
+            
+            //#endregion
+
+        }
         void BigRedBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             StringBuilder sb = new StringBuilder();
@@ -139,13 +171,20 @@ namespace NaturalDisastersRenewal.UI
             }
             Debug.Log(sb.ToString());
         }
+        
+        //void DisplayHazardMapBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        //{
+        //    var asd =  Singleton<DisasterManager>.instance;
+
+        //    asd.HazardMapVisible = asd.HazardMapVisible == 0 ? 1: 0;
+        //}
 
         bool IsStopableDisaster(DisasterAI ai)
         {
             return (ai as ThunderStormAI != null) || (ai as SinkholeAI != null) || (ai as TornadoAI != null) || (ai as EarthquakeAI != null) || (ai as MeteorStrikeAI != null);
         }
 
-        void Btn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        void CloseBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             this.Hide();
         }

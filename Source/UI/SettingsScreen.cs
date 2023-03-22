@@ -6,8 +6,10 @@ using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
+using System;
 using System.Reflection;
 using UnityEngine;
 
@@ -481,7 +483,7 @@ namespace NaturalDisastersRenewal.UI
                 ref UI_Tsunami_EvacuationMode,
                 ref tsunamiGroup,
                 evacuationModeText,
-                Helper.GetAllEvacuationOptions(true),
+                Helper.GetAllEvacuationOptions(),
                 ref disasterContainer.Tsunami.EvacuationMode, delegate (int selection)
                 {
                     if (!freezeUI)

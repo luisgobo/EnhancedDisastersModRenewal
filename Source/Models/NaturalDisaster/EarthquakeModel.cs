@@ -254,6 +254,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     var buildingInfo = buildingManager.m_buildings.m_buffer[num];
                     var shelterPosition = buildingInfo.m_position;
 
+
                     if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
                     {
                         //Add Building/Shelter Data to disaster
@@ -261,6 +262,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                         //Getting diaster core
                         var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
+                        float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
+                        
                         bool IgnoreDestructionZoneForEarthquake;
                         switch (EarthquakeCrackMode)
                         {
@@ -282,7 +285,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         }
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (base.IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
+                        if (base.IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
                             base.SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
@@ -335,21 +338,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             for (uint i = 0; i < prefabsCount; i++)
             {
-                DisasterInfo di = PrefabCollection<DisasterInfo>.GetPrefab(i);
-                if (di == null) continue;
+                DisasterInfo disasterInfo = PrefabCollection<DisasterInfo>.GetPrefab(i);
+                if (disasterInfo == null) continue;
 
-                if (di.m_disasterAI as EarthquakeAI != null)
-                {
-                    DebugLogger.Log($"Eartquake Found");
+                if (disasterInfo.m_disasterAI as EarthquakeAI != null)
+                {                    
                     if (isSet && NoCracksInTheGroud)
                     {
-                        ((EarthquakeAI)di.m_disasterAI).m_crackLength = 0;
-                        ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 0;
+                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackLength = 0;
+                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackWidth = 0;
                     }
                     else
                     {
-                        ((EarthquakeAI)di.m_disasterAI).m_crackLength = 1000;
-                        ((EarthquakeAI)di.m_disasterAI).m_crackWidth = 100;
+                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackLength = 1000;
+                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackWidth = 100;
                     }
                 }
             }
