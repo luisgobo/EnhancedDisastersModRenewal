@@ -68,7 +68,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual byte GetMaximumIntensity()
         {
-            byte intensity = 100;
+            byte intensity = 10;
 
             intensity = ScaleIntensityByWarmup(intensity);
 

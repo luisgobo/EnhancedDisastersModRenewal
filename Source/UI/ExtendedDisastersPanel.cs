@@ -1,7 +1,9 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
+using System;
 using System.Text;
 using UnityEngine;
 
@@ -58,12 +60,12 @@ namespace NaturalDisastersRenewal.UI
             progressBars_probability = new UIProgressBar[disasterCount];
             progressBars_maxIntensity = new UIProgressBar[disasterCount];
 
-            NaturalDisasterHandler edm = Singleton<NaturalDisasterHandler>.instance;
+            NaturalDisasterHandler disasterHandler = Singleton<NaturalDisasterHandler>.instance;
             for (int i = 0; i < disasterCount; i++)
             {
-                DisasterBaseModel d = edm.container.AllDisasters[i];
+                DisasterBaseModel disaster = disasterHandler.container.AllDisasters[i];
                 labels[i] = AddLabel(10, y);
-                labels[i].text = string.Format(labelFormat, d.GetName(), 0, 0);
+                labels[i].text = string.Format(labelFormat, disaster.GetName(), 0, 0);
                 progressBars_probability[i] = AddProgressBar(200, y);
                 progressBars_maxIntensity[i] = AddProgressBar(300, y);
                 y += h;
@@ -104,7 +106,6 @@ namespace NaturalDisastersRenewal.UI
             #endregion
 
             //#region displayHazardBtn
-
             //UIButton displayHazardMapBtn = this.AddUIComponent<UIButton>();
             //displayHazardMapBtn.name = "displayHazardMapBtn";
             //displayHazardMapBtn.position = new Vector3(10, -height + 60);
@@ -117,15 +118,13 @@ namespace NaturalDisastersRenewal.UI
             //displayHazardMapBtn.normalBgSprite = "ButtonMenu";
             //displayHazardMapBtn.hoveredBgSprite = "ButtonMenuHovered";
             //displayHazardMapBtn.eventClick += DisplayHazardMapBtn_eventClick;
-
             //UILabel displayHazardMapBtnLabel = this.AddUIComponent<UILabel>();
             //displayHazardMapBtnLabel.name = "displayHazardMapBtnLabel";
             //displayHazardMapBtnLabel.position = new Vector3(40, -height + 57);
             //displayHazardMapBtnLabel.size = new Vector2(width - 30, 20);
             //displayHazardMapBtnLabel.textColor = Color.white;
             ////displayHazardMapBtnLabel.textScale = 0.7f;
-            //displayHazardMapBtnLabel.text = "← Display Hazard Map)";
-            
+            //displayHazardMapBtnLabel.text = "← Display Hazard Map)";            
             //#endregion
 
         }
@@ -171,23 +170,16 @@ namespace NaturalDisastersRenewal.UI
             }
             Debug.Log(sb.ToString());
         }
-        
-        //void DisplayHazardMapBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
-        //{
-        //    var asd =  Singleton<DisasterManager>.instance;
-
-        //    asd.HazardMapVisible = asd.HazardMapVisible == 0 ? 1: 0;
-        //}
+        void CloseBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            this.Hide();
+        }               
 
         bool IsStopableDisaster(DisasterAI ai)
         {
             return (ai as ThunderStormAI != null) || (ai as SinkholeAI != null) || (ai as TornadoAI != null) || (ai as EarthquakeAI != null) || (ai as MeteorStrikeAI != null);
         }
 
-        void CloseBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            this.Hide();
-        }
 
         UILabel AddLabel(int x, int y)
         {
@@ -226,15 +218,15 @@ namespace NaturalDisastersRenewal.UI
 
         UIProgressBar AddProgressBar(int x, int y)
         {
-            UIProgressBar b = this.AddUIComponent<UIProgressBar>();
-            b.backgroundSprite = "LevelBarBackground";
-            b.progressSprite = "LevelBarForeground";
-            b.progressColor = Color.red;
-            b.position = new Vector3(x, y);
-            b.width = 90;
-            b.value = 0.5f;
+            UIProgressBar progressBar = this.AddUIComponent<UIProgressBar>();
+            progressBar.backgroundSprite = "LevelBarBackground";
+            progressBar.progressSprite = "LevelBarForeground";
+            progressBar.progressColor = Color.red;
+            progressBar.position = new Vector3(x, y);
+            progressBar.width = 90;
+            progressBar.value = 0.5f;
 
-            return b;
+            return progressBar;
         }
 
         float GetProgressValueLog(float value)
@@ -258,20 +250,28 @@ namespace NaturalDisastersRenewal.UI
 
             for (int i = 0; i < disasterCount; i++)
             {
-                DisasterBaseModel d = edm.container.AllDisasters[i];
-                float p = d.GetCurrentOccurrencePerYear();
-                byte maxIntensity = d.GetMaximumIntensity();
-                if (d.Enabled)
+                DisasterBaseModel disaster = edm.container.AllDisasters[i];
+                float currentOcurrencePerYear = disaster.GetCurrentOccurrencePerYear();
+                byte maxIntensity = disaster.GetMaximumIntensity();
+                if (disaster.Enabled)
                 {
-                    labels[i].text = string.Format(labelFormat, d.GetName(), p, maxIntensity);
+                    labels[i].text = string.Format(labelFormat, disaster.GetName(), currentOcurrencePerYear, maxIntensity);
 
-                    progressBars_probability[i].value = GetProgressValueLog(p);
+                    progressBars_probability[i].value = GetProgressValueLog(currentOcurrencePerYear);
                     SetProgressBarColor(progressBars_probability[i]);
-                    progressBars_probability[i].tooltip = d.GetProbabilityTooltip();
+                    progressBars_probability[i].tooltip = disaster.GetProbabilityTooltip();
+                    
+                    //string nl = Environment.NewLine;
+                    //string arr = $">>>>>>>>>{nl}";
+                    
+                    //DebugLogger.Log($"{arr+arr+arr+arr+arr+nl} maxIntensity: {maxIntensity}" +
+                    //    $"maxIntensity * 0.01f =  {maxIntensity * 0.01f}{nl}" +
+                    //    $"disaster.GetIntensityTooltip =  {disaster.GetIntensityTooltip()}" +
+                    //    $"{arr + arr + arr + arr + arr}");
 
                     progressBars_maxIntensity[i].value = maxIntensity * 0.01f;
                     SetProgressBarColor(progressBars_maxIntensity[i]);
-                    progressBars_maxIntensity[i].tooltip = d.GetIntensityTooltip();
+                    progressBars_maxIntensity[i].tooltip = disaster.GetIntensityTooltip();
                 }
                 else
                 {

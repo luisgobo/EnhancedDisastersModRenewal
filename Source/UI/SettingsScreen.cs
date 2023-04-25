@@ -256,6 +256,19 @@ namespace NaturalDisastersRenewal.UI
 
             generalGroup.AddSpace(10);
 
+            generalGroup.AddButton("Reset Button Position", delegate ()
+             {
+                 Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(true,false);
+                 UpdateSetupContentUI();
+             });
+
+            generalGroup.AddButton("Reset Panel Position", delegate ()
+            {
+                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(false,true);
+                UpdateSetupContentUI();
+            });
+
+            generalGroup.AddSpace(10);
             UIHelperBase disastersGroup = generalGroup.AddGroup("Enable Disasters:");
 
             UI_ForestFire_Enabled = (UICheckBox)disastersGroup.AddCheckbox("Forest Fire", disasterContainer.ForestFire.Enabled, delegate (bool isChecked)
