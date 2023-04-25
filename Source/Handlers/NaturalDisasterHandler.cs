@@ -8,7 +8,6 @@ using NaturalDisastersRenewal.Models.NaturalDisaster;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
@@ -17,7 +16,7 @@ namespace NaturalDisastersRenewal.Handlers
 {
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
-        public DisasterSetupModel container;        
+        public DisasterSetupModel container;
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
         readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
@@ -35,13 +34,24 @@ namespace NaturalDisastersRenewal.Handlers
             newContainer.CheckObjects();
 
             CopySettings(newContainer);
-        }        
+        }
 
         public void ResetToDefaultValues()
         {
             DisasterSetupModel newContainer = new DisasterSetupModel();
             newContainer.CheckObjects();
             CopySettings(newContainer);
+        }
+
+        public void ResetToDefaultValues(bool resetButtonPos, bool resetPanelPos)
+        {
+            DisasterSetupModel newContainer = new DisasterSetupModel();
+            newContainer.CheckObjects();
+
+            if (resetButtonPos || resetPanelPos)
+                ResetInterfaceElementPosition(newContainer, resetButtonPos, resetPanelPos);
+            else
+                CopySettings(newContainer);
         }
 
         public void RedefineDisasterMaxIntensity()
@@ -72,6 +82,28 @@ namespace NaturalDisastersRenewal.Handlers
                 container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
                 container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;
                 container.ShowDisasterPanelButton = fromContainer.ShowDisasterPanelButton;
+            }
+        }
+
+        void ResetInterfaceElementPosition(DisasterSetupModel fromContainer, bool resetButtonPos = false, bool resetPanelPos = false)
+        {
+            if (container == null)
+            {
+                container = fromContainer;
+            }
+            else
+            {
+                if (resetButtonPos)
+                {
+                    toggleButton.absolutePosition = new Vector3(90, 62);
+                    container.ToggleButtonPos = new Vector3(90, 62);
+                }
+
+                if (resetPanelPos)
+                {
+                    dPanel.absolutePosition = new Vector3(90, 100);
+                    container.ToggleButtonPos = new Vector3(90, 100);
+                }
             }
         }
 
@@ -211,7 +243,6 @@ namespace NaturalDisastersRenewal.Handlers
                 throw;
             }
         }
-        
 
         public static DisasterInfo GetDisasterInfo(DisasterType disasterType)
         {
@@ -301,14 +332,14 @@ namespace NaturalDisastersRenewal.Handlers
             toggleButtonObject.transform.localPosition = Vector3.zero;
             toggleButton = toggleButtonObject.AddComponent<UIButton>();
             toggleButton.name = "ExtendedDisastersPanelToggleButton";
-            toggleButton.normalBgSprite = "InfoIconBasePressed";
-            toggleButton.normalFgSprite = "InfoIconElectricity";
-            toggleButton.width = 30f;
-            toggleButton.height = 30f;
+            toggleButton.normalBgSprite = "ToolbarIconZoomOutGlobeHovered";
+            toggleButton.normalFgSprite = "RoadOptionUpgradeDisabled";//"IconPolicyPowerSavingPressed";
+            toggleButton.width = 38f;
+            toggleButton.height = 38f;
             toggleButton.absolutePosition = new Vector3(90, 62);
             toggleButton.tooltip = "Extended Disasters (drag by right-click)";
-            toggleButton.eventClick += ToggleButton_eventClick;
             toggleButton.isVisible = container.ShowDisasterPanelButton;
+            toggleButton.eventClick += ToggleButton_eventClick;
             toggleButton.eventMouseMove += ToggleButton_eventMouseMove;
 
             dPanel.tooltip = "Drag by right-click to set the panel position.";
@@ -318,53 +349,6 @@ namespace NaturalDisastersRenewal.Handlers
             UpdateDisastersDPanel();
 
             UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
-        }
-
-        void ToggleButton_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
-            {
-                var ratio = UIView.GetAView().ratio;
-                toggleButton.position = new Vector3(
-                    toggleButton.position.x + (eventParam.moveDelta.x * ratio),
-                    toggleButton.position.y + (eventParam.moveDelta.y * ratio),
-                    toggleButton.position.z);
-
-                container.ToggleButtonPos = toggleButton.absolutePosition;
-            }
-        }
-
-        void ToggleButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            ToggleDisasterPanel();
-        }
-
-        void DPanel_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
-            {
-                var ratio = UIView.GetAView().ratio;
-                dPanel.position = new Vector3(
-                    dPanel.position.x + (eventParam.moveDelta.x * ratio),
-                    dPanel.position.y + (eventParam.moveDelta.y * ratio),
-                    dPanel.position.z);
-
-                container.DPanelPos = dPanel.absolutePosition;
-            }
-        }
-
-        void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
-        {
-            if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
-            {
-                dPanel.isVisible = false;
-                return;
-            }
-
-            if (eventType == EventType.KeyDown && modifiers == EventModifiers.Shift && keyCode == KeyCode.D)
-            {
-                ToggleDisasterPanel();
-            }
         }
 
         void ToggleDisasterPanel()
@@ -399,11 +383,56 @@ namespace NaturalDisastersRenewal.Handlers
                     dPanel.absolutePosition = container.DPanelPos;
                 }
             }
-        }        
+        }
 
         public DisasterWrapper GetDisasterWrapper()
         {
             return disasterWrapper;
+        }
+        void ToggleButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            ToggleDisasterPanel();
+        }
+
+        void ToggleButton_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
+            {
+                var ratio = UIView.GetAView().ratio;
+                toggleButton.position = SetUIItemPosition(toggleButton.position, eventParam.moveDelta.x, eventParam.moveDelta.y, ratio);
+                container.ToggleButtonPos = toggleButton.absolutePosition;
+            }
+        }
+        void DPanel_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
+            {
+                var ratio = UIView.GetAView().ratio;
+                dPanel.position = SetUIItemPosition(dPanel.position, eventParam.moveDelta.x, eventParam.moveDelta.y, ratio);
+                container.DPanelPos = dPanel.absolutePosition;
+            }
+        }
+
+        private Vector3 SetUIItemPosition(Vector3 currentPosition, float x, float y, float ratio)
+        {
+            return new Vector3(
+                    currentPosition.x + (x * ratio),
+                    currentPosition.y + (y * ratio),
+                    currentPosition.z);
+        }
+
+        void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
+        {
+            if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
+            {
+                dPanel.isVisible = false;
+                return;
+            }
+
+            if (eventType == EventType.KeyDown && modifiers == EventModifiers.Shift && keyCode == KeyCode.D)
+            {
+                ToggleDisasterPanel();
+            }
         }
     }
 }
