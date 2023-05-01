@@ -7,7 +7,7 @@ namespace NaturalDisastersRenewal.Common
     {
         public const string ModName = "Natural Disasters Renewal";
         public const string ModNameForHarmony = "NaturalDisastersRenewal";
-        public const string ModVersion = "1.0";
+        public const string ModVersion = "1.1";
         public const string ModLastVersionYear = "2023";
         public const string contentMainPath = "Colossal Order";
         public const string contentSubPath = "Cities_Skylines";
