@@ -8,8 +8,10 @@ namespace NaturalDisastersRenewal.DisasterServices.HarmonyPatches
 {
     static class DisasterHelpersModified
     {
-        public static byte disasterIntensity = 0;
-        public static DisasterType disasterType = DisasterType.Empty;
+        public static byte DisasterIntensity = 0;
+        public static float IntensityStartDestruction = 0;
+        public static bool EnableDestruction = true;
+        public static DisasterType DisasterType = DisasterType.Empty;
 
         public static void DestroyBuildings(int seed, InstanceManager.Group group, Vector3 position, float preRadius, float removeRadius,
             float destructionRadiusMin, float destructionRadiusMax, float burnRadiusMin, float burnRadiusMax, float probability)

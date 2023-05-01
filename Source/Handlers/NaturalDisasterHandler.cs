@@ -318,7 +318,8 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void CreateExtendedDisasterPanel()
         {
-            if (dPanel != null) return;
+            if (dPanel != null) 
+                return;
 
             UIView v = UIView.GetAView();
 
@@ -328,12 +329,13 @@ namespace NaturalDisastersRenewal.Handlers
             dPanel.absolutePosition = new Vector3(90, 100);
 
             GameObject toggleButtonObject = new GameObject("ExtendedDisastersPanelButton");
-            toggleButtonObject.transform.parent = v.transform;
+            toggleButtonObject.transform.parent = v.transform;            
             toggleButtonObject.transform.localPosition = Vector3.zero;
             toggleButton = toggleButtonObject.AddComponent<UIButton>();
             toggleButton.name = "ExtendedDisastersPanelToggleButton";
             toggleButton.normalBgSprite = "ToolbarIconZoomOutGlobeHovered";
-            toggleButton.normalFgSprite = "RoadOptionUpgradeDisabled";//"IconPolicyPowerSavingPressed";
+            toggleButton.normalFgSprite = "IconPolicyPowerSavingDisabled";
+            toggleButton.hoveredFgSprite = "IconPolicyPowerSavingPressed"; 
             toggleButton.width = 38f;
             toggleButton.height = 38f;
             toggleButton.absolutePosition = new Vector3(90, 62);
@@ -423,12 +425,14 @@ namespace NaturalDisastersRenewal.Handlers
 
         void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
+            //Hide Panel when main menu is triggered
             if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
             {
                 dPanel.isVisible = false;
                 return;
             }
 
+            //Show / Hide Panel hotkey
             if (eventType == EventType.KeyDown && modifiers == EventModifiers.Shift && keyCode == KeyCode.D)
             {
                 ToggleDisasterPanel();

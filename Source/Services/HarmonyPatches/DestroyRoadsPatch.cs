@@ -14,10 +14,12 @@ namespace NaturalDisastersRenewal.HarmonyPatches
     {
         static bool Prefix(int seed, InstanceManager.Group group, Vector3 position, float totalRadius, float removeRadius, float destructionRadiusMin, float destructionRadiusMax)
         {
-            DisasterType disasterType = DisasterHelpersModified.disasterType;
-            byte intensity = DisasterHelpersModified.disasterIntensity;
+            DisasterType disasterType = DisasterHelpersModified.DisasterType;            
 
-            if (disasterType == DisasterType.Tornado && intensity <= 100)
+            if(!DisasterHelpersModified.EnableDestruction)
+                return false;
+            
+            if (disasterType == DisasterType.Tornado && DisasterHelpersModified.DisasterIntensity <= DisasterHelpersModified.IntensityStartDestruction)
                 return false;
 
             return true;

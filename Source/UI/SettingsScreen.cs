@@ -3,15 +3,13 @@ using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
-using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
-using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
-using System;
 using System.Reflection;
 using UnityEngine;
+using Helper = NaturalDisastersRenewal.Common.Helper;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -60,6 +58,8 @@ namespace NaturalDisastersRenewal.UI
         UIDropDown UI_Tornado_MaxProbabilityMonth;
         UICheckBox UI_Tornado_NoDuringFog;
         UIDropDown UI_Tornado_EvacuationMode;
+        UICheckBox UI_Tornado_EnableDestruction;
+        UISlider UI_Tornado_IntensityDestructionStart;
 
         //Tsunami
         UICheckBox UI_Tsunami_Enabled;
@@ -70,6 +70,7 @@ namespace NaturalDisastersRenewal.UI
 
         //Earthquake
         UICheckBox UI_Earthquake_Enabled;
+
         UISlider UI_Earthquake_MinIntensityToCrack;
         UISlider UI_Earthquake_MaxProbability;
         UISlider UI_Earthquake_WarmupYears;
@@ -88,10 +89,6 @@ namespace NaturalDisastersRenewal.UI
         UICheckBox UI_MeteorStrike_MeteorMediumPeriodEnabled;
         UICheckBox UI_MeteorStrike_MeteorShortPeriodEnabled;
         UIDropDown UI_MeteorStrike_EvacuationMode;
-
-        //Next enhancements
-        //UIDropDown UI_StructureCollapse_AutoEvacuateRelease;
-        //UIDropDown UI_StructureFire_AutoEvacuateRelease;
 
         #endregion UI Components
 
@@ -153,6 +150,8 @@ namespace NaturalDisastersRenewal.UI
             UI_Tornado_MaxProbability.value = disasterSetupModel.Tornado.BaseOccurrencePerYear;
             UI_Tornado_MaxProbabilityMonth.selectedIndex = disasterSetupModel.Tornado.MaxProbabilityMonth - 1;
             UI_Tornado_NoDuringFog.isChecked = disasterSetupModel.Tornado.NoTornadoDuringFog;
+            UI_Tornado_EnableDestruction.isChecked = disasterSetupModel.Tornado.EnableTornadoDestruction;
+            UI_Tornado_IntensityDestructionStart.value = disasterSetupModel.Tornado.MinimalIntensityForDestruction;
 
             UI_Tsunami_Enabled.isChecked = disasterSetupModel.Tsunami.Enabled;
             UI_Tsunami_EvacuationMode.selectedIndex = (int)disasterSetupModel.Tsunami.EvacuationMode;
@@ -255,16 +254,18 @@ namespace NaturalDisastersRenewal.UI
             });
 
             generalGroup.AddSpace(10);
+            
+            UIHelperBase elementPositionsGroup = generalGroup.AddGroup("Button/Panel positions:");
 
-            generalGroup.AddButton("Reset Button Position", delegate ()
+            elementPositionsGroup.AddButton("Reset Button Position", delegate ()
              {
-                 Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(true,false);
+                 Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(true, false);
                  UpdateSetupContentUI();
              });
 
-            generalGroup.AddButton("Reset Panel Position", delegate ()
+            elementPositionsGroup.AddButton("Reset Panel Position", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(false,true);
+                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(false, true);
                 UpdateSetupContentUI();
             });
 
@@ -305,10 +306,22 @@ namespace NaturalDisastersRenewal.UI
             {
                 if (!freezeUI)
                     disasterContainer.MeteorStrike.Enabled = isChecked;
-            });
+            });            
 
             #endregion Gegeral options
 
+            SetupForestFire(ref helper, disasterContainer);
+            SetupThunderstorm(ref helper, disasterContainer);
+            SetupSinkhole(ref helper, disasterContainer);
+            SetupTornado(ref helper, disasterContainer);
+            SetupTsunami(ref helper, disasterContainer);
+            SetupEarthquake(ref helper, disasterContainer);
+            SetupMeteorStrike(ref helper, disasterContainer);
+            SetupSaveOptions(ref helper, disasterContainer);
+        }
+
+        void SetupForestFire(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        {
             #region ForestFire
 
             UIHelperBase forestFireGroup = helper.AddGroup("Forest Fire disaster");
@@ -345,7 +358,10 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpace(20);
 
             #endregion ForestFire
+        }
 
+        void SetupThunderstorm(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        {
             #region Thunderstorm
 
             UIHelperBase thunderstormGroup = helper.AddGroup("Thunderstorm disaster");
@@ -391,7 +407,10 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpace(20);
 
             #endregion Thunderstorm
+        }
 
+        void SetupSinkhole(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        {
             #region Sinkhole
 
             UIHelperBase sinkholeGroup = helper.AddGroup("Sinkhole disaster");
@@ -427,7 +446,10 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpace(20);
 
             #endregion Sinkhole
+        }
 
+        void SetupTornado(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        {
             #region Tornado
 
             UIHelperBase tornadoGroup = helper.AddGroup("Tornado disaster");
@@ -456,6 +478,23 @@ namespace NaturalDisastersRenewal.UI
             });
             UI_Tornado_NoDuringFog.tooltip = "Tornado does not occur during foggy weather";
 
+            UI_Tornado_EnableDestruction = (UICheckBox)tornadoGroup.AddCheckbox("Enable tornado destruction", disasterContainer.Tornado.EnableTornadoDestruction, delegate (bool isChecked)
+            {
+                if (!freezeUI)
+                    disasterContainer.Tornado.EnableTornadoDestruction = isChecked;
+
+                UI_Tornado_IntensityDestructionStart.enabled = isChecked;
+            });
+
+            UI_Tornado_IntensityDestructionStart = (UISlider)tornadoGroup.AddSlider("Minimal intensity for tornado destruction:", 0.1f, 25.5f, 0.1f, disasterContainer.Tornado.MinimalIntensityForDestruction, delegate (float val)
+            {
+                if (!freezeUI)
+                    disasterContainer.Tornado.MinimalIntensityForDestruction = (byte)val;
+            });
+            AddLabelToSlider(UI_Tornado_IntensityDestructionStart, " Intensity to start destruction");
+
+            tornadoGroup.AddSpace(10);
+
             ComponentHelpers.AddDropDown(
                 ref UI_Tornado_EvacuationMode,
                 ref tornadoGroup,
@@ -471,7 +510,10 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpace(20);
 
             #endregion Tornado
+        }
 
+        void SetupTsunami(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        {
             #region Tsunami
 
             UIHelperBase tsunamiGroup = helper.AddGroup("Tsunami disaster");
@@ -507,7 +549,10 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpace(20);
 
             #endregion Tsunami
+        }
 
+        void SetupEarthquake(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        {
             #region Earthquake
 
             UIHelperBase earthquakeGroup = helper.AddGroup("Earthquake disaster");
@@ -538,7 +583,7 @@ namespace NaturalDisastersRenewal.UI
             ComponentHelpers.AddDropDown(
                  ref UI_Earthquake_CrackMode,
                  ref earthquakeGroup,
-                 evacuationModeText,
+                 "Cracks in the ground:",
                  Helper.GetCrackModes(),
                  ref disasterContainer.Earthquake.EarthquakeCrackMode,
                  delegate (int selection)
@@ -574,7 +619,10 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpace(20);
 
             #endregion Earthquake
+        }
 
+        void SetupMeteorStrike(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        {
             #region MeteorStrike
 
             UIHelperBase meteorStrikeGroup = helper.AddGroup("Meteor Strike disaster");
@@ -621,7 +669,10 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpace(20);
 
             #endregion MeteorStrike
+        }
 
+        void SetupSaveOptions(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        {
             #region SaveOptions
 
             // Save buttons

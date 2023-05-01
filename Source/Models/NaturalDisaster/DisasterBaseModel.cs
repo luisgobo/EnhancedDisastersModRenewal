@@ -44,7 +44,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public bool Enabled = true;
 
         public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
-        public float BaseOccurrencePerYear = 1.0f;
+        public float BaseOccurrencePerYear = 1.0f;        
 
         // Disaster services
         FieldInfo evacuatingField;

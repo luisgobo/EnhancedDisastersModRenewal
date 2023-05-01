@@ -19,7 +19,7 @@ namespace NaturalDisastersRenewal.Common
         public const string LogMsgPrefix = ">>> " + ModName + ": ";   
 
         public static string GetModDescription()
-            => string.Format($"Natural Disaster Renewal (Beta version) takes Zenya's 'Natural Disaster Overhault' and [SUSU]yang yang's Ragnarok mods content to be unified in only one, including some other awesome stuffs. " +
+            => string.Format($"Natural Disaster Renewal takes Zenya's 'Natural Disaster Overhault' and [SUSU]yang yang's Ragnarok mods content to be unified in only one, including some other awesome stuffs. " +
                 $"(Version \"{ModVersion}\". {ModLastVersionYear})");
 
         public static string GetOptionsFilePath(string filename)

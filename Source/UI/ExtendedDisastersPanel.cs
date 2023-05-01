@@ -105,28 +105,6 @@ namespace NaturalDisastersRenewal.UI
 
             #endregion
 
-            //#region displayHazardBtn
-            //UIButton displayHazardMapBtn = this.AddUIComponent<UIButton>();
-            //displayHazardMapBtn.name = "displayHazardMapBtn";
-            //displayHazardMapBtn.position = new Vector3(10, -height + 60);
-            //displayHazardMapBtn.size = new Vector2(22, 22);
-            ////displayHazardMapBtn.color = Color.red;
-            //displayHazardMapBtn.focusedColor = Color.blue;
-            //displayHazardMapBtn.textColor = Color.blue;
-            //displayHazardMapBtn.focusedTextColor = Color.blue;
-            //displayHazardMapBtn.text = "‽";
-            //displayHazardMapBtn.normalBgSprite = "ButtonMenu";
-            //displayHazardMapBtn.hoveredBgSprite = "ButtonMenuHovered";
-            //displayHazardMapBtn.eventClick += DisplayHazardMapBtn_eventClick;
-            //UILabel displayHazardMapBtnLabel = this.AddUIComponent<UILabel>();
-            //displayHazardMapBtnLabel.name = "displayHazardMapBtnLabel";
-            //displayHazardMapBtnLabel.position = new Vector3(40, -height + 57);
-            //displayHazardMapBtnLabel.size = new Vector2(width - 30, 20);
-            //displayHazardMapBtnLabel.textColor = Color.white;
-            ////displayHazardMapBtnLabel.textScale = 0.7f;
-            //displayHazardMapBtnLabel.text = "← Display Hazard Map)";            
-            //#endregion
-
         }
         void BigRedBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
