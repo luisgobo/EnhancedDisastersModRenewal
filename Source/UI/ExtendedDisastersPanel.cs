@@ -253,7 +253,7 @@ namespace NaturalDisastersRenewal.UI
                 }
                 else
                 {
-                    labels[i].text = "Disabled";
+                    labels[i].text = $"{disaster.GetName()} - Disabled";
 
                     progressBars_probability[i].value = 0;
                     progressBars_probability[i].progressColor = Color.black;
