@@ -18,7 +18,7 @@ namespace NaturalDisastersRenewal
             get { return CommonProperties.GetModDescription(); }
         }
 
-        public void OnSettingsUI(UIHelperBase helper)
+        public void OnSettingsUI(UIHelper helper)
         {
             settings.BuildSettingsMenu(helper);
         }

@@ -2,6 +2,8 @@
 using ICities;
 using NaturalDisastersRenewal.Common.enums;
 using System;
+using System.Security.Principal;
+using UnityEngine;
 
 namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
@@ -17,6 +19,6 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             );
 
             dropDown.width = (int)Math.Round(dropDown.width * 2.1f);
-        }
+        }        
     }
 }

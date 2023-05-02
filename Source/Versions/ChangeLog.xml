@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--Change Log-->
+<History>
+	<Version>
+		<Number>1.0</Number>
+		<ReleaseDate>2023-04-04</ReleaseDate>
+		<ReleaseChanges>
+			<description>
+				Initial changes.
+			</description>
+			<description>
+				Reestructurig Natural Disaster Overhaul Code.
+			</description>
+			<description>
+				Including Raganaroks functionalities.
+			</description>
+			<description>
+				Adding functionalities to setup panel
+			</description>
+			<description>
+				Including improved Evacuation Method
+			</description>
+			<description>
+				Adding Functionalities for button and panel info to be placed anywhere.
+			</description>
+			<description>
+				Released as Beta for Community
+			</description>
+		</ReleaseChanges>
+	</Version>
+	<Version>
+		<Number>1.1</Number>
+		<ReleaseDate>2023-05-01</ReleaseDate>
+		<ReleaseChanges>
+			<description>
+				Added reset button/panel Position.
+			</description>
+			<description>
+				Icon size changed and icon modiffied.
+			</description>
+			<description>
+				Settings panel organization changed.
+			</description>
+			<description>
+				New property to enable disable tornado destruction included.
+			</description>
+		</ReleaseChanges>
+	</Version>
+	<!--<Version>
+		<Number>1.x</Number>
+		<ReleaseDate>2023-12-31</ReleaseDate>
+		<ReleaseChanges>
+			<description>
+				here the changes
+			</description>			
+		</ReleaseChanges>
+	</Version>-->
+</History>

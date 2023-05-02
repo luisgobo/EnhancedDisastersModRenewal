@@ -91,6 +91,8 @@
     <Compile Include="Models\NaturalDisaster\ThunderstormModel.cs" />
     <Compile Include="Models\NaturalDisaster\TornadoModel.cs" />
     <Compile Include="Models\NaturalDisaster\TsunamiModel.cs" />
+    <Compile Include="UI\ComponentHelper\LabelHelper.cs" />
+    <Compile Include="UI\ComponentHelper\TabHelper.cs" />
     <Compile Include="UI\ExtendedDisastersPanel.cs" />
     <Compile Include="Common\Helper.cs" />
     <Compile Include="BaseGameExtensions\LoadingExtension.cs" />
@@ -113,7 +115,7 @@
     <Folder Include="Resources\Files\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Versions\History.xml" />
+    <Content Include="Versions\ChangeLog.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

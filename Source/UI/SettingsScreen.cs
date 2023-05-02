@@ -7,6 +7,7 @@ using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
+using System;
 using System.Reflection;
 using UnityEngine;
 using Helper = NaturalDisastersRenewal.Common.Helper;
@@ -197,12 +198,25 @@ namespace NaturalDisastersRenewal.UI
             });
         }
 
-        public void BuildSettingsMenu(UIHelperBase helper)
+        public void BuildSettingsMenu(UIHelper helper)
         {
             DisasterSetupModel disasterContainer = Singleton<NaturalDisasterHandler>.instance.container;
 
-            #region Gegeral options
+            SetupGeneralTab(ref helper, disasterContainer);
+            SetupForestFire(ref helper, disasterContainer);
+            SetupThunderstorm(ref helper, disasterContainer);
+            SetupSinkhole(ref helper, disasterContainer);
+            SetupTornado(ref helper, disasterContainer);
+            SetupTsunami(ref helper, disasterContainer);
+            SetupEarthquake(ref helper, disasterContainer);
+            SetupMeteorStrike(ref helper, disasterContainer);
+            //SetupHotkeySetup(ref helper, disasterContainer);
+            SetupSaveOptions(ref helper, disasterContainer);
 
+        }
+
+        void SetupGeneralTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        {
             UIHelperBase generalGroup = helper.AddGroup("General");
 
             UI_General_DisableDisasterFocus = (UICheckBox)generalGroup.AddCheckbox("Disable automatic disaster follow when it starts.", disasterContainer.DisableDisasterFocus, delegate (bool isChecked)
@@ -254,14 +268,14 @@ namespace NaturalDisastersRenewal.UI
             });
 
             generalGroup.AddSpace(10);
-            
+
             UIHelperBase elementPositionsGroup = generalGroup.AddGroup("Button/Panel positions:");
 
             elementPositionsGroup.AddButton("Reset Button Position", delegate ()
-             {
-                 Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(true, false);
-                 UpdateSetupContentUI();
-             });
+            {
+                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(true, false);
+                UpdateSetupContentUI();
+            });
 
             elementPositionsGroup.AddButton("Reset Panel Position", delegate ()
             {
@@ -306,24 +320,11 @@ namespace NaturalDisastersRenewal.UI
             {
                 if (!freezeUI)
                     disasterContainer.MeteorStrike.Enabled = isChecked;
-            });            
-
-            #endregion Gegeral options
-
-            SetupForestFire(ref helper, disasterContainer);
-            SetupThunderstorm(ref helper, disasterContainer);
-            SetupSinkhole(ref helper, disasterContainer);
-            SetupTornado(ref helper, disasterContainer);
-            SetupTsunami(ref helper, disasterContainer);
-            SetupEarthquake(ref helper, disasterContainer);
-            SetupMeteorStrike(ref helper, disasterContainer);
-            SetupSaveOptions(ref helper, disasterContainer);
+            });
         }
 
-        void SetupForestFire(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        void SetupForestFire(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            #region ForestFire
-
             UIHelperBase forestFireGroup = helper.AddGroup("Forest Fire disaster");
 
             UI_ForestFireMaxProbability = (UISlider)forestFireGroup.AddSlider("Max probability", 1, 50, 1, disasterContainer.ForestFire.BaseOccurrencePerYear, delegate (float val)
@@ -355,15 +356,11 @@ namespace NaturalDisastersRenewal.UI
                 }
             );
 
-            helper.AddSpace(20);
-
-            #endregion ForestFire
+            helper.AddSpace(20);            
         }
 
-        void SetupThunderstorm(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        void SetupThunderstorm(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            #region Thunderstorm
-
             UIHelperBase thunderstormGroup = helper.AddGroup("Thunderstorm disaster");
 
             UI_Thunderstorm_MaxProbability = (UISlider)thunderstormGroup.AddSlider("Max probability", 0.1f, 10f, 0.1f, disasterContainer.Thunderstorm.BaseOccurrencePerYear, delegate (float val)
@@ -404,15 +401,11 @@ namespace NaturalDisastersRenewal.UI
                 }
             );
 
-            helper.AddSpace(20);
-
-            #endregion Thunderstorm
+            helper.AddSpace(20);            
         }
 
-        void SetupSinkhole(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        void SetupSinkhole(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            #region Sinkhole
-
             UIHelperBase sinkholeGroup = helper.AddGroup("Sinkhole disaster");
 
             UI_Sinkhole_MaxProbability = (UISlider)sinkholeGroup.AddSlider("Max probability", 0.1f, 10, 0.1f, disasterContainer.Sinkhole.BaseOccurrencePerYear, delegate (float val)
@@ -445,13 +438,10 @@ namespace NaturalDisastersRenewal.UI
 
             helper.AddSpace(20);
 
-            #endregion Sinkhole
         }
 
-        void SetupTornado(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        void SetupTornado(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            #region Tornado
-
             UIHelperBase tornadoGroup = helper.AddGroup("Tornado disaster");
 
             UI_Tornado_MaxProbability = (UISlider)tornadoGroup.AddSlider("Max probability", 0.1f, 10f, 0.1f, disasterContainer.Tornado.BaseOccurrencePerYear, delegate (float val)
@@ -508,14 +498,10 @@ namespace NaturalDisastersRenewal.UI
             );
 
             helper.AddSpace(20);
-
-            #endregion Tornado
         }
 
-        void SetupTsunami(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        void SetupTsunami(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            #region Tsunami
-
             UIHelperBase tsunamiGroup = helper.AddGroup("Tsunami disaster");
 
             UI_Tsunami_MaxProbability = (UISlider)tsunamiGroup.AddSlider("Max probability", 0.1f, 10, 0.1f, disasterContainer.Tsunami.BaseOccurrencePerYear, delegate (float val)
@@ -548,13 +534,10 @@ namespace NaturalDisastersRenewal.UI
 
             helper.AddSpace(20);
 
-            #endregion Tsunami
         }
 
-        void SetupEarthquake(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        void SetupEarthquake(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            #region Earthquake
-
             UIHelperBase earthquakeGroup = helper.AddGroup("Earthquake disaster");
 
             UI_Earthquake_MaxProbability = (UISlider)earthquakeGroup.AddSlider("Max probability", 0.1f, 10, 0.1f, disasterContainer.Earthquake.BaseOccurrencePerYear, delegate (float val)
@@ -618,13 +601,10 @@ namespace NaturalDisastersRenewal.UI
 
             helper.AddSpace(20);
 
-            #endregion Earthquake
         }
 
-        void SetupMeteorStrike(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
+        void SetupMeteorStrike(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            #region MeteorStrike
-
             UIHelperBase meteorStrikeGroup = helper.AddGroup("Meteor Strike disaster");
 
             UI_MeteorStrike_MaxProbability = (UISlider)meteorStrikeGroup.AddSlider("Max probability", 1f, 50, 1f, disasterContainer.MeteorStrike.BaseOccurrencePerYear, delegate (float val)
@@ -668,13 +648,16 @@ namespace NaturalDisastersRenewal.UI
 
             helper.AddSpace(20);
 
-            #endregion MeteorStrike
         }
 
-        void SetupSaveOptions(ref UIHelperBase helper, DisasterSetupModel disasterContainer)
-        {
-            #region SaveOptions
+        //Next enhancement
+        void SetupHotkeySetup(ref UIHelper helper, DisasterSetupModel disasterContainer) {
 
+            
+        }
+
+        void SetupSaveOptions(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        {
             // Save buttons
             UIHelperBase saveOptionsGroup = helper.AddGroup("Save options");
 
@@ -692,8 +675,6 @@ namespace NaturalDisastersRenewal.UI
                 Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues();
                 UpdateSetupContentUI();
             });
-
-            #endregion SaveOptions
         }
 
         #endregion Options UI
