@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ICities;
+using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.DisasterServices.HarmonyPatches;
 using NaturalDisastersRenewal.Models.Disaster;
@@ -91,7 +92,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return "Tornado";
+            return CommonProperties.tornadoName;
         }
 
         public override float CalculateDestructionRadio(byte intensity)

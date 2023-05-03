@@ -142,7 +142,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return "Forest Fire";
+            return CommonProperties.forestFireName;
         }
 
         public override void CopySettings(DisasterBaseModel disaster)

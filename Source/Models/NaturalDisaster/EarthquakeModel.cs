@@ -126,7 +126,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 probabilityWarmupDaysLeft = 0;
                 intensityWarmupDaysLeft = 0;
 
-                Debug.Log(string.Format(CommonProperties.LogMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
+                Debug.Log(string.Format(CommonProperties.logMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
             }
             else
             {

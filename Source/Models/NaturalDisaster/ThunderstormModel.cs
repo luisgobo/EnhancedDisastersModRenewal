@@ -100,7 +100,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return "Thunderstorm";
+            return CommonProperties.thunderstormName;
         }
 
         public override void CopySettings(DisasterBaseModel disaster)

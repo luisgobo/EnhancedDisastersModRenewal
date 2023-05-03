@@ -58,7 +58,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             }
             catch (Exception ex)
             {
-                Debug.Log(CommonProperties.LogMsgPrefix + "(save error) " + ex.Message);
+                Debug.Log(CommonProperties.logMsgPrefix + "(save error) " + ex.Message);
             }
         }
 
@@ -71,7 +71,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
                 if (data == null)
                 {
-                    Debug.Log(CommonProperties.LogMsgPrefix + "No saved data");
+                    Debug.Log(CommonProperties.logMsgPrefix + "No saved data");
                     return;
                 }
                 
@@ -92,7 +92,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             }
             catch (Exception ex)
             {
-                Debug.Log(CommonProperties.LogMsgPrefix + "(load error) " + ex.Message);
+                Debug.Log(CommonProperties.logMsgPrefix + "(load error) " + ex.Message);
             }
         }
 

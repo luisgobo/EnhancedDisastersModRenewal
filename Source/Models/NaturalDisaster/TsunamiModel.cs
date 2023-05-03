@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ICities;
+using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Common.Types;
 using NaturalDisastersRenewal.Handlers;
@@ -120,7 +121,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return "Tsunami";
+            return CommonProperties.tsunamiName;
         }
 
         public override void CopySettings(DisasterBaseModel disaster)

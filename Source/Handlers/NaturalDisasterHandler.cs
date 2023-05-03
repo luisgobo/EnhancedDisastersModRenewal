@@ -19,7 +19,7 @@ namespace NaturalDisastersRenewal.Handlers
         public DisasterSetupModel container;
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
-        readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
+        readonly Harmony harmony = new Harmony(CommonProperties.modNameForHarmony);
         DisasterWrapper disasterWrapper;
 
         NaturalDisasterHandler()

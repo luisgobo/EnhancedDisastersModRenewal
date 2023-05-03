@@ -10,7 +10,7 @@ namespace NaturalDisastersRenewal
 
         public string Name
         {
-            get { return CommonProperties.ModName; }
+            get { return CommonProperties.modName; }
         }
 
         public string Description

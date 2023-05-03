@@ -8,6 +8,7 @@ using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using UnityEngine;
 using Helper = NaturalDisastersRenewal.Common.Helper;
@@ -242,6 +243,9 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_General_PartialEvacuationRadius);
             UI_General_PartialEvacuationRadius.tooltip = "Select the Radius (In meters) for Focused evacuations.";
 
+            generalGroup.AddSpace(10);
+            
+            generalGroup.AddGroup("Hotkey to display/hide panel info: Shift + D (will be configurable soon).");
             generalGroup.AddSpace(10);
 
             UI_General_ScaleMaxIntensityWithPopulation = (UICheckBox)generalGroup.AddCheckbox("Scale max intensity with population", disasterContainer.ScaleMaxIntensityWithPopulation, delegate (bool isChecked)

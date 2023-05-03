@@ -278,7 +278,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return "Meteor Strike";
+            return CommonProperties.meteorStrikeName;
         }
 
         public override string GetProbabilityTooltip()

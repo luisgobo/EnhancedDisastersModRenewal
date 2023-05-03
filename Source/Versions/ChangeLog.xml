@@ -44,6 +44,16 @@
 			<description>
 				New property to enable disable tornado destruction included.
 			</description>
+			<description>
+				Disaster Name identifier moved to common Properties class instead of static string,
+			</description>
+			<description>
+				Enable/disable disaster option created to be used from in-game panel (not shown yet)
+			</description>
+			<description>
+				Settings notification for hotkey to display/hide information panel
+			</description>
+
 		</ReleaseChanges>
 	</Version>
 	<!--<Version>
