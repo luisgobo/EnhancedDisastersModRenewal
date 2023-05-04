@@ -10,7 +10,7 @@ namespace NaturalDisastersRenewal
 
         public string Name
         {
-            get { return CommonProperties.ModName; }
+            get { return CommonProperties.modName; }
         }
 
         public string Description
@@ -18,7 +18,7 @@ namespace NaturalDisastersRenewal
             get { return CommonProperties.GetModDescription(); }
         }
 
-        public void OnSettingsUI(UIHelperBase helper)
+        public void OnSettingsUI(UIHelper helper)
         {
             settings.BuildSettingsMenu(helper);
         }

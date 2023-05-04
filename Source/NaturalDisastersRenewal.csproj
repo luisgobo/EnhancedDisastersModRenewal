@@ -76,7 +76,7 @@
     <Compile Include="Serialization\NaturalDisaster\SerializableDataEarthquake.cs" />
     <Compile Include="Serialization\Setup\SerializableDataDisasterSetup.cs" />
     <Compile Include="Services\HarmonyPatches\DestroyRoadsPatch.cs" />
-    <Compile Include="Services\HarmonyPatches\DestroyBuildings2Patch.cs" />
+    <Compile Include="Services\HarmonyPatches\DestroyBuildingsPatch.cs" />
     <Compile Include="BaseGameExtensions\DisasterExtension.cs" />
     <Compile Include="Logger\DisasterLogger.cs" />
     <Compile Include="Models\Disaster\DisasterInfoModel.cs" />
@@ -91,6 +91,8 @@
     <Compile Include="Models\NaturalDisaster\ThunderstormModel.cs" />
     <Compile Include="Models\NaturalDisaster\TornadoModel.cs" />
     <Compile Include="Models\NaturalDisaster\TsunamiModel.cs" />
+    <Compile Include="UI\ComponentHelper\LabelHelper.cs" />
+    <Compile Include="UI\ComponentHelper\TabHelper.cs" />
     <Compile Include="UI\ExtendedDisastersPanel.cs" />
     <Compile Include="Common\Helper.cs" />
     <Compile Include="BaseGameExtensions\LoadingExtension.cs" />
@@ -109,7 +111,12 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Resources\Files\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Versions\ChangeLog.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"

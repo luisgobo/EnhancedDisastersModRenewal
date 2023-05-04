@@ -126,7 +126,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 probabilityWarmupDaysLeft = 0;
                 intensityWarmupDaysLeft = 0;
 
-                Debug.Log(string.Format(CommonProperties.LogMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
+                Debug.Log(string.Format(CommonProperties.logMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
             }
             else
             {
@@ -275,7 +275,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                                 IgnoreDestructionZoneForEarthquake = false;
                                 break;
 
-                            case EarthquakeCrackOptions eci when (eci == EarthquakeCrackOptions.CracksBasedOnIntensity && disasterInfoModel.DisasterInfo.intensity >= MinimalIntensityForCracks):
+                            case EarthquakeCrackOptions eco when (eco == EarthquakeCrackOptions.CracksBasedOnIntensity && disasterInfoModel.DisasterInfo.intensity >= MinimalIntensityForCracks):
                                 IgnoreDestructionZoneForEarthquake = false;
                                 break;
 
@@ -320,6 +320,31 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             UpdateDisasterProperties(true);
         }
+        public void UpdateDisasterProperties(bool isSet)
+        {
+            int prefabsCount = PrefabCollection<DisasterInfo>.PrefabCount();
+
+            for (uint i = 0; i < prefabsCount; i++)
+            {
+                DisasterInfo disasterInfo = PrefabCollection<DisasterInfo>.GetPrefab(i);
+                if (disasterInfo == null) 
+                    continue;                
+
+                if (disasterInfo.m_disasterAI is EarthquakeAI earthquakeAI)
+                {                    
+                    if (isSet && NoCracksInTheGroud)
+                    {
+                        earthquakeAI.m_crackLength = 0;
+                        earthquakeAI.m_crackWidth = 0;
+                    }
+                    else
+                    {
+                        earthquakeAI.m_crackLength = 1000;
+                        earthquakeAI.m_crackWidth = 100;
+                    }
+                }
+            }
+        }
 
         public override void CopySettings(DisasterBaseModel disaster)
         {
@@ -332,29 +357,5 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        public void UpdateDisasterProperties(bool isSet)
-        {
-            int prefabsCount = PrefabCollection<DisasterInfo>.PrefabCount();
-
-            for (uint i = 0; i < prefabsCount; i++)
-            {
-                DisasterInfo disasterInfo = PrefabCollection<DisasterInfo>.GetPrefab(i);
-                if (disasterInfo == null) continue;
-
-                if (disasterInfo.m_disasterAI as EarthquakeAI != null)
-                {                    
-                    if (isSet && NoCracksInTheGroud)
-                    {
-                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackLength = 0;
-                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackWidth = 0;
-                    }
-                    else
-                    {
-                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackLength = 1000;
-                        ((EarthquakeAI)disasterInfo.m_disasterAI).m_crackWidth = 100;
-                    }
-                }
-            }
-        }
     }
 }

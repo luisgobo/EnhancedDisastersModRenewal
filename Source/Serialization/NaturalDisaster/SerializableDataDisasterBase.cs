@@ -41,7 +41,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
         public void AfterDeserializeLog(string className)
         {
-            Debug.Log(CommonProperties.LogMsgPrefix + className + " data loaded.");
+            Debug.Log(CommonProperties.logMsgPrefix + className + " data loaded.");
         }
     }
 }

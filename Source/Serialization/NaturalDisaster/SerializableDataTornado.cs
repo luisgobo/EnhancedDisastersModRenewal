@@ -13,6 +13,9 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             SerializeCommonParameters(dataSerializer, tornado);
             dataSerializer.WriteInt32(tornado.MaxProbabilityMonth);
             dataSerializer.WriteBool(tornado.NoTornadoDuringFog);
+
+            dataSerializer.WriteBool(tornado.EnableTornadoDestruction);
+            dataSerializer.WriteFloat(tornado.MinimalIntensityForDestruction);
         }
 
         public void Deserialize(DataSerializer dataSerializer)
@@ -25,6 +28,8 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 tornado.MaxProbabilityMonth = dataSerializer.ReadInt32();
             }
             tornado.NoTornadoDuringFog = dataSerializer.ReadBool();
+            tornado.EnableTornadoDestruction = dataSerializer.ReadBool();
+            tornado.MinimalIntensityForDestruction = (byte)dataSerializer.ReadFloat();
         }
 
         public void AfterDeserialize(DataSerializer dataSerializer)

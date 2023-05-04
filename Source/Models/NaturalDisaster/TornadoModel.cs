@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ICities;
+using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.DisasterServices.HarmonyPatches;
 using NaturalDisastersRenewal.Models.Disaster;
@@ -12,6 +13,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
     {
         public int MaxProbabilityMonth = 5;
         public bool NoTornadoDuringFog = true;
+        public bool EnableTornadoDestruction = true;
+        public byte MinimalIntensityForDestruction = 10;
 
         public TornadoModel()
         {
@@ -62,7 +65,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfo.type |= DisasterType.Tornado;
-            DisasterHelpersModified.disasterIntensity = disasterInfo.intensity;
+            DisasterHelpersModified.DisasterIntensity = disasterInfo.intensity;
+            DisasterHelpersModified.IntensityStartDestruction = MinimalIntensityForDestruction;
+            DisasterHelpersModified.EnableDestruction = EnableTornadoDestruction;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
@@ -71,8 +76,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Tornado;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = true;
-            DisasterHelpersModified.disasterIntensity = 0;
-            DisasterHelpersModified.disasterType = DisasterType.Empty;
+            DisasterHelpersModified.DisasterIntensity = 0;
+            DisasterHelpersModified.DisasterType = DisasterType.Empty;
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
         }
 
@@ -87,7 +92,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return "Tornado";
+            return CommonProperties.tornadoName;
         }
 
         public override float CalculateDestructionRadio(byte intensity)
@@ -151,12 +156,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override void CopySettings(DisasterBaseModel disaster)
         {
             base.CopySettings(disaster);
-
-            TornadoModel tornado = disaster as TornadoModel;
-            if (tornado != null)
+            
+            if (disaster is TornadoModel tornado)
             {
                 MaxProbabilityMonth = tornado.MaxProbabilityMonth;
                 NoTornadoDuringFog = tornado.NoTornadoDuringFog;
+                EnableTornadoDestruction = tornado.EnableTornadoDestruction;
+                MinimalIntensityForDestruction = tornado.MinimalIntensityForDestruction;
             }
         }
     }

@@ -101,7 +101,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return "Sinkhole";
+            return CommonProperties.sinkholeName;
         }
 
         public override float CalculateDestructionRadio(byte intensity)

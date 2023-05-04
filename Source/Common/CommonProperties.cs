@@ -5,10 +5,10 @@ namespace NaturalDisastersRenewal.Common
 {
     public static class CommonProperties
     {
-        public const string ModName = "Natural Disasters Renewal";
-        public const string ModNameForHarmony = "NaturalDisastersRenewal";
-        public const string ModVersion = "1.0";
-        public const string ModLastVersionYear = "2023";
+        public const string modName = "Natural Disasters Renewal";
+        public const string modNameForHarmony = "NaturalDisastersRenewal";
+        public const string modVersion = "1.1";
+        public const string modLastVersionYear = "2023";
         public const string contentMainPath = "Colossal Order";
         public const string contentSubPath = "Cities_Skylines";
         public const string contentFolder = "NaturalDisastersRenewalMod";
@@ -16,11 +16,19 @@ namespace NaturalDisastersRenewal.Common
         public const string logFilename = "NaturalDisastersRenewalMod.log";
         public const string dataId = "NaturalDisastersRenewalMod";
         public const string disasterListFileName = "DisasterList.csv";
-        public const string LogMsgPrefix = ">>> " + ModName + ": ";   
+        public const string logMsgPrefix = ">>> " + modName + ": ";
+
+        public const string EarthquakeName = "Earthquake";
+        public const string forestFireName = "ForestFire";
+        public const string meteorStrikeName = "Meteor Strike";
+        public const string sinkholeName = "Sinkhole";
+        public const string thunderstormName = "Thunderstorm";
+        public const string tornadoName = "Tornado";
+        public const string tsunamiName = "Tsunami";
 
         public static string GetModDescription()
-            => string.Format($"Natural Disaster Renewal (Beta version) takes Zenya's 'Natural Disaster Overhault' and [SUSU]yang yang's Ragnarok mods content to be unified in only one, including some other awesome stuffs. " +
-                $"(Version \"{ModVersion}\". {ModLastVersionYear})");
+            => string.Format($"Natural Disaster Renewal takes Zenya's 'Natural Disaster Overhault' and [SUSU]yang yang's Ragnarok mods content to be unified in only one, including some other awesome stuffs. " +
+                $"(Version \"{modVersion}\". {modLastVersionYear})");
 
         public static string GetOptionsFilePath(string filename)
         {
