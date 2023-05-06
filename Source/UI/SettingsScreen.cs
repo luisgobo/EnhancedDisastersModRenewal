@@ -235,7 +235,7 @@ namespace NaturalDisastersRenewal.UI
                     disasterContainer.PauseOnDisasterStarts = isChecked;
             });
 
-            UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius", 300f, 4200f, 100f, disasterContainer.PartialEvacuationRadius, delegate (float val)
+            UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius (In meters)", 300f, 4200f, 100f, disasterContainer.PartialEvacuationRadius, delegate (float val)
             {
                 if (!freezeUI)
                     disasterContainer.PartialEvacuationRadius = val;
@@ -245,9 +245,6 @@ namespace NaturalDisastersRenewal.UI
 
             generalGroup.AddSpace(10);
             
-            generalGroup.AddGroup("Hotkey to display/hide panel info: Shift + D (will be configurable soon).");
-            generalGroup.AddSpace(10);
-
             UI_General_ScaleMaxIntensityWithPopulation = (UICheckBox)generalGroup.AddCheckbox("Scale max intensity with population", disasterContainer.ScaleMaxIntensityWithPopulation, delegate (bool isChecked)
             {
                 if (!freezeUI)
@@ -286,41 +283,44 @@ namespace NaturalDisastersRenewal.UI
                 Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(false, true);
                 UpdateSetupContentUI();
             });
+            
+            generalGroup.AddGroup("Hotkey to display/hide panel info: Shift + D (will be configurable soon).");
+            generalGroup.AddSpace(10);
 
             generalGroup.AddSpace(10);
             UIHelperBase disastersGroup = generalGroup.AddGroup("Enable Disasters:");
 
-            UI_ForestFire_Enabled = (UICheckBox)disastersGroup.AddCheckbox("Forest Fire", disasterContainer.ForestFire.Enabled, delegate (bool isChecked)
+            UI_ForestFire_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.ForestFire.GetName(), disasterContainer.ForestFire.Enabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
                     disasterContainer.ForestFire.Enabled = isChecked;
             });
-            UI_Thunderstorm_Enabled = (UICheckBox)disastersGroup.AddCheckbox("Thunderstorm", disasterContainer.Thunderstorm.Enabled, delegate (bool isChecked)
+            UI_Thunderstorm_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Thunderstorm.GetName(), disasterContainer.Thunderstorm.Enabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
                     disasterContainer.Thunderstorm.Enabled = isChecked;
             });
-            UI_Sinkhole_Enabled = (UICheckBox)disastersGroup.AddCheckbox("Sinkhole", disasterContainer.Sinkhole.Enabled, delegate (bool isChecked)
+            UI_Sinkhole_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Sinkhole.GetName(), disasterContainer.Sinkhole.Enabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
                     disasterContainer.Sinkhole.Enabled = isChecked;
             });
-            UI_Tornado_Enabled = (UICheckBox)disastersGroup.AddCheckbox("Tornado", disasterContainer.Tornado.Enabled, delegate (bool isChecked)
+            UI_Tornado_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tornado.GetName(), disasterContainer.Tornado.Enabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
                     disasterContainer.Tornado.Enabled = isChecked;
             });
-            UI_Tsunami_Enabled = (UICheckBox)disastersGroup.AddCheckbox("Tsunami", disasterContainer.Tsunami.Enabled, delegate (bool isChecked)
+            UI_Tsunami_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tsunami.GetName(), disasterContainer.Tsunami.Enabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
                     disasterContainer.Tsunami.Enabled = isChecked;
             });
-            UI_Earthquake_Enabled = (UICheckBox)disastersGroup.AddCheckbox("Earthquake", disasterContainer.Earthquake.Enabled, delegate (bool isChecked)
+            UI_Earthquake_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Earthquake.GetName(), disasterContainer.Earthquake.Enabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
                     disasterContainer.Earthquake.Enabled = isChecked;
             });
-            UI_MeteorStrike_Enabled = (UICheckBox)disastersGroup.AddCheckbox("Meteor Strike", disasterContainer.MeteorStrike.Enabled, delegate (bool isChecked)
+            UI_MeteorStrike_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.MeteorStrike.GetName(), disasterContainer.MeteorStrike.Enabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
                     disasterContainer.MeteorStrike.Enabled = isChecked;
@@ -581,7 +581,7 @@ namespace NaturalDisastersRenewal.UI
              );
             UI_Earthquake_CrackMode.tooltip = "Based on selection you can put a crack in the ground, ignoring it or put it based on intensity.";
 
-            UI_Earthquake_MinIntensityToCrack = (UISlider)earthquakeGroup.AddSlider("Minimal intensity for cracks", 10f, 25.5f, 0.1f, disasterContainer.Earthquake.MinimalIntensityForCracks, delegate (float val)
+            UI_Earthquake_MinIntensityToCrack = (UISlider)earthquakeGroup.AddSlider("Min. intensity for cracks", 10f, 25.5f, 0.1f, disasterContainer.Earthquake.MinimalIntensityForCracks, delegate (float val)
             {
                 if (!freezeUI)
                     disasterContainer.Earthquake.MinimalIntensityForCracks = (byte)val;

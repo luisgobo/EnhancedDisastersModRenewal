@@ -128,8 +128,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
             meteorEvents = new MeteorEvent[] {
-                MeteorEvent.Init("Long period meteor", 9, 100),
-                MeteorEvent.Init("Medium period meteor", 5, 70),
+                MeteorEvent.Init("Long period meteor", 9, 190),
+                MeteorEvent.Init("Medium period meteor", 5, 120),
                 MeteorEvent.Init("Short period meteor", 2, 30)
             };
         }
