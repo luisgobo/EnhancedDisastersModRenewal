@@ -16,7 +16,19 @@ General features
 * You can disable specific disasters.
 * All settings are stored in your game save file, so you can use different settings for each game.
 
-## Forest Fire
+## About my favorite enhancement and why I did this: Automatic focused evacuations/releases:
+
+* You can choose if want manual evacuation, Ragnarok’s automatic evacuation/release or an automatic focused evacuation based on disaster selected.
+* It means that only affected zone in a defined radio would be evacuated/released. 
+* In case of disasters like Meteor strikes, earthquakes (with cracks) and sinkholes, the shelters inside the destruction radio won’t be evacuated (We don’t want to kill anyone).
+* In case that evacuation radius is minor to destruction radius, second one will be the base to evacuate (based on Disaster radius).
+* Not all tornadoes will destroy the roads, only 10+ intensity. (Reading a bit, not all tornadoes destroy the roads, only stronger)
+* You can select the base intensity to crack the ground during an earthquake, just no cracks or cracks during any earthquake.
+* Disaster Pile: When you have multiple disasters in progress affecting the same shelters, these won’t be evacuated until last disaster closer is done (in automatic modes).
+
+## About each disaster...
+
+### Forest Fire
 
 Features
 * Do not occur during rain.
@@ -32,7 +44,7 @@ Default settings
 * Peak probability: 10 times/year
 
 
-## Thunderstorm
+### Thunderstorm
 
 Features
 * Occurs mainly in the thunderstorm season.
@@ -49,7 +61,7 @@ Default settings
 * Probability during rain: x2
 
 
-## Sinkhole
+### Sinkhole
 
 Features
 * Occurs during a long rainfall and for a short time after the rain (like landslides).
@@ -65,7 +77,7 @@ Default settings
 * Evacuation Modes : Manual Evacuation // Automatic Evacuation // Focused Auto evacuation/release
 
 
-## Tornado
+### Tornado
 
 Features
 * Occurs mainly in the tornado season.
@@ -86,7 +98,7 @@ Default settings
 * Calm period after a big tornado: 2 years (depends on the intensity of the last tornado)
 
 
-## Tsunami
+### Tsunami
 
 Features
 * Probability slowly increases with time.
@@ -104,7 +116,7 @@ Default settings
 * Evacuation Modes : Manual Evacuation // Automatic Evacuation // Focused Auto evacuation/release
 
 
-## Earthquake
+### Earthquake
 
 Features
 * Probability slowly increases with time.
@@ -127,7 +139,7 @@ Default settings
 * Aftershocks enabled
 
 
-## Meteor Strike
+### Meteor Strike
 
 Features
 * There are three meteoroid streams periodically approaching the Earth.
