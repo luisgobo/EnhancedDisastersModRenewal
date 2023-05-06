@@ -115,7 +115,7 @@
     <Folder Include="Resources\Files\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Versions\ChangeLog.xml" />
+    <Content Include="Versions\Changelog.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

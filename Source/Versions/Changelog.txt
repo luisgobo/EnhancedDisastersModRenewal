@@ -1,0 +1,34 @@
+-------------------
+|    CHANGE LOG   |
+-------------------
+* History
+	Version: 1.0
+		Release Date (YYYY-MM-dd): 2023-04-04
+		Change List:
+			* Initial changes.
+			* Reestructurig Natural Disaster Overhaul Code.
+			* Including Raganaroks functionalities.
+			* Setup panel functionalities Added.
+			* Improved Evacuation Method included.
+			* Adding Functionalities for button and panel info to be placed anywhere.
+			* Released as Beta for Community
+				
+	Version: 1.1		
+		Release Date (YYYY-MM-dd): 2023-05-06
+		Change List:
+		 * Added reset button/panel position.
+		 * Icon size changed and icon modiffied.
+		 * Settings panel organization changed.
+		 * New property to enable/disable tornado destruction included.
+		 * Disaster name identifier moved to common properties class instead of static string,
+		 * Enable/disable disaster option created to be used from in-game panel (not shown yet)
+		 * Settings notification for hotkey to display/hide information panel
+		 * Meteor Period/intensity changed
+			** 9 Years moved from 10 to 19 intensity
+			** 5 Years moved from 7 to 12 intensity
+	
+	Version: 1.x
+		Release Date (YYYY-MM-dd): ...
+		Change List:
+		 * ...
+		 * ...
