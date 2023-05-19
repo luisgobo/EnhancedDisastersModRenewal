@@ -30,7 +30,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
-        public override string GetProbabilityTooltip()
+        public override string GetProbabilityTooltip(float value)
         {
             if (!unlocked)
             {
@@ -45,7 +45,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
-            return base.GetProbabilityTooltip();
+            return base.GetProbabilityTooltip(value);
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()

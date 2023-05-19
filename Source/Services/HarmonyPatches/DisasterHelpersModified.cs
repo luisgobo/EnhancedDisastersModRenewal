@@ -141,8 +141,7 @@ namespace NaturalDisastersRenewal.DisasterServices.HarmonyPatches
                                     }
 
                                     if (p > 0 && (float)randomizer.Int32(10000u) < p * 10000f)
-                                    {
-                                        //Debug.Log("Destroyed: " + info3.name + " (" + info3.m_buildingAI.name + "), level: " + lvl.ToString());
+                                    {                                        
                                         info3.m_buildingAI.CollapseBuilding(num5, ref buildings.m_buffer[(int)num5], group, false, false, Mathf.RoundToInt(num9 * 255f));
                                     }
                                 }

@@ -15,7 +15,7 @@ namespace NaturalDisastersRenewal.Models.Disaster
         {
             if (IsDebug)
             {
-                File.AppendAllText(GeFilePath(), msg + Environment.NewLine);
+                File.AppendAllText(GeFilePath(), msg + CommonProperties.newLine);
                 Debug.Log(msg);
             }
         }

@@ -44,7 +44,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return occurrence;
         }
 
-        public override string GetProbabilityTooltip()
+        public override string GetProbabilityTooltip(float value)
         {
             if (calmDaysLeft <= 0)
             {
@@ -54,7 +54,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
-            return base.GetProbabilityTooltip();
+            return base.GetProbabilityTooltip(value);
         }
 
         public override bool CheckDisasterAIType(object disasterAI)

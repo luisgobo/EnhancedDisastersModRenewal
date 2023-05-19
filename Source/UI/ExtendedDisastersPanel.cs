@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
+using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
@@ -17,8 +18,7 @@ namespace NaturalDisastersRenewal.UI
     {        
         UILabel[] labels;
         UIProgressBar[] progressBars_probability;
-        UIProgressBar[] progressBars_maxIntensity;        
-        readonly string labelFormat = "{0} ({1:0.00}/{2})";
+        UIProgressBar[] progressBars_maxIntensity;                
         public int Counter = 0;
 
         public override void Awake()
@@ -55,8 +55,6 @@ namespace NaturalDisastersRenewal.UI
 
         }
 
-
-
         void BuildPanelTitle()
         {
             //Add Panel Title
@@ -80,7 +78,8 @@ namespace NaturalDisastersRenewal.UI
             AddAxisLabel(240, y, "1");
             AddAxisLabel(275, y, "10");
             AddAxisLabel(300, y, "0.0");
-            AddAxisLabel(365, y, "25.5");
+            //AddAxisLabel(365, y, "25.5");
+            AddAxisLabel(365, y, "10.0");
             y -= 15;
 
             int disasterCount = Singleton<NaturalDisasterHandler>.instance.container.AllDisasters.Count;            
@@ -93,28 +92,28 @@ namespace NaturalDisastersRenewal.UI
             for (int i = 0; i < disasterCount; i++)
             {
                 DisasterBaseModel disaster = disasterHandler.container.AllDisasters[i];
-                //BuildDisasterStatusButton(5, y, disaster.GetName(), disaster.Enabled);
+                BuildDisasterStatusButton(5, y, disaster.GetName(), disaster.Enabled);
                 labels[i] = AddLabel(28, y);
-                labels[i].text = string.Format(labelFormat, disaster.GetName(), 0, 0);
-
+                labels[i].text = SetDisasterInfoLabel(disaster.GetName(),0,0);
+                
                 progressBars_probability[i] = AddProgressBar(200, y);
                 progressBars_maxIntensity[i] = AddProgressBar(300, y);
                 y += h;
             }
-        }
+        }        
 
         void BuildDisasterStatusButton(int x, int y, string disasterName, bool isEnabled)
         {
-            UIButton disasterStateBtn = this.AddUIComponent<UIButton>();
-            disasterStateBtn.name = $"disasterState{disasterName}Btn";
-            disasterStateBtn.position = new Vector3(x, y+4);
-            disasterStateBtn.size = new Vector2(18, 18);                        
-            disasterStateBtn.normalBgSprite = "ButtonMenu";
-            disasterStateBtn.hoveredBgSprite = "ButtonMenuHovered";
-            disasterStateBtn.normalFgSprite = isEnabled? "ButtonPause": "ButtonPlayFocused";            
-            disasterStateBtn.eventClick += DisasterStateChk_eventCheckChanged;
+            //UIButton disasterStateBtn = this.AddUIComponent<UIButton>();
+            //disasterStateBtn.name = $"disasterState{disasterName}Btn";
+            //disasterStateBtn.position = new Vector3(x, y+4);
+            //disasterStateBtn.size = new Vector2(18, 18);                        
+            //disasterStateBtn.normalBgSprite = "ButtonMenu";
+            //disasterStateBtn.hoveredBgSprite = "ButtonMenuHovered";
+            //disasterStateBtn.normalFgSprite = isEnabled? "ButtonPause": "ButtonPlayFocused";            
+            //disasterStateBtn.eventClick += DisasterStateChk_eventCheckChanged;
         }
-
+        
         void BuildStopDisasterButton()
         {
             UIButton stopAllDisastersBtn = this.AddUIComponent<UIButton>();
@@ -229,6 +228,11 @@ namespace NaturalDisastersRenewal.UI
             }
         }
 
+        string SetDisasterInfoLabel(string disasterName, float currentOccurrencePerYear, float maxIntensity)
+        {
+            return $"{disasterName} {currentOccurrencePerYear:0.00}/{maxIntensity}";
+        }
+
         bool IsStopableDisaster(DisasterAI ai)
         {
             return (ai as ThunderStormAI != null) || (ai as SinkholeAI != null) || (ai as TornadoAI != null) || (ai as EarthquakeAI != null) || (ai as MeteorStrikeAI != null);
@@ -272,11 +276,11 @@ namespace NaturalDisastersRenewal.UI
             return progressBar;
         }        
 
-        float GetProgressValueLog(float value)
+        float GetProbabilityProgressValueLog(float value, string description = "")
         {
+            DebugLogger.Log($"GetProbabilityProgressValueLog (value: {value}), description: {description}");
             if (value <= 0.1) return 0;
-            //if (value >= 10) return 1;
-            if (value >= 25.5) return 1;
+            if (value >= 10) return 1;            
             return (1f + Mathf.Log10(value)) / 2f;
         }
 
@@ -296,19 +300,32 @@ namespace NaturalDisastersRenewal.UI
             {
                 DisasterBaseModel disaster = edm.container.AllDisasters[i];
                 float currentOcurrencePerYear = disaster.GetCurrentOccurrencePerYear();
-                byte maxIntensity = disaster.GetMaximumIntensity();
+                
+                byte maxIntensityCalculated = disaster.GetMaximumIntensity();
+
+                DebugLogger.Log($"Update Method. {CommonProperties.newLine}" +
+                    $"currentOcurrencePerYear:{currentOcurrencePerYear} {CommonProperties.newLine}" +
+                    $"maxIntensity: {maxIntensityCalculated}");
+
                 if (disaster.Enabled)
                 {
                     
-                    labels[i].text = string.Format(labelFormat, disaster.GetName(), currentOcurrencePerYear, maxIntensity);
+                    labels[i].text = SetDisasterInfoLabel(disaster.GetName(), currentOcurrencePerYear, maxIntensityCalculated);                    
 
-                    progressBars_probability[i].value = GetProgressValueLog(currentOcurrencePerYear);
+                    //Calculate probability 
+                    progressBars_probability[i].value = GetProbabilityProgressValueLog(currentOcurrencePerYear, disaster.GetName());
                     SetProgressBarColor(progressBars_probability[i]);
-                    progressBars_probability[i].tooltip = disaster.GetProbabilityTooltip();
-                    
-                    progressBars_maxIntensity[i].value = maxIntensity * 0.01f;
+                    progressBars_probability[i].tooltip = disaster.GetProbabilityTooltip(progressBars_probability[i].value);
+
+                    float maxIntensity = 100f;
+                    //Calculate intensity                    
+                    float progressbarCalculatedValue =  maxIntensityCalculated * (1/ maxIntensity);
+                    DebugLogger.Log($"progressbarCalculatedValue: {progressbarCalculatedValue}. {CommonProperties.newLine}");
+
+                    progressBars_maxIntensity[i].value = progressbarCalculatedValue;
                     SetProgressBarColor(progressBars_maxIntensity[i]);
-                    progressBars_maxIntensity[i].tooltip = disaster.GetIntensityTooltip();
+                    progressBars_maxIntensity[i].tooltip = disaster.GetIntensityTooltip(progressBars_maxIntensity[i].value);                    
+
                 }
                 else
                 {                                        
@@ -320,8 +337,10 @@ namespace NaturalDisastersRenewal.UI
                     progressBars_maxIntensity[i].value = 0;
                     progressBars_maxIntensity[i].progressColor = Color.black;
                 }
+
+                DebugLogger.Log($"------------------{CommonProperties.newLine}");
             }
-        }
+        }        
 
         void SetProgressBarColor(UIProgressBar progressBar)
         {

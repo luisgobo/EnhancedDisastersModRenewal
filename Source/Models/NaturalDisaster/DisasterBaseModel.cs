@@ -25,8 +25,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         // Cooldown variables (Not stored into XML)
         protected int calmDays = 0;
 
-        [XmlIgnore] public float calmDaysLeft = 0;
         protected int probabilityWarmupDays = 0;
+        [XmlIgnore] public float calmDaysLeft = 0;
         [XmlIgnore] public float probabilityWarmupDaysLeft = 0;
         [XmlIgnore] public int intensityWarmupDays = 0;
         [XmlIgnore] public float intensityWarmupDaysLeft = 0;
@@ -35,7 +35,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected DisasterType DType = DisasterType.Empty;
 
         protected ProbabilityDistributions ProbabilityDistribution = ProbabilityDistributions.Uniform;
-        protected int FullIntensityPopulation = 20000;
+        protected int FullIntensityPopulation = 70000;//Original: 20000
         protected OccurrenceAreas OccurrenceAreaBeforeUnlock = OccurrenceAreas.Nowhere;
         protected OccurrenceAreas OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
         protected bool unlocked = false;
@@ -68,12 +68,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual byte GetMaximumIntensity()
         {
-            byte intensity = 10;
+            //Base intensity is 100 for all Disasters
+            byte intensity = 100;
 
+            DebugLogger.Log($"***ScaleIntensityByWarmup {CommonProperties.newLine}");
             intensity = ScaleIntensityByWarmup(intensity);
 
+            DebugLogger.Log($"***ScaleIntensityByPopulation {CommonProperties.newLine}");
             intensity = ScaleIntensityByPopulation(intensity);
 
+            DebugLogger.Log($"Return intensity: {intensity} {CommonProperties.newLine}");
             return intensity;
         }
 
@@ -129,8 +133,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             SimulationManager sm = Singleton<SimulationManager>.instance;
             float occurrencePerFrame = (occurrencePerYear / 365) * daysPerFrame;
             if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
-            {
-                byte intensity = GetRandomIntensity(GetMaximumIntensity());
+            {                
+                var maxIntensity = GetMaximumIntensity();
+                DebugLogger.Log($"Max intensity in DisasterBaseModel: {maxIntensity}");
+                byte intensity = GetRandomIntensity(maxIntensity);
 
                 StartDisaster(intensity);
             }
@@ -141,7 +147,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             unlocked = true;
         }
 
-        public virtual string GetProbabilityTooltip()
+        public virtual string GetProbabilityTooltip(float value)
         {
             if (!unlocked)
             {
@@ -158,10 +164,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "Decreased because " + GetName() + " occured recently.";
             }
 
-            return "";
+            return $"Probability: {value * 10:#.##}";
         }
 
-        public virtual string GetIntensityTooltip()
+        public virtual string GetIntensityTooltip(float value)
         {
             if (!unlocked)
             {
@@ -173,7 +179,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "No " + GetName() + " for another " + Helper.FormatTimeSpan(calmDaysLeft);
             }
 
-            string result = "";
+            //string result = $"Intensity: {value * 25.5:#.##}";            
+            string result = $"Intensity: {value * 10:#.##}";
 
             if (probabilityWarmupDaysLeft > 0)
             {
@@ -182,7 +189,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (Helper.GetPopulation() < FullIntensityPopulation)
             {
-                if (result != "") result += Environment.NewLine;
+                if (result != "") result += CommonProperties.newLine;
                 result += "Decreased because of low population.";
             }
 
@@ -207,8 +214,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected virtual byte GetRandomIntensity(byte maxIntensity)
         {
-            byte intensity;
+            byte intensity;            
 
+            //if based on Gutenberg–Richter law
             if (ProbabilityDistribution == ProbabilityDistributions.PowerLow)
             {
                 float randomValue = Singleton<SimulationManager>.instance.m_randomizer.Int32(1000, 10000) / 10000.0f; // from range 0.1 - 1.0
@@ -221,15 +229,32 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 {
                     intensity = 100;
                 }
+
+                DebugLogger.Log($"Gutenberg–Richter law {CommonProperties.newLine}" +
+                    $"maxIntensity: {maxIntensity} {CommonProperties.newLine}" +
+                    $"randomValue: {randomValue} {CommonProperties.newLine}" +
+                    $"intensity = (byte)(10 * (0.11 - Math.Log10({randomValue})) / 0.11) = {intensity} {CommonProperties.newLine}" +
+                    $"is (intensity > 100)? {intensity > 100} {CommonProperties.newLine} " +
+                    $"Intensity Result{CommonProperties.newLine}");
+
             }
             else
             {
-                intensity = (byte)Singleton<SimulationManager>.instance.m_randomizer.Int32(10, 100);
+                //Otherwise uniform increment based on random value between 10 and 100
+                intensity = (byte)Singleton<SimulationManager>.instance.m_randomizer.Int32(10, 100);                
+
+                DebugLogger.Log($"Uniform increment  {CommonProperties.newLine}" +
+                    $"maxIntensity: {maxIntensity} {CommonProperties.newLine}" +
+                    $"(byte)Singleton<SimulationManager>.instance.m_randomizer.Int32(10, 100) = {intensity} {CommonProperties.newLine}");
             }
 
             if (maxIntensity < 100)
             {
-                intensity = (byte)(10 + (intensity - 10) * maxIntensity / 100);
+                DebugLogger.Log($"maxIntensity < 100: {maxIntensity < 100}  {CommonProperties.newLine}" +
+                    $"intensity = (byte)(10 + ({intensity} - 10) * {maxIntensity} / 100) {CommonProperties.newLine}" +
+                    $"{CommonProperties.newLine}" +
+                    $"{CommonProperties.newLine}");
+                intensity = (byte)(10 + (((intensity - 10) * maxIntensity) / 100));
             }
 
             return intensity;
@@ -237,17 +262,32 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected byte ScaleIntensityByWarmup(byte intensity)
         {
+            byte startIntensity = 10;
+
+            DebugLogger.Log($"ScaleIntensityByWarmup Method ==>  {CommonProperties.newLine}" +
+                $"Disaster:{GetName()} {CommonProperties.newLine}" +
+                $"Intensity: {intensity} {CommonProperties.newLine}" +
+                $"intensityWarmupDaysLeft:{intensityWarmupDaysLeft} {CommonProperties.newLine}" +
+                $"intensityWarmupDays:{intensityWarmupDays} {CommonProperties.newLine}" +
+                $"StartIntensity: {startIntensity}");
+
             if (intensityWarmupDaysLeft > 0 && intensityWarmupDays > 0)
             {
                 if (intensityWarmupDaysLeft >= intensityWarmupDays)
                 {
-                    intensity = 10;
+                    intensity = startIntensity;
                 }
                 else
                 {
-                    intensity = (byte)(10 + (intensity - 10) * (1 - intensityWarmupDaysLeft / intensityWarmupDays));
+                    intensity = (byte)(startIntensity + (intensity - startIntensity) * (1 - (intensityWarmupDaysLeft / intensityWarmupDays)));
+                    DebugLogger.Log($"intensity = (byte)({startIntensity} + ({intensity} - {startIntensity}) * (1 - ({intensityWarmupDaysLeft} / {intensityWarmupDays}))) = {intensity}");
                 }
             }
+            
+            DebugLogger.Log($"ScaleIntensityByWarmup Method (calculation) ==> {CommonProperties.newLine}" +
+                $"intensityWarmupDaysLeft > 0 && intensityWarmupDays > 0? {intensityWarmupDaysLeft > 0 && intensityWarmupDays > 0} {CommonProperties.newLine}" +
+                $"intensityWarmupDaysLeft >= intensityWarmupDays? {intensityWarmupDaysLeft >= intensityWarmupDays} {CommonProperties.newLine}" +
+                $"intensity:{intensity} {CommonProperties.newLine}");
 
             return intensity;
         }
@@ -256,13 +296,30 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (Singleton<NaturalDisasterHandler>.instance.container.ScaleMaxIntensityWithPopulation)
             {
+                byte startIntensity = 10;                
                 int population = Helper.GetPopulation();
+
+                DebugLogger.Log($"ScaleIntensityByPopulation Metrhod ==> {CommonProperties.newLine}" +
+                $"startIntensity: {startIntensity} {CommonProperties.newLine} " +
+                $"population {population} {CommonProperties.newLine}" +
+                $"FullIntensityPopulation: {FullIntensityPopulation}{CommonProperties.newLine}");
+
                 if (population < FullIntensityPopulation)
                 {
-                    intensity = (byte)(10 + (intensity - 10) * population / FullIntensityPopulation);
+                    DebugLogger.Log($"population < FullIntensityPopulation? {population < FullIntensityPopulation}. {CommonProperties.newLine}" +
+                        $"Intensity: {intensity} {CommonProperties.newLine}" +
+                        $"(byte)({startIntensity} + ((({intensity} - {startIntensity}) * {population}) / {FullIntensityPopulation}))");
+
+                    intensity = (byte)(startIntensity + (((intensity - startIntensity) * population) / FullIntensityPopulation));
+
+                }
+                else {
+                    DebugLogger.Log($"population < FullIntensityPopulation? {population < FullIntensityPopulation}{CommonProperties.newLine}" +
+                        $"Intensity: {intensity}");
                 }
             }
 
+            DebugLogger.Log($"Intensity after validation: {intensity}");
             return intensity;
         }
 
@@ -757,14 +814,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             // Compare radius of circle with distance
             // of its center from given point
             
-            //DebugLogger.Log($"Circle Params: " +
-            //    $"{Environment.NewLine}x1:{disasterPosition.x}," +
-            //    $"{Environment.NewLine}y1:{disasterPosition.z}," +
-            //    $"{Environment.NewLine}x2:{shelterPosition.x}," +
-            //    $"{Environment.NewLine}y2:{shelterPosition.z}," +
-            //    $"{Environment.NewLine}r1:{evacuationRadius}," +
-            //    $"{Environment.NewLine}r2:{shelterRadius}");
-            
             float distanceBetweenTwoPoints = (float)Math.Sqrt((disasterPosition.x - shelterPosition.x) * (disasterPosition.x - shelterPosition.x) + (disasterPosition.z - shelterPosition.z) * (disasterPosition.z - shelterPosition.z));
 
             if (distanceBetweenTwoPoints <= evacuationRadius - shelterRadius)
@@ -780,12 +829,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return true;
             else
                 return false;
-
-            //return (
-            //    (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
-            //    (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius
-            //);
-
         }
 
         public virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)

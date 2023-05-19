@@ -50,14 +50,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        public override string GetProbabilityTooltip()
+        public override string GetProbabilityTooltip(float value)
         {
             if (aftershocksCount > 0)
             {
                 return "Expect " + aftershocksCount.ToString() + " more aftershocks";
             }
 
-            return base.GetProbabilityTooltip();
+            return base.GetProbabilityTooltip(value);
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()

@@ -7,8 +7,9 @@ namespace NaturalDisastersRenewal.Common
     {
         public const string modName = "Natural Disasters Renewal";
         public const string modNameForHarmony = "NaturalDisastersRenewal";
-        public const string modVersion = "1.1";
+        public const string modVersion = "1.1.1";
         public const string modLastVersionYear = "2023";
+        public const string modLastVersionMonth = "May";
         public const string contentMainPath = "Colossal Order";
         public const string contentSubPath = "Cities_Skylines";
         public const string contentFolder = "NaturalDisastersRenewalMod";
@@ -26,9 +27,11 @@ namespace NaturalDisastersRenewal.Common
         public const string tornadoName = "Tornado";
         public const string tsunamiName = "Tsunami";
 
+        public static string newLine = $"{Environment.NewLine}";//Used in debug mode
+
         public static string GetModDescription()
             => string.Format($"Natural Disaster Renewal takes Zenya's 'Natural Disaster Overhault' and [SUSU]yang yang's Ragnarok mods content to be unified in only one, including some other awesome stuffs. " +
-                $"(Version \"{modVersion}\". {modLastVersionYear})");
+                $"(Version \"{modVersion}\". {modLastVersionMonth},{modLastVersionYear})");
 
         public static string GetOptionsFilePath(string filename)
         {
