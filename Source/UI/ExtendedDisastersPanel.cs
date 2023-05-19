@@ -78,8 +78,7 @@ namespace NaturalDisastersRenewal.UI
             AddAxisLabel(240, y, "1");
             AddAxisLabel(275, y, "10");
             AddAxisLabel(300, y, "0.0");
-            //AddAxisLabel(365, y, "25.5");
-            AddAxisLabel(365, y, "10.0");
+            AddAxisLabel(365, y, "25.5");            
             y -= 15;
 
             int disasterCount = Singleton<NaturalDisasterHandler>.instance.container.AllDisasters.Count;            
@@ -317,8 +316,8 @@ namespace NaturalDisastersRenewal.UI
                     SetProgressBarColor(progressBars_probability[i]);
                     progressBars_probability[i].tooltip = disaster.GetProbabilityTooltip(progressBars_probability[i].value);
 
-                    float maxIntensity = 100f;
                     //Calculate intensity                    
+                    float maxIntensity = 255f;
                     float progressbarCalculatedValue =  maxIntensityCalculated * (1/ maxIntensity);
                     DebugLogger.Log($"progressbarCalculatedValue: {progressbarCalculatedValue}. {CommonProperties.newLine}");
 

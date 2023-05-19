@@ -259,7 +259,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override byte GetMaximumIntensity()
         {
-            byte intensity = 10;
+            byte intensity = baseIntensity;
 
             for (int i = 0; i < meteorEvents.Length; i++)
             {
