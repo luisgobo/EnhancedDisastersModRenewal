@@ -38,7 +38,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected DisasterType DType = DisasterType.Empty;
 
         protected ProbabilityDistributions ProbabilityDistribution = ProbabilityDistributions.Uniform;
-        protected int FullIntensityMaxLimitPopulation = 70000;//Original: 20000
+        //protected int FullIntensityMaxLimitPopulation = 70000;//Original: 20000
         protected OccurrenceAreas OccurrenceAreaBeforeUnlock = OccurrenceAreas.Nowhere;
         protected OccurrenceAreas OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
         protected bool unlocked = false;
@@ -188,7 +188,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 result = "Decreased because " + GetName() + " occured recently.";
             }
 
-            if (Helper.GetPopulation() < FullIntensityMaxLimitPopulation)
+            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            if (Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
             {
                 if (result != "") result += CommonProperties.newLine;
                 result += "Decreased because of low population.";
@@ -296,24 +297,24 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (Singleton<NaturalDisasterHandler>.instance.container.ScaleMaxIntensityWithPopulation)
             {                
                 int population = Helper.GetPopulation();
+                var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
 
                 DebugLogger.Log($"ScaleIntensityByPopulation Method ==> Disaster:{GetName()} {CommonProperties.newLine}" +
                 $"intensity received: {intensity} {CommonProperties.newLine}" +
                 $"indexReferenceDisasterValue: {indexReferenceDisasterValue} {CommonProperties.newLine}" +
                 $"population {population} {CommonProperties.newLine}" +
-                $"FullIntensityPopulation: {FullIntensityMaxLimitPopulation}{CommonProperties.newLine}");
-
-                if (population < FullIntensityMaxLimitPopulation)
+                $"FullIntensityPopulation: {naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters}{CommonProperties.newLine}");
+                if (population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
                 {
-                    DebugLogger.Log($"population < FullIntensityPopulation? {population < FullIntensityMaxLimitPopulation}. {CommonProperties.newLine}" +
+                    DebugLogger.Log($"population < FullIntensityPopulation? {population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters}. {CommonProperties.newLine}" +
                         $"Intensity: {intensity} {CommonProperties.newLine}" +
-                        $"(byte)({indexReferenceDisasterValue} + ((({intensity} - {indexReferenceDisasterValue}) * {population}) / {FullIntensityMaxLimitPopulation}))");
+                        $"(byte)({indexReferenceDisasterValue} + ((({intensity} - {indexReferenceDisasterValue}) * {population}) / {naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters}))");
 
-                    intensity = (byte)(indexReferenceDisasterValue + (((intensity - indexReferenceDisasterValue) * population) / FullIntensityMaxLimitPopulation));
+                    intensity = (byte)(indexReferenceDisasterValue + (((intensity - indexReferenceDisasterValue) * population) / naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters));
 
                 }
                 else {
-                    DebugLogger.Log($"population < FullIntensityPopulation? {population < FullIntensityMaxLimitPopulation}{CommonProperties.newLine}" +
+                    DebugLogger.Log($"population < FullIntensityPopulation? {population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters}{CommonProperties.newLine}" +
                         $"Intensity: {intensity}");
                 }
             }

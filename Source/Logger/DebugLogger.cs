@@ -1,6 +1,4 @@
-﻿using ColossalFramework;
-using NaturalDisastersRenewal.Common;
-using System;
+﻿using NaturalDisastersRenewal.Common;
 using System.IO;
 using UnityEngine;
 
@@ -13,7 +11,7 @@ namespace NaturalDisastersRenewal.Models.Disaster
 
         public static void Log(string msg)
         {
-            if (IsDebug)
+            if (IsDebug && System.Diagnostics.Debugger.IsAttached)
             {
                 File.AppendAllText(GeFilePath(), msg + CommonProperties.newLine);
                 Debug.Log(msg);
@@ -21,7 +19,7 @@ namespace NaturalDisastersRenewal.Models.Disaster
         }
 
         static string GeFilePath()
-        {            
+        {
             return CommonProperties.GetOptionsFilePath(CommonProperties.logFilename);
         }
     }

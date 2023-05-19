@@ -26,12 +26,13 @@
 		 * Meteor Period/intensity changed
 			** 9 Years moved from 10 to 19 intensity
 			** 5 Years moved from 7 to 12 intensity
-	Version: 1.1.1
-		Release Date (YYYY-MM-dd): ...
+	Version: 1.2
+		Release Date (2023-05-20): ...
 		Change List:
 		 * Added constant for debugging (new line)
 		 * Fixed tooltip to show intensity and probabiilty value
-		 * Fixed propability/intensity calculations		 
+		 * Fixed propability/intensity calculations
+		 * Set Max population to trigger higher disasters from settings menu
 
 	Version: 1.x
 		Release Date (YYYY-MM-dd): ...
