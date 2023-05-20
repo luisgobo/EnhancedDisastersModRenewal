@@ -11,7 +11,8 @@ namespace NaturalDisastersRenewal.Models.Disaster
 
         public static void Log(string msg)
         {
-            if (IsDebug && System.Diagnostics.Debugger.IsAttached)
+            if (IsDebug)
+            //if (IsDebug && System.Diagnostics.Debugger.IsAttached)
             {
                 File.AppendAllText(GeFilePath(), msg + CommonProperties.newLine);
                 Debug.Log(msg);

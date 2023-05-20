@@ -143,14 +143,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             bool itCanAffect = base.CanAffectAt(disasterID, ref disasterData, buildingPosition, new Vector3(), out priority);
             if (!itCanAffect)
             {
-                DebugLogger.Log($"It can't affect, return false");
                 return false;
             }
-
-            DebugLogger.Log($"angle: {disasterData.m_angle + nl}" +
-                $"Shelter position: ( {buildingPosition.x}, {buildingPosition.y} ,{buildingPosition.z} ) {nl}" +
-                $"Disaster Position: ( {disasterData.m_targetPosition.x}, {disasterData.m_targetPosition.y}, {disasterData.m_targetPosition.z} )");            
-
             var simulationFrame = Singleton<SimulationManager>.instance.m_currentFrameIndex;
             var disasterStartFrame = disasterData.m_startFrame;
 
@@ -160,14 +154,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             Vector3 rhsVector = new Vector3(dot1, dot2, dot3);
             Vector3 lhsVector = buildingPosition - closestShelter;
 
-            DebugLogger.Log($"Angle: {disasterData.m_angle + nl}" +
-                $"dot1= 0f - Mathf.Sin(disasterData.m_angle) : {dot1 + nl}" +
-                $"dot2={dot2 + nl}" +
-                $"dot3= Mathf.Cos(disasterData.m_angle): {dot3 + nl}" +
-                $"rhsVector= {rhsVector + nl}" +
-                $"lhsVector= buildingPosition - closestShelter: {buildingPosition} - {closestShelter} = {lhsVector + nl}" +
-                $"DOT = lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z: {lhsVector.x} * {rhsVector.x} + {lhsVector.y} * {rhsVector.y} + {lhsVector.z} * {rhsVector.z + nl} ");
-
             //DOT => lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z
             float num = Vector3.Dot(lhsVector, rhsVector);
             uint num2 = simulationFrame - disasterStartFrame;
@@ -176,18 +162,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             priority = Mathf.Clamp01(Mathf.Min((num4 - num) * 0.01f, (num - num3) * 0.0005f));
             bool calculation = num >= num3 && num <= num4;
             
-
-            DebugLogger.Log($"instance.m_currentFrameIndex: {simulationFrame + nl}" +
-                $"data.m_startFrame: {disasterStartFrame + nl}"+ 
-                $"num = {num + nl}" +
-                $"num2 = {num2 + nl}" +
-                $"num3 = {num3 + nl}" +
-                $"num4 = {num4 + nl}" +
-                $"num >= num3 = {num >= num3}" +
-                $"{nl}num <= num4 = {num <= num4}" +
-                $"{nl}Calculation = {calculation}" +
-                $"{nl}");
-
             return calculation;
         }
     }

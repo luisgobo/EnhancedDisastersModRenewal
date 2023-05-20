@@ -71,15 +71,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual byte GetMaximumIntensity()
         {            
-            byte intensity = baseIntensity;
-
-            DebugLogger.Log($"***ScaleIntensityByWarmup {CommonProperties.newLine}");
+            byte intensity = baseIntensity;            
             intensity = ScaleIntensityByWarmup(intensity);
-
-            DebugLogger.Log($"***ScaleIntensityByPopulation {CommonProperties.newLine}");
             intensity = ScaleIntensityByPopulation(intensity);
-
-            DebugLogger.Log($"Return intensity: {intensity} {CommonProperties.newLine}");
             return intensity;
         }
 
@@ -136,8 +130,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             float occurrencePerFrame = (occurrencePerYear / 365) * daysPerFrame;
             if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
             {                
-                var maxIntensity = GetMaximumIntensity();
-                DebugLogger.Log($"Max intensity in DisasterBaseModel: {maxIntensity}");
+                var maxIntensity = GetMaximumIntensity();                
                 byte intensity = GetRandomIntensity(maxIntensity);
 
                 StartDisaster(intensity);
@@ -231,31 +224,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 {
                     intensity = 100;
                 }
-
-                DebugLogger.Log($"Gutenberg–Richter law {CommonProperties.newLine}" +
-                    $"maxIntensity: {maxIntensity} {CommonProperties.newLine}" +
-                    $"randomValue: {randomValue} {CommonProperties.newLine}" +
-                    $"intensity = (byte)(10 * (0.11 - Math.Log10({randomValue})) / 0.11) = {intensity} {CommonProperties.newLine}" +
-                    $"is (intensity > 100)? {intensity > 100} {CommonProperties.newLine} " +
-                    $"Intensity Result{CommonProperties.newLine}");
-
             }
             else
             {
                 //Otherwise uniform increment based on random value between 10 and 100
-                intensity = (byte)Singleton<SimulationManager>.instance.m_randomizer.Int32(10, 100);                
-
-                DebugLogger.Log($"Uniform increment  {CommonProperties.newLine}" +
-                    $"maxIntensity: {maxIntensity} {CommonProperties.newLine}" +
-                    $"(byte)Singleton<SimulationManager>.instance.m_randomizer.Int32(10, 100) = {intensity} {CommonProperties.newLine}");
+                intensity = (byte)Singleton<SimulationManager>.instance.m_randomizer.Int32(10, 100);
             }
 
             if (maxIntensity < 100)
             {
-                DebugLogger.Log($"maxIntensity < 100: {maxIntensity < 100}  {CommonProperties.newLine}" +
-                    $"intensity = (byte)(10 + ({intensity} - 10) * {maxIntensity} / 100) {CommonProperties.newLine}" +
-                    $"{CommonProperties.newLine}" +
-                    $"{CommonProperties.newLine}");
                 intensity = (byte)(10 + (((intensity - 10) * maxIntensity) / 100));
             }
 
@@ -264,13 +241,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected byte ScaleIntensityByWarmup(byte intensity)
         {
-            
-            DebugLogger.Log($"ScaleIntensityByWarmup Method ==> Disaster:{GetName()} {CommonProperties.newLine}" +
-                $"Intensity: {intensity} {CommonProperties.newLine}" +
-                $"intensityWarmupDaysLeft:{intensityWarmupDaysLeft} {CommonProperties.newLine}" +
-                $"intensityWarmupDays:{intensityWarmupDays} {CommonProperties.newLine}" +
-                $"indexReferenceDisasterValue: {indexReferenceDisasterValue}");
-
             if (intensityWarmupDaysLeft > 0 && intensityWarmupDays > 0)
             {
                 if (intensityWarmupDaysLeft >= intensityWarmupDays)
@@ -280,14 +250,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 else
                 {
                     intensity = (byte)(indexReferenceDisasterValue + (intensity - indexReferenceDisasterValue) * (1 - (intensityWarmupDaysLeft / intensityWarmupDays)));
-                    DebugLogger.Log($"intensity = (byte)({indexReferenceDisasterValue} + ({intensity} - {indexReferenceDisasterValue}) * (1 - ({intensityWarmupDaysLeft} / {intensityWarmupDays}))) = {intensity}");
                 }
-            }
-            
-            DebugLogger.Log($"ScaleIntensityByWarmup Method (calculation) ==> {CommonProperties.newLine}" +
-                $"intensityWarmupDaysLeft > 0 && intensityWarmupDays > 0? {intensityWarmupDaysLeft > 0 && intensityWarmupDays > 0} {CommonProperties.newLine}" +
-                $"intensityWarmupDaysLeft >= intensityWarmupDays? {intensityWarmupDaysLeft >= intensityWarmupDays} {CommonProperties.newLine}" +
-                $"intensity:{intensity} {CommonProperties.newLine}");
+            }                       
 
             return intensity;
         }
@@ -298,28 +262,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {                
                 int population = Helper.GetPopulation();
                 var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-
-                DebugLogger.Log($"ScaleIntensityByPopulation Method ==> Disaster:{GetName()} {CommonProperties.newLine}" +
-                $"intensity received: {intensity} {CommonProperties.newLine}" +
-                $"indexReferenceDisasterValue: {indexReferenceDisasterValue} {CommonProperties.newLine}" +
-                $"population {population} {CommonProperties.newLine}" +
-                $"FullIntensityPopulation: {naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters}{CommonProperties.newLine}");
                 if (population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
                 {
-                    DebugLogger.Log($"population < FullIntensityPopulation? {population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters}. {CommonProperties.newLine}" +
-                        $"Intensity: {intensity} {CommonProperties.newLine}" +
-                        $"(byte)({indexReferenceDisasterValue} + ((({intensity} - {indexReferenceDisasterValue}) * {population}) / {naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters}))");
-
                     intensity = (byte)(indexReferenceDisasterValue + (((intensity - indexReferenceDisasterValue) * population) / naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters));
 
                 }
-                else {
-                    DebugLogger.Log($"population < FullIntensityPopulation? {population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters}{CommonProperties.newLine}" +
-                        $"Intensity: {intensity}");
-                }
             }
-
-            DebugLogger.Log($"Intensity after validation: {intensity}");
             return intensity;
         }
 
@@ -397,10 +345,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 //Evaluate Disaster finishing                
                 var disasterFinishing = activeDisasters.Where(activeDisaster => activeDisaster.DisasterId == disasterInfoUnified.DisasterId).FirstOrDefault();
-
-                DebugLogger.Log($"disasterInfoUnified.FinishOnDeactivate: {disasterInfoUnified.FinishOnDeactivate + Environment.NewLine }" +
-                    $"disasterFinishing != null: {disasterFinishing != null}");
-
+               
                 if (disasterFinishing != null && disasterInfoUnified.FinishOnDeactivate)
                 {
                     activeDisasters.Remove(disasterFinishing);
