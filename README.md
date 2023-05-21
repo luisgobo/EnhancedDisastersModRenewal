@@ -166,7 +166,7 @@ Default settings
 
 ## Disasters information panel
 
-Shows the current probabilities and maximum intesity values for all disasters. ALso displays the max Population limit to trigger higher disasters and can disable or enable disasters without go to Settings options. Some detailed info can be seen in toolips by mouseover.
+Shows the current probabilities and maximum intesity values for all disasters. Also displays the max Population limit to trigger higher disasters and can disable or enable disasters without go to Settings options. Some detailed info can be seen in toolips by mouseover.
 
 Also contains the Emergency Button (see below).
 
