@@ -10,10 +10,10 @@ General features
 * You can pause the game before disaster start.
 * You can Focus camera on disaster coordenates.
 * You can place The Mod button anywhere and the information panel too (and reset position if needed from setup panel).
-* Maximum intensity of all disasters is set to the minimum (10) at the beginning of the game and gradually increases up to the maximum (100) until the city population reaches 20000.
+* Maximum intensity of all disasters is set to 1.0 at the beginning of the game and gradually increases up to the maximum (25.5) until the city population reaches the max value (By default 20,000, but can set it from 20,000 to 400,000).
 * Duration of small intensity thunderstorms is decreased.
 * Meteoroid streams period and phase (next approaching time) are randomized at the beginning of the game.
-* You can disable specific disasters.
+* You can disable specific disasters from Setup menu or information panel.
 * All settings are stored in your game save file, so you can use different settings for each game.
 
 ## About my favorite enhancement and why I did this: Automatic focused evacuations/releases:
@@ -164,9 +164,9 @@ Default settings
 * Evacuated residential buildings of level 5 or commercial/industry buildings of level 3 do not collapse ever.
 
 
-## Disasters info panel
+## Disasters information panel
 
-Shows the current probabilities and maximum intesity values for all disasters. Some detailed info can be seen in toolips by mouseover.
+Shows the current probabilities and maximum intesity values for all disasters. ALso displays the max Population limit to trigger higher disasters and can disable or enable disasters without go to Settings options. Some detailed info can be seen in toolips by mouseover.
 
 Also contains the Emergency Button (see below).
 

@@ -101,7 +101,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             activeDisasters.Add(disasterInfoModel);
         }
 
-        public override string GetProbabilityTooltip()
+        public override string GetProbabilityTooltip(float value)
         {
             string tooltip = "";
 
@@ -127,7 +127,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
-            return base.GetProbabilityTooltip();
+            return base.GetProbabilityTooltip(value);
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()

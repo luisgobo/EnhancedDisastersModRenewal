@@ -18,7 +18,7 @@ namespace NaturalDisastersRenewal.Logger
 
             if (!File.Exists(filePath))
             {
-                File.AppendAllText(filePath, "date,disaster,intensity,started by" + Environment.NewLine);
+                File.AppendAllText(filePath, "date,disaster,intensity,started by" + CommonProperties.newLine);
             }
 
             string startedBy = "Vanilla";

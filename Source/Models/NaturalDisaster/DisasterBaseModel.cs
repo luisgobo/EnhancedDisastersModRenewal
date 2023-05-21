@@ -21,21 +21,24 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
     {
         // Constants
         protected const uint randomizerRange = 67108864u;
+        protected const byte baseIntensity = 255; //Base intensity is 100 for all Disasters
+        protected const byte indexReferenceDisasterValue = 10;
 
         // Cooldown variables (Not stored into XML)
         protected int calmDays = 0;
 
-        [XmlIgnore] public float calmDaysLeft = 0;
         protected int probabilityWarmupDays = 0;
+        [XmlIgnore] public float calmDaysLeft = 0;
         [XmlIgnore] public float probabilityWarmupDaysLeft = 0;
         [XmlIgnore] public int intensityWarmupDays = 0;
         [XmlIgnore] public float intensityWarmupDaysLeft = 0;
+        
 
         // Disaster properties
         protected DisasterType DType = DisasterType.Empty;
 
         protected ProbabilityDistributions ProbabilityDistribution = ProbabilityDistributions.Uniform;
-        protected int FullIntensityPopulation = 20000;
+        //protected int FullIntensityMaxLimitPopulation = 70000;//Original: 20000
         protected OccurrenceAreas OccurrenceAreaBeforeUnlock = OccurrenceAreas.Nowhere;
         protected OccurrenceAreas OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
         protected bool unlocked = false;
@@ -67,13 +70,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         }
 
         public virtual byte GetMaximumIntensity()
-        {
-            byte intensity = 10;
-
+        {            
+            byte intensity = baseIntensity;            
             intensity = ScaleIntensityByWarmup(intensity);
-
             intensity = ScaleIntensityByPopulation(intensity);
-
             return intensity;
         }
 
@@ -129,8 +129,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             SimulationManager sm = Singleton<SimulationManager>.instance;
             float occurrencePerFrame = (occurrencePerYear / 365) * daysPerFrame;
             if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
-            {
-                byte intensity = GetRandomIntensity(GetMaximumIntensity());
+            {                
+                var maxIntensity = GetMaximumIntensity();                
+                byte intensity = GetRandomIntensity(maxIntensity);
 
                 StartDisaster(intensity);
             }
@@ -141,7 +142,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             unlocked = true;
         }
 
-        public virtual string GetProbabilityTooltip()
+        public virtual string GetProbabilityTooltip(float value)
         {
             if (!unlocked)
             {
@@ -158,10 +159,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "Decreased because " + GetName() + " occured recently.";
             }
 
-            return "";
+            return $"Probability: {value * 10:#.##}";
         }
 
-        public virtual string GetIntensityTooltip()
+        public virtual string GetIntensityTooltip(float value)
         {
             if (!unlocked)
             {
@@ -173,16 +174,17 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "No " + GetName() + " for another " + Helper.FormatTimeSpan(calmDaysLeft);
             }
 
-            string result = "";
+            string result = $"Intensity: {value * 25.5:#.##}";            
 
             if (probabilityWarmupDaysLeft > 0)
             {
                 result = "Decreased because " + GetName() + " occured recently.";
             }
 
-            if (Helper.GetPopulation() < FullIntensityPopulation)
+            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            if (Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
             {
-                if (result != "") result += Environment.NewLine;
+                if (result != "") result += CommonProperties.newLine;
                 result += "Decreased because of low population.";
             }
 
@@ -207,8 +209,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected virtual byte GetRandomIntensity(byte maxIntensity)
         {
-            byte intensity;
+            byte intensity;            
 
+            //if based on Gutenberg–Richter law
             if (ProbabilityDistribution == ProbabilityDistributions.PowerLow)
             {
                 float randomValue = Singleton<SimulationManager>.instance.m_randomizer.Int32(1000, 10000) / 10000.0f; // from range 0.1 - 1.0
@@ -224,12 +227,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
             else
             {
+                //Otherwise uniform increment based on random value between 10 and 100
                 intensity = (byte)Singleton<SimulationManager>.instance.m_randomizer.Int32(10, 100);
             }
 
             if (maxIntensity < 100)
             {
-                intensity = (byte)(10 + (intensity - 10) * maxIntensity / 100);
+                intensity = (byte)(10 + (((intensity - 10) * maxIntensity) / 100));
             }
 
             return intensity;
@@ -241,13 +245,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 if (intensityWarmupDaysLeft >= intensityWarmupDays)
                 {
-                    intensity = 10;
+                    intensity = indexReferenceDisasterValue;
                 }
                 else
                 {
-                    intensity = (byte)(10 + (intensity - 10) * (1 - intensityWarmupDaysLeft / intensityWarmupDays));
+                    intensity = (byte)(indexReferenceDisasterValue + (intensity - indexReferenceDisasterValue) * (1 - (intensityWarmupDaysLeft / intensityWarmupDays)));
                 }
-            }
+            }                       
 
             return intensity;
         }
@@ -255,14 +259,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected byte ScaleIntensityByPopulation(byte intensity)
         {
             if (Singleton<NaturalDisasterHandler>.instance.container.ScaleMaxIntensityWithPopulation)
-            {
+            {                
                 int population = Helper.GetPopulation();
-                if (population < FullIntensityPopulation)
+                var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+                if (population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
                 {
-                    intensity = (byte)(10 + (intensity - 10) * population / FullIntensityPopulation);
+                    intensity = (byte)(indexReferenceDisasterValue + (((intensity - indexReferenceDisasterValue) * population) / naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters));
+
                 }
             }
-
             return intensity;
         }
 
@@ -340,10 +345,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 //Evaluate Disaster finishing                
                 var disasterFinishing = activeDisasters.Where(activeDisaster => activeDisaster.DisasterId == disasterInfoUnified.DisasterId).FirstOrDefault();
-
-                DebugLogger.Log($"disasterInfoUnified.FinishOnDeactivate: {disasterInfoUnified.FinishOnDeactivate + Environment.NewLine }" +
-                    $"disasterFinishing != null: {disasterFinishing != null}");
-
+               
                 if (disasterFinishing != null && disasterInfoUnified.FinishOnDeactivate)
                 {
                     activeDisasters.Remove(disasterFinishing);
@@ -757,14 +759,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             // Compare radius of circle with distance
             // of its center from given point
             
-            //DebugLogger.Log($"Circle Params: " +
-            //    $"{Environment.NewLine}x1:{disasterPosition.x}," +
-            //    $"{Environment.NewLine}y1:{disasterPosition.z}," +
-            //    $"{Environment.NewLine}x2:{shelterPosition.x}," +
-            //    $"{Environment.NewLine}y2:{shelterPosition.z}," +
-            //    $"{Environment.NewLine}r1:{evacuationRadius}," +
-            //    $"{Environment.NewLine}r2:{shelterRadius}");
-            
             float distanceBetweenTwoPoints = (float)Math.Sqrt((disasterPosition.x - shelterPosition.x) * (disasterPosition.x - shelterPosition.x) + (disasterPosition.z - shelterPosition.z) * (disasterPosition.z - shelterPosition.z));
 
             if (distanceBetweenTwoPoints <= evacuationRadius - shelterRadius)
@@ -780,12 +774,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return true;
             else
                 return false;
-
-            //return (
-            //    (shelterPosition.x - disasterPosition.x) * (shelterPosition.x - disasterPosition.x) +
-            //    (shelterPosition.z - disasterPosition.z) * (shelterPosition.z - disasterPosition.z) <= evacuationRadius * evacuationRadius
-            //);
-
         }
 
         public virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)

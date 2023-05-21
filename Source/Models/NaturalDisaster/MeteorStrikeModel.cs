@@ -259,7 +259,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override byte GetMaximumIntensity()
         {
-            byte intensity = 10;
+            byte intensity = baseIntensity;
 
             for (int i = 0; i < meteorEvents.Length; i++)
             {
@@ -281,17 +281,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return CommonProperties.meteorStrikeName;
         }
 
-        public override string GetProbabilityTooltip()
+        public override string GetProbabilityTooltip(float value)
         {
             if (!unlocked)
             {
                 return "Not unlocked yet";
             }
 
-            string result = "";
+            string result = value == 0 ? "Probability: 0.00" : $"Probability: {value * 10:#.#}";
 
             for (int i = 0; i < meteorEvents.Length; i++)
             {
+                if (i == 0)
+                    result += ". ";
+
                 result += meteorEvents[i].GetStateDescription() + Environment.NewLine;
             }
 
