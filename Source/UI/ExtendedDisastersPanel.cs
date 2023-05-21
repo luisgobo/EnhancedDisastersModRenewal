@@ -79,7 +79,7 @@ namespace NaturalDisastersRenewal.UI
             //currentOccurrencePerYear:0.00}/{maxIntensity}
             OccurrenceAndMaxProb = AddLabel(28, y);
             OccurrenceAndMaxProb.text = $"Disaster - COY/Max Int";
-            OccurrenceAndMaxProb.tooltip = "Current Occurrence per Year/ Max Intensity";
+            OccurrenceAndMaxProb.tooltip = "Disaster name and current Occurrence per Year/ Max Intensity";
             OccurrenceAndMaxProb.textScale = 0.7f;
 
             //Add Axis titles
