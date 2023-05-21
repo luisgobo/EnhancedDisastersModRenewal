@@ -72,9 +72,8 @@ namespace NaturalDisastersRenewal.UI
 
             pupulationLabel = AddLabel(28, y);
             pupulationLabel.text = $"MPTHD: {formatNumber}";
-            pupulationLabel.tooltip = "Max population to trigger higher disasters";
-            pupulationLabel.textScale = 0.7f;
-            y -= 20;
+            pupulationLabel.tooltip = "Max population to trigger higher disasters";            
+            y -= 22;
 
             //currentOccurrencePerYear:0.00}/{maxIntensity}
             OccurrenceAndMaxProb = AddLabel(28, y);
