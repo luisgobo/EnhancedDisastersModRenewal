@@ -30,8 +30,8 @@ namespace NaturalDisastersRenewal.Common
         public static string newLine = $"{Environment.NewLine}";//Used in debug mode
 
         public static string GetModDescription()
-            => string.Format($"Natural Disaster Renewal takes Zenya's 'Natural Disaster Overhault' and [SUSU]yang yang's Ragnarok mods content to be unified in only one, including some other awesome stuffs. " +
-                $"(Version \"{modVersion}\". {modLastVersionMonth},{modLastVersionYear})");
+            => string.Format($"It takes 'Natural Disaster Overhault' and 'Ragnarok' mods content to be unified in only one, including some other awesome stuffs." +
+                $"Version \"{modVersion}\". Last Update: {modLastVersionMonth},{modLastVersionYear}");
 
         public static string GetOptionsFilePath(string filename)
         {
