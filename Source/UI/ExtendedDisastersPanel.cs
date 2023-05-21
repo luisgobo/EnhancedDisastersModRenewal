@@ -1,14 +1,9 @@
 ﻿using ColossalFramework;
 using ColossalFramework.UI;
-using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
-using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
-using NaturalDisastersRenewal.Models.Setup;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -20,6 +15,7 @@ namespace NaturalDisastersRenewal.UI
         UILabel[] labels;
         UIButton[] statusButtons;
         UILabel pupulationLabel;
+        UILabel OccurrenceAndMaxProb;
         UIProgressBar[] progressBars_probability;
         UIProgressBar[] progressBars_maxIntensity;
         public int Counter = 0;
@@ -39,7 +35,6 @@ namespace NaturalDisastersRenewal.UI
 
         public override void Start()
         {
-
             base.Start();
 
             BuildPanelTitle();
@@ -54,8 +49,7 @@ namespace NaturalDisastersRenewal.UI
             closeBtn.normalFgSprite = "buttonclose";
             closeBtn.eventClick += ClosePanelBtn_eventClick;
 
-            #endregion
-
+            #endregion CloseBtn
         }
 
         void BuildPanelTitle()
@@ -72,21 +66,33 @@ namespace NaturalDisastersRenewal.UI
             int h = -20;
 
             NaturalDisasterHandler disasterHandler = Singleton<NaturalDisasterHandler>.instance;
-            pupulationLabel = AddLabel(10, y);
-            pupulationLabel.text = $"Max pop: {disasterHandler.container.MaxPopulationToTrigguerHigherDisasters}";
-            pupulationLabel.tooltip = "Max population to trigger higher Disasters";
+            var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+            nfi.NumberGroupSeparator = ",";
+            string formatNumber = ((int)disasterHandler.container.MaxPopulationToTrigguerHigherDisasters).ToString("#,0", nfi);
+
+            pupulationLabel = AddLabel(28, y);
+            pupulationLabel.text = $"MPTHD: {formatNumber}";
+            pupulationLabel.tooltip = "Max population to trigger higher disasters";
+            pupulationLabel.textScale = 0.7f;
+            y -= 20;
+
+            //currentOccurrencePerYear:0.00}/{maxIntensity}
+            OccurrenceAndMaxProb = AddLabel(28, y);
+            OccurrenceAndMaxProb.text = $"Disaster - COY/Max Int";
+            OccurrenceAndMaxProb.tooltip = "Current Occurrence per Year/ Max Intensity";
+            OccurrenceAndMaxProb.textScale = 0.7f;
 
             //Add Axis titles
-            AddAxisTitle(200, y, "Probability");
-            AddAxisTitle(300, y, "Max intensity");
+            AddAxisTitle(210, y, "Probability");
+            AddAxisTitle(310, y, "Max intensity");
             y -= 15;
 
             //Add Axis Labels
-            AddAxisLabel(200, y, "0.1");
-            AddAxisLabel(240, y, "1");
-            AddAxisLabel(275, y, "10");
-            AddAxisLabel(300, y, "0.0");
-            AddAxisLabel(365, y, "25.5");
+            AddAxisLabel(210, y, "0.1");
+            AddAxisLabel(250, y, "1");
+            AddAxisLabel(285, y, "10");
+            AddAxisLabel(310, y, "0.0");
+            AddAxisLabel(370, y, "25.5");
             y -= 15;
 
             int disasterCount = disasterHandler.container.AllDisasters.Count;
@@ -103,12 +109,12 @@ namespace NaturalDisastersRenewal.UI
                 labels[i] = AddLabel(28, y);
                 labels[i].text = SetDisasterInfoLabel(disaster.GetName(), 0, 0);
 
-                progressBars_probability[i] = AddProgressBar(200, y);
-                progressBars_maxIntensity[i] = AddProgressBar(300, y);
+                progressBars_probability[i] = AddProgressBar(210, y);
+                progressBars_maxIntensity[i] = AddProgressBar(310, y);
                 y += h;
             }
         }
-        
+
         UIButton BuildDisasterStatusButton(int x, int y, string disasterName, bool isEnabled)
         {
             UIButton disasterStateBtn = this.AddUIComponent<UIButton>();
@@ -188,6 +194,7 @@ namespace NaturalDisastersRenewal.UI
             }
             Debug.Log(sb.ToString());
         }
+
         void ClosePanelBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             this.Hide();
@@ -206,24 +213,31 @@ namespace NaturalDisastersRenewal.UI
                     case CommonProperties.EarthquakeName:
                         Singleton<NaturalDisasterHandler>.instance.container.Earthquake.Enabled = disaster.Enabled;
                         break;
+
                     case CommonProperties.forestFireName:
                         Singleton<NaturalDisasterHandler>.instance.container.ForestFire.Enabled = disaster.Enabled;
                         break;
+
                     case CommonProperties.meteorStrikeName:
                         Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike.Enabled = disaster.Enabled;
                         break;
+
                     case CommonProperties.sinkholeName:
                         Singleton<NaturalDisasterHandler>.instance.container.Sinkhole.Enabled = disaster.Enabled;
                         break;
+
                     case CommonProperties.thunderstormName:
                         Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm.Enabled = disaster.Enabled;
                         break;
+
                     case CommonProperties.tornadoName:
                         Singleton<NaturalDisasterHandler>.instance.container.Tornado.Enabled = disaster.Enabled;
                         break;
+
                     case CommonProperties.tsunamiName:
                         Singleton<NaturalDisasterHandler>.instance.container.Tsunami.Enabled = disaster.Enabled;
                         break;
+
                     default:
                         break;
                 }
@@ -235,12 +249,11 @@ namespace NaturalDisastersRenewal.UI
 
                 SettingsScreen.UpdateUISettingsOptions();
             }
-
         }
 
         string SetDisasterInfoLabel(string disasterName, float currentOccurrencePerYear, float maxIntensity)
         {
-            return $"{disasterName} {currentOccurrencePerYear:0.00}/{maxIntensity}";
+            return $"{disasterName} - {currentOccurrencePerYear:0.00}/{(maxIntensity/10):0.0}";
         }
 
         bool IsStopableDisaster(DisasterAI ai)
@@ -305,8 +318,13 @@ namespace NaturalDisastersRenewal.UI
             if (--Counter > 0) return;
             Counter = 10;
 
-            NaturalDisasterHandler disasterHandler = Singleton<NaturalDisasterHandler>.instance;
-            pupulationLabel.text = $"Max pop: {disasterHandler.container.MaxPopulationToTrigguerHigherDisasters}";
+            NaturalDisasterHandler disasterHandler = Singleton<NaturalDisasterHandler>.instance;            
+            var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+            nfi.NumberGroupSeparator = ",";
+            string formatNumber = ((int)disasterHandler.container.MaxPopulationToTrigguerHigherDisasters).ToString("#,0", nfi);
+            pupulationLabel.text = $"MPTHD: {formatNumber}";
+            pupulationLabel.textScale = 0.7f;
+
             int disasterCount = disasterHandler.container.AllDisasters.Count;
 
             for (int i = 0; i < disasterCount; i++)
@@ -315,40 +333,37 @@ namespace NaturalDisastersRenewal.UI
                 float currentOcurrencePerYear = disaster.GetCurrentOccurrencePerYear();
 
                 byte maxIntensityCalculated = disaster.GetMaximumIntensity();
-                
+
                 statusButtons[i].isVisible = true;
-                
 
                 if (disaster.Enabled)
                 {
-
                     statusButtons[i].normalFgSprite = "ButtonPause";
                     labels[i].text = SetDisasterInfoLabel(disaster.GetName(), currentOcurrencePerYear, maxIntensityCalculated);
 
-                    //Calculate probability 
+                    //Calculate probability
                     progressBars_probability[i].value = GetProbabilityProgressValueLog(currentOcurrencePerYear, disaster.GetName());
                     SetProgressBarColor(progressBars_probability[i]);
                     progressBars_probability[i].tooltip = disaster.GetProbabilityTooltip(progressBars_probability[i].value);
 
-                    //Calculate intensity                    
+                    //Calculate intensity
                     float maxIntensity = 255f;
                     float progressbarCalculatedValue = maxIntensityCalculated * (1 / maxIntensity);
 
                     progressBars_maxIntensity[i].value = progressbarCalculatedValue;
                     SetProgressBarColor(progressBars_maxIntensity[i]);
                     progressBars_maxIntensity[i].tooltip = disaster.GetIntensityTooltip(progressBars_maxIntensity[i].value);
-
                 }
                 else
                 {
                     statusButtons[i].normalFgSprite = "ButtonPlayFocused";
                     labels[i].text = $"{disaster.GetName()} - Disabled";
-                    
+
                     progressBars_probability[i].value = 0;
                     progressBars_probability[i].progressColor = Color.black;
                     progressBars_maxIntensity[i].value = 0;
                     progressBars_maxIntensity[i].progressColor = Color.black;
-                }                
+                }
             }
         }
 
