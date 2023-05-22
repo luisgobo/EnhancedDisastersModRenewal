@@ -1,9 +1,10 @@
 # Natural Disasters Renewal Mod
 
-###Mod for Cities: Skylines.
-###Current Version: 1.2.1
+### Mod for Cities: Skylines.
 
-##General features
+### Current Version: 1.2.1
+
+## General features
 
 * With this mod natural disasters occur in more natural way, depending on weather, season, or time passed since the last disaster. 
 * You can Force disasters from any level (from 0.0 to 25.5). 
