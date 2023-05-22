@@ -159,7 +159,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "Decreased because " + GetName() + " occured recently.";
             }
 
-            return $"Probability: {value * 10:#.##}";
+            //return $"Probability: {value * 10:#.##}";
+            return $"Probability: {(value*2):#.##}";
         }
 
         public virtual string GetIntensityTooltip(float value)
