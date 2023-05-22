@@ -27,13 +27,14 @@
 			** 9 Years moved from 10 to 19 intensity
 			** 5 Years moved from 7 to 12 intensity
 	Version: 1.2
-		Release Date (YYYY-MM-dd): 2023-05-20
+		Release Date (YYYY-MM-dd): 2023-05-21
 		Change List:
 		 * Added constant for debugging (new line)
 		 * Fixed tooltip to show intensity and probabiilty value
 		 * Fixed propability/intensity calculations
 		 * Set value for max population to trigger higher disasters from settings menu.
-		 * Disable/enable disasters from information Panel
+		 * Disable/enable disasters from information Panel.
+		 * Mod description updated, small spelling fixes in text descriptions
 
 	Version: 1.x
 		Release Date (YYYY-MM-dd): ...
