@@ -2,6 +2,7 @@
 using ColossalFramework.UI;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using System.Globalization;
 using System.Linq;
@@ -298,14 +299,14 @@ namespace NaturalDisastersRenewal.UI
             return progressBar;
         }
 
-        float GetProbabilityProgressValueLog(float value, string description = "")
+        float GetProbabilityProgressValueLog(float currentOcurrencePerYear)
         {
-            if (value <= 0.1)
+            if (currentOcurrencePerYear <= 0.1)
                 return 0;
-            if (value >= 10)
+            if (currentOcurrencePerYear >= 10)
                 return 1;
 
-            return (1f + (Mathf.Log10(value)) / 2f);
+            return (1f + Mathf.Log10(currentOcurrencePerYear)) / 2f;
         }
 
         public override void Update()
@@ -328,7 +329,7 @@ namespace NaturalDisastersRenewal.UI
 
             for (int i = 0; i < disasterCount; i++)
             {
-                DisasterBaseModel disaster = disasterHandler.container.AllDisasters[i];
+                DisasterBaseModel disaster = disasterHandler.container.AllDisasters[i];                
                 float currentOcurrencePerYear = disaster.GetCurrentOccurrencePerYear();
 
                 byte maxIntensityCalculated = disaster.GetMaximumIntensity();
@@ -340,8 +341,8 @@ namespace NaturalDisastersRenewal.UI
                     statusButtons[i].normalFgSprite = "ButtonPause";
                     labels[i].text = SetDisasterInfoLabel(disaster.GetName(), currentOcurrencePerYear, maxIntensityCalculated);
 
-                    //Calculate probability
-                    progressBars_probability[i].value = GetProbabilityProgressValueLog(currentOcurrencePerYear, disaster.GetName());
+                    //Calculate probability                    
+                    progressBars_probability[i].value = GetProbabilityProgressValueLog(currentOcurrencePerYear); 
                     SetProgressBarColor(progressBars_probability[i]);
                     progressBars_probability[i].tooltip = disaster.GetProbabilityTooltip(progressBars_probability[i].value);
 

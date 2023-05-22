@@ -36,6 +36,12 @@
 		 * Disable/enable disasters from information Panel.
 		 * Mod description updated, small spelling fixes in text descriptions
 
+	Version: 1.2.1
+		Release Date (YYYY-MM-dd): 2023-05-22
+		Change List:
+		 * Fixed issue with probabilities found during extra testing.
+		 * Fixed tooltip values when mouse over disaster probability bar.
+
 	Version: 1.x
 		Release Date (YYYY-MM-dd): ...
 		Change List:
