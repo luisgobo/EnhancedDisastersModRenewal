@@ -2,7 +2,7 @@
 
 ### Mod for Cities: Skylines.
 
-### Current Version: 1.2.1
+### Current Version: 1.2.2
 
 ## General features
 
