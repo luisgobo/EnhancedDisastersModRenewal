@@ -42,6 +42,12 @@
 		 * Fixed issue with probabilities found during extra testing.
 		 * Fixed tooltip values when mouse over disaster probability bar.
 
+	Version: 1.2.2
+		Release Date (YYYY-MM-dd): 2023-05-23
+		Change List:
+		 * Assembly information updated.
+		 * Mod validation for new DLC "Hotels and Retreats" (Version: 1.17.0-f3).
+
 	Version: 1.x
 		Release Date (YYYY-MM-dd): ...
 		Change List:
