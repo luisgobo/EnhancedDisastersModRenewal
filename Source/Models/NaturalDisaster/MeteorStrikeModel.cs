@@ -127,6 +127,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = 10.0f;
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
+            //Original
+            //meteorEvents = new MeteorEvent[] {
+            //    MeteorEvent.Init("Long period meteor", 9, 100),
+            //    MeteorEvent.Init("Medium period meteor", 5, 70),
+            //    MeteorEvent.Init("Short period meteor", 2, 30)
+            //};
+
             meteorEvents = new MeteorEvent[] {
                 MeteorEvent.Init("Long period meteor", 9, 190),
                 MeteorEvent.Init("Medium period meteor", 5, 120),
