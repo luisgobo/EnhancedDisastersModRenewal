@@ -246,7 +246,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_PartialEvacuationRadius.tooltip = "Select the Radius (In meters) for Focused evacuations.";
 
             generalGroup.AddSpace(5);
-            UI_General_MaxPopulationToTrigguerHigherDisasters = (UISlider)generalGroup.AddSlider("Max population to trigguer higher disasters.", 20000f, 400000f, 1000f, disasterContainer.MaxPopulationToTrigguerHigherDisasters, delegate (float val)
+            UI_General_MaxPopulationToTrigguerHigherDisasters = (UISlider)generalGroup.AddSlider("Max population to trigguer higher disasters.", 20000f, 800000f, 1000f, disasterContainer.MaxPopulationToTrigguerHigherDisasters, delegate (float val)
             {
                 if (!freezeUI)
                     disasterContainer.MaxPopulationToTrigguerHigherDisasters = val;

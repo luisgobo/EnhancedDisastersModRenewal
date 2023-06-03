@@ -31,16 +31,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 Enabled = true;
             }
 
-            public static MeteorEvent Init(string name, float periodYears, byte maxIntensity)
+            public static MeteorEvent Init(string eventName, float periodYears, byte maxIntensity)
             {
                 SimulationManager sm = Singleton<SimulationManager>.instance;
 
                 float periodDays = periodYears * 365;
+
+                var periodDaysCalc = periodDays * 0.95f + sm.m_randomizer.Int32((uint)(periodDays * 0.1f));
+                var daysUntilNextEventCalc = periodDays / 2 + sm.m_randomizer.Int32((uint)(periodDays / 2));
+
                 return new MeteorEvent(
-                    name,
-                    periodDays * 0.95f + sm.m_randomizer.Int32((uint)(periodDays * 0.1f)),
+                    eventName,
+                    periodDaysCalc,
                     maxIntensity,
-                    periodDays / 2 + sm.m_randomizer.Int32((uint)(periodDays / 2))
+                    daysUntilNextEventCalc
                     );
             }
 
@@ -127,15 +131,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = 10.0f;
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
-            //Original
-            //meteorEvents = new MeteorEvent[] {
-            //    MeteorEvent.Init("Long period meteor", 9, 100),
-            //    MeteorEvent.Init("Medium period meteor", 5, 70),
-            //    MeteorEvent.Init("Short period meteor", 2, 30)
-            //};
-
+            //Change
             meteorEvents = new MeteorEvent[] {
-                MeteorEvent.Init("Long period meteor", 9, 190),
+                MeteorEvent.Init("Long period meteor", 9, 200),
                 MeteorEvent.Init("Medium period meteor", 5, 120),
                 MeteorEvent.Init("Short period meteor", 2, 30)
             };
@@ -288,24 +286,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return CommonProperties.meteorStrikeName;
         }
 
-        public override string GetProbabilityTooltip(float value)
+        public override string GetProbabilityTooltip(float probabilityValue)
         {
             if (!unlocked)
             {
                 return "Not unlocked yet";
             }
-
-            string result = value == 0 ? "Probability: 0.00" : $"Probability: {value * 10:#.#}";
+            
+            string probability = $"Probability: {(probabilityValue != 0 ? $"{probabilityValue * 10:#.#}" : "0.00")} {CommonProperties.newLine}";
 
             for (int i = 0; i < meteorEvents.Length; i++)
-            {
-                if (i == 0)
-                    result += ". ";
+                probability += meteorEvents[i].GetStateDescription() + Environment.NewLine;
 
-                result += meteorEvents[i].GetStateDescription() + Environment.NewLine;
-            }
-
-            return result;
+            return probability;
         }
 
         public override float CalculateDestructionRadio(byte intensity)

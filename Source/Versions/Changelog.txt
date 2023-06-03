@@ -51,7 +51,10 @@
 	Version: 1.2.3
 		Release Date (YYYY-MM-dd): 2023-06-01
 		Change List:
-		 * Fix for issue on parameter for meteor strike
+		 * Fix for issue on parameter for meteor strike.
+		 * Max population limit to trigger higher disasters moved from 400K to 800K
+		 * Max population limit Default value changed from 100K to 200K.
+		 * Meteor strike tooltip info format fixed
 
 	Version: 1.x
 		Release Date (YYYY-MM-dd): ...

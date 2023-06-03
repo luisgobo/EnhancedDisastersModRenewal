@@ -16,8 +16,8 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
             {
                 dataSerializer.WriteBool(meteorStrike.meteorEvents[i].Enabled);
-                dataSerializer.WriteFloat(meteorStrike.meteorEvents[i].PeriodDays);
-                dataSerializer.WriteInt32(meteorStrike.meteorEvents[i].MaxIntensity);                
+                dataSerializer.WriteFloat(meteorStrike.meteorEvents[i].PeriodDays);                
+                dataSerializer.WriteInt16(meteorStrike.meteorEvents[i].MaxIntensity);
                 dataSerializer.WriteFloat(meteorStrike.meteorEvents[i].DaysUntilNextEvent);
                 dataSerializer.WriteInt32(meteorStrike.meteorEvents[i].MeteorsFallen);
             }
@@ -34,8 +34,8 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
                 {
                     meteorStrike.meteorEvents[i].Enabled = dataSerializer.ReadBool();
-                    meteorStrike.meteorEvents[i].PeriodDays = dataSerializer.ReadInt32() * daysPerFrame;                    
-                    meteorStrike.meteorEvents[i].MaxIntensity = (byte)dataSerializer.ReadInt32();
+                    meteorStrike.meteorEvents[i].PeriodDays = dataSerializer.ReadInt32() * daysPerFrame;
+                    meteorStrike.meteorEvents[i].MaxIntensity = (byte)dataSerializer.ReadInt16();
                     meteorStrike.meteorEvents[i].DaysUntilNextEvent = dataSerializer.ReadInt32() * daysPerFrame;
                     meteorStrike.meteorEvents[i].MeteorsFallen = dataSerializer.ReadInt32();
                 }
@@ -46,7 +46,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 {
                     meteorStrike.meteorEvents[i].Enabled = dataSerializer.ReadBool();
                     meteorStrike.meteorEvents[i].PeriodDays = dataSerializer.ReadFloat();
-                    meteorStrike.meteorEvents[i].MaxIntensity = (byte)dataSerializer.ReadInt32();
+                    meteorStrike.meteorEvents[i].MaxIntensity = (byte)dataSerializer.ReadInt16();
                     meteorStrike.meteorEvents[i].DaysUntilNextEvent = dataSerializer.ReadFloat();
                     meteorStrike.meteorEvents[i].MeteorsFallen = dataSerializer.ReadInt32();
                 }

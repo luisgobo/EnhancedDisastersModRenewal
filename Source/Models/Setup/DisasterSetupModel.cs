@@ -1,7 +1,4 @@
-﻿using ColossalFramework;
-using ColossalFramework.IO;
-using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Handlers;
+﻿using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using System.Collections.Generic;
@@ -23,9 +20,10 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         //General options
         public bool DisableDisasterFocus = true;
+
         public bool PauseOnDisasterStarts = false;
         public float PartialEvacuationRadius = 900f;
-        public float MaxPopulationToTrigguerHigherDisasters = 100000;
+        public float MaxPopulationToTrigguerHigherDisasters = 200000;
 
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;

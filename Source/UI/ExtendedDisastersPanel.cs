@@ -342,9 +342,13 @@ namespace NaturalDisastersRenewal.UI
                     labels[i].text = SetDisasterInfoLabel(disaster.GetName(), currentOcurrencePerYear, maxIntensityCalculated);
 
                     //Calculate probability                    
-                    progressBars_probability[i].value = GetProbabilityProgressValueLog(currentOcurrencePerYear); 
+                    
+                    var propbabilityValue = GetProbabilityProgressValueLog(currentOcurrencePerYear);
+
+                    progressBars_probability[i].value = propbabilityValue;
                     SetProgressBarColor(progressBars_probability[i]);
-                    progressBars_probability[i].tooltip = disaster.GetProbabilityTooltip(progressBars_probability[i].value);
+                    //progressBars_probability[i].tooltip = disaster.GetProbabilityTooltip(progressBars_probability[i].value);
+                    progressBars_probability[i].tooltip = disaster.GetProbabilityTooltip(propbabilityValue);
 
                     //Calculate intensity
                     float maxIntensity = 255f;
