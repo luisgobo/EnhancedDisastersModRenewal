@@ -4,9 +4,9 @@
 
 "Natural Disaster Renewal" takes Zenya's "Natural Disaster Overhaul" and [SUSU]yang yang's "Ragnarok" mods functionalities to be unified in only one, including some other awesome stuffs.
 
-[h1]General Features[/h1]
-
 [b][i]Mod version: 1.2.4[/i][/b]
+
+[h1]General Features[/h1]
 
 [olist]
  [*] With this mod natural disasters occur in more natural way, depending on weather, season, or time passed since the last disaster. 
