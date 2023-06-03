@@ -7,7 +7,6 @@
 [b][i]Mod version: 1.2.4[/i][/b]
 
 [h1]General Features[/h1]
-
 [olist]
  [*] With this mod natural disasters occur in more natural way, depending on weather, season, or time passed since the last disaster. 
  [*] You can Force disasters from any level (from 0.0 to 25.5). 
