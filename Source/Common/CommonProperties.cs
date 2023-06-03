@@ -8,7 +8,7 @@ namespace NaturalDisastersRenewal.Common
     {
         public const string modName = "Natural Disasters Renewal";
         public const string modNameForHarmony = "NaturalDisastersRenewal";
-        public const string modVersion = "1.2.3";
+        public const string modVersion = "1.2.4";
         public const string modLastVersionYear = "2023";
         public const string modLastVersionMonth = "June";
         public const string modSteamId = "2957578256";
