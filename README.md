@@ -2,7 +2,7 @@
 
 ### Mod for Cities: Skylines.
 
-### Current Version: 1.2.1
+### Current Version: 1.2.3
 
 ## General features
 
@@ -13,7 +13,7 @@
 * You can pause the game before disaster start.
 * You can Focus camera on disaster coordenates.
 * You can place The Mod button anywhere and the information panel too (and reset position if needed from setup panel).
-* Maximum intensity of all disasters is set to 1.0 at the beginning of the game and gradually increases up to the maximum (25.5) until the city population reaches the max value (By default 20,000, but can set it from 20,000 to 400,000).
+* Maximum intensity of all disasters is set to 1.0 at the beginning of the game and gradually increases up to the maximum (25.5) until the city population reaches the max value (By default 100k, but can set it from 20k to 800k).
 * Duration of small intensity thunderstorms is decreased.
 * Meteoroid streams period and phase (next approaching time) are randomized at the beginning of the game.
 * You can disable specific disasters from Setup menu or information panel.

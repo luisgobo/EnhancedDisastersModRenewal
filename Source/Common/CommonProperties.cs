@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NaturalDisastersRenewal.Models.Disaster;
+using System;
 using System.IO;
 
 namespace NaturalDisastersRenewal.Common
@@ -7,9 +8,10 @@ namespace NaturalDisastersRenewal.Common
     {
         public const string modName = "Natural Disasters Renewal";
         public const string modNameForHarmony = "NaturalDisastersRenewal";
-        public const string modVersion = "1.2.1";
+        public const string modVersion = "1.2.4";
         public const string modLastVersionYear = "2023";
-        public const string modLastVersionMonth = "May";
+        public const string modLastVersionMonth = "June";
+        public const string modSteamId = "2957578256";
         public const string contentMainPath = "Colossal Order";
         public const string contentSubPath = "Cities_Skylines";
         public const string contentFolder = "NaturalDisastersRenewalMod";
@@ -30,8 +32,8 @@ namespace NaturalDisastersRenewal.Common
         public static string newLine = $"{Environment.NewLine}";//Used in debug mode
 
         public static string GetModDescription()
-            => string.Format($"It takes 'Natural Disaster Overhault' and 'Ragnarok' mods content to be unified in only one, including some other awesome stuffs." +
-                $"Version \"{modVersion}\". Last Update: {modLastVersionMonth},{modLastVersionYear}");
+            => string.Format($"It takes \"Natural Disaster Overhault\" and \"Ragnarok\" mods content to be unified in only one, including some other awesome stuffs." +
+                $"Version: {modVersion}. Last Update: {modLastVersionMonth},{modLastVersionYear}");
 
         public static string GetOptionsFilePath(string filename)
         {
@@ -40,7 +42,7 @@ namespace NaturalDisastersRenewal.Common
             path = Path.Combine(path, contentSubPath);
             path = Path.Combine(path, contentFolder);
 
-            CheckFolderExistence(path);            
+            CheckFolderExistence(path);
 
             path = Path.Combine(path, filename);
             return path;
@@ -51,5 +53,6 @@ namespace NaturalDisastersRenewal.Common
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
         }
+
     }
 }

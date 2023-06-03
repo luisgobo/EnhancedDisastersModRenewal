@@ -42,6 +42,28 @@
 		 * Fixed issue with probabilities found during extra testing.
 		 * Fixed tooltip values when mouse over disaster probability bar.
 
+	Version: 1.2.2
+		Release Date (YYYY-MM-dd): 2023-05-23
+		Change List:
+		 * Assembly information updated.
+		 * Mod validation for new DLC "Hotels and Retreats" (Version: 1.17.0-f3).
+
+	Version: 1.2.3
+		Release Date (YYYY-MM-dd): 2023-06-01
+		Change List:
+		 * Fix for issue on parameter for meteor strike.
+		 * Max population limit to trigger higher disasters moved from 400K to 800K
+		 * Max population limit Default value changed from 100K to 200K.
+		 * Meteor strike tooltip info format fixed
+
+	Version: 1.2.4
+		Release Date (YYYY-MM-dd): 2023-06-03
+		Change List:
+		 * Extra fix for meteor strike max intensiti internal seup when save.
+		 * Max population limit to trigger higher disasters moved from 400K to 800K
+		 * Max population limit Default value changed from 100K to 200K.
+		 * Meteor strike tooltip info format fixed
+
 	Version: 1.x
 		Release Date (YYYY-MM-dd): ...
 		Change List:

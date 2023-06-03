@@ -1,0 +1,68 @@
+[img]https://i.imgur.com/a0VrMRr.png[/img]
+
+[h1]About this mod[/h1]
+
+"Natural Disaster Renewal" takes Zenya's "Natural Disaster Overhaul" and [SUSU]yang yang's "Ragnarok" mods functionalities to be unified in only one, including some other awesome stuffs.
+
+[b][i]Mod version: 1.2.4[/i][/b]
+
+[h1]General Features[/h1]
+[olist]
+ [*] With this mod natural disasters occur in more natural way, depending on weather, season, or time passed since the last disaster. 
+ [*] You can Force disasters from any level (from 0.0 to 25.5). 
+ [*] It includes a new disaster evacuation mode to evacuate populations according to needs (Manual, automatic or automatic-focused)
+ [*] Focused evacuation allows to choose an evacuation radius (In meters).
+ [*] You can pause the game before disaster start.
+ [*] You can Focus camera on disaster coordenates.
+ [*] You can place The Mod button anywhere and the information panel too (and reset position if needed from setup panel).
+ [*] Maximum intensity of all disasters is set to 1.0 at the beginning of the game and gradually increases up to the maximum (25.5) until the city population reaches the max value (By default 100k, but can set it from 20k to 800k).
+ [*] Duration of small intensity thunderstorms is decreased.
+ [*] Meteoroid streams period and phase (next approaching time) are randomized at the beginning of the game.
+ [*] You can disable specific disasters from Setup menu or information panel.
+ [*] All settings are stored in your game save file, so you can use different settings for each game.
+[/olist]
+
+[h1] About my favorite enhancement and why I did this: Automatic focused evacuations/releases: [/h1]
+[list]
+ [*] You can choose if want manual evacuation, Ragnarok’s automatic evacuation/release or an automatic focused evacuation based on disaster selected.
+ [*] It means that only affected zone in a defined radio would be evacuated/released. 
+ [*] In case of disasters like Meteor strikes, earthquakes (with cracks) and sinkholes, the shelters inside the destruction radio won’t be evacuated (We don’t want to kill anyone).
+ [*] In case that evacuation radius is minor to destruction radius, second one will be the base to evacuate (based on Disaster radius).
+ [*] Not all tornadoes will destroy the roads, only 10+ intensity. (Reading a bit, not all tornadoes destroy the roads, only stronger)
+ [*] You can select the base intensity to crack the ground during an earthquake, just no cracks or cracks during any earthquake.
+ [*] Disaster Pile: When you have multiple disasters in progress affecting the same shelters, these won’t be evacuated until last disaster closer is done (in automatic modes).
+[/list]
+
+[h1]About each disaster...[/h1]
+
+You can take a look into Git repository with specific information about each disaster in [url=https://github.com/luisgobo/EnhancedDisastersModRenewal/blob/master/README.md] Git Readme [/url]
+or version Changes in [url=https://github.com/luisgobo/EnhancedDisastersModRenewal/blob/master/Source/Versions/Changelog.txt] Changelog [/url]
+
+[h1]About time lapse[/h1]
+
+The time lapse used by this mod is set by the game and impacts how often the disasters happen, if you use vanilla time you will notice disasters happen more often, if you use the "Real Time" mod it will slow down the frequency of these.
+
+[h1]What if I use Skyve?[/h1]
+Make sure you enable the mod into your Skyve's profile mod list, otherwise you cannot see it into content manager neither the game.
+
+[hr][/hr]
+
+[h1]More information about this Mixed mod [/h1]
+
+You can see description of base mods to have a context about how it works:
+
+ • Natural disaster Overhaul: https://steamcommunity.com/sharedfiles/filedetails/?id=1801953480
+ • Ragnarok: https://steamcommunity.com/sharedfiles/filedetails/?id=811352708
+
+[hr][/hr]
+[h1]Bugs or issues[/h1]
+
+Please, report any issue to check it and fix it in next releases.
+[url=https://steamcommunity.com/workshop/filedetails/discussion/2957578256/6492543723419458165/]right here[/url]. Please add some information to figure out what would be happening (City Population, disaster where the issue is happening or in-game situation being affected, for example some other mods, conflicts).
+
+[hr][/hr]
+[h1]Source Code[/h1] 
+You can take a look to source code
+[url=https://github.com/luisgobo/EnhancedDisastersModRenewal][img]https://imgur.com/DczUXYq.png[/img][/url]
+
+Best regards!
