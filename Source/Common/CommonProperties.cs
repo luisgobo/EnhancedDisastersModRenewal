@@ -8,7 +8,7 @@ namespace NaturalDisastersRenewal.Common
     {
         public const string modName = "Natural Disasters Renewal";
         public const string modNameForHarmony = "NaturalDisastersRenewal";
-        public const string modVersion = "1.2.4";
+        public const string modVersion = "1.3.0";
         public const string modLastVersionYear = "2023";
         public const string modLastVersionMonth = "June";
         public const string modSteamId = "2957578256";
@@ -17,6 +17,8 @@ namespace NaturalDisastersRenewal.Common
         public const string contentFolder = "NaturalDisastersRenewalMod";
         public const string xmlFilename = "NaturalDisastersRenewalModOptions.xml";
         public const string logFilename = "NaturalDisastersRenewalMod.log";
+        public const string enabledModslogFilename = "EnabledModslogFilename.log";
+        public const string conflictModLog = "ConflictModLog.log";
         public const string dataId = "NaturalDisastersRenewalMod";
         public const string disasterListFileName = "DisasterList.csv";
         public const string logMsgPrefix = ">>> " + modName + ": ";
@@ -28,6 +30,12 @@ namespace NaturalDisastersRenewal.Common
         public const string thunderstormName = "Thunderstorm";
         public const string tornadoName = "Tornado";
         public const string tsunamiName = "Tsunami";
+
+        public const string modDependencyType = "modinfo";
+        public const string modDependencyToLowerAcme = "acme";
+        public const string modDependencyToLowerRealTime = "realtime";
+        public const string modDependencyToLowerUUI = "unifieduimod";
+        public const string modDependencyToLowerUUILib = "unifieduilib";
 
         public static string newLine = $"{Environment.NewLine}";//Used in debug mode
 

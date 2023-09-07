@@ -1,4 +1,5 @@
 ﻿using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         //General options
         public bool DisableDisasterFocus = true;
+        //public PanelIconsVisivility ShowDisasterPanelButton = PanelIconsVisivility.Both;
 
         public bool PauseOnDisasterStarts = false;
         public float PartialEvacuationRadius = 900f;
@@ -32,11 +34,12 @@ namespace NaturalDisastersRenewal.Models.Setup
         public Vector3 DPanelPos = new Vector3(90, 40);
 
         //Disaster list
-        //[XmlIgnore] //for now it's needed to read it when on load and save game
         public List<DisasterInfoModel> activeDisasters = new List<DisasterInfoModel>();
 
-        [XmlIgnore]
-        public List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();
+        [XmlIgnore] public List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();
+        [XmlIgnore] public bool isAcmeModActive = false;
+        [XmlIgnore] public bool isRealTimeModActive = false;
+        [XmlIgnore] public bool isUnifiedUIActive = false;
 
         public void Save()
         {

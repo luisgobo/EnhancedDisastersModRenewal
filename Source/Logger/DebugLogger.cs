@@ -14,14 +14,24 @@ namespace NaturalDisastersRenewal.Models.Disaster
             if (IsDebug)
             //if (IsDebug && System.Diagnostics.Debugger.IsAttached)
             {
-                File.AppendAllText(GeFilePath(), msg + CommonProperties.newLine);
+                File.AppendAllText(GeFilePath(CommonProperties.logFilename), msg + CommonProperties.newLine);
                 Debug.Log(msg);
             }
         }
 
-        static string GeFilePath()
+        public static void EnabledModsLog(string msg)
         {
-            return CommonProperties.GetOptionsFilePath(CommonProperties.logFilename);
+            if (IsDebug)
+            //if (IsDebug && System.Diagnostics.Debugger.IsAttached)
+            {
+                File.AppendAllText(GeFilePath(CommonProperties.enabledModslogFilename), msg + CommonProperties.newLine);
+                Debug.Log(msg);
+            }
+        }
+
+        static string GeFilePath(string logFileName)
+        {
+            return CommonProperties.GetOptionsFilePath(logFileName);
         }
     }
 }

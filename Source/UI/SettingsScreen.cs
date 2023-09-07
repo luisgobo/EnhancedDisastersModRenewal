@@ -3,12 +3,11 @@ using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
+using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
-using System;
-using System.Diagnostics;
 using System.Reflection;
 using UnityEngine;
 using Helper = NaturalDisastersRenewal.Common.Helper;
@@ -23,6 +22,9 @@ namespace NaturalDisastersRenewal.UI
         #region UI Components
 
         //General
+        UILabel UI_General_AcmeModFound;
+        UILabel UI_General_RealTimeModFound;
+
         UICheckBox UI_General_DisableDisasterFocus;
 
         UICheckBox UI_General_PauseOnDisasterStarts;
@@ -124,6 +126,10 @@ namespace NaturalDisastersRenewal.UI
             DisasterSetupModel disasterSetupModel = Singleton<NaturalDisasterHandler>.instance.container;
             freezeUI = true;
 
+            //Setup Info charge
+            UI_General_AcmeModFound.text = $"ACME mod found: {disasterSetupModel.isAcmeModActive}";
+            UI_General_RealTimeModFound.text = $"Real Time mod found: {disasterSetupModel.isRealTimeModActive}";
+
             UI_General_DisableDisasterFocus.isChecked = disasterSetupModel.DisableDisasterFocus;
             UI_General_PauseOnDisasterStarts.isChecked = disasterSetupModel.PauseOnDisasterStarts;
             UI_General_PartialEvacuationRadius.value = disasterSetupModel.PartialEvacuationRadius;
@@ -205,6 +211,8 @@ namespace NaturalDisastersRenewal.UI
         {
             DisasterSetupModel disasterContainer = Singleton<NaturalDisasterHandler>.instance.container;
 
+            CheckModDependencies(ref disasterContainer);
+
             SetupGeneralTab(ref helper, disasterContainer);
             SetupForestFire(ref helper, disasterContainer);
             SetupThunderstorm(ref helper, disasterContainer);
@@ -216,6 +224,7 @@ namespace NaturalDisastersRenewal.UI
             //SetupHotkeySetup(ref helper, disasterContainer);
             SetupSaveOptions(ref helper, disasterContainer);
 
+            ApplySetupValidations(disasterContainer.isAcmeModActive, disasterContainer.isRealTimeModActive);
         }
 
         void SetupGeneralTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
@@ -226,8 +235,8 @@ namespace NaturalDisastersRenewal.UI
             {
                 if (!freezeUI)
                 {
-                    disasterContainer.DisableDisasterFocus = isChecked;
-                    DisasterExtension.SetDisableDisasterFocus(disasterContainer.DisableDisasterFocus);
+                    disasterContainer.DisableDisasterFocus = disasterContainer.isAcmeModActive ? disasterContainer.isAcmeModActive : isChecked;
+                    DisasterExtension.SetDisableDisasterFocus(disasterContainer.isAcmeModActive, disasterContainer.DisableDisasterFocus);
                 }
             });
 
@@ -255,7 +264,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_MaxPopulationToTrigguerHigherDisasters.tooltip = "Select the max population to trigger higher disaster intensity.";
 
             generalGroup.AddSpace(10);
-            
+
             UI_General_ScaleMaxIntensityWithPopulation = (UICheckBox)generalGroup.AddCheckbox("Scale max intensity with population", disasterContainer.ScaleMaxIntensityWithPopulation, delegate (bool isChecked)
             {
                 if (!freezeUI)
@@ -294,7 +303,7 @@ namespace NaturalDisastersRenewal.UI
                 Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(false, true);
                 UpdateSetupContentUI();
             });
-            
+
             generalGroup.AddGroup("Hotkey to display/hide panel info: Shift + D (will be configurable soon).");
             generalGroup.AddSpace(10);
 
@@ -371,7 +380,7 @@ namespace NaturalDisastersRenewal.UI
                 }
             );
 
-            helper.AddSpace(20);            
+            helper.AddSpace(20);
         }
 
         void SetupThunderstorm(ref UIHelper helper, DisasterSetupModel disasterContainer)
@@ -416,7 +425,7 @@ namespace NaturalDisastersRenewal.UI
                 }
             );
 
-            helper.AddSpace(20);            
+            helper.AddSpace(20);
         }
 
         void SetupSinkhole(ref UIHelper helper, DisasterSetupModel disasterContainer)
@@ -452,7 +461,6 @@ namespace NaturalDisastersRenewal.UI
                 });
 
             helper.AddSpace(20);
-
         }
 
         void SetupTornado(ref UIHelper helper, DisasterSetupModel disasterContainer)
@@ -548,7 +556,6 @@ namespace NaturalDisastersRenewal.UI
            );
 
             helper.AddSpace(20);
-
         }
 
         void SetupEarthquake(ref UIHelper helper, DisasterSetupModel disasterContainer)
@@ -588,6 +595,9 @@ namespace NaturalDisastersRenewal.UI
                  {
                      if (!freezeUI)
                          disasterContainer.Earthquake.EarthquakeCrackMode = (EarthquakeCrackOptions)selection;
+
+                     UI_Earthquake_MinIntensityToCrack.enabled =
+                            disasterContainer.Earthquake.EarthquakeCrackMode == EarthquakeCrackOptions.CracksBasedOnIntensity;
                  }
              );
             UI_Earthquake_CrackMode.tooltip = "Based on selection you can put a crack in the ground, ignoring it or put it based on intensity.";
@@ -615,7 +625,6 @@ namespace NaturalDisastersRenewal.UI
              );
 
             helper.AddSpace(20);
-
         }
 
         void SetupMeteorStrike(ref UIHelper helper, DisasterSetupModel disasterContainer)
@@ -662,13 +671,11 @@ namespace NaturalDisastersRenewal.UI
             );
 
             helper.AddSpace(20);
-
         }
 
         //Next enhancement
-        void SetupHotkeySetup(ref UIHelper helper, DisasterSetupModel disasterContainer) {
-
-            
+        void SetupHotkeySetup(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        {
         }
 
         void SetupSaveOptions(ref UIHelper helper, DisasterSetupModel disasterContainer)
@@ -693,5 +700,29 @@ namespace NaturalDisastersRenewal.UI
         }
 
         #endregion Options UI
+
+        #region Other Methods
+
+        void ApplySetupValidations(bool isAcmeModActive, bool isRealTimeModActive)
+        {
+            if (isAcmeModActive)
+            {
+                UI_General_DisableDisasterFocus.isEnabled = !isAcmeModActive;
+                UI_General_DisableDisasterFocus.tooltip = "Disabled because ACME Mod is enabled.";
+            }
+        }
+
+        void CheckModDependencies(ref DisasterSetupModel disasterContainer)
+        {
+            _ = new ExternalModsCommon();
+
+            disasterContainer.isAcmeModActive = ExternalModsCommon.CheckAssemblyExistence(CommonProperties.modDependencyToLowerAcme);
+            disasterContainer.isRealTimeModActive = ExternalModsCommon.CheckAssemblyExistence(CommonProperties.modDependencyToLowerRealTime);
+            disasterContainer.isUnifiedUIActive =
+                ExternalModsCommon.CheckAssemblyExistence(CommonProperties.modDependencyToLowerUUI)
+                && ExternalModsCommon.CheckAssemblyExistence(CommonProperties.modDependencyToLowerUUILib);
+        }
+
+        #endregion Other Methods
     }
 }

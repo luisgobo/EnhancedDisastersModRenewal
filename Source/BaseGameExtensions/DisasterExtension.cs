@@ -47,9 +47,10 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             Singleton<NaturalDisasterHandler>.instance.OnDisasterFinished(disasterData.Info.m_disasterAI, disasterID);
         }
 
-        public static void SetDisableDisasterFocus(bool disableDisasterFocus)
+        public static void SetDisableDisasterFocus(bool isAcmeModActive, bool disableDisasterFocus)
         {
-            DisasterManager.instance.m_disableAutomaticFollow = disableDisasterFocus;
+            if (!isAcmeModActive)
+                DisasterManager.instance.m_disableAutomaticFollow = disableDisasterFocus;
         }
 
         public static void SetPauseOnDisasterStarts(bool disablePause, double secondsBeforePausing, ushort disasterId, DisasterSettings disasterInfo, bool enabled)

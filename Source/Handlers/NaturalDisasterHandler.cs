@@ -354,7 +354,7 @@ namespace NaturalDisastersRenewal.Handlers
             UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
         }
 
-        void ToggleDisasterPanel()
+        public void ToggleDisasterPanel()
         {
             dPanel.isVisible = !dPanel.isVisible;
 

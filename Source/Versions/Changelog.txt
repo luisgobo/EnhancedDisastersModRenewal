@@ -64,6 +64,15 @@
 		 * Max population limit Default value changed from 100K to 200K.
 		 * Meteor strike tooltip info format fixed
 
+	Version: 1.3
+		Release Date (2023-09-??): ...
+		Change List:
+		 * Mods dependency Checking added (Now its possible identify ACME and Real Time Mods)
+		 * UnifiedUI Integration (un progress)
+		 * KeyBinding setup (In progress)
+		 * New Setup menu distribution (In progress)
+		 * ...
+
 	Version: 1.x
 		Release Date (YYYY-MM-dd): ...
 		Change List:
