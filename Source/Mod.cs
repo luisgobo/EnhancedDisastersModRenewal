@@ -1,6 +1,10 @@
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.UI;
+using System;
 
 namespace NaturalDisastersRenewal
 {
@@ -19,7 +23,7 @@ namespace NaturalDisastersRenewal
         }
 
         public void OnSettingsUI(UIHelper helper)
-        {
+        {                        
             settings.BuildSettingsMenu(helper);
         }
 

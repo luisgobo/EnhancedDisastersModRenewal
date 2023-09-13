@@ -39,7 +39,7 @@ namespace NaturalDisastersRenewal.Models.Setup
         [XmlIgnore] public List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();
         [XmlIgnore] public bool isAcmeModActive = false;
         [XmlIgnore] public bool isRealTimeModActive = false;
-        [XmlIgnore] public bool isUnifiedUIActive = false;
+        [XmlIgnore] public bool isUnifiedUIActive = true; //false;
 
         public void Save()
         {

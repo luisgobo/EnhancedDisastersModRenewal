@@ -68,6 +68,10 @@
     <Compile Include="Common\enums\EarthquakeCrackOptions.cs" />
     <Compile Include="Common\enums\EvacuationOptions.cs" />
     <Compile Include="Common\ExternalModsCommon.cs" />
+    <Compile Include="Common\KeyMapping\UnsavedKeyMapping.cs" />
+    <Compile Include="Common\KeyMapping\XMLInputKey.cs" />
+    <Compile Include="Common\ModSettings.cs" />
+    <Compile Include="Common\TextureResources.cs" />
     <Compile Include="Common\Types\Triplet.cs" />
     <Compile Include="Handlers\NaturalDisasterHandler.cs" />
     <Compile Include="Logger\DebugLogger.cs" />
@@ -113,6 +117,7 @@
     <Compile Include="UI\Keybinding\UnsavedInputKey.cs" />
     <Compile Include="UI\SettingsScreen.cs" />
     <Compile Include="UI\UIHelperExtension\UIHelperExtension.cs" />
+    <Compile Include="UI\UnifiedUI\SelectionTool.cs" />
     <Compile Include="UI\UnifiedUI\UnifiedUISetup.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -17,7 +17,7 @@ namespace NaturalDisastersRenewal.UI.UnifiedUI
         /// <summary>
         /// Gets or sets the UnsavedInputKey reference for communicating with UUI.
         /// </summary>
-        internal static NaturalDisastersRenewal.UI.Keybinding.UnsavedInputKey UUIKey { get; set; } = new NaturalDisastersRenewal.UI.Keybinding.UnsavedInputKey("Natural DisasterRenewal hotkey", keyCode: KeyCode.N, control: false, shift: false, alt: true);
+        internal static Keybinding.UnsavedInputKey UUIKey { get; set; } = new Keybinding.UnsavedInputKey("Natural DisasterRenewal hotkey", keyCode: KeyCode.N, control: false, shift: false, alt: true);
 
         /// <summary>
         /// Gets the UUI button instance.
@@ -40,7 +40,6 @@ namespace NaturalDisastersRenewal.UI.UnifiedUI
                     icon: UUIHelpers.LoadTexture(UUIHelpers.GetFullPath<Mod>("Resources", "NaturalDisasterRenewal-UUI.png")),
                     onToggle: (value) => naturalDisasterSetup.ToggleDisasterPanel(),
                     hotkeys: new UUIHotKeys { ActivationKey = UUIKey }
-
                     );
                 ////UUICustomButton RegisterCustomButton (string name, string groupName, string tooltip, string spritefile, Action<bool> onToggle, Action<ToolBase> onToolChanged = null, SavedInputKey activationKey = null, Dictionary<SavedInputKey, Func<bool>> activeKeys = null)
                 ////UIComponent RegisterToolButton       (string name, string groupName, string tooltip, ToolBase tool, UnifiedUI.Helpers.UUISprites sprites, UUIHotKeys hotkeys = null)

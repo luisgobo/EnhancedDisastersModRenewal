@@ -7,6 +7,7 @@ using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI;
+using NaturalDisastersRenewal.UI.UnifiedUI;
 using System;
 using System.Reflection;
 using UnityEngine;
@@ -21,6 +22,8 @@ namespace NaturalDisastersRenewal.Handlers
         UIButton toggleButton;
         readonly Harmony harmony = new Harmony(CommonProperties.modNameForHarmony);
         DisasterWrapper disasterWrapper;
+
+        public string CityName { set; get; }
 
         NaturalDisasterHandler()
         {
@@ -322,21 +325,52 @@ namespace NaturalDisastersRenewal.Handlers
             if (dPanel != null) 
                 return;
 
-            UIView v = UIView.GetAView();
-
-            GameObject obj = new GameObject("ExtendedDisastersPanel");
-            obj.transform.parent = v.cachedTransform;
-            dPanel = obj.AddComponent<ExtendedDisastersPanel>();
+            GameObject dataPanel = new GameObject("ExtendedDisastersPanel");
+            dataPanel.transform.parent = UIView.GetAView().cachedTransform;
+            dPanel = dataPanel.AddComponent<ExtendedDisastersPanel>();
             dPanel.absolutePosition = new Vector3(90, 100);
+            dPanel.tooltip = "Drag by right-click to set the panel position.";
+            dPanel.eventMouseMove += DPanel_eventMouseMove;
+
+            CreateToggleButton();
+            CreateUnifiedUIButton();
+            UpdateDisastersPanelToggleBtn();
+            UpdateDisastersDPanel();
+
+            UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
+        }
+
+        private void CreateUnifiedUIButton()
+        {
+            DebugLogger.Log("--------------------");
+            DebugLogger.Log("Create UnifiedUI Button");
+            DebugLogger.Log("--------------------");
+
+            if (SelectionTool.Instance == null) 
+            {
+                DebugLogger.Log("No UnifiedUI found. create it");
+                SelectionTool.AddSelectionTool();
+            }
+            else
+            {
+                DebugLogger.Log("UnifiedUI found");
+            }
+        }
+
+        void CreateToggleButton()
+        {
+            DebugLogger.Log("--------------------");
+            DebugLogger.Log("Create Toggle Button");
+            DebugLogger.Log("--------------------");
 
             GameObject toggleButtonObject = new GameObject("ExtendedDisastersPanelButton");
-            toggleButtonObject.transform.parent = v.transform;            
+            toggleButtonObject.transform.parent = UIView.GetAView().transform;
             toggleButtonObject.transform.localPosition = Vector3.zero;
             toggleButton = toggleButtonObject.AddComponent<UIButton>();
             toggleButton.name = "ExtendedDisastersPanelToggleButton";
             toggleButton.normalBgSprite = "ToolbarIconZoomOutGlobeHovered";
             toggleButton.normalFgSprite = "IconPolicyPowerSavingDisabled";
-            toggleButton.hoveredFgSprite = "IconPolicyPowerSavingPressed"; 
+            toggleButton.hoveredFgSprite = "IconPolicyPowerSavingPressed";
             toggleButton.width = 38f;
             toggleButton.height = 38f;
             toggleButton.absolutePosition = new Vector3(90, 62);
@@ -344,14 +378,6 @@ namespace NaturalDisastersRenewal.Handlers
             toggleButton.isVisible = container.ShowDisasterPanelButton;
             toggleButton.eventClick += ToggleButton_eventClick;
             toggleButton.eventMouseMove += ToggleButton_eventMouseMove;
-
-            dPanel.tooltip = "Drag by right-click to set the panel position.";
-            dPanel.eventMouseMove += DPanel_eventMouseMove;
-
-            UpdateDisastersPanelToggleBtn();
-            UpdateDisastersDPanel();
-
-            UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
         }
 
         public void ToggleDisasterPanel()
@@ -366,6 +392,9 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void UpdateDisastersPanelToggleBtn()
         {
+
+            DebugLogger.Log("Trigguer visibility action");
+
             if (toggleButton != null && container != null)
             {
                 toggleButton.isVisible = container.ShowDisasterPanelButton;
@@ -401,6 +430,7 @@ namespace NaturalDisastersRenewal.Handlers
         {
             if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
             {
+                //var ratio = UIView.GetAView().ratio;
                 var ratio = UIView.GetAView().ratio;
                 toggleButton.position = SetUIItemPosition(toggleButton.position, eventParam.moveDelta.x, eventParam.moveDelta.y, ratio);
                 container.ToggleButtonPos = toggleButton.absolutePosition;
@@ -410,6 +440,7 @@ namespace NaturalDisastersRenewal.Handlers
         {
             if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
             {
+                //var ratio = UIView.GetAView().ratio;
                 var ratio = UIView.GetAView().ratio;
                 dPanel.position = SetUIItemPosition(dPanel.position, eventParam.moveDelta.x, eventParam.moveDelta.y, ratio);
                 container.DPanelPos = dPanel.absolutePosition;

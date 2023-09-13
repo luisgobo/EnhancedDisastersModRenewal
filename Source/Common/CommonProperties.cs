@@ -60,7 +60,7 @@ namespace NaturalDisastersRenewal.Common
         {
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-        }
+        }        
 
     }
 }
