@@ -334,7 +334,7 @@ namespace NaturalDisastersRenewal.Handlers
 
             CreateToggleButton();
             CreateUnifiedUIButton();
-            UpdateDisastersPanelToggleBtn();
+            UpdateTogglerButtonsVisibility();
             UpdateDisastersDPanel();
 
             UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
@@ -390,7 +390,7 @@ namespace NaturalDisastersRenewal.Handlers
             }
         }
 
-        public void UpdateDisastersPanelToggleBtn()
+        public void UpdateTogglerButtonsVisibility()
         {
 
             DebugLogger.Log("Trigguer visibility action");

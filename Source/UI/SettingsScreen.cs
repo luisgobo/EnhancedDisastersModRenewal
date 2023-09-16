@@ -284,7 +284,7 @@ namespace NaturalDisastersRenewal.UI
                 if (!freezeUI)
                     disasterContainer.ShowDisasterPanelButton = isChecked;
 
-                Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
+                Singleton<NaturalDisasterHandler>.instance.UpdateTogglerButtonsVisibility();
                 Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
             });
 

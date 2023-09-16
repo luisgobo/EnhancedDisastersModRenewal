@@ -50,7 +50,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
         public void AfterDeserialize(DataSerializer dataSerializer)
         {
-            Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
+            Singleton<NaturalDisasterHandler>.instance.UpdateTogglerButtonsVisibility();
             Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
         }
     }
