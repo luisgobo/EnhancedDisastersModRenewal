@@ -87,7 +87,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
                     DataSerializer.Deserialize<SerializableDataEarthquake>(stream, DataSerializer.Mode.Memory);
                     DataSerializer.Deserialize<SerializableDataMeteorStrike>(stream, DataSerializer.Mode.Memory);
                 }
-                SettingsScreen.UpdateUISettingsOptions();
+                NewSettingsScreen.UpdateUISettingsOptions();
                 Debug.Log($"Disaster setup data loaded for current game");
             }
             catch (Exception ex)

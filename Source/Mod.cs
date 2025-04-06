@@ -6,7 +6,7 @@ namespace NaturalDisastersRenewal
 {
     public class Mod : IUserMod
     {
-        readonly SettingsScreen settings = new SettingsScreen();
+        readonly NewSettingsScreen settings = new NewSettingsScreen();
 
         public string Name
         {

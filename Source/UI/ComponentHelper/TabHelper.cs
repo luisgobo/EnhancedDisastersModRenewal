@@ -5,78 +5,10 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
     public sealed class TabHelper : UITabstrip
     {
-        public const float V_SCROLLBAR_WIDTH = 16f;
         public const float TAB_STRIP_HEIGHT = 40f;
+        public const float TAB_PADDING = 10f;
 
-        private UIScrollbar CreateVerticalScrollbar(UIPanel panel, UIScrollablePanel scrollablePanel)
-        {
-            UIScrollbar verticalScrollbar = panel.AddUIComponent<UIScrollbar>();
-            verticalScrollbar.name = "VerticalScrollbar";
-            verticalScrollbar.width = V_SCROLLBAR_WIDTH;
-            verticalScrollbar.height = tabPages.height;
-            verticalScrollbar.orientation = UIOrientation.Vertical;
-            verticalScrollbar.pivot = UIPivotPoint.TopLeft;
-            verticalScrollbar.AlignTo(panel, UIAlignAnchor.TopRight);
-            verticalScrollbar.minValue = 0;
-            verticalScrollbar.value = 0;
-            verticalScrollbar.incrementAmount = 50;
-            verticalScrollbar.autoHide = true;
-
-            UISlicedSprite trackSprite = verticalScrollbar.AddUIComponent<UISlicedSprite>();
-            trackSprite.relativePosition = Vector2.zero;
-            trackSprite.autoSize = true;
-            trackSprite.size = trackSprite.parent.size;
-            trackSprite.fillDirection = UIFillDirection.Vertical;
-            trackSprite.spriteName = "ScrollbarTrack";
-            verticalScrollbar.trackObject = trackSprite;
-
-            UISlicedSprite thumbSprite = trackSprite.AddUIComponent<UISlicedSprite>();
-            thumbSprite.relativePosition = Vector2.zero;
-            thumbSprite.fillDirection = UIFillDirection.Vertical;
-            thumbSprite.autoSize = true;
-            thumbSprite.width = thumbSprite.parent.width;
-            thumbSprite.spriteName = "ScrollbarThumb";
-            verticalScrollbar.thumbObject = thumbSprite;
-
-            verticalScrollbar.eventValueChanged += (component, value) => {
-                scrollablePanel.scrollPosition = new Vector2(0, value);
-            };
-
-            panel.eventMouseWheel += (component, eventParam) => {
-                verticalScrollbar.value -= (int)eventParam.wheelDelta * verticalScrollbar.incrementAmount;
-            };
-
-            scrollablePanel.eventMouseWheel += (component, eventParam) => {
-                verticalScrollbar.value -= (int)eventParam.wheelDelta * verticalScrollbar.incrementAmount;
-            };
-
-            scrollablePanel.verticalScrollbar = verticalScrollbar;
-
-            return verticalScrollbar;
-        }
-
-        private UIScrollablePanel CreateScrollablePanel(UIPanel panel)
-        {
-            panel.autoLayout = true;
-            panel.autoLayoutDirection = LayoutDirection.Horizontal;
-
-            UIScrollablePanel scrollablePanel = panel.AddUIComponent<UIScrollablePanel>();
-            scrollablePanel.autoLayout = true;
-            scrollablePanel.autoLayoutPadding = new RectOffset(10, 10, 0, 16);
-            scrollablePanel.autoLayoutStart = LayoutStart.TopLeft;
-            scrollablePanel.wrapLayout = true;
-            scrollablePanel.size = new Vector2(panel.size.x - V_SCROLLBAR_WIDTH, panel.size.y);
-            scrollablePanel.autoLayoutDirection = LayoutDirection.Horizontal; //Vertical does not work but why?
-
-            UIScrollbar verticalScrollbar = CreateVerticalScrollbar(panel, scrollablePanel);
-            verticalScrollbar.Show();
-            verticalScrollbar.Invalidate();
-            scrollablePanel.Invalidate();
-
-            return scrollablePanel;
-        }
-
-        public UIHelper AddTabPage(string name, bool scrollBars = true)
+        public UIHelper AddTabPage(string name, bool setNewLine = false)
         {
             UIButton tabButton = base.AddTab(name);
             tabButton.normalBgSprite = "SubBarButtonBase";
@@ -85,44 +17,87 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             tabButton.hoveredBgSprite = "SubBarButtonBaseHovered";
             tabButton.pressedBgSprite = "SubBarButtonBasePressed";
             tabButton.textPadding = new RectOffset(10, 10, 10, 6);
+            tabButton.textScale = 0.65f;
             tabButton.autoSize = true;
-            //tabButton.atlas = TextureUtil.Ingame;
 
-            selectedIndex = tabCount - 1;
-            UIPanel currentPanel = tabContainer.components[selectedIndex] as UIPanel;
-            currentPanel.autoLayout = true;
-
-            UIHelper panelHelper;
-            if (scrollBars)
+            if (setNewLine)
             {
-                UIScrollablePanel scrollablePanel = CreateScrollablePanel(currentPanel);
-                panelHelper = new UIHelper(scrollablePanel);
+                float currentX = 0f;
+                float currentY = 0f;
+
+                currentX = 0f;
+                currentY += TAB_STRIP_HEIGHT + TAB_PADDING;
+                tabButton.position = new Vector3(currentX, currentY);
+
             }
             else
             {
-                currentPanel.autoLayoutDirection = LayoutDirection.Vertical;
-                panelHelper = new UIHelper(currentPanel);
+                tabButton.position = new Vector3(0, 0);
             }
-            return panelHelper;
+
+            selectedIndex = tabCount - 1;
+            UIPanel currentPanel = tabContainer.components[selectedIndex] as UIPanel;
+            if (currentPanel == null)
+            {
+                currentPanel = tabContainer.AddUIComponent<UIPanel>();
+                tabContainer.components[selectedIndex] = currentPanel;
+            }
+            currentPanel.autoLayout = true;
+
+            //UpdateTabPositions();
+
+            return new UIHelper(currentPanel);
+        }
+
+        private void UpdateTabPositions()
+        {
+            float currentX = 0f;
+            float currentY = 0f;
+            int totalTabs = components.Count;
+
+            for (int i = 0; i < totalTabs; i++)
+            {
+                UIButton tabButton = components[i] as UIButton;
+
+                // Move the last three tabs to the next line
+                if (i >= totalTabs - 3)
+                {
+                    if (i == totalTabs - 3)
+                    {
+                        currentX = 0f;
+                        currentY += TAB_STRIP_HEIGHT + TAB_PADDING;
+                    }
+                }
+                else if (currentX + tabButton.width > width)
+                {
+                    currentX = 0f;
+                    currentY += TAB_STRIP_HEIGHT + TAB_PADDING;
+                }
+
+                tabButton.relativePosition = new Vector3(currentX, currentY);
+                currentX += tabButton.width + TAB_PADDING;
+            }
+
+            height = currentY + TAB_STRIP_HEIGHT;
         }
 
         public static TabHelper Create(UIHelper helper)
         {
             UIComponent optionsContainer = helper.self as UIComponent;
-            float orgOptsContainerWidth = optionsContainer.height;
-            float orgOptsContainerHeight = optionsContainer.width;
+            float orgOptsContainerWidth = optionsContainer.width;
+            float orgOptsContainerHeight = optionsContainer.height;
 
-            int paddingRight = 10; //Options container is Scrollable panel itself(reserves space for scroll - which we don't use)
-            optionsContainer.size = new Vector2(orgOptsContainerWidth + paddingRight, orgOptsContainerHeight);
+            //int paddingRight = 10; //Options container is Scrollable panel itself(reserves space for scroll - which we don't use)
+            //optionsContainer.size = new Vector2(orgOptsContainerWidth + paddingRight, orgOptsContainerHeight);
 
             TabHelper tabStrip = optionsContainer.AddUIComponent<TabHelper>();
             tabStrip.relativePosition = new Vector3(0, 0);
             tabStrip.size = new Vector2(orgOptsContainerWidth, TAB_STRIP_HEIGHT);
 
             UITabContainer tabContainer = optionsContainer.AddUIComponent<UITabContainer>();
-            tabContainer.relativePosition = new Vector3(0, TAB_STRIP_HEIGHT);
-            tabContainer.width = (orgOptsContainerWidth + paddingRight) - V_SCROLLBAR_WIDTH;
-            tabContainer.height = optionsContainer.height - (tabStrip.relativePosition.y + tabContainer.relativePosition.y);
+            tabContainer.relativePosition = new Vector3(0, tabStrip.height);
+            tabContainer.width = orgOptsContainerWidth;
+            tabContainer.height = orgOptsContainerHeight - tabStrip.height;
             tabStrip.tabPages = tabContainer;
 
             return tabStrip;

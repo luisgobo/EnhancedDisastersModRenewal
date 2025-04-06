@@ -247,7 +247,7 @@ namespace NaturalDisastersRenewal.UI
                 else
                     ((UIButton)component).normalFgSprite = "ButtonPlayFocused";
 
-                SettingsScreen.UpdateUISettingsOptions();
+                NewSettingsScreen.UpdateUISettingsOptions();
             }
         }
 
