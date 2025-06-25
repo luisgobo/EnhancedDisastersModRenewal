@@ -23,7 +23,7 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         public bool PauseOnDisasterStarts = false;
         public float PartialEvacuationRadius = 900f;
-        public float MaxPopulationToTrigguerHigherDisasters = 200000;
+        public float MaxPopulationToTriggerHigherDisasters = 200000;
 
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;
@@ -33,10 +33,10 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         //Disaster list
         //[XmlIgnore] //for now it's needed to read it when on load and save game
-        public List<DisasterInfoModel> activeDisasters = new List<DisasterInfoModel>();
+        public List<DisasterInfoModel> ActiveDisasters = new List<DisasterInfoModel>();
 
         [XmlIgnore]
-        public List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();
+        public readonly List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();
 
         public void Save()
         {

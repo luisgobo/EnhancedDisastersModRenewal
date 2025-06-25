@@ -61,6 +61,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public float GetCurrentOccurrencePerYear()
         {
+            //Check here to setup real time occurrence per year
             if (calmDaysLeft > 0)
             {
                 return 0f;
@@ -183,7 +184,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
 
             var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-            if (Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
+            if (Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
             {
                 if (result != "") result += CommonProperties.newLine;
                 result += "Decreased because of low population.";
@@ -263,9 +264,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {                
                 int population = Helper.GetPopulation();
                 var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-                if (population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
+                if (population < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
                 {
-                    intensity = (byte)(indexReferenceDisasterValue + (((intensity - indexReferenceDisasterValue) * population) / naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters));
+                    intensity = (byte)(indexReferenceDisasterValue + (((intensity - indexReferenceDisasterValue) * population) / naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters));
 
                 }
             }

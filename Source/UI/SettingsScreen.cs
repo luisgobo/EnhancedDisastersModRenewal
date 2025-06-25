@@ -127,7 +127,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_DisableDisasterFocus.isChecked = disasterSetupModel.DisableDisasterFocus;
             UI_General_PauseOnDisasterStarts.isChecked = disasterSetupModel.PauseOnDisasterStarts;
             UI_General_PartialEvacuationRadius.value = disasterSetupModel.PartialEvacuationRadius;
-            UI_General_MaxPopulationToTrigguerHigherDisasters.value = disasterSetupModel.MaxPopulationToTrigguerHigherDisasters;
+            UI_General_MaxPopulationToTrigguerHigherDisasters.value = disasterSetupModel.MaxPopulationToTriggerHigherDisasters;
 
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = disasterSetupModel.ScaleMaxIntensityWithPopulation;
             UI_General_RecordDisasterEventsChkBox.isChecked = disasterSetupModel.RecordDisasterEvents;
@@ -246,10 +246,10 @@ namespace NaturalDisastersRenewal.UI
             UI_General_PartialEvacuationRadius.tooltip = "Select the Radius (In meters) for Focused evacuations.";
 
             generalGroup.AddSpace(5);
-            UI_General_MaxPopulationToTrigguerHigherDisasters = (UISlider)generalGroup.AddSlider("Max population to trigguer higher disasters.", 20000f, 800000f, 1000f, disasterContainer.MaxPopulationToTrigguerHigherDisasters, delegate (float val)
+            UI_General_MaxPopulationToTrigguerHigherDisasters = (UISlider)generalGroup.AddSlider("Max population to trigguer higher disasters.", 20000f, 800000f, 1000f, disasterContainer.MaxPopulationToTriggerHigherDisasters, delegate (float val)
             {
                 if (!freezeUI)
-                    disasterContainer.MaxPopulationToTrigguerHigherDisasters = val;
+                    disasterContainer.MaxPopulationToTriggerHigherDisasters = val;
             });
             AddLabelToSlider(UI_General_MaxPopulationToTrigguerHigherDisasters);
             UI_General_MaxPopulationToTrigguerHigherDisasters.tooltip = "Select the max population to trigger higher disaster intensity.";
