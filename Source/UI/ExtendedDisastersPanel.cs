@@ -15,13 +15,23 @@ namespace NaturalDisastersRenewal.UI
         [FormerlySerializedAs("Counter")] public int counter;
         private readonly NaturalDisasterHandler _disasterHandler = Singleton<NaturalDisasterHandler>.instance;
         private readonly string _pauseSprite = "ButtonPause";
+
         private readonly string _playSprite = "ButtonPlayFocused";
+
         private UILabel[] _disasterLabelCalculations;
+
         private UILabel[] _disasterLabelNames;
         private UILabel _occurrenceAndMaxProb;
         private UIProgressBar[] _progressBarsMaxIntensity;
+
         private UIProgressBar[] _progressBarsProbability;
+
+        // private UICheckBox _radioEasy, _radioChaos;
+        // private UIPanel _radioEasyPanel, _radioChaosPanel;
+        // private UICheckBox _selectedRadioButton;
+        // private UISprite _spriteEasy, _spriteChaos;
         private UILabel _realTimeStatusLabel;
+        private UIPanel _selectedRadioPanel;
         private UIButton[] _statusButtons;
 
         public override void Awake()
@@ -51,11 +61,6 @@ namespace NaturalDisastersRenewal.UI
 
             if (--counter > 0) return;
             counter = 10;
-
-            var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
-            nfi.NumberGroupSeparator = ",";
-            var formatNumber =
-                ((int)_disasterHandler.container.MaxPopulationToTriggerHigherDisasters).ToString("#,0", nfi);
 
             var disasterCount = _disasterHandler.container.AllDisasters.Count;
 
@@ -87,7 +92,7 @@ namespace NaturalDisastersRenewal.UI
                     _progressBarsProbability[i].tooltip = disaster.GetProbabilityTooltip(probabilityValue);
 
                     //Calculate intensity
-                    var maxIntensity = 255f;
+                    const float maxIntensity = 255f;
                     var progressBarCalculatedValue = maxIntensityCalculated * (1 / maxIntensity);
 
                     _progressBarsMaxIntensity[i].value = progressBarCalculatedValue;
@@ -201,57 +206,16 @@ namespace NaturalDisastersRenewal.UI
             BuildStopDisasterButton(parentPanel, xPosition, yPosition);
         }
 
-        private static UICheckBox CreateRadioButton(UIPanel parent, string text, Vector3 position, bool isChecked)
-        {
-            var checkBox = parent.AddUIComponent<UICheckBox>();
-            checkBox.relativePosition = position;
-            checkBox.size = new Vector2(200, 20);
-
-            // Configure unchecked state
-            var uncheckedSprite = checkBox.AddUIComponent<UISprite>();
-            uncheckedSprite.spriteName = "check-unchecked";
-            uncheckedSprite.size = new Vector2(16, 16);
-            uncheckedSprite.relativePosition = new Vector3(0, 2);
-            checkBox.checkedBoxObject = uncheckedSprite;
-
-            // Configure checked state
-            var checkedSprite = checkBox.AddUIComponent<UISprite>();
-            checkedSprite.spriteName = "check-checked";
-            checkedSprite.size = new Vector2(16, 16);
-            checkedSprite.relativePosition = new Vector3(0, 2);
-            checkBox.checkedBoxObject = checkedSprite;
-
-            // Configure disabled state
-            var disabledSprite = checkBox.AddUIComponent<UISprite>();
-            disabledSprite.spriteName = "check-disabled";
-            disabledSprite.size = new Vector2(16, 16);
-            disabledSprite.relativePosition = new Vector3(0, 2);
-
-            // Configure hovered state
-            var hoveredSprite = checkBox.AddUIComponent<UISprite>();
-            hoveredSprite.spriteName = "check-unchecked-hover";
-            hoveredSprite.size = new Vector2(16, 16);
-            hoveredSprite.relativePosition = new Vector3(0, 2);
-
-            // Set initial state
-            checkBox.isChecked = isChecked;
-
-            // Add label for the checkbox
-            var label = checkBox.AddUIComponent<UILabel>();
-            label.text = text;
-            label.relativePosition = new Vector3(22, 0);
-
-            return checkBox;
-        }
-
         private static void OnTakeItEasySelected()
         {
             // Lógica para "Take it easy"
+            Debug.Log("Take it easy selected. Implement your logic here.");
         }
 
         private static void OnExtraChaosSelected()
         {
             // Lógica para "I need some extra caos"
+            Debug.Log("Extra chaos selected. Implement your logic here.");
         }
 
         private void BuildSettingsTabContent(UIComponent parentPanel)
@@ -285,33 +249,59 @@ namespace NaturalDisastersRenewal.UI
             yPosition += 30;
 
             var radioGroup = parentPanel.AddUIComponent<UIPanel>();
-            radioGroup.relativePosition = new Vector3(xPosition, yPosition + 200);
+            radioGroup.relativePosition = new Vector3(20, yPosition);
+            // radioGroup.relativePosition = new Vector3(20, 240); // Use for scroll functionality checking prurpose 
             radioGroup.size = new Vector2(350, 60);
             radioGroup.backgroundSprite = "SubcategoriesPanel";
             radioGroup.name = "radioGroup";
             radioGroup.isVisible = true;
 
-            var radioEasy = CreateRadioButton(radioGroup, "Take it easy", new Vector3(10, 10), true);
-            var radioChaos = CreateRadioButton(radioGroup, "I need some extra chaos", new Vector3(10, 35), false);
+            var radioEasyPanel = CreateRadioButton(radioGroup, "I need some extra chaos",
+                10f, 10f, true);
+            var radioChaosPanel = CreateRadioButton(radioGroup, "I need some extra chaos",
+                10f, 35f);
+            var spriteEasy = radioEasyPanel.components.OfType<UISprite>().FirstOrDefault();
+            var spriteChaos = radioChaosPanel.components.OfType<UISprite>().FirstOrDefault();
 
-            radioEasy.eventCheckChanged += (c, state) =>
+            _selectedRadioPanel = radioEasyPanel;
+
+            radioEasyPanel.eventClick += (c, p) =>
             {
-                if (radioChaos.isChecked || (radioEasy.isChecked && !state)) return;
-                if (state)
-                {
-                    radioChaos.isChecked = false;
-                    OnTakeItEasySelected();
-                }
+                if (_selectedRadioPanel == radioEasyPanel) return;
+
+                if (spriteEasy != null) spriteEasy.spriteName = "check-checked";
+                if (spriteChaos != null) spriteChaos.spriteName = "check-unchecked";
+                _selectedRadioPanel = radioEasyPanel;
+                OnTakeItEasySelected();
             };
-            radioChaos.eventCheckChanged += (c, state) =>
+            radioChaosPanel.eventClick += (c, p) =>
             {
-                if (radioEasy.isChecked || (radioChaos.isChecked && !state)) return;
-                if (state)
-                {
-                    radioEasy.isChecked = false;
-                    OnExtraChaosSelected();
-                }
+                if (_selectedRadioPanel == radioChaosPanel) return;
+
+                if (spriteEasy != null) spriteEasy.spriteName = "check-unchecked";
+                if (spriteChaos != null) spriteChaos.spriteName = "check-checked";
+                _selectedRadioPanel = radioChaosPanel;
+                OnExtraChaosSelected();
             };
+        }
+
+        private static UIPanel CreateRadioButton(UIPanel radioGroup, string text, float xPosition,
+            float yPosition, bool isChecked = false)
+        {
+            var radioPanel = radioGroup.AddUIComponent<UIPanel>();
+            radioPanel.size = new Vector2(200, 20);
+            radioPanel.relativePosition = new Vector3(xPosition, yPosition);
+
+            var uiSprite = radioPanel.AddUIComponent<UISprite>();
+            uiSprite.spriteName = isChecked ? "check-checked" : "check-unchecked";
+            uiSprite.size = new Vector2(16, 16);
+            uiSprite.relativePosition = new Vector3(0, 2);
+
+            var label = radioPanel.AddUIComponent<UILabel>();
+            label.text = text;
+            label.relativePosition = new Vector3(xPosition + 12, 0);
+
+            return radioPanel;
         }
 
         private void BuildInformationBar()
@@ -351,76 +341,73 @@ namespace NaturalDisastersRenewal.UI
             tabStrip.tabPages = tabContainer;
 
             var tab1 = CreateTab(tabStrip, "Statistics", 0);
-            var tab2 = CreateTab(tabStrip, "Settings", tab1.width);
+            CreateTab(tabStrip, "Settings", tab1.width);
 
             if (tabContainer.components.Count < 2) return;
             const float yPosition = 10f;
 
             // Tab 1: Statistics
             var statisticsTabPanel = tabContainer.components[0] as UIPanel;
-            var statisticsScrollablePanel = statisticsTabPanel.AddUIComponent<UIScrollablePanel>();
-            statisticsScrollablePanel.size =
-                new Vector2(statisticsTabPanel.width - 12f, statisticsTabPanel.height - 20f);
-            statisticsScrollablePanel.relativePosition = new Vector2(10f, yPosition);
-            statisticsScrollablePanel.autoLayout = false;
-            statisticsScrollablePanel.clipChildren = true;
-            statisticsScrollablePanel.scrollWheelAmount = 20;
-
-            var statisticsScrollbar = statisticsTabPanel.AddUIComponent<UIScrollbar>();
-            statisticsScrollbar.orientation = UIOrientation.Vertical;
-            statisticsScrollbar.width = 12f;
-            statisticsScrollbar.relativePosition = new Vector2(statisticsTabPanel.width - 12f, yPosition);
-            statisticsScrollbar.height = statisticsTabPanel.height - 20f;
-
-            var statisticsTrack = statisticsScrollbar.AddUIComponent<UISlicedSprite>();
-            statisticsTrack.spriteName = "ScrollbarTrack";
-            statisticsTrack.size = new Vector2(12f, statisticsTabPanel.height - 20f);
-            statisticsTrack.relativePosition = new Vector2(0, -10);
-            statisticsScrollbar.trackObject = statisticsTrack;
-
-            var statisticsThumb = statisticsTrack.AddUIComponent<UISlicedSprite>();
-            statisticsThumb.spriteName = "ScrollbarThumb";
-            statisticsThumb.height = 10f;
-
-            statisticsScrollbar.thumbObject = statisticsThumb;
-            statisticsScrollablePanel.verticalScrollbar = statisticsScrollbar;
+            var statisticsScrollablePanel = ConfigureScrollablePanelWithScrollbar(
+                statisticsTabPanel,
+                yPosition
+            );
 
             BuildStatisticsInfoTabContent(statisticsScrollablePanel);
-            statisticsTabPanel.isVisible = true;
+            if (statisticsTabPanel != null) statisticsTabPanel.isVisible = true;
 
             // Tab 2: Settings
             var settingsTabPanel = tabContainer.components[1] as UIPanel;
-            var settingsScrollablePanel = settingsTabPanel.AddUIComponent<UIScrollablePanel>();
-            settingsScrollablePanel.size = new Vector2(settingsTabPanel.width - 12f, settingsTabPanel.height - 20f);
-            settingsScrollablePanel.relativePosition = new Vector2(10f, yPosition);
-
-            settingsScrollablePanel.height = settingsTabPanel.height - 40f;
-            settingsScrollablePanel.autoLayout = false;
-            settingsScrollablePanel.clipChildren = true;
-            settingsScrollablePanel.scrollWheelAmount = 20;
-
-            var settingsScrollbar = settingsTabPanel.AddUIComponent<UIScrollbar>();
-            settingsScrollbar.orientation = UIOrientation.Vertical;
-            settingsScrollbar.width = 12f;
-            settingsScrollbar.relativePosition = new Vector2(settingsTabPanel.width - 12f, yPosition);
-            settingsScrollbar.height = settingsTabPanel.height - 20f;
-
-            var settingsTrack = settingsScrollbar.AddUIComponent<UISlicedSprite>();
-            settingsTrack.spriteName = "ScrollbarTrack";
-            settingsTrack.size = new Vector2(12f, settingsTabPanel.height - 20f);
-            settingsTrack.relativePosition = new Vector2(0, -10);
-            settingsScrollbar.trackObject = statisticsTrack;
-
-            var settingsThumb = settingsTrack.AddUIComponent<UISlicedSprite>();
-            settingsThumb.spriteName = "ScrollbarThumb";
-            settingsThumb.height = 10f;
-
-            settingsScrollbar.thumbObject = settingsThumb;
-            settingsScrollablePanel.verticalScrollbar = settingsScrollbar;
+            var settingsScrollablePanel = ConfigureScrollablePanelWithScrollbar(
+                settingsTabPanel,
+                yPosition
+            );
 
             BuildSettingsTabContent(settingsScrollablePanel);
+            if (settingsTabPanel != null) settingsTabPanel.isVisible = false;
+        }
 
-            settingsTabPanel.isVisible = false;
+        private static UIScrollablePanel ConfigureScrollablePanelWithScrollbar(
+            UIPanel tabPanel,
+            float yPosition
+        )
+        {
+            var scrollablePanel = tabPanel.AddUIComponent<UIScrollablePanel>();
+            var scrollbar = tabPanel.AddUIComponent<UIScrollbar>();
+            var track = scrollbar.AddUIComponent<UISlicedSprite>();
+            var thumb = track.AddUIComponent<UISlicedSprite>();
+
+            scrollablePanel.size = new Vector2(tabPanel.width - 12f, tabPanel.height - 20f);
+            scrollablePanel.relativePosition = new Vector2(10f, yPosition);
+            scrollablePanel.height = tabPanel.height - 40f;
+            scrollablePanel.autoLayout = false;
+            scrollablePanel.clipChildren = true;
+            scrollablePanel.scrollWheelAmount = 20;
+
+
+            scrollbar.orientation = UIOrientation.Vertical;
+            scrollbar.width = 12f;
+            scrollbar.relativePosition = new Vector2(tabPanel.width - 12f, yPosition);
+            scrollbar.height = tabPanel.height - 20f;
+
+            track.spriteName = "ScrollbarTrack";
+            track.size = new Vector2(12f, tabPanel.height - 20f);
+            track.relativePosition = new Vector2(0, -10);
+            scrollbar.trackObject = track;
+
+            thumb.spriteName = "ScrollbarThumb";
+            thumb.height = 10f;
+            scrollbar.thumbObject = thumb;
+
+            scrollablePanel.verticalScrollbar = scrollbar;
+
+            scrollablePanel.eventMouseWheel += (component, eventParam) =>
+            {
+                scrollablePanel.scrollPosition +=
+                    new Vector2(0, -eventParam.wheelDelta * scrollablePanel.scrollWheelAmount);
+            };
+
+            return scrollablePanel;
         }
 
         private UIButton BuildDisasterStatusButton(UIComponent parentPanel, float x, float y, string disasterName,
@@ -447,7 +434,7 @@ namespace NaturalDisastersRenewal.UI
         {
             var stopAllDisastersBtn = parentPanel.AddUIComponent<UIButton>();
             stopAllDisastersBtn.name = "stopDisasterBtn";
-            stopAllDisastersBtn.relativePosition = new Vector3(xPosition, yPosition - 3);
+            stopAllDisastersBtn.relativePosition = new Vector3(xPosition, yPosition - 5);
             stopAllDisastersBtn.size = new Vector2(18, 18);
             stopAllDisastersBtn.focusedColor = Color.red;
             stopAllDisastersBtn.textColor = Color.red;
@@ -459,7 +446,7 @@ namespace NaturalDisastersRenewal.UI
 
             var stopAllDisastersLabel = parentPanel.AddUIComponent<UILabel>();
             stopAllDisastersLabel.name = "bigRedBtnLabel";
-            stopAllDisastersLabel.relativePosition = new Vector3(xPosition + 35, yPosition - 3);
+            stopAllDisastersLabel.relativePosition = new Vector3(xPosition + 35, yPosition - 5);
             stopAllDisastersLabel.size = new Vector2(width - 30, 20);
             stopAllDisastersLabel.textColor = Color.white;
             stopAllDisastersLabel.text = "← Stop all disasters";
@@ -467,15 +454,17 @@ namespace NaturalDisastersRenewal.UI
 
         private static void StopAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-            var sb = new StringBuilder();
+            var cancellingDisasterFlags = new StringBuilder();
 
-            var vm = Singleton<VehicleManager>.instance;
+            var vehicleManager = Singleton<VehicleManager>.instance;
             for (var i = 1; i < 16384; i++)
-                if ((vm.m_vehicles.m_buffer[i].m_flags & Vehicle.Flags.Created) != 0)
+                if ((vehicleManager.m_vehicles.m_buffer[i].m_flags & Vehicle.Flags.Created) != 0)
                 {
-                    if (vm.m_vehicles.m_buffer[i].Info.m_vehicleAI is MeteorAI) vm.ReleaseVehicle((ushort)i);
+                    if (vehicleManager.m_vehicles.m_buffer[i].Info.m_vehicleAI is MeteorAI)
+                        vehicleManager.ReleaseVehicle((ushort)i);
 
-                    if (vm.m_vehicles.m_buffer[i].Info.m_vehicleAI is VortexAI) vm.ReleaseVehicle((ushort)i);
+                    if (vehicleManager.m_vehicles.m_buffer[i].Info.m_vehicleAI is VortexAI)
+                        vehicleManager.ReleaseVehicle((ushort)i);
                 }
 
             var ws = Singleton<WaterSimulation>.instance;
@@ -485,21 +474,21 @@ namespace NaturalDisastersRenewal.UI
             var dm = Singleton<DisasterManager>.instance;
             for (ushort i = 0; i < dm.m_disasterCount; i++)
             {
-                sb.AppendLine(dm.m_disasters.m_buffer[i].Info.name + " flags: " + dm.m_disasters.m_buffer[i].m_flags);
+                cancellingDisasterFlags.AppendLine(dm.m_disasters.m_buffer[i].Info.name + " flags: " +
+                                                   dm.m_disasters.m_buffer[i].m_flags);
                 if ((dm.m_disasters.m_buffer[i].m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active |
-                                                           DisasterData.Flags.Clearing)) != DisasterData.Flags.None)
-                    if (IsStoppableDisaster(dm.m_disasters.m_buffer[i].Info.m_disasterAI))
-                    {
-                        sb.AppendLine("Trying to cancel " + dm.m_disasters.m_buffer[i].Info.name);
-                        dm.m_disasters.m_buffer[i].m_flags =
-                            (dm.m_disasters.m_buffer[i].m_flags & ~(DisasterData.Flags.Emerging |
-                                                                    DisasterData.Flags.Active |
-                                                                    DisasterData.Flags.Clearing)) |
-                            DisasterData.Flags.Finished;
-                    }
+                                                           DisasterData.Flags.Clearing)) ==
+                    DisasterData.Flags.None) continue;
+                if (!IsStoppableDisaster(dm.m_disasters.m_buffer[i].Info.m_disasterAI)) continue;
+                cancellingDisasterFlags.AppendLine("Trying to cancel " + dm.m_disasters.m_buffer[i].Info.name);
+                dm.m_disasters.m_buffer[i].m_flags =
+                    (dm.m_disasters.m_buffer[i].m_flags & ~(DisasterData.Flags.Emerging |
+                                                            DisasterData.Flags.Active |
+                                                            DisasterData.Flags.Clearing)) |
+                    DisasterData.Flags.Finished;
             }
 
-            Debug.Log(sb.ToString());
+            Debug.Log(cancellingDisasterFlags.ToString());
         }
 
         private void ClosePanelBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -509,8 +498,8 @@ namespace NaturalDisastersRenewal.UI
 
         private void disasterStateChk_eventCheckChanged(UIComponent component, UIMouseEventParameter eventParam)
         {
-            var disaster = _disasterHandler.container.AllDisasters.Where(dis => component.name.Contains(dis.GetName()))
-                .FirstOrDefault();
+            var disaster = _disasterHandler.container.AllDisasters
+                .FirstOrDefault(dis => component.name.Contains(dis.GetName()));
 
             if (disaster != null)
             {
