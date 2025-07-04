@@ -12,27 +12,33 @@ namespace NaturalDisastersRenewal.UI
 {
     public class ExtendedDisastersPanel : UIPanel
     {
+        private const string pauseSprite = "ButtonPause";
+        private const string playSprite = "ButtonPlayFocused";
+        private const float labelTextScaleSmall = 0.7f;
+        private const float labelTextScaleNormal = 0.8f;
+
         [FormerlySerializedAs("Counter")] public int counter;
         private readonly NaturalDisasterHandler _disasterHandler = Singleton<NaturalDisasterHandler>.instance;
-        private readonly string _pauseSprite = "ButtonPause";
-
-        private readonly string _playSprite = "ButtonPlayFocused";
+        private uint _dayTimeframes;
+        private uint _dayTimeOffsetFrames;
 
         private UILabel[] _disasterLabelCalculations;
 
         private UILabel[] _disasterLabelNames;
-        private UILabel _occurrenceAndMaxProb;
+
+
+        private UILabel _populationLabel;
         private UIProgressBar[] _progressBarsMaxIntensity;
-
         private UIProgressBar[] _progressBarsProbability;
-
-        // private UICheckBox _radioEasy, _radioChaos;
-        // private UIPanel _radioEasyPanel, _radioChaosPanel;
-        // private UICheckBox _selectedRadioButton;
-        // private UISprite _spriteEasy, _spriteChaos;
+        private UILabel _realTimeDayTimeFramesLabel;
+        private UILabel _realTimeDayTimeOffsetFramesLabel;
+        private bool _realTimeStatus;
         private UILabel _realTimeStatusLabel;
+        private UILabel _realTimeTimeOffsetTicksLabel;
         private UIPanel _selectedRadioPanel;
         private UIButton[] _statusButtons;
+
+        private long _timeOffsetTicks;
 
         public override void Awake()
         {
@@ -40,7 +46,7 @@ namespace NaturalDisastersRenewal.UI
 
             backgroundSprite = "MenuPanel";
             height = 320;
-            width = 442;
+            width = 434;
             canFocus = true;
             isVisible = false;
         }
@@ -62,6 +68,8 @@ namespace NaturalDisastersRenewal.UI
             if (--counter > 0) return;
             counter = 10;
 
+            DefineMinPopulationLabelContent();
+
             var disasterCount = _disasterHandler.container.AllDisasters.Count;
 
             for (var i = 0; i < disasterCount; i++)
@@ -78,7 +86,7 @@ namespace NaturalDisastersRenewal.UI
                     var icon = button.components.OfType<UISprite>().FirstOrDefault();
 
                     if (icon)
-                        icon.spriteName = _pauseSprite;
+                        icon.spriteName = pauseSprite;
 
                     _disasterLabelNames[i].text = disaster.GetName();
                     _disasterLabelCalculations[i].text = SetDisasterInfoLabel(currentOccurrencePerYear,
@@ -106,7 +114,7 @@ namespace NaturalDisastersRenewal.UI
                     var icon = button.components.OfType<UISprite>().FirstOrDefault();
 
                     if (icon)
-                        icon.spriteName = _playSprite;
+                        icon.spriteName = playSprite;
 
                     _disasterLabelNames[i].text = $"{disaster.GetName()} - Disabled";
                     _disasterLabelCalculations[i].text = string.Empty;
@@ -117,6 +125,13 @@ namespace NaturalDisastersRenewal.UI
                     _progressBarsMaxIntensity[i].progressColor = Color.black;
                 }
             }
+
+            GetRealTimeModValues();
+
+            _realTimeStatusLabel.text = $"Real Time Status: {(_realTimeStatus ? "Active" : "Inactive")}";
+            _realTimeTimeOffsetTicksLabel.text = $"Time Offset Ticks: {_timeOffsetTicks}";
+            _realTimeDayTimeFramesLabel.text = $"Day-Time Frames: {_dayTimeframes}";
+            _realTimeDayTimeOffsetFramesLabel.text = $"Day-Time Offset Frames: {_dayTimeOffsetFrames}";
         }
 
         private static UIButton CreateTab(UITabstrip tabStrip, string title, float xPosition)
@@ -142,38 +157,26 @@ namespace NaturalDisastersRenewal.UI
             const float xPosition = 10f;
             var yPosition = 10f;
 
-            var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
-            nfi.NumberGroupSeparator = ",";
+            _populationLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal, "");
 
-            var formatNumber =
-                ((int)_disasterHandler.container.MaxPopulationToTriggerHigherDisasters).ToString("#,0", nfi);
-
-            var populationLabel = AddLabel(parentPanel, xPosition, yPosition);
-            populationLabel.text = $"Min. Population: {formatNumber} Cims to trigger disasters.";
-            populationLabel.tooltip = "Minimum population to trigger higher disasters";
+            DefineMinPopulationLabelContent();
 
             yPosition += 22;
-            _occurrenceAndMaxProb = AddLabel(parentPanel, xPosition, yPosition);
-            _occurrenceAndMaxProb.text = "Disaster";
-            _occurrenceAndMaxProb.tooltip = "Disaster name";
-            _occurrenceAndMaxProb.textScale = 0.7f;
-
-            _occurrenceAndMaxProb = AddLabel(parentPanel, xPosition + 152f, yPosition);
-            _occurrenceAndMaxProb.text = "COxY/M.I";
-            _occurrenceAndMaxProb.tooltip = "Current Occurrence per Year / Max Intensity";
-            _occurrenceAndMaxProb.textScale = 0.7f;
+            AddLabel(parentPanel, xPosition, yPosition, labelTextScaleSmall, "Disaster", "Disaster name");
+            AddLabel(parentPanel, xPosition + 140f, yPosition, labelTextScaleSmall,
+                "COxY/M.I", "Current Occurrence per Year / Max Intensity");
 
             //Add Axis titles
-            AddAxisTitle(parentPanel, xPosition + 220f, yPosition, "Probability");
-            AddAxisTitle(parentPanel, xPosition + 320f, yPosition, "Max intensity");
+            AddLabel(parentPanel, xPosition + 212f, yPosition, labelTextScaleSmall, "Probability");
+            AddLabel(parentPanel, xPosition + 312f, yPosition, labelTextScaleSmall, "Max intensity");
 
             //Add Axis Labels
             yPosition += 15;
-            AddAxisLabel(parentPanel, xPosition + 220, yPosition, "0.1");
-            AddAxisLabel(parentPanel, xPosition + 260, yPosition, "1");
-            AddAxisLabel(parentPanel, xPosition + 295, yPosition, "10");
-            AddAxisLabel(parentPanel, xPosition + 320, yPosition, "0.0");
-            AddAxisLabel(parentPanel, xPosition + 383, yPosition, "25.5");
+            AddLabel(parentPanel, xPosition + 212, yPosition, labelTextScaleSmall, "0.1");
+            AddLabel(parentPanel, xPosition + 252, yPosition, labelTextScaleSmall, "1");
+            AddLabel(parentPanel, xPosition + 287, yPosition, labelTextScaleSmall, "10");
+            AddLabel(parentPanel, xPosition + 312, yPosition, labelTextScaleSmall, "0.0");
+            AddLabel(parentPanel, xPosition + 375, yPosition, labelTextScaleSmall, "25.5");
 
             var disasterCount = _disasterHandler.container.AllDisasters.Count;
             _disasterLabelNames = new UILabel[disasterCount];
@@ -191,19 +194,31 @@ namespace NaturalDisastersRenewal.UI
                     BuildDisasterStatusButton(parentPanel, xPosition, yPosition, disaster.GetName(),
                         disaster.Enabled);
 
-                _disasterLabelNames[i] = AddLabel(parentPanel, xPosition + 34, yPosition + 5);
-                _disasterLabelCalculations[i] = AddLabel(parentPanel, xPosition + 144, yPosition);
+                _disasterLabelNames[i] = AddLabel(parentPanel, xPosition + 26, yPosition, labelTextScaleNormal,
+                    disaster.GetName());
+                _disasterLabelCalculations[i] = AddLabel(parentPanel, xPosition + 136, yPosition, labelTextScaleNormal,
+                    SetDisasterInfoLabel(0, 0));
 
-                _disasterLabelNames[i].text = disaster.GetName();
-                _disasterLabelCalculations[i].text = SetDisasterInfoLabel(0, 0);
-
-                _progressBarsProbability[i] = AddProgressBar(parentPanel, xPosition + 220, yPosition);
-                _progressBarsMaxIntensity[i] = AddProgressBar(parentPanel, xPosition + 320, yPosition);
+                _progressBarsProbability[i] = AddProgressBar(parentPanel, xPosition + 212, yPosition);
+                _progressBarsMaxIntensity[i] = AddProgressBar(parentPanel, xPosition + 312, yPosition);
                 yPosition += itemSpacing;
             }
 
             yPosition += 10;
             BuildStopDisasterButton(parentPanel, xPosition, yPosition);
+        }
+
+        private void DefineMinPopulationLabelContent()
+        {
+            var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+            nfi.NumberGroupSeparator = ",";
+
+            var maxPopulationToTriggerDisaster = (int)_disasterHandler.container.MaxPopulationToTriggerHigherDisasters;
+
+            var formatNumber = maxPopulationToTriggerDisaster.ToString("#,0", nfi);
+
+            _populationLabel.text = $"Min. Population: {formatNumber} Cims to trigger disasters.";
+            _populationLabel.tooltip = "Minimum population to trigger higher disasters";
         }
 
         private static void OnTakeItEasySelected()
@@ -220,31 +235,26 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildSettingsTabContent(UIComponent parentPanel)
         {
-            var realTimeStatus = _disasterHandler.CheckRealTimeModActive();
-
-            var sm = SimulationManager.instance;
-            var timeOffsetTicks = sm.m_timeOffsetTicks;
-            var dayTimeframes = sm.m_dayTimeFrame;
-            var dayTimeOffsetFrames = sm.m_dayTimeOffsetFrames;
+            GetRealTimeModValues();
 
             const int xPosition = 20;
             var yPosition = 10;
 
-            _realTimeStatusLabel = AddLabel(parentPanel, xPosition, yPosition);
-            _realTimeStatusLabel.text = $"Real Time Status: {(realTimeStatus ? "Active" : "Inactive")}";
+            _realTimeStatusLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal,
+                $"Real Time Status: {(_realTimeStatus ? "Active" : "Inactive")}");
             _realTimeStatusLabel.tooltip = "Check if \"Real Time\" Mod status is active";
 
             yPosition += 20;
-            _realTimeStatusLabel = AddLabel(parentPanel, xPosition, yPosition);
-            _realTimeStatusLabel.text = $"Time Offset Ticks: {timeOffsetTicks}";
+            _realTimeTimeOffsetTicksLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal,
+                $"Time Offset Ticks: {_timeOffsetTicks}");
 
             yPosition += 20;
-            _realTimeStatusLabel = AddLabel(parentPanel, xPosition, yPosition);
-            _realTimeStatusLabel.text = $"Day-Time Frames: {dayTimeframes}";
+            _realTimeDayTimeFramesLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal,
+                $"Day-Time Frames: {_dayTimeframes}");
 
             yPosition += 20;
-            _realTimeStatusLabel = AddLabel(parentPanel, xPosition, yPosition);
-            _realTimeStatusLabel.text = $"Day-Time Offset Frames: {dayTimeOffsetFrames}";
+            _realTimeDayTimeOffsetFramesLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal,
+                $"Day-Time Offset Frames: {_dayTimeOffsetFrames}");
 
             yPosition += 30;
 
@@ -256,46 +266,58 @@ namespace NaturalDisastersRenewal.UI
             radioGroup.name = "radioGroup";
             radioGroup.isVisible = true;
 
-            var radioEasyPanel = CreateRadioButton(radioGroup, "I need some extra chaos",
-                10f, 10f, true);
-            var radioChaosPanel = CreateRadioButton(radioGroup, "I need some extra chaos",
-                10f, 35f);
-            var spriteEasy = radioEasyPanel.components.OfType<UISprite>().FirstOrDefault();
-            var spriteChaos = radioChaosPanel.components.OfType<UISprite>().FirstOrDefault();
+            var radioEasyButton = CreateRadioButton(radioGroup, "Take it easy",
+                10f, 10f, true, "Not everything is destruction and chaos. ");
+            var radioChaosButton = CreateRadioButton(radioGroup, "I need some extra chaos",
+                10f, 35f, tooltipText: "Lets make this city a bit more challenging");
+            var spriteEasy = radioEasyButton.components.OfType<UISprite>().FirstOrDefault();
+            var spriteChaos = radioChaosButton.components.OfType<UISprite>().FirstOrDefault();
 
-            _selectedRadioPanel = radioEasyPanel;
+            _selectedRadioPanel = radioEasyButton;
 
-            radioEasyPanel.eventClick += (c, p) =>
+            radioEasyButton.eventClick += (c, p) =>
             {
-                if (_selectedRadioPanel == radioEasyPanel) return;
+                if (_selectedRadioPanel == radioEasyButton) return;
 
                 if (spriteEasy != null) spriteEasy.spriteName = "check-checked";
                 if (spriteChaos != null) spriteChaos.spriteName = "check-unchecked";
-                _selectedRadioPanel = radioEasyPanel;
+                _selectedRadioPanel = radioEasyButton;
                 OnTakeItEasySelected();
             };
-            radioChaosPanel.eventClick += (c, p) =>
+
+            radioChaosButton.eventClick += (c, p) =>
             {
-                if (_selectedRadioPanel == radioChaosPanel) return;
+                if (_selectedRadioPanel == radioChaosButton) return;
 
                 if (spriteEasy != null) spriteEasy.spriteName = "check-unchecked";
                 if (spriteChaos != null) spriteChaos.spriteName = "check-checked";
-                _selectedRadioPanel = radioChaosPanel;
+                _selectedRadioPanel = radioChaosButton;
                 OnExtraChaosSelected();
             };
         }
 
+        private void GetRealTimeModValues()
+        {
+            _realTimeStatus = _disasterHandler.CheckRealTimeModActive();
+
+            var sm = SimulationManager.instance;
+            _timeOffsetTicks = sm.m_timeOffsetTicks;
+            _dayTimeframes = sm.m_dayTimeFrame;
+            _dayTimeOffsetFrames = sm.m_dayTimeOffsetFrames;
+        }
+
         private static UIPanel CreateRadioButton(UIPanel radioGroup, string text, float xPosition,
-            float yPosition, bool isChecked = false)
+            float yPosition, bool isChecked = false, string tooltipText = "")
         {
             var radioPanel = radioGroup.AddUIComponent<UIPanel>();
             radioPanel.size = new Vector2(200, 20);
             radioPanel.relativePosition = new Vector3(xPosition, yPosition);
+            radioPanel.tooltip = string.IsNullOrEmpty(tooltipText) ? text : tooltipText;
 
             var uiSprite = radioPanel.AddUIComponent<UISprite>();
             uiSprite.spriteName = isChecked ? "check-checked" : "check-unchecked";
             uiSprite.size = new Vector2(16, 16);
-            uiSprite.relativePosition = new Vector3(0, 2);
+            uiSprite.relativePosition = new Vector3(0, 0);
 
             var label = radioPanel.AddUIComponent<UILabel>();
             label.text = text;
@@ -313,7 +335,7 @@ namespace NaturalDisastersRenewal.UI
         private void BuildPanelCloseButton(UIPanel parentPanel)
         {
             var closeBtn = parentPanel.AddUIComponent<UIButton>();
-            closeBtn.relativePosition = new Vector3(407, 5);
+            closeBtn.relativePosition = new Vector3(407, 0);
             closeBtn.size = new Vector2(30, 30);
             closeBtn.normalFgSprite = "buttonclose";
             closeBtn.eventClick += ClosePanelBtn_eventClick;
@@ -410,18 +432,19 @@ namespace NaturalDisastersRenewal.UI
             return scrollablePanel;
         }
 
-        private UIButton BuildDisasterStatusButton(UIComponent parentPanel, float x, float y, string disasterName,
+        private UIButton BuildDisasterStatusButton(UIComponent parentPanel, float xPosition, float yPosition,
+            string disasterName,
             bool isDisasterEnabled)
         {
             var disasterStateBtn = parentPanel.AddUIComponent<UIButton>();
             disasterStateBtn.name = $"disasterState{disasterName}Btn";
-            disasterStateBtn.relativePosition = new Vector3(x, y + 4);
+            disasterStateBtn.relativePosition = new Vector3(xPosition, yPosition - 4f);
             disasterStateBtn.size = new Vector2(18, 18);
             disasterStateBtn.normalBgSprite = "ButtonMenu";
             disasterStateBtn.hoveredBgSprite = "ButtonMenuHovered";
 
             var icon = disasterStateBtn.AddUIComponent<UISprite>();
-            icon.spriteName = isDisasterEnabled ? _pauseSprite : _playSprite;
+            icon.spriteName = isDisasterEnabled ? pauseSprite : playSprite;
             icon.size = new Vector2(12, 12);
             icon.relativePosition = new Vector2(3, 3);
 
@@ -446,7 +469,7 @@ namespace NaturalDisastersRenewal.UI
 
             var stopAllDisastersLabel = parentPanel.AddUIComponent<UILabel>();
             stopAllDisastersLabel.name = "bigRedBtnLabel";
-            stopAllDisastersLabel.relativePosition = new Vector3(xPosition + 35, yPosition - 5);
+            stopAllDisastersLabel.relativePosition = new Vector3(xPosition + 25, yPosition - 5);
             stopAllDisastersLabel.size = new Vector2(width - 30, 20);
             stopAllDisastersLabel.textColor = Color.white;
             stopAllDisastersLabel.text = "← Stop all disasters";
@@ -501,46 +524,45 @@ namespace NaturalDisastersRenewal.UI
             var disaster = _disasterHandler.container.AllDisasters
                 .FirstOrDefault(dis => component.name.Contains(dis.GetName()));
 
-            if (disaster != null)
+            if (disaster == null) return;
+
+            disaster.Enabled = !disaster.Enabled;
+            switch (disaster.GetName())
             {
-                disaster.Enabled = !disaster.Enabled;
-                switch (disaster.GetName())
-                {
-                    case CommonProperties.EarthquakeName:
-                        _disasterHandler.container.Earthquake.Enabled = disaster.Enabled;
-                        break;
+                case CommonProperties.EarthquakeName:
+                    _disasterHandler.container.Earthquake.Enabled = disaster.Enabled;
+                    break;
 
-                    case CommonProperties.forestFireName:
-                        _disasterHandler.container.ForestFire.Enabled = disaster.Enabled;
-                        break;
+                case CommonProperties.forestFireName:
+                    _disasterHandler.container.ForestFire.Enabled = disaster.Enabled;
+                    break;
 
-                    case CommonProperties.meteorStrikeName:
-                        _disasterHandler.container.MeteorStrike.Enabled = disaster.Enabled;
-                        break;
+                case CommonProperties.meteorStrikeName:
+                    _disasterHandler.container.MeteorStrike.Enabled = disaster.Enabled;
+                    break;
 
-                    case CommonProperties.sinkholeName:
-                        _disasterHandler.container.Sinkhole.Enabled = disaster.Enabled;
-                        break;
+                case CommonProperties.sinkholeName:
+                    _disasterHandler.container.Sinkhole.Enabled = disaster.Enabled;
+                    break;
 
-                    case CommonProperties.thunderstormName:
-                        _disasterHandler.container.Thunderstorm.Enabled = disaster.Enabled;
-                        break;
+                case CommonProperties.thunderstormName:
+                    _disasterHandler.container.Thunderstorm.Enabled = disaster.Enabled;
+                    break;
 
-                    case CommonProperties.tornadoName:
-                        _disasterHandler.container.Tornado.Enabled = disaster.Enabled;
-                        break;
+                case CommonProperties.tornadoName:
+                    _disasterHandler.container.Tornado.Enabled = disaster.Enabled;
+                    break;
 
-                    case CommonProperties.tsunamiName:
-                        _disasterHandler.container.Tsunami.Enabled = disaster.Enabled;
-                        break;
-                }
-
-                var button = (UIButton)component;
-                var icon = button.components.OfType<UISprite>().FirstOrDefault();
-                if (icon != null) icon.spriteName = disaster.Enabled ? _pauseSprite : _playSprite;
-
-                SettingsScreen.UpdateUISettingsOptions();
+                case CommonProperties.tsunamiName:
+                    _disasterHandler.container.Tsunami.Enabled = disaster.Enabled;
+                    break;
             }
+
+            var button = (UIButton)component;
+            var icon = button.components.OfType<UISprite>().FirstOrDefault();
+            if (icon != null) icon.spriteName = disaster.Enabled ? pauseSprite : playSprite;
+
+            SettingsScreen.UpdateUISettingsOptions();
         }
 
         private static string SetDisasterInfoLabel(float currentOccurrencePerYear, float maxIntensity)
@@ -554,28 +576,17 @@ namespace NaturalDisastersRenewal.UI
                    ai as EarthquakeAI != null || ai as MeteorStrikeAI != null;
         }
 
-        private static UILabel AddLabel(UIComponent parentPanel, float x, float y)
+        private static UILabel AddLabel(UIComponent parentPanel, float x, float y, float textScale,
+            string text, string tooltipText = "")
         {
             var label = parentPanel.AddUIComponent<UILabel>();
             label.relativePosition = new Vector3(x, y);
-            label.textScale = 0.8f;
+            label.textScale = textScale;
+            label.text = text;
+            if (tooltipText != "")
+                label.tooltip = tooltipText;
+
             return label;
-        }
-
-        private static void AddAxisLabel(UIComponent parentPanel, float x, float y, string text)
-        {
-            var l = parentPanel.AddUIComponent<UILabel>();
-            l.relativePosition = new Vector3(x, y);
-            l.textScale = 0.7f;
-            l.text = text;
-        }
-
-        private static void AddAxisTitle(UIComponent parentPanel, float x, float y, string text)
-        {
-            var l = parentPanel.AddUIComponent<UILabel>();
-            l.relativePosition = new Vector3(x, y);
-            l.textScale = 0.7f;
-            l.text = text;
         }
 
         private static UIProgressBar AddProgressBar(UIComponent parentPanel, float x, float y)
@@ -590,7 +601,7 @@ namespace NaturalDisastersRenewal.UI
             return progressBar;
         }
 
-        private float GetProbabilityProgressValue(float currentOccurrencePerYear)
+        private static float GetProbabilityProgressValue(float currentOccurrencePerYear)
         {
             if (currentOccurrencePerYear <= 0.1)
                 return 0;
