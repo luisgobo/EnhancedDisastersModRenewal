@@ -17,6 +17,9 @@ namespace NaturalDisastersRenewal.UI
         private const float labelTextScaleSmall = 0.7f;
         private const float labelTextScaleNormal = 0.8f;
 
+        private const float panelWidth = 434f;
+        private const float panelHeight = 320f;
+
         [FormerlySerializedAs("Counter")] public int counter;
         private readonly NaturalDisasterHandler _disasterHandler = Singleton<NaturalDisasterHandler>.instance;
         private uint _dayTimeframes;
@@ -25,7 +28,6 @@ namespace NaturalDisastersRenewal.UI
         private UILabel[] _disasterLabelCalculations;
 
         private UILabel[] _disasterLabelNames;
-
 
         private UILabel _populationLabel;
         private UIProgressBar[] _progressBarsMaxIntensity;
@@ -38,6 +40,7 @@ namespace NaturalDisastersRenewal.UI
         private UIPanel _selectedRadioPanel;
         private UIButton[] _statusButtons;
 
+
         private long _timeOffsetTicks;
 
         public override void Awake()
@@ -45,8 +48,8 @@ namespace NaturalDisastersRenewal.UI
             base.Awake();
 
             backgroundSprite = "MenuPanel";
-            height = 320;
-            width = 434;
+            height = panelHeight;
+            width = panelWidth;
             canFocus = true;
             isVisible = false;
         }
@@ -72,11 +75,32 @@ namespace NaturalDisastersRenewal.UI
 
             var disasterCount = _disasterHandler.container.AllDisasters.Count;
 
+            // Parámetros de simulación
+            var simulation = SimulationManager.instance;
+            var dayDurationSeconds = simulation.m_timePerFrame.TotalSeconds * SimulationManager.DAYTIME_FRAMES;
+            const double hoursInGameDay = 24.0;
+            var secondsPerHour = dayDurationSeconds / hoursInGameDay;
+
+            // Calcula la probabilidad de ocurrencia por hora de juego
+            // BaseOccurrencePerYear ahora se interpreta como ocurrencias por hora
+
+            Debug.Log("dayDurationSeconds: " + dayDurationSeconds);
+            Debug.Log("hoursInGameDay: " + hoursInGameDay);
+            Debug.Log("secondsPerHour: " + secondsPerHour);
+
             for (var i = 0; i < disasterCount; i++)
             {
                 var disaster = _disasterHandler.container.AllDisasters[i];
                 var currentOccurrencePerYear = disaster.GetCurrentOccurrencePerYear();
                 var maxIntensityCalculated = disaster.GetMaximumIntensity();
+                //
+                // var baseOccurrencePerYear =
+                //     disaster.BaseOccurrencePerYear == 0 ? 1 : disaster.BaseOccurrencePerYear; //test
+                // var occurrencePerHour = baseOccurrencePerYear / (24 * 365);
+                //
+                // Debug.Log($"occurrencePerHour {disaster.GetName()}: {occurrencePerHour}");
+                // Debug.Log($"BaseOccurrencePerYear {disaster.GetName()}: {disaster.BaseOccurrencePerYear}");
+                // Debug.Log($"CalmDaysLeft {disaster.GetName()}: {disaster.CalmDaysLeft}");
 
                 _statusButtons[i].isVisible = true;
 
@@ -94,7 +118,6 @@ namespace NaturalDisastersRenewal.UI
 
                     //Calculate probability                    
                     var probabilityValue = GetProbabilityProgressValue(currentOccurrencePerYear);
-
                     _progressBarsProbability[i].value = probabilityValue;
                     SetProgressBarColor(_progressBarsProbability[i]);
                     _progressBarsProbability[i].tooltip = disaster.GetProbabilityTooltip(probabilityValue);
@@ -189,18 +212,27 @@ namespace NaturalDisastersRenewal.UI
             yPosition += 15;
             for (var i = 0; i < disasterCount; i++)
             {
+                //List of disasters
                 var disaster = _disasterHandler.container.AllDisasters[i];
+
+                // Create a button for each disaster to be enabled or disabled
                 _statusButtons[i] =
                     BuildDisasterStatusButton(parentPanel, xPosition, yPosition, disaster.GetName(),
                         disaster.Enabled);
 
+                //Show disaster name
                 _disasterLabelNames[i] = AddLabel(parentPanel, xPosition + 26, yPosition, labelTextScaleNormal,
                     disaster.GetName());
+                //Show disaster info
                 _disasterLabelCalculations[i] = AddLabel(parentPanel, xPosition + 136, yPosition, labelTextScaleNormal,
                     SetDisasterInfoLabel(0, 0));
 
+                //Set progress bar for probability
                 _progressBarsProbability[i] = AddProgressBar(parentPanel, xPosition + 212, yPosition);
+
+                //Set progress bar for max intensity
                 _progressBarsMaxIntensity[i] = AddProgressBar(parentPanel, xPosition + 312, yPosition);
+
                 yPosition += itemSpacing;
             }
 
@@ -217,7 +249,7 @@ namespace NaturalDisastersRenewal.UI
 
             var formatNumber = maxPopulationToTriggerDisaster.ToString("#,0", nfi);
 
-            _populationLabel.text = $"Min. Population: {formatNumber} Cims to trigger disasters.";
+            _populationLabel.text = $"Min. Population: {formatNumber} Cims to trigger strongest disasters.";
             _populationLabel.tooltip = "Minimum population to trigger higher disasters";
         }
 
@@ -335,7 +367,7 @@ namespace NaturalDisastersRenewal.UI
         private void BuildPanelCloseButton(UIPanel parentPanel)
         {
             var closeBtn = parentPanel.AddUIComponent<UIButton>();
-            closeBtn.relativePosition = new Vector3(407, 0);
+            closeBtn.relativePosition = new Vector3(panelWidth - 35f, 5f);
             closeBtn.size = new Vector2(30, 30);
             closeBtn.normalFgSprite = "buttonclose";
             closeBtn.eventClick += ClosePanelBtn_eventClick;
@@ -362,8 +394,8 @@ namespace NaturalDisastersRenewal.UI
             tabStrip.backgroundSprite = "SubcategoriesPanel";
             tabStrip.tabPages = tabContainer;
 
-            var tab1 = CreateTab(tabStrip, "Statistics", 0);
-            CreateTab(tabStrip, "Settings", tab1.width);
+            var statisticsTab = CreateTab(tabStrip, "Statistics", 0);
+            CreateTab(tabStrip, "Settings", statisticsTab.width);
 
             if (tabContainer.components.Count < 2) return;
             const float yPosition = 10f;
@@ -608,9 +640,41 @@ namespace NaturalDisastersRenewal.UI
             if (currentOccurrencePerYear >= 10)
                 return 1;
 
-            //based on calculation, accelerate if realtime mod is active, almost 6 times faster
             return (1f + Mathf.Log10(currentOccurrencePerYear)) / 2f;
         }
+
+        // private float GetProbabilityProgressValue(float currentOccurrencePerYear, bool disableRealTimeAdjustment)
+        // {
+        //     // If Real Time mod is active, then adjust the recurrence to hours
+        //     if (_realTimeStatus && disableRealTimeAdjustment)
+        //     {
+        //         // Gets the actual length of a day in seconds
+        //         var simulation = SimulationManager.instance;
+        //         var dayDurationSeconds = simulation.m_timePerFrame.TotalSeconds * SimulationManager.DAYTIME_FRAMES;
+        //         const double hoursInGameDay = 24.0;
+        //         var secondsPerHour = dayDurationSeconds / hoursInGameDay;
+        //
+        //         // Converts annual occurrence to occurrence per hour of play
+        //         var currentOccurrencePerHour = currentOccurrencePerYear / (hoursInGameDay * 365f);
+        //
+        //         // Adjusts the bar to show the probability per hour (logarithmic scale)
+        //         if (currentOccurrencePerHour <= 0.001f)
+        //             return 0;
+        //         if (currentOccurrencePerHour >= 0.05f)
+        //             return 1;
+        //
+        //         return (1f + Mathf.Log10((float)currentOccurrencePerHour * 10000f)) /
+        //                2f; // Escala para rango 0.001 a 0.05
+        //     }
+        //
+        //     // Original calculation (per year)
+        //     if (currentOccurrencePerYear <= 0.1f)
+        //         return 0;
+        //     if (currentOccurrencePerYear >= 10f)
+        //         return 1;
+        //
+        //     return (1f + Mathf.Log10(currentOccurrencePerYear)) / 2f;
+        // }
 
         private static void SetProgressBarColor(UIProgressBar progressBar)
         {
@@ -619,3 +683,6 @@ namespace NaturalDisastersRenewal.UI
         }
     }
 }
+
+//TODO:
+// * Adjust the probability value if Real Time Mod is active (move from days to frames)
