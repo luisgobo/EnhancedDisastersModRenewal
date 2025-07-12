@@ -1,5 +1,4 @@
-﻿using NaturalDisastersRenewal.Models.Disaster;
-using System;
+﻿using System;
 using System.IO;
 
 namespace NaturalDisastersRenewal.Common
@@ -19,6 +18,7 @@ namespace NaturalDisastersRenewal.Common
         public const string logFilename = "NaturalDisastersRenewalMod.log";
         public const string dataId = "NaturalDisastersRenewalMod";
         public const string disasterListFileName = "DisasterList.csv";
+        public const string spriteFileName = "SpriteList.csv";
         public const string logMsgPrefix = ">>> " + modName + ": ";
 
         public const string EarthquakeName = "Earthquake";
@@ -32,8 +32,11 @@ namespace NaturalDisastersRenewal.Common
         public static string newLine = $"{Environment.NewLine}";//Used in debug mode
 
         public static string GetModDescription()
-            => string.Format($"It takes \"Natural Disaster Overhault\" and \"Ragnarok\" mods content to be unified in only one, including some other awesome stuffs." +
+        {
+            return string.Format(
+                "It takes \"Natural Disaster Overhaul\" and \"Ragnarok\" mods content to be unified in only one, including some other awesome stuffs." +
                 $"Version: {modVersion}. Last Update: {modLastVersionMonth},{modLastVersionYear}");
+        }
 
         public static string GetOptionsFilePath(string filename)
         {

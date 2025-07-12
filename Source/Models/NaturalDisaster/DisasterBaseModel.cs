@@ -1,4 +1,9 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
@@ -6,12 +11,6 @@ using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Remoting.Messaging;
-using System.Xml.Serialization;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
@@ -24,6 +23,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected const byte baseIntensity = 255; //Base intensity is 100 for all Disasters
         protected const byte indexReferenceDisasterValue = 10;
 
+        private readonly bool isRealTimeActive = Singleton<NaturalDisasterHandler>.instance.CheckRealTimeModActive();
+        private readonly float realTimeAccelerationIndex = 365f;
+        
         // Cooldown variables (Not stored into XML)
         protected int calmDays = 0;
 
@@ -47,6 +49,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public bool Enabled = true;
 
         public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
+        public float DefaultBaseOccurrencePerYear = 1.0f;        
         public float BaseOccurrencePerYear = 1.0f;        
 
         // Disaster services
@@ -61,13 +64,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public float GetCurrentOccurrencePerYear()
         {
-            //Check here to setup real time occurrence per year
+            //Check here to set up real time occurrence per year
             if (calmDaysLeft > 0)
             {
                 return 0f;
             }
 
-            return ScaleProbabilityByWarmup(GetCurrentOccurrencePerYearLocal());
+            var currentOccurrencePerYearLocal = GetCurrentOccurrencePerYearLocal();
+            Debug.Log($"GetCurrentOccurrencePerYearLocal: {currentOccurrencePerYearLocal}");
+
+            var result = ScaleProbabilityByWarmup(currentOccurrencePerYearLocal);
+            Debug.Log($"ScaleProbabilityByWarmup: {result}");
+
+            return result;
         }
 
         public virtual byte GetMaximumIntensity()
@@ -78,21 +87,87 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return intensity;
         }
 
+        // public void OnSimulationFrame()
+        // {
+        //     if (!Enabled)
+        //     {
+        //         return;
+        //     }
+        //
+        //     if (!unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
+        //     {
+        //         return;
+        //     }
+        //
+        //     OnSimulationFrameLocal();
+        //
+        //     float daysPerFrame = Helper.DaysPerFrame;
+        //
+        //     if (calmDaysLeft > 0)
+        //     {
+        //         calmDaysLeft -= daysPerFrame;
+        //         return;
+        //     }
+        //
+        //     if (probabilityWarmupDaysLeft > 0)
+        //     {
+        //         if (probabilityWarmupDaysLeft > probabilityWarmupDays)
+        //         {
+        //             probabilityWarmupDaysLeft = probabilityWarmupDays;
+        //         }
+        //
+        //         probabilityWarmupDaysLeft -= daysPerFrame;
+        //     }
+        //
+        //     if (intensityWarmupDaysLeft > 0)
+        //     {
+        //         if (intensityWarmupDaysLeft > intensityWarmupDays)
+        //         {
+        //             intensityWarmupDaysLeft = intensityWarmupDays;
+        //         }
+        //
+        //         intensityWarmupDaysLeft -= daysPerFrame;
+        //     }
+        //
+        //     float occurrencePerYear = GetCurrentOccurrencePerYear();
+        //
+        //     if (occurrencePerYear == 0)
+        //     {
+        //         return;
+        //     }
+        //
+        //     SimulationManager sm = Singleton<SimulationManager>.instance;
+        //     float occurrencePerFrame = (occurrencePerYear / 365) * daysPerFrame;
+        //
+        //     var randomizedValue = sm.m_randomizer.Int32(randomizerRange);
+        //     var randomizedOccurrence = (uint)(randomizerRange * occurrencePerFrame);
+        //     Debug.Log(
+        //         $"occurrencePerYear: {occurrencePerYear}, daysPerFrame: {daysPerFrame}, occurrencePerFrame: {occurrencePerFrame}");
+        //     Debug.Log(
+        //         $"Start Disaster? randomizedValue: {randomizedValue} < randomizedOccurrence {randomizedOccurrence}");
+        //
+        //
+        //     //value is getting stop the evaluation on 10 but never goes here
+        //     // if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
+        //     if (randomizedValue < randomizedOccurrence)
+        //     {
+        //         Debug.Log("Disaster Should be started!!!");           
+        //         var maxIntensity = GetMaximumIntensity();                
+        //         byte intensity = GetRandomIntensity(maxIntensity);
+        //
+        //         StartDisaster(intensity);
+        //     }
+        // }
+        
         public void OnSimulationFrame()
         {
-            if (!Enabled)
-            {
-                return;
-            }
+            if (!Enabled) return;
 
-            if (!unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
-            {
-                return;
-            }
+            if (!unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere) return;
 
             OnSimulationFrameLocal();
 
-            float daysPerFrame = Helper.DaysPerFrame;
+            var daysPerFrame = isRealTimeActive ? Helper.DaysPerFrame * realTimeAccelerationIndex : Helper.DaysPerFrame;
 
             if (calmDaysLeft > 0)
             {
@@ -103,36 +178,61 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (probabilityWarmupDaysLeft > 0)
             {
                 if (probabilityWarmupDaysLeft > probabilityWarmupDays)
-                {
                     probabilityWarmupDaysLeft = probabilityWarmupDays;
-                }
 
                 probabilityWarmupDaysLeft -= daysPerFrame;
             }
 
             if (intensityWarmupDaysLeft > 0)
             {
-                if (intensityWarmupDaysLeft > intensityWarmupDays)
-                {
-                    intensityWarmupDaysLeft = intensityWarmupDays;
-                }
+                if (intensityWarmupDaysLeft > intensityWarmupDays) intensityWarmupDaysLeft = intensityWarmupDays;
 
                 intensityWarmupDaysLeft -= daysPerFrame;
             }
 
-            float occurrencePerYear = GetCurrentOccurrencePerYear();
+            var occurrencePerYear = GetCurrentOccurrencePerYear();
 
-            if (occurrencePerYear == 0)
+            if (occurrencePerYear == 0) return;
+
+            var sm = Singleton<SimulationManager>.instance;
+            var occurrencePerFrame = occurrencePerYear / 365 * daysPerFrame;
+
+            var randomizedValue = sm.m_randomizer.Int32(randomizerRange);
+            var randomizedOccurrence = (uint)(randomizerRange * occurrencePerFrame);
+            Debug.Log(
+                $"occurrencePerYear: {occurrencePerYear}, daysPerFrame: {daysPerFrame}, occurrencePerFrame: {occurrencePerFrame}");
+            Debug.Log(
+                $"Start Disaster? randomizedValue: {randomizedValue} < randomizedOccurrence {randomizedOccurrence}");
+
+            // New Logarithmic activation based on occurrence per year
+            var probabilityProgress = 0f;
+            if (occurrencePerYear <= 0.1f)
+                probabilityProgress = 0f;
+            else if (occurrencePerYear >= 10f)
+                probabilityProgress = 1f;
+            else
+                probabilityProgress = (1f + Mathf.Log10(occurrencePerYear)) / 2f;
+
+            Debug.Log($"ProbabilityProgress: {probabilityProgress}");
+
+            if (occurrencePerYear > 0.1f && occurrencePerYear < 10f)
             {
-                return;
-            }
+                var threshold = probabilityProgress * randomizedOccurrence;
+                Debug.Log($"Start Disaster? randomizedValue: {randomizedValue} < threshold {threshold}");
 
-            SimulationManager sm = Singleton<SimulationManager>.instance;
-            float occurrencePerFrame = (occurrencePerYear / 365) * daysPerFrame;
-            if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
-            {                
-                var maxIntensity = GetMaximumIntensity();                
-                byte intensity = GetRandomIntensity(maxIntensity);
+                if (!(randomizedValue < threshold)) return;
+
+                Debug.Log("Disaster Should be started!!!");
+                var maxIntensity = GetMaximumIntensity();
+                var intensity = GetRandomIntensity(maxIntensity);
+
+                StartDisaster(intensity);
+            }
+            else if (occurrencePerYear >= 10f)
+            {
+                Debug.Log("OccurrencePerYear >= 10, disaster always starts.");
+                var maxIntensity = GetMaximumIntensity();
+                var intensity = GetRandomIntensity(maxIntensity);
 
                 StartDisaster(intensity);
             }
@@ -206,7 +306,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected virtual float GetCurrentOccurrencePerYearLocal()
         {
-            return BaseOccurrencePerYear;
+            //Not tested yet
+            return isRealTimeActive ? BaseOccurrencePerYear * realTimeAccelerationIndex : BaseOccurrencePerYear;
         }
 
         protected virtual byte GetRandomIntensity(byte maxIntensity)
@@ -304,6 +405,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected virtual void OnSimulationFrameLocal()
         {
+            // //For testing purposes
+            // DisableRain();
         }
 
         public virtual void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisaster)
@@ -783,6 +886,22 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             priority = 0f;            
             bool canAffect =  (data.m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) != 0;            
             return canAffect;
+        }
+
+        public void DisableRain()
+        {
+            var weatherManager = Singleton<WeatherManager>.instance;
+            if (weatherManager != null)
+            {
+                // Detener la lluvia actual
+                weatherManager.m_targetRain = 0f;
+                weatherManager.m_currentRain = 0f;
+
+                // // Desactivar efectos de clima
+
+                weatherManager.m_currentFog = 0f;
+                weatherManager.m_targetFog = 0f;
+            }
         }
     }
 }

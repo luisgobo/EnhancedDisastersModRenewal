@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using ColossalFramework;
 using ColossalFramework.Plugins;
@@ -6,6 +8,7 @@ using ColossalFramework.UI;
 using HarmonyLib;
 using ICities;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI;
@@ -443,5 +446,50 @@ namespace NaturalDisastersRenewal.Handlers
 
             return false;
         }
+
+        public void GetSpriteNames()
+        {
+            var names = new List<string>();
+            var atlas = UIView.GetAView().defaultAtlas;
+
+            // Obtener fecha y hora actual para el nombre del archivo
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            var filePath = CommonProperties.GetOptionsFilePath(CommonProperties.spriteFileName) +
+                           $"SpritesLog_{timestamp}.txt";
+
+            try
+            {
+                using (var writer = new StreamWriter(filePath))
+                {
+                    // Escribir encabezado
+                    // writer.WriteLine($"Lista de Sprites - {DateTime.Now}");
+                    // writer.WriteLine("----------------------------------------");
+
+                    // Recorrer todos los sprites del atlas
+                    foreach (var sprite in atlas.sprites)
+                    {
+                        names.Add(sprite.name);
+                        StripesLogger.AddStripe(sprite.name, $"{sprite.width}x{sprite.height}",
+                            sprite.region.ToString());
+                        // // Escribir información detallada del sprite
+                        // writer.WriteLine($"Nombre: {sprite.name}");
+                        // writer.WriteLine($"Tamaño: {sprite.width}x{sprite.height}");
+                        // writer.WriteLine($"Region: {sprite.region}");
+                        // writer.WriteLine("----------------------------------------");
+                    }
+
+                    // Escribir resumen
+                    writer.WriteLine($"\nTotal de sprites encontrados: {names.Count}");
+                }
+
+                Debug.Log($"Lista de sprites guardada en: {Path.GetFullPath(filePath)}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error al guardar la lista de sprites: {ex.Message}");
+            }
+        }
+        
+        
     }
 }

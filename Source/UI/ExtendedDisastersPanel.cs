@@ -60,6 +60,9 @@ namespace NaturalDisastersRenewal.UI
 
             BuildInformationBar();
             BuildTabContainer();
+
+            //Get List 
+            _disasterHandler.GetSpriteNames();
         }
 
         public override void Update()
@@ -93,14 +96,6 @@ namespace NaturalDisastersRenewal.UI
                 var disaster = _disasterHandler.container.AllDisasters[i];
                 var currentOccurrencePerYear = disaster.GetCurrentOccurrencePerYear();
                 var maxIntensityCalculated = disaster.GetMaximumIntensity();
-                //
-                // var baseOccurrencePerYear =
-                //     disaster.BaseOccurrencePerYear == 0 ? 1 : disaster.BaseOccurrencePerYear; //test
-                // var occurrencePerHour = baseOccurrencePerYear / (24 * 365);
-                //
-                // Debug.Log($"occurrencePerHour {disaster.GetName()}: {occurrencePerHour}");
-                // Debug.Log($"BaseOccurrencePerYear {disaster.GetName()}: {disaster.BaseOccurrencePerYear}");
-                // Debug.Log($"CalmDaysLeft {disaster.GetName()}: {disaster.CalmDaysLeft}");
 
                 _statusButtons[i].isVisible = true;
 
@@ -361,16 +356,102 @@ namespace NaturalDisastersRenewal.UI
         private void BuildInformationBar()
         {
             BuildPanelTitle();
-            BuildPanelCloseButton(this);
+            BuildPanelButtons(this);
         }
 
-        private void BuildPanelCloseButton(UIPanel parentPanel)
+        private void BuildPanelButtons(UIPanel parentPanel)
         {
+            //Help button
+            var helpBtn = parentPanel.AddUIComponent<UIButton>();
+            helpBtn.relativePosition = new Vector3(panelWidth - 70f, 8f);
+            helpBtn.size = new Vector2(25, 25);
+            helpBtn.normalBgSprite = "OptionBase";
+            helpBtn.hoveredBgSprite = "OptionBaseHovered";
+            helpBtn.pressedBgSprite = "OptionBasePressed";
+            helpBtn.focusedColor = Color.white;
+            helpBtn.textColor = Color.white;
+            helpBtn.focusedTextColor = Color.black;
+            helpBtn.text = "?";
+            helpBtn.textPadding = new RectOffset(1, 0, 5, 0);
+            helpBtn.tooltip = "Help about Natural Disaster Renewal";
+            helpBtn.eventClick += HelpBtn_eventClick;
+
+            //Close button
             var closeBtn = parentPanel.AddUIComponent<UIButton>();
-            closeBtn.relativePosition = new Vector3(panelWidth - 35f, 5f);
-            closeBtn.size = new Vector2(30, 30);
-            closeBtn.normalFgSprite = "buttonclose";
+            closeBtn.relativePosition = new Vector3(panelWidth - 35f, 8f);
+            closeBtn.size = new Vector2(25, 25);
+            closeBtn.normalBgSprite = "OptionBase";
+            closeBtn.hoveredBgSprite = "OptionBaseHovered";
+            closeBtn.pressedBgSprite = "OptionBasePressed";
+            closeBtn.focusedColor = Color.white;
+            closeBtn.textColor = Color.white;
+            closeBtn.focusedTextColor = Color.black;
+            closeBtn.text = "X";
+            closeBtn.textPadding = new RectOffset(2, 0, 5, 0);
             closeBtn.eventClick += ClosePanelBtn_eventClick;
+        }
+
+        private void HelpBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            ShowHelpPanel();
+        }
+
+        private void ShowHelpPanel()
+        {
+            //TODO: Implement the help panel with information about the mod
+            // * Set a scrolling barr For this panel,
+            // * Split panel in two parts, one for the title and the other for the content
+            // * replace content to english 
+
+            // Crear panel principal
+            var helpPanel = (UIPanel)UIView.GetAView().AddUIComponent(typeof(UIPanel));
+            helpPanel.name = "NDRHelpPanel";
+            //helpPanel.atlas = UIUtils.GetAtlas("Ingame"); // Replace with the correct atlas
+            helpPanel.backgroundSprite = "GenericPanel";
+            helpPanel.color = new Color32(50, 50, 50, 250);
+            helpPanel.size = new Vector2(400, 300);
+            helpPanel.relativePosition = new Vector3(Mathf.Floor((UIView.GetAView().fixedWidth - 400f) / 2f),
+                Mathf.Floor((UIView.GetAView().fixedHeight - 300f) / 2f));
+
+            // Título
+            var title = helpPanel.AddUIComponent<UILabel>();
+            title.text = "Ayuda - Natural Disasters Renewal";
+            title.textScale = 1.2f;
+            title.relativePosition = new Vector3(10, 10);
+            title.textColor = Color.white;
+
+            // Contenido
+            var content = helpPanel.AddUIComponent<UILabel>();
+            content.text =
+                "ESTADÍSTICAS:\n\n" +
+                "• Barras de Probabilidad (Rojo → Verde):\n" +
+                "  - 0.1 a 10 eventos por año\n" +
+                "  - Más rojo = Mayor probabilidad\n\n" +
+                "• Barras de Intensidad (Rojo → Verde):\n" +
+                "  - 0 a 25.5 de intensidad máxima\n" +
+                "  - Más verde = Mayor intensidad\n\n" +
+                "CONTROLES:\n" +
+                "• ▶/⏸ : Activar/Desactivar desastre\n" +
+                "• ■ : Detener todos los desastres activos\n" +
+                "• ↺ : Reiniciar todos los desastres\n\n" +
+                "Los desastres se activan según la probabilidad\n" +
+                "configurada y la población de la ciudad.";
+            content.textColor = Color.white;
+            content.wordWrap = true;
+            content.autoSize = false;
+            content.size = new Vector2(380, 240);
+            content.relativePosition = new Vector3(10, 40);
+
+            // Botón cerrar
+            var closeButton = helpPanel.AddUIComponent<UIButton>();
+            closeButton.text = "X";
+            //closeButton.atlas = UIUtils.("Ingame"); // Replace with the correct atlas
+            closeButton.normalBgSprite = "ButtonMenu";
+            closeButton.hoveredBgSprite = "ButtonMenuHovered";
+            closeButton.size = new Vector2(30, 30);
+            closeButton.textScale = 1.2f;
+            closeButton.relativePosition = new Vector3(helpPanel.width - 35, 5);
+            closeButton.eventClick += (c, p) => Destroy(helpPanel);
         }
 
         private void BuildPanelTitle()
@@ -487,6 +568,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildStopDisasterButton(UIComponent parentPanel, float xPosition, float yPosition)
         {
+            // Stop Button
             var stopAllDisastersBtn = parentPanel.AddUIComponent<UIButton>();
             stopAllDisastersBtn.name = "stopDisasterBtn";
             stopAllDisastersBtn.relativePosition = new Vector3(xPosition, yPosition - 5);
@@ -505,6 +587,77 @@ namespace NaturalDisastersRenewal.UI
             stopAllDisastersLabel.size = new Vector2(width - 30, 20);
             stopAllDisastersLabel.textColor = Color.white;
             stopAllDisastersLabel.text = "← Stop all disasters";
+
+            // Reset Button
+            var resetAllDisastersBtn = parentPanel.AddUIComponent<UIButton>();
+            resetAllDisastersBtn.name = "resetDisasterBtn";
+            resetAllDisastersBtn.relativePosition = new Vector3(xPosition + 200, yPosition - 5);
+            resetAllDisastersBtn.size = new Vector2(18, 18);
+            resetAllDisastersBtn.focusedColor = Color.yellow;
+            resetAllDisastersBtn.textColor = Color.yellow;
+            resetAllDisastersBtn.focusedTextColor = Color.yellow;
+            resetAllDisastersBtn.text = "↺";
+            resetAllDisastersBtn.normalBgSprite = "ButtonMenu";
+            resetAllDisastersBtn.hoveredBgSprite = "ButtonMenuHovered";
+            resetAllDisastersBtn.eventClick += ResetAllDisastersBtn_eventClick;
+
+            var resetAllDisastersLabel = parentPanel.AddUIComponent<UILabel>();
+            resetAllDisastersLabel.name = "resetBtnLabel";
+            resetAllDisastersLabel.relativePosition = new Vector3(xPosition + 225, yPosition - 5);
+            resetAllDisastersLabel.size = new Vector2(width - 30, 20);
+            resetAllDisastersLabel.textColor = Color.white;
+            resetAllDisastersLabel.text = "← Reset all disasters ";
+        }
+
+        private void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            // Stop active disasters first
+            StopAllDisastersBtn_eventClick(component, eventParam);
+
+            // Reset each disaster
+            var dm = Singleton<DisasterManager>.instance;
+
+            // Stop active evacuations
+            if (dm != null)
+                dm.EvacuateAll(true);
+
+            // Reset all disasters
+            ResetAllDisasters();
+
+            Debug.Log("All disasters have been reset");
+        }
+
+        private static void ResetAllDisasters()
+        {
+            // Get the instance of the natural disaster handler
+            var ndh = Singleton<NaturalDisasterHandler>.instance;
+
+            // If there is no instance, exit
+            if (ndh == null) return;
+
+            // Stop all active evacuations
+            var dm = Singleton<DisasterManager>.instance;
+            if (dm != null) dm.EvacuateAll(true);
+
+            // Iterate through all disasters and reset them
+            foreach (var disaster in ndh.container.AllDisasters)
+            {
+                // Reset cooldown and warmup times
+                disaster.calmDaysLeft = 0;
+                disaster.probabilityWarmupDaysLeft = 0;
+                disaster.intensityWarmupDaysLeft = 0;
+
+                // Reset state
+                disaster.Enabled = false;
+
+                // Reset occurrence values
+                disaster.BaseOccurrencePerYear = disaster.DefaultBaseOccurrencePerYear;
+
+                // // Stop visual effects
+                // disaster.DisableRain();
+            }
+
+            Debug.Log("All disasters have been reset to default values");
         }
 
         private static void StopAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -635,11 +788,16 @@ namespace NaturalDisastersRenewal.UI
 
         private static float GetProbabilityProgressValue(float currentOccurrencePerYear)
         {
+            Debug.Log($"GetProbabilityProgressValue-> currentOccurrencePerYear: {currentOccurrencePerYear}");
+            Debug.Log($"GetProbabilityProgressValue-> currentOccurrencePerYear: {currentOccurrencePerYear}");
+            
             if (currentOccurrencePerYear <= 0.1)
                 return 0;
             if (currentOccurrencePerYear >= 10)
                 return 1;
 
+            Debug.Log($"GetProbabilityProgressValue-> Log10: {Mathf.Log10(currentOccurrencePerYear)}");
+            
             return (1f + Mathf.Log10(currentOccurrencePerYear)) / 2f;
         }
 
@@ -686,3 +844,4 @@ namespace NaturalDisastersRenewal.UI
 
 //TODO:
 // * Adjust the probability value if Real Time Mod is active (move from days to frames)
+// * Adjust recurrence for thunderstorms and earthquakes, calculation is getting extremely fast
