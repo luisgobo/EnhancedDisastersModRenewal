@@ -1,8 +1,8 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.IO;
+using ColossalFramework;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
-using System;
-using System.IO;
 
 namespace NaturalDisastersRenewal.Logger
 {
@@ -18,7 +18,7 @@ namespace NaturalDisastersRenewal.Logger
 
             if (!File.Exists(filePath))
             {
-                File.AppendAllText(filePath, "date,disaster,intensity,started by" + CommonProperties.newLine);
+                File.AppendAllText(filePath, "date,disaster,intensity,started by" + CommonProperties.NewLine);
             }
 
             string startedBy = "Vanilla";

@@ -1,5 +1,5 @@
-﻿using NaturalDisastersRenewal.Common;
-using System.IO;
+﻿using System.IO;
+using NaturalDisastersRenewal.Common;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.Disaster
@@ -14,7 +14,7 @@ namespace NaturalDisastersRenewal.Models.Disaster
             if (IsDebug)
             //if (IsDebug && System.Diagnostics.Debugger.IsAttached)
             {
-                File.AppendAllText(GeFilePath(), msg + CommonProperties.newLine);
+                File.AppendAllText(GeFilePath(), msg + CommonProperties.NewLine);
                 Debug.Log(msg);
             }
         }

@@ -1,12 +1,12 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
@@ -34,19 +34,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             WarmupYears = 3;
         }
 
-        [System.Xml.Serialization.XmlElement]
+        [XmlElement]
         public float WarmupYears
         {
-            get
-            {
-                return probabilityWarmupDays / 360f;
-            }
+            get => ProbabilityWarmupDays / 360f;
 
             set
             {
-                probabilityWarmupDays = (int)(360 * value);
-                intensityWarmupDays = probabilityWarmupDays / 2;
-                calmDays = probabilityWarmupDays / 2;
+                ProbabilityWarmupDays = (int)(360 * value);
+                IntensityWarmupDays = ProbabilityWarmupDays / 2;
+                CalmDays = ProbabilityWarmupDays / 2;
             }
         }
 
@@ -122,9 +119,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (aftershocksCount > 0)
             {
-                calmDays = 15;
-                probabilityWarmupDaysLeft = 0;
-                intensityWarmupDaysLeft = 0;
+                CalmDays = 15;
+                ProbabilityWarmupDaysLeft = 0;
+                IntensityWarmupDaysLeft = 0;
 
                 Debug.Log(string.Format(CommonProperties.logMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
             }

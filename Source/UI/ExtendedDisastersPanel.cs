@@ -5,6 +5,7 @@ using ColossalFramework;
 using ColossalFramework.UI;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -12,13 +13,14 @@ namespace NaturalDisastersRenewal.UI
 {
     public class ExtendedDisastersPanel : UIPanel
     {
-        private const string pauseSprite = "ButtonPause";
-        private const string playSprite = "ButtonPlayFocused";
-        private const float labelTextScaleSmall = 0.7f;
-        private const float labelTextScaleNormal = 0.8f;
+        private const string PauseSprite = "ButtonPause";
+        private const string PlaySprite = "ButtonPlayFocused";
+        private const float LabelTextScaleTiny = 0.6f;
+        private const float LabelTextScaleSmall = 0.7f;
+        private const float LabelTextScaleNormal = 0.8f;
 
-        private const float panelWidth = 434f;
-        private const float panelHeight = 320f;
+        private const float PanelWidth = 434f;
+        private const float PanelHeight = 320f;
 
         [FormerlySerializedAs("Counter")] public int counter;
         private readonly NaturalDisasterHandler _disasterHandler = Singleton<NaturalDisasterHandler>.instance;
@@ -26,6 +28,7 @@ namespace NaturalDisastersRenewal.UI
         private uint _dayTimeOffsetFrames;
 
         private UILabel[] _disasterLabelCalculations;
+        private UILabel[] _disasterLabelMaxIntensity;
 
         private UILabel[] _disasterLabelNames;
 
@@ -48,8 +51,8 @@ namespace NaturalDisastersRenewal.UI
             base.Awake();
 
             backgroundSprite = "MenuPanel";
-            height = panelHeight;
-            width = panelWidth;
+            height = PanelHeight;
+            width = PanelWidth;
             canFocus = true;
             isVisible = false;
         }
@@ -78,18 +81,11 @@ namespace NaturalDisastersRenewal.UI
 
             var disasterCount = _disasterHandler.container.AllDisasters.Count;
 
-            // Parámetros de simulación
+            // Simulation params for probability calculation
             var simulation = SimulationManager.instance;
             var dayDurationSeconds = simulation.m_timePerFrame.TotalSeconds * SimulationManager.DAYTIME_FRAMES;
             const double hoursInGameDay = 24.0;
             var secondsPerHour = dayDurationSeconds / hoursInGameDay;
-
-            // Calcula la probabilidad de ocurrencia por hora de juego
-            // BaseOccurrencePerYear ahora se interpreta como ocurrencias por hora
-
-            Debug.Log("dayDurationSeconds: " + dayDurationSeconds);
-            Debug.Log("hoursInGameDay: " + hoursInGameDay);
-            Debug.Log("secondsPerHour: " + secondsPerHour);
 
             for (var i = 0; i < disasterCount; i++)
             {
@@ -105,11 +101,11 @@ namespace NaturalDisastersRenewal.UI
                     var icon = button.components.OfType<UISprite>().FirstOrDefault();
 
                     if (icon)
-                        icon.spriteName = pauseSprite;
+                        icon.spriteName = PauseSprite;
 
                     _disasterLabelNames[i].text = disaster.GetName();
-                    _disasterLabelCalculations[i].text = SetDisasterInfoLabel(currentOccurrencePerYear,
-                        maxIntensityCalculated);
+                    _disasterLabelCalculations[i].text = SetDisasterProbabilityLabel(currentOccurrencePerYear);
+                    _disasterLabelMaxIntensity[i].text = SetMaxIntensityInfoLabel(maxIntensityCalculated);
 
                     //Calculate probability                    
                     var probabilityValue = GetProbabilityProgressValue(currentOccurrencePerYear);
@@ -132,11 +128,12 @@ namespace NaturalDisastersRenewal.UI
                     var icon = button.components.OfType<UISprite>().FirstOrDefault();
 
                     if (icon)
-                        icon.spriteName = playSprite;
+                        icon.spriteName = PlaySprite;
 
                     _disasterLabelNames[i].text = $"{disaster.GetName()} - Disabled";
                     _disasterLabelCalculations[i].text = string.Empty;
-
+                    _disasterLabelMaxIntensity[i].text = string.Empty;
+                    
                     _progressBarsProbability[i].value = 0;
                     _progressBarsProbability[i].progressColor = Color.black;
                     _progressBarsMaxIntensity[i].value = 0;
@@ -175,30 +172,29 @@ namespace NaturalDisastersRenewal.UI
             const float xPosition = 10f;
             var yPosition = 10f;
 
-            _populationLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal, "");
+            _populationLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal, "");
 
             DefineMinPopulationLabelContent();
 
             yPosition += 22;
-            AddLabel(parentPanel, xPosition, yPosition, labelTextScaleSmall, "Disaster", "Disaster name");
-            AddLabel(parentPanel, xPosition + 140f, yPosition, labelTextScaleSmall,
-                "COxY/M.I", "Current Occurrence per Year / Max Intensity");
+            AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleSmall, "Disaster", "Disaster name");
 
             //Add Axis titles
-            AddLabel(parentPanel, xPosition + 212f, yPosition, labelTextScaleSmall, "Probability");
-            AddLabel(parentPanel, xPosition + 312f, yPosition, labelTextScaleSmall, "Max intensity");
+            AddLabel(parentPanel, xPosition + 212f, yPosition, LabelTextScaleSmall, "Probability %");
+            AddLabel(parentPanel, xPosition + 312f, yPosition, LabelTextScaleSmall, "Max intensity");
 
             //Add Axis Labels
             yPosition += 15;
-            AddLabel(parentPanel, xPosition + 212, yPosition, labelTextScaleSmall, "0.1");
-            AddLabel(parentPanel, xPosition + 252, yPosition, labelTextScaleSmall, "1");
-            AddLabel(parentPanel, xPosition + 287, yPosition, labelTextScaleSmall, "10");
-            AddLabel(parentPanel, xPosition + 312, yPosition, labelTextScaleSmall, "0.0");
-            AddLabel(parentPanel, xPosition + 375, yPosition, labelTextScaleSmall, "25.5");
+            AddLabel(parentPanel, xPosition + 210, yPosition, LabelTextScaleSmall, "1");
+            AddLabel(parentPanel, xPosition + 246, yPosition, LabelTextScaleSmall, "50");
+            AddLabel(parentPanel, xPosition + 281, yPosition, LabelTextScaleSmall, "100");
+            AddLabel(parentPanel, xPosition + 312, yPosition, LabelTextScaleSmall, "0.0");
+            AddLabel(parentPanel, xPosition + 375, yPosition, LabelTextScaleSmall, "25.5");
 
             var disasterCount = _disasterHandler.container.AllDisasters.Count;
             _disasterLabelNames = new UILabel[disasterCount];
             _disasterLabelCalculations = new UILabel[disasterCount];
+            _disasterLabelMaxIntensity = new UILabel[disasterCount];
             _statusButtons = new UIButton[disasterCount];
             _progressBarsProbability = new UIProgressBar[disasterCount];
             _progressBarsMaxIntensity = new UIProgressBar[disasterCount];
@@ -216,17 +212,22 @@ namespace NaturalDisastersRenewal.UI
                         disaster.Enabled);
 
                 //Show disaster name
-                _disasterLabelNames[i] = AddLabel(parentPanel, xPosition + 26, yPosition, labelTextScaleNormal,
+                _disasterLabelNames[i] = AddLabel(parentPanel, xPosition + 26, yPosition, LabelTextScaleNormal,
                     disaster.GetName());
-                //Show disaster info
-                _disasterLabelCalculations[i] = AddLabel(parentPanel, xPosition + 136, yPosition, labelTextScaleNormal,
-                    SetDisasterInfoLabel(0, 0));
-
+                
                 //Set progress bar for probability
                 _progressBarsProbability[i] = AddProgressBar(parentPanel, xPosition + 212, yPosition);
 
+                //Show disaster probability info -> the order defines the index position
+                _disasterLabelCalculations[i] = AddLabel(parentPanel, xPosition + 240, yPosition + 3, LabelTextScaleTiny,
+                    SetDisasterProbabilityLabel());
+
                 //Set progress bar for max intensity
                 _progressBarsMaxIntensity[i] = AddProgressBar(parentPanel, xPosition + 312, yPosition);
+
+                //Show disaster probability info -> the order defines the index position
+                _disasterLabelMaxIntensity[i] = AddLabel(parentPanel, xPosition + 350, yPosition + 3, LabelTextScaleTiny,
+                    SetMaxIntensityInfoLabel());
 
                 yPosition += itemSpacing;
             }
@@ -267,20 +268,20 @@ namespace NaturalDisastersRenewal.UI
             const int xPosition = 20;
             var yPosition = 10;
 
-            _realTimeStatusLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal,
+            _realTimeStatusLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal,
                 $"Real Time Status: {(_realTimeStatus ? "Active" : "Inactive")}");
             _realTimeStatusLabel.tooltip = "Check if \"Real Time\" Mod status is active";
 
             yPosition += 20;
-            _realTimeTimeOffsetTicksLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal,
+            _realTimeTimeOffsetTicksLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal,
                 $"Time Offset Ticks: {_timeOffsetTicks}");
 
             yPosition += 20;
-            _realTimeDayTimeFramesLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal,
+            _realTimeDayTimeFramesLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal,
                 $"Day-Time Frames: {_dayTimeframes}");
 
             yPosition += 20;
-            _realTimeDayTimeOffsetFramesLabel = AddLabel(parentPanel, xPosition, yPosition, labelTextScaleNormal,
+            _realTimeDayTimeOffsetFramesLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal,
                 $"Day-Time Offset Frames: {_dayTimeOffsetFrames}");
 
             yPosition += 30;
@@ -363,7 +364,7 @@ namespace NaturalDisastersRenewal.UI
         {
             //Help button
             var helpBtn = parentPanel.AddUIComponent<UIButton>();
-            helpBtn.relativePosition = new Vector3(panelWidth - 70f, 8f);
+            helpBtn.relativePosition = new Vector3(PanelWidth - 70f, 8f);
             helpBtn.size = new Vector2(25, 25);
             helpBtn.normalBgSprite = "OptionBase";
             helpBtn.hoveredBgSprite = "OptionBaseHovered";
@@ -378,7 +379,7 @@ namespace NaturalDisastersRenewal.UI
 
             //Close button
             var closeBtn = parentPanel.AddUIComponent<UIButton>();
-            closeBtn.relativePosition = new Vector3(panelWidth - 35f, 8f);
+            closeBtn.relativePosition = new Vector3(PanelWidth - 35f, 8f);
             closeBtn.size = new Vector2(25, 25);
             closeBtn.normalBgSprite = "OptionBase";
             closeBtn.hoveredBgSprite = "OptionBaseHovered";
@@ -518,8 +519,7 @@ namespace NaturalDisastersRenewal.UI
             scrollablePanel.autoLayout = false;
             scrollablePanel.clipChildren = true;
             scrollablePanel.scrollWheelAmount = 20;
-
-
+            
             scrollbar.orientation = UIOrientation.Vertical;
             scrollbar.width = 12f;
             scrollbar.relativePosition = new Vector2(tabPanel.width - 12f, yPosition);
@@ -557,7 +557,7 @@ namespace NaturalDisastersRenewal.UI
             disasterStateBtn.hoveredBgSprite = "ButtonMenuHovered";
 
             var icon = disasterStateBtn.AddUIComponent<UISprite>();
-            icon.spriteName = isDisasterEnabled ? pauseSprite : playSprite;
+            icon.spriteName = isDisasterEnabled ? PauseSprite : PlaySprite;
             icon.size = new Vector2(12, 12);
             icon.relativePosition = new Vector2(3, 3);
 
@@ -643,15 +643,15 @@ namespace NaturalDisastersRenewal.UI
             foreach (var disaster in ndh.container.AllDisasters)
             {
                 // Reset cooldown and warmup times
-                disaster.calmDaysLeft = 0;
-                disaster.probabilityWarmupDaysLeft = 0;
-                disaster.intensityWarmupDaysLeft = 0;
+                disaster.CalmDaysLeft = 0;
+                disaster.ProbabilityWarmupDaysLeft = 0;
+                disaster.IntensityWarmupDaysLeft = 0;
 
                 // Reset state
                 disaster.Enabled = false;
 
                 // Reset occurrence values
-                disaster.BaseOccurrencePerYear = disaster.DefaultBaseOccurrencePerYear;
+                disaster.BaseOccurrencePerYear = DisasterBaseModel.defaultBaseOccurrencePerYear;
 
                 // // Stop visual effects
                 // disaster.DisableRain();
@@ -675,24 +675,24 @@ namespace NaturalDisastersRenewal.UI
                         vehicleManager.ReleaseVehicle((ushort)i);
                 }
 
-            var ws = Singleton<WaterSimulation>.instance;
-            for (var i = ws.m_waterWaves.m_size; i >= 1; i--)
+            var waterSimulation = Singleton<WaterSimulation>.instance;
+            for (var i = waterSimulation.m_waterWaves.m_size; i >= 1; i--)
                 Singleton<TerrainManager>.instance.WaterSimulation.ReleaseWaterWave((ushort)i);
 
-            var dm = Singleton<DisasterManager>.instance;
-            for (ushort i = 0; i < dm.m_disasterCount; i++)
+            var disasterManager = Singleton<DisasterManager>.instance;
+            for (ushort i = 0; i < disasterManager.m_disasterCount; i++)
             {
-                cancellingDisasterFlags.AppendLine(dm.m_disasters.m_buffer[i].Info.name + " flags: " +
-                                                   dm.m_disasters.m_buffer[i].m_flags);
-                if ((dm.m_disasters.m_buffer[i].m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active |
-                                                           DisasterData.Flags.Clearing)) ==
+                cancellingDisasterFlags.AppendLine(disasterManager.m_disasters.m_buffer[i].Info.name + " flags: " +
+                                                   disasterManager.m_disasters.m_buffer[i].m_flags);
+                if ((disasterManager.m_disasters.m_buffer[i].m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active |
+                                                                        DisasterData.Flags.Clearing)) ==
                     DisasterData.Flags.None) continue;
-                if (!IsStoppableDisaster(dm.m_disasters.m_buffer[i].Info.m_disasterAI)) continue;
-                cancellingDisasterFlags.AppendLine("Trying to cancel " + dm.m_disasters.m_buffer[i].Info.name);
-                dm.m_disasters.m_buffer[i].m_flags =
-                    (dm.m_disasters.m_buffer[i].m_flags & ~(DisasterData.Flags.Emerging |
-                                                            DisasterData.Flags.Active |
-                                                            DisasterData.Flags.Clearing)) |
+                if (!IsStoppableDisaster(disasterManager.m_disasters.m_buffer[i].Info.m_disasterAI)) continue;
+                cancellingDisasterFlags.AppendLine("Trying to cancel " + disasterManager.m_disasters.m_buffer[i].Info.name);
+                disasterManager.m_disasters.m_buffer[i].m_flags =
+                    disasterManager.m_disasters.m_buffer[i].m_flags & ~(DisasterData.Flags.Emerging |
+                                                                        DisasterData.Flags.Active |
+                                                                        DisasterData.Flags.Clearing) |
                     DisasterData.Flags.Finished;
             }
 
@@ -714,7 +714,7 @@ namespace NaturalDisastersRenewal.UI
             disaster.Enabled = !disaster.Enabled;
             switch (disaster.GetName())
             {
-                case CommonProperties.EarthquakeName:
+                case CommonProperties.earthquakeName:
                     _disasterHandler.container.Earthquake.Enabled = disaster.Enabled;
                     break;
 
@@ -745,14 +745,21 @@ namespace NaturalDisastersRenewal.UI
 
             var button = (UIButton)component;
             var icon = button.components.OfType<UISprite>().FirstOrDefault();
-            if (icon != null) icon.spriteName = disaster.Enabled ? pauseSprite : playSprite;
+            if (icon != null) icon.spriteName = disaster.Enabled ? PauseSprite : PlaySprite;
 
             SettingsScreen.UpdateUISettingsOptions();
         }
 
-        private static string SetDisasterInfoLabel(float currentOccurrencePerYear, float maxIntensity)
+        private static string SetDisasterProbabilityLabel(float occurrencePerYear = 0)
         {
-            return $"| {currentOccurrencePerYear:00.00}/{maxIntensity / 10:0.0}";
+            var probabilityValue = GetProbabilityProgressValue(occurrencePerYear);
+            var percent = probabilityValue * 100f;
+            return $"{percent:0.##}%";
+        }
+
+        private static string SetMaxIntensityInfoLabel(float maxIntensity = 0)
+        {
+            return $"{maxIntensity / 10:0.0}";
         }
 
         private static bool IsStoppableDisaster(DisasterAI ai)
@@ -788,16 +795,13 @@ namespace NaturalDisastersRenewal.UI
 
         private static float GetProbabilityProgressValue(float currentOccurrencePerYear)
         {
-            Debug.Log($"GetProbabilityProgressValue-> currentOccurrencePerYear: {currentOccurrencePerYear}");
-            Debug.Log($"GetProbabilityProgressValue-> currentOccurrencePerYear: {currentOccurrencePerYear}");
-            
             if (currentOccurrencePerYear <= 0.1)
                 return 0;
             if (currentOccurrencePerYear >= 10)
                 return 1;
 
-            Debug.Log($"GetProbabilityProgressValue-> Log10: {Mathf.Log10(currentOccurrencePerYear)}");
-            
+            //Returns a value between 0 and 1 in intervals of 0.1 units
+            //based on the logarithmic scale of the occurrence per year
             return (1f + Mathf.Log10(currentOccurrencePerYear)) / 2f;
         }
 

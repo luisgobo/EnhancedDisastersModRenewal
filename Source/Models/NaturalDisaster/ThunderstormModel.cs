@@ -1,13 +1,10 @@
-﻿using ColossalFramework;
-using ColossalFramework.IO;
+﻿using System;
+using System.Collections.Generic;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
-using NaturalDisastersRenewal.Serialization.NaturalDisaster;
-using System;
-using System.Collections.Generic;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -24,20 +21,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = 2.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            calmDays = 60;
-            probabilityWarmupDays = 30;
-            intensityWarmupDays = 60;
+            CalmDays = 60;
+            ProbabilityWarmupDays = 30;
+            IntensityWarmupDays = 60;
             EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
         public override string GetProbabilityTooltip(float value)
         {
-            if (!unlocked)
+            if (!Unlocked)
             {
-                return "Not unlocked yet (occurs only outside of your area).";
+                return "Not Unlocked yet (occurs only outside of your area).";
             }
 
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
             {
                 if (Singleton<WeatherManager>.instance.m_currentRain > 0 && RainFactor > 1)
                 {

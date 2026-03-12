@@ -13,7 +13,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             ForestFireModel forestFire = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
             SerializeCommonParameters(dataSerializer, forestFire);
             dataSerializer.WriteInt32(forestFire.WarmupDays);
-            dataSerializer.WriteFloat(forestFire.noRainDays);
+            dataSerializer.WriteFloat(forestFire.NoRainDays);
         }
 
         public void Deserialize(DataSerializer dataSeralizer)
@@ -24,11 +24,11 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             if (dataSeralizer.version <= 2)
             {
                 float daysPerFrame = Helper.DaysPerFrame;
-                forestFire.noRainDays = dataSeralizer.ReadInt32() * daysPerFrame;
+                forestFire.NoRainDays = dataSeralizer.ReadInt32() * daysPerFrame;
             }
             else
             {
-                forestFire.noRainDays = dataSeralizer.ReadFloat();
+                forestFire.NoRainDays = dataSeralizer.ReadFloat();
             }
         }
 

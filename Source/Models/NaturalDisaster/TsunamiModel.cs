@@ -1,16 +1,12 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Common.Types;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using static ColossalFramework.DataBinding.BindPropertyByKey;
-using static RenderManager;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -26,16 +22,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public float WarmupYears
         {
-            get
-            {
-                return probabilityWarmupDays / 360f;
-            }
+            get => ProbabilityWarmupDays / 360f;
 
             set
             {
-                probabilityWarmupDays = (int)(360 * value);
-                intensityWarmupDays = probabilityWarmupDays / 2;
-                calmDays = probabilityWarmupDays;
+                ProbabilityWarmupDays = (int)(360 * value);
+                IntensityWarmupDays = ProbabilityWarmupDays / 2;
+                CalmDays = ProbabilityWarmupDays;
             }
         }
 

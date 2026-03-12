@@ -1,11 +1,11 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.DisasterServices.HarmonyPatches;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -22,10 +22,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = 1.5f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            calmDays = 360 * 2;
-            probabilityWarmupDays = 180;
-            intensityWarmupDays = 180;
-            intensityWarmupDays = 180;
+            CalmDays = 360 * 2;
+            ProbabilityWarmupDays = 180;
+            IntensityWarmupDays = 180;
+            IntensityWarmupDays = 180;
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()
@@ -46,7 +46,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetProbabilityTooltip(float value)
         {
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
             {
                 if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
                 {

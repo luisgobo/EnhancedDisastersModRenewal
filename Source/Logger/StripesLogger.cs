@@ -15,7 +15,7 @@ namespace NaturalDisastersRenewal.Logger
             var filePath = GetDisasterListFilePath();
 
             if (!File.Exists(filePath))
-                File.AppendAllText(filePath, "Name,Dimensions,Region" + CommonProperties.newLine);
+                File.AppendAllText(filePath, "Name,Dimensions,Region" + CommonProperties.NewLine);
 
             File.AppendAllText(filePath, name + "," + dimensions + "," + region + Environment.NewLine);
         }

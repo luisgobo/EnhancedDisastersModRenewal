@@ -1,11 +1,11 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
@@ -139,7 +139,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             };
         }
 
-        [System.Xml.Serialization.XmlElement]
+        [XmlElement]
         public bool MeteorLongPeriodEnabled
         {
             get
@@ -153,7 +153,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        [System.Xml.Serialization.XmlElement]
+        [XmlElement]
         public bool MeteorMediumPeriodEnabled
         {
             get
@@ -167,7 +167,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        [System.Xml.Serialization.XmlElement]
+        [XmlElement]
         public bool MeteorShortPeriodEnabled
         {
             get
@@ -288,12 +288,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetProbabilityTooltip(float probabilityValue)
         {
-            if (!unlocked)
+            if (!Unlocked)
             {
-                return "Not unlocked yet";
+                return "Not Unlocked yet";
             }
-            
-            string probability = $"Probability: {(probabilityValue != 0 ? $"{probabilityValue * 10:#.#}" : "0.00")} {CommonProperties.newLine}";
+
+            var probability = $"Probability: {(probabilityValue != 0 ? $"{probabilityValue * 10:#.#}" : "0.00")} {CommonProperties.NewLine}";
 
             for (int i = 0; i < meteorEvents.Length; i++)
                 probability += meteorEvents[i].GetStateDescription() + Environment.NewLine;

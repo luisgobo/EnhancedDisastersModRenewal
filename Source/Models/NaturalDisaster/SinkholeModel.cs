@@ -1,11 +1,11 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -21,19 +21,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = 1.5f; // When groundwater is full
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
-            calmDays = 30;
-            probabilityWarmupDays = 0;
-            intensityWarmupDays = 0;
+            CalmDays = 30;
+            ProbabilityWarmupDays = 0;
+            IntensityWarmupDays = 0;
         }
 
         public override string GetProbabilityTooltip(float value)
         {
-            if (!unlocked)
+            if (!Unlocked)
             {
-                return "Not unlocked yet";
+                return "Not Unlocked yet";
             }
 
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
             {
                 int groundWaterPercent = (int)(100 * groundwaterAmount / GroundwaterCapacity);
                 return "Ground water level " + groundWaterPercent.ToString() + "%";
