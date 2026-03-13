@@ -1,6 +1,5 @@
-﻿using ColossalFramework;
-using ICities;
-using NaturalDisastersRenewal.Handlers;
+﻿using ICities;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
 {
@@ -10,17 +9,18 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         {
             if (mode == LoadMode.NewGame || mode == LoadMode.LoadGame || mode == LoadMode.NewGameFromScenario)
             {
-                Singleton<NaturalDisasterHandler>.instance.CreateExtendedDisasterPanel();
-                Singleton<NaturalDisasterHandler>.instance.CheckUnlocks();
+                CommonServices.DisasterHandler.CreateExtendedDisasterPanel();
+                CommonServices.DisasterHandler.CheckUnlocks();
 
-                Singleton<NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(true);
-                Singleton<NaturalDisasterHandler>.instance.RedefineDisasterMaxIntensity();
+                CommonServices.DisasterSetup.Earthquake.UpdateDisasterProperties(true);
+                CommonServices.DisasterHandler.RedefineDisasterMaxIntensity();
             }
         }
 
         public override void OnLevelUnloading()
         {
-            Singleton<NaturalDisasterHandler>.instance.container.Earthquake.UpdateDisasterProperties(false);
+            CommonServices.DisasterSetup.Earthquake.UpdateDisasterProperties(false);
+            CommonServices.ResetCache();
         }
     }
 }

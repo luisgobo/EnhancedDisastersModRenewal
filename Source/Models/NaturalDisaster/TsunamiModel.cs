@@ -72,7 +72,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);            
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
             //Get disaster Info
             DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
@@ -99,7 +99,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
                     {                                                
                             disasterInfoModel.ShelterList.Add(num);
-                            SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                            SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                     }
                 }
             }
@@ -128,7 +128,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        public override bool CanAffectAt(ushort disasterID, ref DisasterData disasterData, Vector3 buildingPosition, Vector3 closestShelter, out float priority)
+        protected override bool CanAffectAt(ushort disasterID, ref DisasterData disasterData, Vector3 buildingPosition, Vector3 closestShelter, out float priority)
         {
             string nl = $"{Environment.NewLine}";
             DebugLogger.Log($"DisasterId: {disasterID}");

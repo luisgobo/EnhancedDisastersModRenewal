@@ -1,13 +1,13 @@
 ﻿using System.Globalization;
 using System.Linq;
 using System.Text;
-using ColossalFramework;
 using ColossalFramework.UI;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using UnityEngine;
 using UnityEngine.Serialization;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -23,7 +23,7 @@ namespace NaturalDisastersRenewal.UI
         private const float PanelHeight = 320f;
 
         [FormerlySerializedAs("Counter")] public int counter;
-        private readonly NaturalDisasterHandler _disasterHandler = Singleton<NaturalDisasterHandler>.instance;
+        private readonly NaturalDisasterHandler _disasterHandler = CommonServices.DisasterHandler;
         private uint _dayTimeframes;
         private uint _dayTimeOffsetFrames;
 
@@ -615,7 +615,7 @@ namespace NaturalDisastersRenewal.UI
             StopAllDisastersBtn_eventClick(component, eventParam);
 
             // Reset each disaster
-            var dm = Singleton<DisasterManager>.instance;
+            var dm = CommonServices.Disasters;
 
             // Stop active evacuations
             if (dm != null)
@@ -630,13 +630,13 @@ namespace NaturalDisastersRenewal.UI
         private static void ResetAllDisasters()
         {
             // Get the instance of the natural disaster handler
-            var ndh = Singleton<NaturalDisasterHandler>.instance;
+            var ndh = CommonServices.DisasterHandler;
 
             // If there is no instance, exit
             if (ndh == null) return;
 
             // Stop all active evacuations
-            var dm = Singleton<DisasterManager>.instance;
+            var dm = CommonServices.Disasters;
             if (dm != null) dm.EvacuateAll(true);
 
             // Iterate through all disasters and reset them
@@ -664,7 +664,7 @@ namespace NaturalDisastersRenewal.UI
         {
             var cancellingDisasterFlags = new StringBuilder();
 
-            var vehicleManager = Singleton<VehicleManager>.instance;
+            var vehicleManager = CommonServices.Vehicles;
             for (var i = 1; i < 16384; i++)
                 if ((vehicleManager.m_vehicles.m_buffer[i].m_flags & Vehicle.Flags.Created) != 0)
                 {
@@ -675,11 +675,11 @@ namespace NaturalDisastersRenewal.UI
                         vehicleManager.ReleaseVehicle((ushort)i);
                 }
 
-            var waterSimulation = Singleton<WaterSimulation>.instance;
+            var waterSimulation = CommonServices.Water;
             for (var i = waterSimulation.m_waterWaves.m_size; i >= 1; i--)
-                Singleton<TerrainManager>.instance.WaterSimulation.ReleaseWaterWave((ushort)i);
+                CommonServices.Terrain.WaterSimulation.ReleaseWaterWave((ushort)i);
 
-            var disasterManager = Singleton<DisasterManager>.instance;
+            var disasterManager = CommonServices.Disasters;
             for (ushort i = 0; i < disasterManager.m_disasterCount; i++)
             {
                 cancellingDisasterFlags.AppendLine(disasterManager.m_disasters.m_buffer[i].Info.name + " flags: " +

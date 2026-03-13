@@ -104,7 +104,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return CommonProperties.sinkholeName;
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             int unitSize = 8;
             int unitsBase = 24; //24 + 4 Original, Distance Fix for proximity

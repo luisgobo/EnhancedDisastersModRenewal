@@ -1,8 +1,6 @@
-﻿using ColossalFramework;
-using ColossalFramework.IO;
-using NaturalDisastersRenewal.Handlers;
-using NaturalDisastersRenewal.Models.Setup;
+﻿using ColossalFramework.IO;
 using UnityEngine;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Serialization.Setup
 {
@@ -10,27 +8,27 @@ namespace NaturalDisastersRenewal.Serialization.Setup
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            DisasterSetupModel disasterSetupmodel = Singleton<NaturalDisasterHandler>.instance.container;
+            var disasterSetupModel = CommonServices.DisasterSetup;
 
-            dataSerializer.WriteBool(disasterSetupmodel.ScaleMaxIntensityWithPopulation);
-            dataSerializer.WriteBool(disasterSetupmodel.RecordDisasterEvents);
-            dataSerializer.WriteBool(disasterSetupmodel.ShowDisasterPanelButton);
+            dataSerializer.WriteBool(disasterSetupModel.ScaleMaxIntensityWithPopulation);
+            dataSerializer.WriteBool(disasterSetupModel.RecordDisasterEvents);
+            dataSerializer.WriteBool(disasterSetupModel.ShowDisasterPanelButton);
 
-            dataSerializer.WriteBool(disasterSetupmodel.DisableDisasterFocus);
-            dataSerializer.WriteBool(disasterSetupmodel.PauseOnDisasterStarts);
-            dataSerializer.WriteFloat(disasterSetupmodel.PartialEvacuationRadius);
-            dataSerializer.WriteFloat(disasterSetupmodel.MaxPopulationToTriggerHigherDisasters);
+            dataSerializer.WriteBool(disasterSetupModel.DisableDisasterFocus);
+            dataSerializer.WriteBool(disasterSetupModel.PauseOnDisasterStarts);
+            dataSerializer.WriteFloat(disasterSetupModel.PartialEvacuationRadius);
+            dataSerializer.WriteFloat(disasterSetupModel.MaxPopulationToTriggerHigherDisasters);
 
-            dataSerializer.WriteFloat(disasterSetupmodel.ToggleButtonPos.x);
-            dataSerializer.WriteFloat(disasterSetupmodel.ToggleButtonPos.y);
+            dataSerializer.WriteFloat(disasterSetupModel.ToggleButtonPos.x);
+            dataSerializer.WriteFloat(disasterSetupModel.ToggleButtonPos.y);
 
-            dataSerializer.WriteFloat(disasterSetupmodel.DPanelPos.x);
-            dataSerializer.WriteFloat(disasterSetupmodel.DPanelPos.y);
+            dataSerializer.WriteFloat(disasterSetupModel.DPanelPos.x);
+            dataSerializer.WriteFloat(disasterSetupModel.DPanelPos.y);
         }
 
         public void Deserialize(DataSerializer dataSerializer)
         {
-            DisasterSetupModel disasterSetupmodel = Singleton<NaturalDisasterHandler>.instance.container;
+            var disasterSetupmodel = CommonServices.DisasterSetup;
 
             disasterSetupmodel.ScaleMaxIntensityWithPopulation = dataSerializer.ReadBool();
             disasterSetupmodel.RecordDisasterEvents = dataSerializer.ReadBool();
@@ -50,8 +48,8 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
         public void AfterDeserialize(DataSerializer dataSerializer)
         {
-            Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
-            Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
+            CommonServices.DisasterHandler.UpdateDisastersPanelToggleBtn();
+            CommonServices.DisasterHandler.UpdateDisastersDPanel();
         }
     }
 }

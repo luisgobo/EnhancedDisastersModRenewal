@@ -170,7 +170,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return "Earthquake";
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             int unitSize = 8;
             int unitsBase = 30; //24 Original, Distance Fix for proximity
@@ -224,7 +224,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
 
@@ -282,10 +282,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         }
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (base.IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
+                        if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
-                            base.SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                            SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                     }
                 }
             }

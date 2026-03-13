@@ -1,17 +1,13 @@
-﻿using ColossalFramework;
-using ColossalFramework.Plugins;
+﻿using System.Reflection;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
-using System;
-using System.Diagnostics;
-using System.Reflection;
 using UnityEngine;
 using Helper = NaturalDisastersRenewal.Common.Helper;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -99,7 +95,7 @@ namespace NaturalDisastersRenewal.UI
 
         public static void UpdateUISettingsOptions()
         {
-            foreach (PluginManager.PluginInfo current in Singleton<PluginManager>.instance.GetPluginsInfo())
+            foreach (var current in CommonServices.Plugins.GetPluginsInfo())
             {
                 if (current.isEnabled)
                 {
@@ -121,7 +117,7 @@ namespace NaturalDisastersRenewal.UI
             if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisasterSetupModel disasterSetupModel = Singleton<NaturalDisasterHandler>.instance.container;
+            var disasterSetupModel = CommonServices.DisasterSetup;
             freezeUI = true;
 
             UI_General_DisableDisasterFocus.isChecked = disasterSetupModel.DisableDisasterFocus;
@@ -203,7 +199,7 @@ namespace NaturalDisastersRenewal.UI
 
         public void BuildSettingsMenu(UIHelper helper)
         {
-            DisasterSetupModel disasterContainer = Singleton<NaturalDisasterHandler>.instance.container;
+            var disasterContainer = CommonServices.DisasterSetup;
 
             SetupGeneralTab(ref helper, disasterContainer);
             SetupForestFire(ref helper, disasterContainer);
@@ -275,8 +271,8 @@ namespace NaturalDisastersRenewal.UI
                 if (!freezeUI)
                     disasterContainer.ShowDisasterPanelButton = isChecked;
 
-                Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
-                Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
+                CommonServices.DisasterHandler.UpdateDisastersPanelToggleBtn();
+                CommonServices.DisasterHandler.UpdateDisastersDPanel();
             });
 
             generalGroup.AddSpace(10);
@@ -285,13 +281,13 @@ namespace NaturalDisastersRenewal.UI
 
             elementPositionsGroup.AddButton("Reset Button Position", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(true, false);
+                CommonServices.DisasterHandler.ResetToDefaultValues(true, false);
                 UpdateSetupContentUI();
             });
 
             elementPositionsGroup.AddButton("Reset Panel Position", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(false, true);
+                CommonServices.DisasterHandler.ResetToDefaultValues(false, true);
                 UpdateSetupContentUI();
             });
             
@@ -678,16 +674,16 @@ namespace NaturalDisastersRenewal.UI
 
             saveOptionsGroup.AddButton("Save as default for new games", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.container.Save();
+                CommonServices.DisasterSetup.Save();
             });
             saveOptionsGroup.AddButton("Reset to the last saved values", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.ReadValuesFromFile();
+                CommonServices.DisasterHandler.ReadValuesFromFile();
                 UpdateSetupContentUI();
             });
             saveOptionsGroup.AddButton("Reset to the mod default values", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues();
+                CommonServices.DisasterHandler.ResetToDefaultValues();
                 UpdateSetupContentUI();
             });
         }

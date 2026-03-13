@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using ColossalFramework;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Handlers;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Logger
 {
@@ -10,7 +9,7 @@ namespace NaturalDisastersRenewal.Logger
     {
         public static void AddStripe(string name, string dimensions, string region)
         {
-            if (!Singleton<NaturalDisasterHandler>.instance.container.RecordDisasterEvents) return;
+            if (!CommonServices.DisasterSetup.RecordDisasterEvents) return;
 
             var filePath = GetDisasterListFilePath();
 

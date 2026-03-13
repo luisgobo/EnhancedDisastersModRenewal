@@ -63,9 +63,10 @@
     <Compile Include="Common\CommonProperties.cs" />
     <Compile Include="Common\enums\EarthquakeCrackOptions.cs" />
     <Compile Include="Common\enums\EvacuationOptions.cs" />
+    <Compile Include="Common\Services.cs"/>
     <Compile Include="Common\Types\Triplet.cs" />
     <Compile Include="Logger\DebugLogger.cs" />
-      <Compile Include="Logger\StripesLogger.cs"/>
+    <Compile Include="Logger\StripesLogger.cs"/>
     <Compile Include="Serialization\NaturalDisaster\SerializableDataDisasterBase.cs" />
     <Compile Include="Serialization\NaturalDisaster\SerializableDataForestFire.cs" />
     <Compile Include="Serialization\NaturalDisaster\SerializableDataTsunami.cs" />

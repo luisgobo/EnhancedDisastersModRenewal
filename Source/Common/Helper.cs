@@ -1,5 +1,4 @@
-﻿using ColossalFramework;
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Common
@@ -56,13 +55,7 @@ namespace NaturalDisastersRenewal.Common
             }
         }
 
-        public static float DaysPerFrame
-        {
-            get
-            {
-                return (float)SimulationManager.instance.m_timePerFrame.TotalDays;
-            }
-        }
+        public static float DaysPerFrame => (float)Services.Simulation.m_timePerFrame.TotalDays;
 
         public static float FramesPerYear
         {
@@ -118,9 +111,10 @@ namespace NaturalDisastersRenewal.Common
 
         public static int GetPopulation()
         {
-            if (Singleton<DistrictManager>.exists)
+            var districts = Services.Districts;
+            if (districts != null)
             {
-                return (int)Singleton<DistrictManager>.instance.m_districts.m_buffer[0].m_populationData.m_finalCount;
+                return (int)districts.m_districts.m_buffer[0].m_populationData.m_finalCount;
             }
             return 0;
         }

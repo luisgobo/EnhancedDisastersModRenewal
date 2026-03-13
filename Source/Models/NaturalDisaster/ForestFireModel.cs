@@ -148,7 +148,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
             //Get disaster Info
             var disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
@@ -176,7 +176,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     {
                         //Add Building/Shelter Data to disaster
                         disasterInfoModel.ShelterList.Add(num);
-                        SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                        SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                     }
                 }
             }

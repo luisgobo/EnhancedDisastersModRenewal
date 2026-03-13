@@ -1,10 +1,9 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Threading;
 using ICities;
-using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Threading;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
 {
@@ -12,50 +11,50 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
     {
         public override void OnCreated(IDisaster disasters)
         {
-            Singleton<NaturalDisasterHandler>.instance.OnCreated(disasters);
+            CommonServices.DisasterHandler.OnCreated(disasters);
         }
 
         public override void OnDisasterStarted(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterStarted(disasterData.Info.m_disasterAI, disasterData.m_intensity);
+            var disasterData = CommonServices.Disasters.m_disasters.m_buffer[disasterID];
+            CommonServices.DisasterHandler.OnDisasterStarted(disasterData.Info.m_disasterAI, disasterData.m_intensity);
 
-            DisasterLogger.AddDisaster(Singleton<SimulationManager>.instance.m_currentGameTime, disasterData.Info.GetAI().name, disasterData.m_intensity);
+            DisasterLogger.AddDisaster(CommonServices.Simulation.m_currentGameTime, disasterData.Info.GetAI().name, disasterData.m_intensity);
         }
 
         public override void OnDisasterActivated(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterActivated(disasterData.Info.m_disasterAI, disasterID);
+            var disasterData = CommonServices.Disasters.m_disasters.m_buffer[disasterID];
+            CommonServices.DisasterHandler.OnDisasterActivated(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public override void OnDisasterDeactivated(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterDeactivated(disasterData.Info.m_disasterAI, disasterID);
+            var disasterData = CommonServices.Disasters.m_disasters.m_buffer[disasterID];
+            CommonServices.DisasterHandler.OnDisasterDeactivated(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public override void OnDisasterDetected(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterDetected(disasterData.Info.m_disasterAI, disasterID);
+            var disasterData = CommonServices.Disasters.m_disasters.m_buffer[disasterID];
+            CommonServices.DisasterHandler.OnDisasterDetected(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public override void OnDisasterFinished(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterFinished(disasterData.Info.m_disasterAI, disasterID);
+            var disasterData = CommonServices.Disasters.m_disasters.m_buffer[disasterID];
+            CommonServices.DisasterHandler.OnDisasterFinished(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public static void SetDisableDisasterFocus(bool disableDisasterFocus)
         {
-            DisasterManager.instance.m_disableAutomaticFollow = disableDisasterFocus;
+            CommonServices.Disasters.m_disableAutomaticFollow = disableDisasterFocus;
         }
 
         public static void SetPauseOnDisasterStarts(bool disablePause, double secondsBeforePausing, ushort disasterId, DisasterSettings disasterInfo, bool enabled)
         {
             //Pause when disaster start
-            if (TryDisableDisaster(disasterId, disasterInfo, enabled))
+            if (TryDisableDisaster(disasterId, enabled))
             {
                 return;
             }
@@ -71,7 +70,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
 
                             while (DateTime.UtcNow < pauseStart) { }
 
-                            SimulationManager.instance.SimulationPaused = true;
+                            CommonServices.Simulation.SimulationPaused = true;
                         }
                         catch (Exception ex)
                         {
@@ -83,9 +82,9 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             }
         }
 
-        static bool TryDisableDisaster(ushort disasterId, DisasterSettings disasterInfo, bool enabled)
+        private static bool TryDisableDisaster(ushort disasterId, bool enabled)
         {
-            var disasterHandler = Singleton<NaturalDisasterHandler>.instance;
+            var disasterHandler = CommonServices.DisasterHandler;
             if (!enabled)
             {
                 DebugLogger.Log("DDS: Deactivating disaster");

@@ -4,8 +4,8 @@ using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.DisasterServices.HarmonyPatches;
 using NaturalDisastersRenewal.Models.Disaster;
+using NaturalDisastersRenewal.Services.HarmonyPatches;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -95,7 +95,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return CommonProperties.tornadoName;
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             int unitSize = 8;
             int unitsBase = 72;

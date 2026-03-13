@@ -440,29 +440,37 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                             if (activeDisasters.Any())
                             {
                                 var pendingShelters = new List<ushort>();
-                                //If pending disaster then get all pending shelters that souldnt be released
-                                foreach (var disaster in activeDisasters)
+                                // //If pending disaster then get all pending shelters that souldnt be released
+                                // foreach (var disaster in activeDisasters)
+                                // {
+                                //     //this is not being filled
+                                //     foreach (var shelterId in disaster.ShelterList)
+                                //     {
+                                //         if (!pendingShelters.Contains(shelterId))
+                                //             pendingShelters.Add(shelterId);
+                                //     }
+                                // }
+                                
+                                //If pending disaster then get all pending shelters that shouldn't be released
+                                foreach (var shelterId in activeDisasters
+                                             .SelectMany(disaster => disaster
+                                                 .ShelterList.Where(shelterId => !pendingShelters.Contains(shelterId))))
                                 {
-                                    //this is not being filled
-                                    foreach (var shelterId in disaster.ShelterList)
-                                    {
-                                        if (!pendingShelters.Contains(shelterId))
-                                            pendingShelters.Add(shelterId);
-                                    }
+                                    pendingShelters.Add(shelterId);
                                 }
 
-                                var sheltersToBeReleased = disasterFinishing.ShelterList.Where(disFinishing => pendingShelters.All(pendSh => pendSh != disFinishing)).ToList();
-                                BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+                                var sheltersToBeReleased =
+                                    disasterFinishing.ShelterList.Where(disFinishing => pendingShelters.All(pendSh => pendSh != disFinishing))
+                                        .ToList();
+
+                                var buildingManager = Singleton<BuildingManager>.instance;
 
                                 foreach (var shelterId in sheltersToBeReleased)
                                 {
                                     var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
-                                    SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);
+                                    SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);
                                 }
                             }
-                            break;
-
-                        default:
                             break;
                     }
                 }
@@ -589,12 +597,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        public virtual float CalculateDestructionRadio(byte intensity)
+        protected virtual float CalculateDestructionRadio(byte intensity)
         {
             return 5.656854249f; //min Value Radio
         }
 
-        public virtual void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        protected virtual void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
 
@@ -605,8 +613,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
-            FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
+            var buildingManager = Singleton<BuildingManager>.instance;
+            var serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)
                 return;
@@ -635,7 +643,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
-                            SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                            SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                     }
                 }
             }
@@ -678,10 +686,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return false;
             }
 
-            int lockedAreaCounter = sm.m_randomizer.Int32(1, 25 - gam.m_areaCount);
-            for (int i = 0; i < 5; i++)
+            var lockedAreaCounter = sm.m_randomizer.Int32(1, 25 - gam.m_areaCount);
+
+            for (var i = 0; i < 5; i++)
             {
-                for (int j = 0; j < 5; j++)
+                for (var j = 0; j < 5; j++)
                 {
                     if (IsUnlocked(i, j))
                     {
@@ -695,7 +704,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         float maxX;
                         float maxZ;
                         gam.GetAreaBounds(j, i, out minX, out minZ, out maxX, out maxZ);
-                        float minimumEdgeDistance = 100f;
+
+                        const float minimumEdgeDistance = 100f;
+                        
                         if (IsUnlocked(j - 1, i))
                         {
                             minX += minimumEdgeDistance;
@@ -713,13 +724,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                             maxZ -= minimumEdgeDistance;
                         }
 
-                        float randX = (float)sm.m_randomizer.Int32(0, 10000) * 0.0001f;
-                        float randZ = (float)sm.m_randomizer.Int32(0, 10000) * 0.0001f;
+                        var randX = sm.m_randomizer.Int32(0, 10000) * 0.0001f;
+                        var randZ = sm.m_randomizer.Int32(0, 10000) * 0.0001f;
                         target.x = minX + (maxX - minX) * randX;
                         target.y = 0f;
                         target.z = minZ + (maxZ - minZ) * randZ;
                         target.y = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(target, false, 0f);
-                        angle = (float)sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;
+                        angle = sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;
                         return true;
                     }
                 }
@@ -730,12 +741,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return false;
         }
 
-        bool IsUnlocked(int x, int z)
+        private static bool IsUnlocked(int x, int z)
         {
             return x >= 0 && z >= 0 && x < 5 && z < 5 && Singleton<GameAreaManager>.instance.m_areaGrid[z * 5 + x] != 0;
         }
 
-        void FindPhasePanel()
+        private void FindPhasePanel()
         {
             DebugLogger.Log("ES: Find Phase Panel");
 
@@ -752,21 +763,21 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return (bool)_evacuatingField.GetValue(_phasePanel);
         }
 
-        void SetupManualEvacuation(ushort disasterId)
+        private void SetupManualEvacuation(ushort disasterId)
         {
             //Should be manually released
             _manualReleaseDisasters.Add(disasterId);
         }
 
-        void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
+        private void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
 
             //Get disaster Info
-            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+            var disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
 
             //Get Disaster Radio from Settings property
-            float disasterRadioEvacuation = (float)Math.Sqrt(disasterRadius); //32f as default aprox;
+            var disasterRadioEvacuation = (float)Math.Sqrt(disasterRadius); //32f as default aprox;
 
             if (disasterInfo == null)
                 return;
@@ -779,58 +790,63 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
 
             //Release Specific shelters based on disaster radius proximity
-            for (int i = 0; i < serviceBuildings.m_size; i++)
+            for (var i = 0; i < serviceBuildings.m_size; i++)
             {
-                ushort num = serviceBuildings.m_buffer[i];
-                if (num != 0)
+                var num = serviceBuildings.m_buffer[i];
+                if (num == 0) continue;
+
+                //here we got all shelter buildings
+                var buildingInfo = buildingManager.m_buildings.m_buffer[num];
+                var shelterPosition = buildingInfo.m_position;
+
+                //Once this is located into Risk Zone, it's needed verify if building would be destroyed by Natural disaster (setup in each one)
+                //Getting diaster core
+                var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
+
+                float shelterRadius = (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8 / 2;
+
+                if (buildingInfo.Info.m_buildingAI as ShelterAI == null
+                    || !IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius > disasterRadioEvacuation
+                        ? disasterDestructionRadius : disasterRadioEvacuation)) continue;
+
+                //Add Building/Shelter Data to disaster
+                disasterInfoModel.ShelterList.Add(num);
+
+                DebugLogger.Log(
+                    $"Disaster intensity: {disasterInfoModel.DisasterInfo.intensity}. " +
+                    $"DisasterRadioEvacuation: {disasterRadioEvacuation}. " +
+                    $"DisasterRadioEvacuation into destruction (New Calculation): {disasterDestructionRadius}"
+                );
+
+                //if Shelter will be destroyed, don't evacuate
+                if (!disasterInfoModel.IgnoreDestructionZone
+                    && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
                 {
-                    //here we got all shelter buildings
-                    var buildingInfo = buildingManager.m_buildings.m_buffer[num];
-                    var shelterPosition = buildingInfo.m_position;
-
-                    //Once this is located into Risk Zone, it's needed verify if building would be destroyed by Natural disaster (setup in each one)
-                    //Getting diaster core
-                    var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
-
-                    float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
-
-                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius > disasterRadioEvacuation ? disasterDestructionRadius : disasterRadioEvacuation))
-                    {
-                        //Add Building/Shelter Data to disaster
-                        disasterInfoModel.ShelterList.Add(num);
-
-                        DebugLogger.Log(
-                            $"Disaster intensity: {disasterInfoModel.DisasterInfo.intensity}. " +
-                            $"DisasterRadioEvacuation: {disasterRadioEvacuation}. " +
-                            $"DisasterRadioEvacuation into destruction (New Calculation): {disasterDestructionRadius}"
-                        );
-
-                        //if Shelter will be destroyed, don't evacuate
-                        if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
-                            DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
-                        else
-                            SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
-                    }
+                    DebugLogger.Log("Shelter is located in Destruction Zone. Won't be evacuated");
+                }
+                else
+                {
+                    SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                 }
             }
 
             activeDisasters.Add(disasterInfoModel);
         }
 
-        protected void SetBuidingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
+        protected static void SetBuildingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
         {
             shelterAI?.SetEmptying(num, ref buildingData, release);
         }
 
-        protected Boolean IsShelterInDisasterZone(Vector3 disasterPosition, Vector3 shelterPosition, float shelterRadius, float evacuationRadius)
+        protected static bool IsShelterInDisasterZone(Vector3 disasterPosition, Vector3 shelterPosition, float shelterRadius, float evacuationRadius)
         {
 
             //First Squared Is required for correct calculation
             evacuationRadius *= evacuationRadius;
             // Compare radius of circle with distance
             // of its center from given point
-            
-            float distanceBetweenTwoPoints = (float)Math.Sqrt((disasterPosition.x - shelterPosition.x) * (disasterPosition.x - shelterPosition.x) + (disasterPosition.z - shelterPosition.z) * (disasterPosition.z - shelterPosition.z));
+
+            var distanceBetweenTwoPoints = (float)Math.Sqrt((disasterPosition.x - shelterPosition.x) * (disasterPosition.x - shelterPosition.x) + (disasterPosition.z - shelterPosition.z) * (disasterPosition.z - shelterPosition.z));
 
             if (distanceBetweenTwoPoints <= evacuationRadius - shelterRadius)
                 return true;
@@ -841,33 +857,28 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (distanceBetweenTwoPoints < evacuationRadius + shelterRadius)
                 return true;
 
-            if (distanceBetweenTwoPoints == evacuationRadius + shelterRadius)
-                return true;
-            else
-                return false;
+            return distanceBetweenTwoPoints == evacuationRadius + shelterRadius;
         }
 
-        public virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)
+        protected virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)
         {
-            priority = 0f;            
-            bool canAffect =  (data.m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) != 0;            
+            priority = 0f;
+            var canAffect = (data.m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) != 0;            
             return canAffect;
         }
 
         public void DisableRain()
         {
             var weatherManager = Singleton<WeatherManager>.instance;
-            if (weatherManager != null)
-            {
-                // Detener la lluvia actual
-                weatherManager.m_targetRain = 0f;
-                weatherManager.m_currentRain = 0f;
+            if (weatherManager == null) return;
 
-                // // Desactivar efectos de clima
+            // Stop current rain
+            weatherManager.m_targetRain = 0f;
+            weatherManager.m_currentRain = 0f;
 
-                weatherManager.m_currentFog = 0f;
-                weatherManager.m_targetFog = 0f;
-            }
+            //Deactivate weather effects
+            weatherManager.m_currentFog = 0f;
+            weatherManager.m_targetFog = 0f;
         }
     }
 }

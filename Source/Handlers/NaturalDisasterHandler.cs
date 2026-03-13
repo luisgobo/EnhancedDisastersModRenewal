@@ -289,7 +289,7 @@ namespace NaturalDisastersRenewal.Handlers
         {
             var milestoneNum = 99; // Unlock all disasters in case of error
 
-            var mi = Singleton<UnlockManager>.instance.GetCurrentMilestone();
+            var mi = Common.Services.Unlocks.GetCurrentMilestone();
             if (mi != null) int.TryParse(mi.name.Substring(9), out milestoneNum);
 
             if (milestoneNum >= 3) container.ForestFire.Unlock();
