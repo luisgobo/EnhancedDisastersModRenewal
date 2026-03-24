@@ -9,11 +9,14 @@ using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
 using UnityEngine;
 using DisasterType = ICities.DisasterType;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class ForestFireModel : DisasterBaseModel
     {
+        private const float ForestFireDefaultBaseOccurrencePerYear = 0.9f;
+        
         public int WarmupDays = 180;
         [XmlIgnore] public float NoRainDays;
 
@@ -65,15 +68,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (occurrencePerYear == 0) return;
 
-            var sm = Singleton<SimulationManager>.instance;
+            var simulationManager = CommonServices.Simulation;
             var occurrencePerFrame = occurrencePerYear / 365 * daysPerFrame;
 
-            var randomizedValue = sm.m_randomizer.Int32(randomizerRange);
+            var randomizedValue = simulationManager.m_randomizer.Int32(randomizerRange);
             var randomizedOccurrence = (uint)(randomizerRange * occurrencePerFrame);
-            // Debug.Log(
-            //     $"occurrencePerYear: {occurrencePerYear}, daysPerFrame: {daysPerFrame}, occurrencePerFrame: {occurrencePerFrame}");
-            // Debug.Log(
-            //     $"Start Disaster? randomizedValue: {randomizedValue} < randomizedOccurrence {randomizedOccurrence}");
 
             // New Logarithmic activation based on occurrence per year
             var probabilityProgress = 0f;
@@ -83,17 +82,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 probabilityProgress = 1f;
             else
                 probabilityProgress = (1f + Mathf.Log10(occurrencePerYear)) / 2f;
-
-            // Debug.Log($"ProbabilityProgress: {probabilityProgress}");
-
+            
             if (occurrencePerYear > 0.1f && occurrencePerYear < 10f)
             {
                 var threshold = probabilityProgress * randomizedOccurrence;
-                // Debug.Log($"Start Disaster? randomizedValue: {randomizedValue} < threshold {threshold}");
 
                 if (!(randomizedValue < threshold)) return;
-
-                Debug.Log("Disaster Should be started!!!");
+                
                 var maxIntensity = GetMaximumIntensity();
                 var intensity = GetRandomIntensity(maxIntensity);
 
@@ -215,7 +210,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override float GetCurrentOccurrencePerYearLocal()
         {
-            return base.GetCurrentOccurrencePerYearLocal() * Math.Min(1f, NoRainDays / WarmupDays);
+            var occurrencePerYear = IsRealTimeActive ? ForestFireDefaultBaseOccurrencePerYear * realTimeAccelerationIndex : ForestFireDefaultBaseOccurrencePerYear;
+            return occurrencePerYear * Math.Min(1f, NoRainDays / WarmupDays);
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
@@ -237,6 +233,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 WarmupDays = d.WarmupDays;
             }
+        }
+
+        public override void ResetDisasterProbabilities()
+        {
+            BaseOccurrencePerYear = ForestFireDefaultBaseOccurrencePerYear;
+            base.ResetDisasterProbabilities();
         }
         
     }

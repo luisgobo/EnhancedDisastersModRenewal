@@ -34,7 +34,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_disasterHandler == null)
+                if (!_disasterHandler)
                     _disasterHandler = Singleton<NaturalDisasterHandler>.instance;
                 return _disasterHandler;
             }
@@ -43,10 +43,7 @@ namespace NaturalDisastersRenewal.Common
         /// <summary>
         /// Disaster configuration container (shortcut)
         /// </summary>
-        public static DisasterSetupModel DisasterSetup
-        {
-            get { return DisasterHandler != null ? DisasterHandler.container : null; }
-        }
+        public static DisasterSetupModel DisasterSetup => DisasterHandler ? DisasterHandler.container : null;
 
         #endregion
 
@@ -56,7 +53,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_disasterManager == null)
+                if (!_disasterManager)
                     _disasterManager = Singleton<DisasterManager>.instance;
                 return _disasterManager;
             }
@@ -66,7 +63,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_simulationManager == null)
+                if (!_simulationManager)
                     _simulationManager = Singleton<SimulationManager>.instance;
                 return _simulationManager;
             }
@@ -76,7 +73,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_buildingManager == null)
+                if (!_buildingManager)
                     _buildingManager = Singleton<BuildingManager>.instance;
                 return _buildingManager;
             }
@@ -86,7 +83,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_vehicleManager == null)
+                if (!_vehicleManager)
                     _vehicleManager = Singleton<VehicleManager>.instance;
                 return _vehicleManager;
             }
@@ -96,7 +93,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_terrainManager == null)
+                if (!_terrainManager)
                     _terrainManager = Singleton<TerrainManager>.instance;
                 return _terrainManager;
             }
@@ -106,7 +103,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_districtManager == null)
+                if (!_districtManager)
                     _districtManager = Singleton<DistrictManager>.instance;
                 return _districtManager;
             }
@@ -116,7 +113,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_waterSimulation == null)
+                if (!_waterSimulation)
                     _waterSimulation = Singleton<WaterSimulation>.instance;
                 return _waterSimulation;
             }
@@ -126,7 +123,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_pluginManager == null)
+                if (!_pluginManager)
                     _pluginManager = Singleton<PluginManager>.instance;
                 return _pluginManager;
             }
@@ -136,7 +133,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_gameAreaManager == null)
+                if (!_gameAreaManager)
                     _gameAreaManager = Singleton<GameAreaManager>.instance;
                 return _gameAreaManager;
             }
@@ -146,7 +143,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                if (_weatherManager == null)
+                if (!_weatherManager)
                     _weatherManager = Singleton<WeatherManager>.instance;
                 return _weatherManager;
             }

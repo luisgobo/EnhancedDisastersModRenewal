@@ -5,7 +5,7 @@ namespace NaturalDisastersRenewal.Common
 {
     public static class CommonProperties
     {
-        private const string ModVersion = "1.4";
+        private const string ModVersion = "1.3.0.1";
         private const string ModLastVersionYear = "2026";
         private const string ModLastVersionMonth = "March";
 

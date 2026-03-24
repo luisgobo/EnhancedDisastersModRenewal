@@ -72,8 +72,8 @@ namespace NaturalDisastersRenewal.Handlers
             }
             else
             {
-                for (var i = 0; i < container.AllDisasters.Count; i++)
-                    container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
+                for (var i = 0; i < container.DisasterList.Count; i++)
+                    container.DisasterList[i].CopySettings(fromContainer.DisasterList[i]);
 
                 container.DisableDisasterFocus = fromContainer.DisableDisasterFocus;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
@@ -113,7 +113,7 @@ namespace NaturalDisastersRenewal.Handlers
         {
             CheckUnlocks();
 
-            foreach (var ed in container.AllDisasters) ed.OnSimulationFrame();
+            foreach (var ed in container.DisasterList) ed.OnSimulationFrame();
         }
 
         public void OnCreated(IDisaster disasters)
@@ -123,7 +123,7 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void OnDisasterStarted(DisasterAI disasterAI, byte intensity)
         {
-            foreach (var ed in container.AllDisasters)
+            foreach (var ed in container.DisasterList)
                 if (ed.CheckDisasterAIType(disasterAI))
                 {
                     ed.OnDisasterStarted(intensity);
@@ -138,7 +138,7 @@ namespace NaturalDisastersRenewal.Handlers
                 $"EvacuationService.OnDisasterActivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
             DebugLogger.Log(msg);
 
-            foreach (var ed in container.AllDisasters)
+            foreach (var ed in container.DisasterList)
                 if (ed.CheckDisasterAIType(disasterAI))
                 {
                     ed.OnDisasterActivated(disasterInfo, disasterId, ref container.ActiveDisasters);
@@ -156,7 +156,7 @@ namespace NaturalDisastersRenewal.Handlers
                     $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
                 DebugLogger.Log(msg);
 
-                foreach (var ed in container.AllDisasters)
+                foreach (var ed in container.DisasterList)
                     if (ed.CheckDisasterAIType(disasterAI))
                     {
                         ed.OnDisasterDeactivated(new DisasterInfoModel
@@ -179,7 +179,7 @@ namespace NaturalDisastersRenewal.Handlers
         {
             try
             {
-                foreach (var disasterService in container.AllDisasters)
+                foreach (var disasterService in container.DisasterList)
                     if (disasterService.CheckDisasterAIType(disasterAI))
                     {
                         var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
@@ -207,7 +207,7 @@ namespace NaturalDisastersRenewal.Handlers
         {
             try
             {
-                foreach (var disasterService in container.AllDisasters)
+                foreach (var disasterService in container.DisasterList)
                     if (disasterService.CheckDisasterAIType(disasterAI))
                     {
                         var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);

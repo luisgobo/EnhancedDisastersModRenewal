@@ -1,6 +1,9 @@
+using System.Reflection;
 using ICities;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.UI;
+using UnityEngine;
 
 namespace NaturalDisastersRenewal
 {
@@ -20,6 +23,14 @@ namespace NaturalDisastersRenewal
         public void EnhancedDisastersOptionsUpdateUI()
         {
             _settings.UpdateSetupContentUI();
+        }
+
+        public void OnEnabled()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            DebugLogger.Log("[NDR DEBUG] Location: " + assembly.Location);
+            DebugLogger.Log("[NDR DEBUG] CodeBase: " + assembly.CodeBase);
+            Debug.Log("[NDR] BUILD TEST 001");
         }
     }
 }

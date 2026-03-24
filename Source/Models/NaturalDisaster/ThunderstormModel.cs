@@ -5,6 +5,7 @@ using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -36,7 +37,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (CalmDaysLeft <= 0)
             {
-                if (Singleton<WeatherManager>.instance.m_currentRain > 0 && RainFactor > 1)
+                if (CommonServices.Weather.m_currentRain > 0 && RainFactor > 1)
                 {
                     return "Increased because of rain.";
                 }
@@ -47,7 +48,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override float GetCurrentOccurrencePerYearLocal()
         {
-            DateTime dt = Singleton<SimulationManager>.instance.m_currentGameTime;
+            var dt = CommonServices.Simulation.m_currentGameTime;
             int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (delta_month > 6) delta_month = 12 - delta_month;
 

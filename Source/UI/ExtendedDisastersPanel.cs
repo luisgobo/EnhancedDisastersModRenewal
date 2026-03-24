@@ -4,7 +4,6 @@ using System.Text;
 using ColossalFramework.UI;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
-using NaturalDisastersRenewal.Models.NaturalDisaster;
 using UnityEngine;
 using UnityEngine.Serialization;
 using CommonServices = NaturalDisastersRenewal.Common.Services;
@@ -37,13 +36,12 @@ namespace NaturalDisastersRenewal.UI
         private UIProgressBar[] _progressBarsProbability;
         private UILabel _realTimeDayTimeFramesLabel;
         private UILabel _realTimeDayTimeOffsetFramesLabel;
-        private bool _realTimeStatus;
         private UILabel _realTimeStatusLabel;
         private UILabel _realTimeTimeOffsetTicksLabel;
         private UIPanel _selectedRadioPanel;
         private UIButton[] _statusButtons;
 
-
+        private bool _realTimeStatus;
         private long _timeOffsetTicks;
 
         public override void Awake()
@@ -79,7 +77,7 @@ namespace NaturalDisastersRenewal.UI
 
             DefineMinPopulationLabelContent();
 
-            var disasterCount = _disasterHandler.container.AllDisasters.Count;
+            var disasterCount = _disasterHandler.container.DisasterList.Count;
 
             // Simulation params for probability calculation
             var simulation = SimulationManager.instance;
@@ -89,8 +87,7 @@ namespace NaturalDisastersRenewal.UI
 
             for (var i = 0; i < disasterCount; i++)
             {
-                var disaster = _disasterHandler.container.AllDisasters[i];
-                var currentOccurrencePerYear = disaster.GetCurrentOccurrencePerYear();
+                var disaster = _disasterHandler.container.DisasterList[i];
                 var maxIntensityCalculated = disaster.GetMaximumIntensity();
 
                 _statusButtons[i].isVisible = true;
@@ -103,22 +100,23 @@ namespace NaturalDisastersRenewal.UI
                     if (icon)
                         icon.spriteName = PauseSprite;
 
+                    var disasterProbability = disaster.GetDisasterProbability();
+                    
                     _disasterLabelNames[i].text = disaster.GetName();
-                    _disasterLabelCalculations[i].text = SetDisasterProbabilityLabel(currentOccurrencePerYear);
+                    _disasterLabelCalculations[i].text = SetDisasterProbabilityLabelValue(disasterProbability);
                     _disasterLabelMaxIntensity[i].text = SetMaxIntensityInfoLabel(maxIntensityCalculated);
 
                     //Calculate probability                    
-                    var probabilityValue = GetProbabilityProgressValue(currentOccurrencePerYear);
-                    _progressBarsProbability[i].value = probabilityValue;
-                    SetProgressBarColor(_progressBarsProbability[i]);
-                    _progressBarsProbability[i].tooltip = disaster.GetProbabilityTooltip(probabilityValue);
+                    _progressBarsProbability[i].value = disasterProbability;
+                    SetProgressBarColor(_progressBarsProbability[i], _disasterLabelCalculations[i]);
+                    _progressBarsProbability[i].tooltip = disaster.GetProbabilityTooltip(disasterProbability);
 
                     //Calculate intensity
                     const float maxIntensity = 255f;
                     var progressBarCalculatedValue = maxIntensityCalculated * (1 / maxIntensity);
 
                     _progressBarsMaxIntensity[i].value = progressBarCalculatedValue;
-                    SetProgressBarColor(_progressBarsMaxIntensity[i]);
+                    SetProgressBarColor(_progressBarsMaxIntensity[i], _disasterLabelMaxIntensity[i]);
                     _progressBarsMaxIntensity[i].tooltip =
                         disaster.GetIntensityTooltip(_progressBarsMaxIntensity[i].value);
                 }
@@ -191,7 +189,7 @@ namespace NaturalDisastersRenewal.UI
             AddLabel(parentPanel, xPosition + 312, yPosition, LabelTextScaleSmall, "0.0");
             AddLabel(parentPanel, xPosition + 375, yPosition, LabelTextScaleSmall, "25.5");
 
-            var disasterCount = _disasterHandler.container.AllDisasters.Count;
+            var disasterCount = _disasterHandler.container.DisasterList.Count;
             _disasterLabelNames = new UILabel[disasterCount];
             _disasterLabelCalculations = new UILabel[disasterCount];
             _disasterLabelMaxIntensity = new UILabel[disasterCount];
@@ -204,7 +202,7 @@ namespace NaturalDisastersRenewal.UI
             for (var i = 0; i < disasterCount; i++)
             {
                 //List of disasters
-                var disaster = _disasterHandler.container.AllDisasters[i];
+                var disaster = _disasterHandler.container.DisasterList[i];
 
                 // Create a button for each disaster to be enabled or disabled
                 _statusButtons[i] =
@@ -217,17 +215,15 @@ namespace NaturalDisastersRenewal.UI
                 
                 //Set progress bar for probability
                 _progressBarsProbability[i] = AddProgressBar(parentPanel, xPosition + 212, yPosition);
-
-                //Show disaster probability info -> the order defines the index position
                 _disasterLabelCalculations[i] = AddLabel(parentPanel, xPosition + 240, yPosition + 3, LabelTextScaleTiny,
-                    SetDisasterProbabilityLabel());
+                    SetDisasterProbabilityLabelValue(disaster.GetDisasterProbability()));
+                SetProgressBarColor(_progressBarsProbability[i], _disasterLabelCalculations[i]);
 
                 //Set progress bar for max intensity
                 _progressBarsMaxIntensity[i] = AddProgressBar(parentPanel, xPosition + 312, yPosition);
-
-                //Show disaster probability info -> the order defines the index position
                 _disasterLabelMaxIntensity[i] = AddLabel(parentPanel, xPosition + 350, yPosition + 3, LabelTextScaleTiny,
                     SetMaxIntensityInfoLabel());
+                SetProgressBarColor(_progressBarsMaxIntensity[i], _disasterLabelMaxIntensity[i]);
 
                 yPosition += itemSpacing;
             }
@@ -612,14 +608,14 @@ namespace NaturalDisastersRenewal.UI
         private void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             // Stop active disasters first
-            StopAllDisastersBtn_eventClick(component, eventParam);
+            StopAllDisasters();
 
             // Reset each disaster
-            var dm = CommonServices.Disasters;
+            var diasterManager = CommonServices.Disasters;
 
             // Stop active evacuations
-            if (dm != null)
-                dm.EvacuateAll(true);
+            if (diasterManager != null)
+                diasterManager.EvacuateAll(true);
 
             // Reset all disasters
             ResetAllDisasters();
@@ -630,31 +626,19 @@ namespace NaturalDisastersRenewal.UI
         private static void ResetAllDisasters()
         {
             // Get the instance of the natural disaster handler
-            var ndh = CommonServices.DisasterHandler;
+            var diasterHandler = CommonServices.DisasterHandler;
 
             // If there is no instance, exit
-            if (ndh == null) return;
+            if (diasterHandler == null) return;
 
             // Stop all active evacuations
             var dm = CommonServices.Disasters;
             if (dm != null) dm.EvacuateAll(true);
 
             // Iterate through all disasters and reset them
-            foreach (var disaster in ndh.container.AllDisasters)
+            foreach (var disaster in diasterHandler.container.DisasterList)
             {
-                // Reset cooldown and warmup times
-                disaster.CalmDaysLeft = 0;
-                disaster.ProbabilityWarmupDaysLeft = 0;
-                disaster.IntensityWarmupDaysLeft = 0;
-
-                // Reset state
-                disaster.Enabled = false;
-
-                // Reset occurrence values
-                disaster.BaseOccurrencePerYear = DisasterBaseModel.defaultBaseOccurrencePerYear;
-
-                // // Stop visual effects
-                // disaster.DisableRain();
+                disaster.ResetDisasterProbabilities();
             }
 
             Debug.Log("All disasters have been reset to default values");
@@ -662,18 +646,27 @@ namespace NaturalDisastersRenewal.UI
 
         private static void StopAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
+            StopAllDisasters();
+        }
+
+        private static void StopAllDisasters()
+        {
+            // Max vehicle buffer size in Cities: Skylines (2^14 = 16384)
+            const int maxVehicleBufferSize = 16384;
+            
             var cancellingDisasterFlags = new StringBuilder();
-
             var vehicleManager = CommonServices.Vehicles;
-            for (var i = 1; i < 16384; i++)
-                if ((vehicleManager.m_vehicles.m_buffer[i].m_flags & Vehicle.Flags.Created) != 0)
-                {
-                    if (vehicleManager.m_vehicles.m_buffer[i].Info.m_vehicleAI is MeteorAI)
-                        vehicleManager.ReleaseVehicle((ushort)i);
 
-                    if (vehicleManager.m_vehicles.m_buffer[i].Info.m_vehicleAI is VortexAI)
-                        vehicleManager.ReleaseVehicle((ushort)i);
-                }
+            for (var i = 1; i < maxVehicleBufferSize; i++)
+            {
+                if ((vehicleManager.m_vehicles.m_buffer[i].m_flags & Vehicle.Flags.Created) == 0) continue;
+
+                if (vehicleManager.m_vehicles.m_buffer[i].Info.m_vehicleAI is MeteorAI)
+                    vehicleManager.ReleaseVehicle((ushort)i);
+
+                if (vehicleManager.m_vehicles.m_buffer[i].Info.m_vehicleAI is VortexAI)
+                    vehicleManager.ReleaseVehicle((ushort)i);
+            }
 
             var waterSimulation = CommonServices.Water;
             for (var i = waterSimulation.m_waterWaves.m_size; i >= 1; i--)
@@ -706,7 +699,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void disasterStateChk_eventCheckChanged(UIComponent component, UIMouseEventParameter eventParam)
         {
-            var disaster = _disasterHandler.container.AllDisasters
+            var disaster = _disasterHandler.container.DisasterList
                 .FirstOrDefault(dis => component.name.Contains(dis.GetName()));
 
             if (disaster == null) return;
@@ -750,11 +743,9 @@ namespace NaturalDisastersRenewal.UI
             SettingsScreen.UpdateUISettingsOptions();
         }
 
-        private static string SetDisasterProbabilityLabel(float occurrencePerYear = 0)
+        private static string SetDisasterProbabilityLabelValue(float disasterProbability)
         {
-            var probabilityValue = GetProbabilityProgressValue(occurrencePerYear);
-            var percent = probabilityValue * 100f;
-            return $"{percent:0.##}%";
+            return $"{disasterProbability * 100:0.##}%";
         }
 
         private static string SetMaxIntensityInfoLabel(float maxIntensity = 0)
@@ -793,55 +784,15 @@ namespace NaturalDisastersRenewal.UI
             return progressBar;
         }
 
-        private static float GetProbabilityProgressValue(float currentOccurrencePerYear)
+        private static void SetProgressBarColor(UIProgressBar progressBar, UILabel uiLabel)
         {
-            if (currentOccurrencePerYear <= 0.1)
-                return 0;
-            if (currentOccurrencePerYear >= 10)
-                return 1;
+            var progressBarValue = progressBar.value;
+            var progressColor = new Color(2.0f * progressBarValue, 2.0f * (1 - progressBarValue), 0);
+            progressBar.progressColor = progressColor;
 
-            //Returns a value between 0 and 1 in intervals of 0.1 units
-            //based on the logarithmic scale of the occurrence per year
-            return (1f + Mathf.Log10(currentOccurrencePerYear)) / 2f;
-        }
-
-        // private float GetProbabilityProgressValue(float currentOccurrencePerYear, bool disableRealTimeAdjustment)
-        // {
-        //     // If Real Time mod is active, then adjust the recurrence to hours
-        //     if (_realTimeStatus && disableRealTimeAdjustment)
-        //     {
-        //         // Gets the actual length of a day in seconds
-        //         var simulation = SimulationManager.instance;
-        //         var dayDurationSeconds = simulation.m_timePerFrame.TotalSeconds * SimulationManager.DAYTIME_FRAMES;
-        //         const double hoursInGameDay = 24.0;
-        //         var secondsPerHour = dayDurationSeconds / hoursInGameDay;
-        //
-        //         // Converts annual occurrence to occurrence per hour of play
-        //         var currentOccurrencePerHour = currentOccurrencePerYear / (hoursInGameDay * 365f);
-        //
-        //         // Adjusts the bar to show the probability per hour (logarithmic scale)
-        //         if (currentOccurrencePerHour <= 0.001f)
-        //             return 0;
-        //         if (currentOccurrencePerHour >= 0.05f)
-        //             return 1;
-        //
-        //         return (1f + Mathf.Log10((float)currentOccurrencePerHour * 10000f)) /
-        //                2f; // Escala para rango 0.001 a 0.05
-        //     }
-        //
-        //     // Original calculation (per year)
-        //     if (currentOccurrencePerYear <= 0.1f)
-        //         return 0;
-        //     if (currentOccurrencePerYear >= 10f)
-        //         return 1;
-        //
-        //     return (1f + Mathf.Log10(currentOccurrencePerYear)) / 2f;
-        // }
-
-        private static void SetProgressBarColor(UIProgressBar progressBar)
-        {
-            var value = progressBar.value;
-            progressBar.progressColor = new Color(2.0f * value, 2.0f * (1 - value), 0);
+            // Set label color according to progress bar position:
+            // If percentage is over 33% then use black, otherwise use white
+            uiLabel.color = progressBarValue > 0.33 ? Color.black : Color.white;
         }
     }
 }

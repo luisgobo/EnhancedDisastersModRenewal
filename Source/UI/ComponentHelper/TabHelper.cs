@@ -5,12 +5,12 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
     public sealed class TabHelper : UITabstrip
     {
-        public const float V_SCROLLBAR_WIDTH = 16f;
-        public const float TAB_STRIP_HEIGHT = 40f;
+        private const float V_SCROLLBAR_WIDTH = 16f;
+        private const float TAB_STRIP_HEIGHT = 40f;
 
         private UIScrollbar CreateVerticalScrollbar(UIPanel panel, UIScrollablePanel scrollablePanel)
         {
-            UIScrollbar verticalScrollbar = panel.AddUIComponent<UIScrollbar>();
+            var verticalScrollbar = panel.AddUIComponent<UIScrollbar>();
             verticalScrollbar.name = "VerticalScrollbar";
             verticalScrollbar.width = V_SCROLLBAR_WIDTH;
             verticalScrollbar.height = tabPages.height;
@@ -22,7 +22,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             verticalScrollbar.incrementAmount = 50;
             verticalScrollbar.autoHide = true;
 
-            UISlicedSprite trackSprite = verticalScrollbar.AddUIComponent<UISlicedSprite>();
+            var trackSprite = verticalScrollbar.AddUIComponent<UISlicedSprite>();
             trackSprite.relativePosition = Vector2.zero;
             trackSprite.autoSize = true;
             trackSprite.size = trackSprite.parent.size;
@@ -30,7 +30,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             trackSprite.spriteName = "ScrollbarTrack";
             verticalScrollbar.trackObject = trackSprite;
 
-            UISlicedSprite thumbSprite = trackSprite.AddUIComponent<UISlicedSprite>();
+            var thumbSprite = trackSprite.AddUIComponent<UISlicedSprite>();
             thumbSprite.relativePosition = Vector2.zero;
             thumbSprite.fillDirection = UIFillDirection.Vertical;
             thumbSprite.autoSize = true;
@@ -60,7 +60,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             panel.autoLayout = true;
             panel.autoLayoutDirection = LayoutDirection.Horizontal;
 
-            UIScrollablePanel scrollablePanel = panel.AddUIComponent<UIScrollablePanel>();
+            var scrollablePanel = panel.AddUIComponent<UIScrollablePanel>();
             scrollablePanel.autoLayout = true;
             scrollablePanel.autoLayoutPadding = new RectOffset(10, 10, 0, 16);
             scrollablePanel.autoLayoutStart = LayoutStart.TopLeft;
@@ -68,7 +68,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             scrollablePanel.size = new Vector2(panel.size.x - V_SCROLLBAR_WIDTH, panel.size.y);
             scrollablePanel.autoLayoutDirection = LayoutDirection.Horizontal; //Vertical does not work but why?
 
-            UIScrollbar verticalScrollbar = CreateVerticalScrollbar(panel, scrollablePanel);
+            var verticalScrollbar = CreateVerticalScrollbar(panel, scrollablePanel);
             verticalScrollbar.Show();
             verticalScrollbar.Invalidate();
             scrollablePanel.Invalidate();
@@ -78,7 +78,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
         public UIHelper AddTabPage(string name, bool scrollBars = true)
         {
-            UIButton tabButton = base.AddTab(name);
+            var tabButton = AddTab(name);
             tabButton.normalBgSprite = "SubBarButtonBase";
             tabButton.disabledBgSprite = "SubBarButtonBaseDisabled";
             tabButton.focusedBgSprite = "SubBarButtonBaseFocused";
@@ -89,7 +89,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             //tabButton.atlas = TextureUtil.Ingame;
 
             selectedIndex = tabCount - 1;
-            UIPanel currentPanel = tabContainer.components[selectedIndex] as UIPanel;
+            var currentPanel = tabContainer.components[selectedIndex] as UIPanel;
             currentPanel.autoLayout = true;
 
             UIHelper panelHelper;

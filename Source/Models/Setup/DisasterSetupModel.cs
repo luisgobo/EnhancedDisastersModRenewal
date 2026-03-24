@@ -1,9 +1,9 @@
-﻿using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Models.Disaster;
-using NaturalDisastersRenewal.Models.NaturalDisaster;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Models.Disaster;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.Setup
@@ -35,8 +35,7 @@ namespace NaturalDisastersRenewal.Models.Setup
         //[XmlIgnore] //for now it's needed to read it when on load and save game
         public List<DisasterInfoModel> ActiveDisasters = new List<DisasterInfoModel>();
 
-        [XmlIgnore]
-        public readonly List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();
+        [XmlIgnore] public readonly List<DisasterBaseModel> DisasterList = new List<DisasterBaseModel>();
 
         public void Save()
         {
@@ -56,27 +55,27 @@ namespace NaturalDisastersRenewal.Models.Setup
             if (Earthquake == null) Earthquake = new EarthquakeModel();
             if (MeteorStrike == null) MeteorStrike = new MeteorStrikeModel();
 
-            AllDisasters.Clear();
-            AllDisasters.Add(ForestFire);
-            AllDisasters.Add(Thunderstorm);
-            AllDisasters.Add(Sinkhole);
-            AllDisasters.Add(Tsunami);
-            AllDisasters.Add(Tornado);
-            AllDisasters.Add(Earthquake);
-            AllDisasters.Add(MeteorStrike);
+            DisasterList.Clear();
+            DisasterList.Add(ForestFire);
+            DisasterList.Add(Thunderstorm);
+            DisasterList.Add(Sinkhole);
+            DisasterList.Add(Tsunami);
+            DisasterList.Add(Tornado);
+            DisasterList.Add(Earthquake);
+            DisasterList.Add(MeteorStrike);
         }
 
         public static DisasterSetupModel CreateFromFile()
         {
-            string path = CommonProperties.GetOptionsFilePath(CommonProperties.xmlFilename);
+            var path = CommonProperties.GetOptionsFilePath(CommonProperties.xmlFilename);
 
             if (!File.Exists(path)) return null;
 
             try
             {
-                XmlSerializer ser = new XmlSerializer(typeof(DisasterSetupModel));
+                var ser = new XmlSerializer(typeof(DisasterSetupModel));
                 TextReader reader = new StreamReader(path);
-                DisasterSetupModel instance = (DisasterSetupModel)ser.Deserialize(reader);
+                var instance = (DisasterSetupModel)ser.Deserialize(reader);
                 reader.Close();
 
                 instance.CheckObjects();

@@ -13,6 +13,7 @@ using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models.Disaster;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -24,8 +25,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected const byte baseIntensity = 255; //Base intensity is 100 for all Disasters
         protected const float realTimeAccelerationIndex = 365f;
 
-        //Consider move all singletons to a common helper class to avoid call them multiple times and improve performance
-        protected readonly bool IsRealTimeActive = Singleton<NaturalDisasterHandler>.instance.CheckRealTimeModActive();
+        //Using Services class for centralized singleton access and better performance
+        protected readonly bool IsRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
 
         // Cooldown variables (Not stored into XML)
         protected int CalmDays = 0;
@@ -49,20 +50,22 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public bool Enabled = true;
 
         public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
-        public const float defaultBaseOccurrencePerYear = 1.0f;
+        private const float DefaultBaseCalmDaysLeft = 1.0f;
+        private const double SecondsBeforePausing = 3;
+
+        private readonly HashSet<ushort> _manualReleaseDisasters = new HashSet<ushort>();
+        
         public float BaseOccurrencePerYear = 1.0f;        
 
         // Disaster services
         private FieldInfo _evacuatingField;
-
         private WarningPhasePanel _phasePanel;
-        private readonly HashSet<ushort> _manualReleaseDisasters = new HashSet<ushort>();
-        private readonly double _secondsBeforePausing = 3;
+        
 
         // Public
         public abstract string GetName();
 
-        public float GetCurrentOccurrencePerYear()
+        protected float GetCurrentOccurrencePerYear()
         {
             //Check here to set up real time occurrence per year
             if (CalmDaysLeft > 0)
@@ -74,9 +77,32 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return ScaleProbabilityByWarmup(currentOccurrencePerYearLocal);
         }
 
+        public float GetDisasterProbability()
+        {
+            var currentOccurrencePerYearLocal = GetCurrentOccurrencePerYearLocal();
+
+            if (currentOccurrencePerYearLocal <= 0.1)
+                return 0;
+            if (currentOccurrencePerYearLocal >= 10)
+                return 1;
+
+            //Returns a value between 0 and 1 in intervals of 0.1 units
+            //based on the logarithmic scale of the occurrence per year
+            return (1f + Mathf.Log10(currentOccurrencePerYearLocal)) / 2f;
+        }
+
+
+        // This is a value constantly monitored, then when this is set to 1 the values will be set to 0 
+        public virtual void ResetDisasterProbabilities()
+        {
+            CalmDaysLeft = DefaultBaseCalmDaysLeft;
+            ProbabilityWarmupDaysLeft = 0;
+            IntensityWarmupDaysLeft = 0;
+        }
+
         public virtual byte GetMaximumIntensity()
-        {            
-            byte intensity = baseIntensity;            
+        {
+            var intensity = baseIntensity;            
             intensity = ScaleIntensityByWarmup(intensity);
             intensity = ScaleIntensityByPopulation(intensity);
             return intensity;
@@ -250,7 +276,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 result = "Decreased because " + GetName() + " occured recently.";
             }
 
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            var naturalDisasterSetup = CommonServices.DisasterSetup;
             if (Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
             {
                 if (result != "") result += CommonProperties.NewLine;
@@ -330,10 +356,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected static byte ScaleIntensityByPopulation(byte intensity)
         {
-            if (Singleton<NaturalDisasterHandler>.instance.container.ScaleMaxIntensityWithPopulation)
+            var naturalDisasterSetup = CommonServices.DisasterSetup;
+            if (naturalDisasterSetup.ScaleMaxIntensityWithPopulation)
             {                
                 int population = Helper.GetPopulation();
-                var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
                 if (population < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
                 {
                     intensity = (byte)(IndexReferenceDisasterValue + (intensity - IndexReferenceDisasterValue) * population / naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters);
@@ -384,8 +410,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 disasterInfo.intensity);
             DebugLogger.Log(msg);
 
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-            DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, _secondsBeforePausing, disasterId, disasterInfo, Enabled);
+            var naturalDisasterSetup = CommonServices.DisasterSetup;
+            DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, SecondsBeforePausing, disasterId, disasterInfo, Enabled);
         }
 
         public virtual void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
@@ -493,7 +519,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                                   $"EvacuationMode: {disasterInfoUnified.EvacuationMode}";
             DebugLogger.Log(msg);
 
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            var naturalDisasterSetup = CommonServices.DisasterSetup;
 
             DisasterExtension.SetDisableDisasterFocus(naturalDisasterSetup.DisableDisasterFocus);
 

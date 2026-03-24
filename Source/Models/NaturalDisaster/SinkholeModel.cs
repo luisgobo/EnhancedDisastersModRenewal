@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -44,9 +44,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
-            float daysPerFrame = Helper.DaysPerFrame;
+            var daysPerFrame = Helper.DaysPerFrame;
 
-            WeatherManager wm = Singleton<WeatherManager>.instance;
+            var wm = CommonServices.Weather;
             if (wm.m_currentRain > 0)
             {
                 groundwaterAmount += wm.m_currentRain * daysPerFrame;
