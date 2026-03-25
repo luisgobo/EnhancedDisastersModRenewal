@@ -6,19 +6,9 @@ namespace NaturalDisastersRenewal.Common
 {
     public static class Helper
     {
-        // public const uint VanillaFramesPerDay = 262144u;
+        private const float RealTimeCompatibilityFactor = 365f;
 
-        // public const float VanillaDaysPerFrame = 1f / VanillaFramesPerDay;
-        public const float RealTimeCompatibilityFactor = 365f;
-
-        public static DateTime GameDateTime => Services.Simulation.m_currentGameTime;
-
-        public static float GameDaysPerFrame => (float)Services.Simulation.m_timePerFrame.TotalDays;
-
-        public static float CompatibleDaysPerFrame(bool useCompatibilityMode)
-        {
-            return useCompatibilityMode ? GameDaysPerFrame * RealTimeCompatibilityFactor : GameDaysPerFrame;
-        }
+        private static float GameDaysPerFrame => (float)Services.Simulation.m_timePerFrame.TotalDays;
 
         public static float GetDaysPerFrame(TimeBehaviorMode mode)
         {
@@ -30,7 +20,6 @@ namespace NaturalDisastersRenewal.Common
                     return GameDaysPerFrame;
             }
         }
-
         
         public static string[] GetMonths()
         {
@@ -39,86 +28,72 @@ namespace NaturalDisastersRenewal.Common
 
         public static string[] GetAllEvacuationOptions(bool allowsFocusedEvacuation = false)
         {
-            string[] evacuationOptions = {
+            const string focusedEvacuation = "Focused auto evacuation/release";
+            
+            string[] evacuationOptions =
+            [
                 "Manual evacuation",
                 "Auto evacuation"
-            };
+            ];
 
-            if (allowsFocusedEvacuation)
-            {
-                string focusedEvacuation = "Focused auto evacuation/release";
-                Array.Resize(ref evacuationOptions, evacuationOptions.Length + 1);
-                evacuationOptions[evacuationOptions.Length - 1] = focusedEvacuation;
-            }
+            if (!allowsFocusedEvacuation) return evacuationOptions;
+            
+            Array.Resize(ref evacuationOptions, evacuationOptions.Length + 1);
+            evacuationOptions[evacuationOptions.Length - 1] = focusedEvacuation;
 
             return evacuationOptions;
         }
         
         public static string[] GetManualAndFocusedEvacuationOptions()
         {
-            string[] evacuationOptions = {
+            string[] evacuationOptions =
+            [
                 "Manual evacuation",
                 "Focused auto evacuation/release"
-            };
+            ];
 
             return evacuationOptions;
         }
 
         public static string[] GetCrackModes()
         {
-            string[] crackModes = {
+            string[] crackModes =
+            [
                 "No Cracks",
                 "Always Cracks",
                 "Allow Cracks Based on intensity"
-            };            
+            ];            
             return crackModes;
         }
 
-        public static float FramesPerDay
-        {
-            get
-            {
-                return 1.0f / DaysPerFrame;
-            }
-        }
+        public static float FramesPerDay => 1.0f / DaysPerFrame;
 
         public static float DaysPerFrame => (float)Services.Simulation.m_timePerFrame.TotalDays;
 
-        public static float FramesPerYear
-        {
-            get
-            {
-                return FramesPerDay * 365f;
-            }
-        }
-
         public static string FormatTimeSpan(float daysFloat)
         {
-            if (daysFloat <= 0)
+            switch (daysFloat)
             {
-                return "0 days";
+                case <= 0:
+                    return "0 days";
+                case < 1:
+                    return "Less than one day";
+                case < 60:
+                    return FormatValue(daysFloat, "day");
             }
 
-            if (daysFloat < 1)
-            {
-                return "Less than one day";
-            }
-
-            if (daysFloat < 60)
-            {
-                return FormatValue(daysFloat, "day");
-            }
-
-            int months = Mathf.FloorToInt(daysFloat / 30);
+            var months = Mathf.FloorToInt(daysFloat / 30);
             if (months < 13)
             {
                 if (months > 3) return FormatValue(months, "month");
-                int days = Mathf.FloorToInt(daysFloat - months * 30);
+                
+                var days = Mathf.FloorToInt(daysFloat - months * 30);
                 if (days == 0) return FormatValue(months, "month");
+                
                 return FormatValue(months, "month") + " and " + FormatValue(days, "day");
             }
 
-            int years = Mathf.FloorToInt(daysFloat / 365);
+            var years = Mathf.FloorToInt(daysFloat / 365);
             months = Mathf.FloorToInt((daysFloat - years * 365) / 30);
 
             if (years > 5 || months == 0) return FormatValue(years, "year");
@@ -126,20 +101,20 @@ namespace NaturalDisastersRenewal.Common
             return FormatValue(years, "year") + " and " + FormatValue(months, "month");
         }
 
-        public static string FormatValue(float value, string countableWord)
+        private static string FormatValue(float value, string countableWord)
         {
             return FormatValue(Mathf.FloorToInt(value), countableWord);
         }
 
-        public static string FormatValue(int value, string countableWord)
+        private static string FormatValue(int value, string countableWord)
         {
-            return value.ToString() + " " + countableWord + (value == 1 ? "" : "s");
+            return value + " " + countableWord + (value == 1 ? "" : "s");
         }
 
         public static int GetPopulation()
         {
             var districts = Services.Districts;
-            if (districts != null)
+            if (districts)
             {
                 return (int)districts.m_districts.m_buffer[0].m_populationData.m_finalCount;
             }
