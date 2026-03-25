@@ -605,7 +605,7 @@ namespace NaturalDisastersRenewal.UI
             resetAllDisastersLabel.text = "← Reset all disasters ";
         }
 
-        private void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private static void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             // Stop active disasters first
             StopAllDisasters();
@@ -819,5 +819,4 @@ namespace NaturalDisastersRenewal.UI
 }
 
 //TODO:
-// * Adjust the probability value if Real Time Mod is active (move from days to frames)
 // * Adjust recurrence for thunderstorms and earthquakes, calculation is getting extremely fast

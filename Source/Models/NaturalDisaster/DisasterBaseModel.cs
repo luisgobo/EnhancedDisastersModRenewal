@@ -76,7 +76,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual float GetDisasterProbability()
         {
-            var currentOccurrencePerYearLocal = GetCurrentOccurrencePerYearLocal();
+            var currentOccurrencePerYearLocal = GetCurrentOccurrencePerYear();
 
             if (currentOccurrencePerYearLocal <= 0.1)
                 return 0;

@@ -76,11 +76,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return 1;
             }
 
-            public void OnSimulationFrame()
+            public void OnSimulationFrame(float daysPerFrame)
             {
                 if (!Enabled) return;
 
-                DaysUntilNextEvent -= Helper.DaysPerFrame;
+                DaysUntilNextEvent -= daysPerFrame;
 
                 if (DaysUntilNextEvent <= 0)
                 {
@@ -193,9 +193,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
+            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
+
             for (int i = 0; i < meteorEvents.Length; i++)
             {
-                meteorEvents[i].OnSimulationFrame();
+                meteorEvents[i].OnSimulationFrame(daysPerFrame);
             }
         }
 

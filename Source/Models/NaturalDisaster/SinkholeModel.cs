@@ -44,7 +44,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
-            var daysPerFrame = Helper.DaysPerFrame;
+            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
 
             var wm = CommonServices.Weather;
             if (wm.m_currentRain > 0)

@@ -27,7 +27,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             OccurrenceAreaAfterUnlock = OccurrenceAreas.Everywhere;
             BaseOccurrencePerYear = 10.0f; // In case of dry weather
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
-
             CalmDays = 7;
             ProbabilityWarmupDays = 0;
             IntensityWarmupDays = 0;
@@ -122,13 +121,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfo.type |= DisasterType.ForestFire;
+            disasterInfo.type = DisasterType.ForestFire;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
         public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfoUnified.DisasterInfo.type |= DisasterType.ForestFire;
+            disasterInfoUnified.DisasterInfo.type = DisasterType.ForestFire;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = true;
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
@@ -136,7 +135,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfoUnified.DisasterInfo.type |= DisasterType.ForestFire;
+            disasterInfoUnified.DisasterInfo.type = DisasterType.ForestFire;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = true;
 
