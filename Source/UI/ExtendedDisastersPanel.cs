@@ -655,6 +655,8 @@ namespace NaturalDisastersRenewal.UI
             const int maxVehicleBufferSize = 16384;
             
             var cancellingDisasterFlags = new StringBuilder();
+            var cancelledDisasters = 0;
+            var releasedVehicles = 0;
             var vehicleManager = CommonServices.Vehicles;
 
             for (var i = 1; i < maxVehicleBufferSize; i++)
@@ -662,15 +664,23 @@ namespace NaturalDisastersRenewal.UI
                 if ((vehicleManager.m_vehicles.m_buffer[i].m_flags & Vehicle.Flags.Created) == 0) continue;
 
                 if (vehicleManager.m_vehicles.m_buffer[i].Info.m_vehicleAI is MeteorAI)
+                {
                     vehicleManager.ReleaseVehicle((ushort)i);
+                    releasedVehicles++;
+                }
 
-                if (vehicleManager.m_vehicles.m_buffer[i].Info.m_vehicleAI is VortexAI)
-                    vehicleManager.ReleaseVehicle((ushort)i);
+                if (vehicleManager.m_vehicles.m_buffer[i].Info.m_vehicleAI is not VortexAI) continue;
+                
+                vehicleManager.ReleaseVehicle((ushort)i);
+                releasedVehicles++;
             }
 
             var waterSimulation = CommonServices.Water;
-            for (var i = waterSimulation.m_waterWaves.m_size; i >= 1; i--)
-                CommonServices.Terrain.WaterSimulation.ReleaseWaterWave((ushort)i);
+            if (waterSimulation != null)
+            {
+                for (var i = waterSimulation.m_waterWaves.m_size; i >= 1; i--)
+                    CommonServices.Terrain.WaterSimulation.ReleaseWaterWave((ushort)i);
+            }
 
             var disasterManager = CommonServices.Disasters;
             for (ushort i = 0; i < disasterManager.m_disasterCount; i++)
@@ -687,8 +697,18 @@ namespace NaturalDisastersRenewal.UI
                                                                         DisasterData.Flags.Active |
                                                                         DisasterData.Flags.Clearing) |
                     DisasterData.Flags.Finished;
+                cancelledDisasters++;
             }
 
+            var disasterHandler = CommonServices.DisasterHandler;
+            if (disasterHandler != null)
+            {
+                disasterHandler.container.ActiveDisasters.Clear();
+            }
+
+            disasterManager.EvacuateAll(true);
+            cancellingDisasterFlags.AppendLine($"Cancelled disasters: {cancelledDisasters}");
+            cancellingDisasterFlags.AppendLine($"Released disaster vehicles: {releasedVehicles}");
             Debug.Log(cancellingDisasterFlags.ToString());
         }
 
@@ -756,7 +776,8 @@ namespace NaturalDisastersRenewal.UI
         private static bool IsStoppableDisaster(DisasterAI ai)
         {
             return ai as ThunderStormAI != null || ai as SinkholeAI != null || ai as TornadoAI != null ||
-                   ai as EarthquakeAI != null || ai as MeteorStrikeAI != null;
+                   ai as EarthquakeAI != null || ai as MeteorStrikeAI != null || ai as ForestFireAI != null ||
+                   ai as TsunamiAI != null;
         }
 
         private static UILabel AddLabel(UIComponent parentPanel, float x, float y, float textScale,
