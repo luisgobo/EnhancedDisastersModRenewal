@@ -216,6 +216,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return ForestFireDefaultBaseOccurrencePerYear * Math.Min(1f, NoRainDays / WarmupDays);
         }
 
+        protected override void ResetDisasterState()
+        {
+            NoRainDays = 0;
+        }
+
         public override bool CheckDisasterAIType(object disasterAI)
         {
             return disasterAI as ForestFireAI != null;
@@ -245,8 +250,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override void ResetDisasterProbabilities()
         {
             BaseOccurrencePerYear = ForestFireDefaultBaseOccurrencePerYear;
-            CalmDaysLeft = CalmDays;
-            
             base.ResetDisasterProbabilities();
         }
         

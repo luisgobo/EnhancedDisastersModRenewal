@@ -94,6 +94,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return base.GetCurrentOccurrencePerYearLocal() * groundwaterAmount / GroundwaterCapacity;
         }
 
+        protected override void ResetDisasterState()
+        {
+            groundwaterAmount = 0;
+        }
+
         public override bool CheckDisasterAIType(object disasterAI)
         {
             return disasterAI as SinkholeAI != null;

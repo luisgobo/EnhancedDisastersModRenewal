@@ -117,8 +117,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         
         public virtual void ResetDisasterProbabilities()
         {
-            ProbabilityWarmupDaysLeft = 0;
-            IntensityWarmupDaysLeft = 0;
+            CalmDaysLeft = CalmDays;
+            ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
+            IntensityWarmupDaysLeft = IntensityWarmupDays;
+            ResetDisasterState();
+        }
+
+        protected virtual void ResetDisasterState()
+        {
         }
 
         public virtual byte GetMaximumIntensity()

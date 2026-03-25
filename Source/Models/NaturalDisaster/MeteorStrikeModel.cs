@@ -367,5 +367,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 MeteorShortPeriodEnabled = d.MeteorShortPeriodEnabled;
             }
         }
+
+        protected override void ResetDisasterState()
+        {
+            meteorEvents =
+            [
+                MeteorEvent.Init("Long period meteor", 9, 200),
+                MeteorEvent.Init("Medium period meteor", 5, 120),
+                MeteorEvent.Init("Short period meteor", 2, 30)
+            ];
+        }
     }
 }

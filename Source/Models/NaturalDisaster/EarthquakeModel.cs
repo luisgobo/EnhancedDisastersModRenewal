@@ -354,5 +354,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
+        protected override void ResetDisasterState()
+        {
+            aftershocksCount = 0;
+            aftershockMaxIntensity = 0;
+            mainStrikeIntensity = 0;
+            lastTargetPosition = Vector3.zero;
+            lastAngle = 0;
+        }
+
     }
 }
