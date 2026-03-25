@@ -92,7 +92,7 @@ namespace NaturalDisastersRenewal.UI
 
                 _statusButtons[i].isVisible = true;
 
-                if (disaster.Enabled)
+                if (disaster.IsDisasterEnabled)
                 {
                     var button = _statusButtons[i];
                     var icon = button.components.OfType<UISprite>().FirstOrDefault();
@@ -207,7 +207,7 @@ namespace NaturalDisastersRenewal.UI
                 // Create a button for each disaster to be enabled or disabled
                 _statusButtons[i] =
                     BuildDisasterStatusButton(parentPanel, xPosition, yPosition, disaster.GetName(),
-                        disaster.Enabled);
+                        disaster.IsDisasterEnabled);
 
                 //Show disaster name
                 _disasterLabelNames[i] = AddLabel(parentPanel, xPosition + 26, yPosition, LabelTextScaleNormal,
@@ -704,41 +704,41 @@ namespace NaturalDisastersRenewal.UI
 
             if (disaster == null) return;
 
-            disaster.Enabled = !disaster.Enabled;
+            disaster.IsDisasterEnabled = !disaster.IsDisasterEnabled;
             switch (disaster.GetName())
             {
                 case CommonProperties.earthquakeName:
-                    _disasterHandler.container.Earthquake.Enabled = disaster.Enabled;
+                    _disasterHandler.container.Earthquake.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.forestFireName:
-                    _disasterHandler.container.ForestFire.Enabled = disaster.Enabled;
+                    _disasterHandler.container.ForestFire.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.meteorStrikeName:
-                    _disasterHandler.container.MeteorStrike.Enabled = disaster.Enabled;
+                    _disasterHandler.container.MeteorStrike.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.sinkholeName:
-                    _disasterHandler.container.Sinkhole.Enabled = disaster.Enabled;
+                    _disasterHandler.container.Sinkhole.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.thunderstormName:
-                    _disasterHandler.container.Thunderstorm.Enabled = disaster.Enabled;
+                    _disasterHandler.container.Thunderstorm.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.tornadoName:
-                    _disasterHandler.container.Tornado.Enabled = disaster.Enabled;
+                    _disasterHandler.container.Tornado.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.tsunamiName:
-                    _disasterHandler.container.Tsunami.Enabled = disaster.Enabled;
+                    _disasterHandler.container.Tsunami.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
             }
 
             var button = (UIButton)component;
             var icon = button.components.OfType<UISprite>().FirstOrDefault();
-            if (icon != null) icon.spriteName = disaster.Enabled ? PauseSprite : PlaySprite;
+            if (icon != null) icon.spriteName = disaster.IsDisasterEnabled ? PauseSprite : PlaySprite;
 
             SettingsScreen.UpdateUISettingsOptions();
         }
@@ -792,7 +792,7 @@ namespace NaturalDisastersRenewal.UI
 
             // Set label color according to progress bar position:
             // If percentage is over 33% then use black, otherwise use white
-            uiLabel.color = progressBarValue > 0.33 ? Color.black : Color.white;
+            uiLabel.textColor = progressBarValue > 0.33 ? Color.black : Color.white;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
     {
         public void SerializeCommonParameters(DataSerializer dataSeralizer, DisasterBaseModel disaster, int disasterIndex = 1)
         {
-            dataSeralizer.WriteBool(disaster.Enabled);
+            dataSeralizer.WriteBool(disaster.IsDisasterEnabled);
             dataSeralizer.WriteFloat(disaster.BaseOccurrencePerYear);
             dataSeralizer.WriteFloat(disaster.CalmDaysLeft);
             dataSeralizer.WriteFloat(disaster.ProbabilityWarmupDaysLeft);
@@ -20,7 +20,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
         public void DeserializeCommonParameters(DataSerializer dataSeralizer, DisasterBaseModel disaster, int disasterIndex = 1)
         {
-            disaster.Enabled = dataSeralizer.ReadBool();
+            disaster.IsDisasterEnabled = dataSeralizer.ReadBool();
             disaster.BaseOccurrencePerYear = dataSeralizer.ReadFloat();
             if (dataSeralizer.version <= 2)
             {

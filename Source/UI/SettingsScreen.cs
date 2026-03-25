@@ -129,23 +129,23 @@ namespace NaturalDisastersRenewal.UI
             UI_General_RecordDisasterEventsChkBox.isChecked = disasterSetupModel.RecordDisasterEvents;
             UI_General_ShowDisasterPanelButton.isChecked = disasterSetupModel.ShowDisasterPanelButton;
 
-            UI_ForestFire_Enabled.isChecked = disasterSetupModel.ForestFire.Enabled;
+            UI_ForestFire_Enabled.isChecked = disasterSetupModel.ForestFire.IsDisasterEnabled;
             UI_ForestFire_EvacuationMode.selectedIndex = (int)disasterSetupModel.ForestFire.EvacuationMode;
             UI_ForestFireMaxProbability.value = disasterSetupModel.ForestFire.BaseOccurrencePerYear;
             UI_ForestFire_WarmupDays.value = disasterSetupModel.ForestFire.WarmupDays;
 
-            UI_Thunderstorm_Enabled.isChecked = disasterSetupModel.Thunderstorm.Enabled;
+            UI_Thunderstorm_Enabled.isChecked = disasterSetupModel.Thunderstorm.IsDisasterEnabled;
             UI_Thunderstorm_EvacuationMode.selectedIndex = (int)disasterSetupModel.Thunderstorm.EvacuationMode;
             UI_Thunderstorm_MaxProbability.value = disasterSetupModel.Thunderstorm.BaseOccurrencePerYear;
             UI_Thunderstorm_MaxProbabilityMonth.selectedIndex = disasterSetupModel.Thunderstorm.MaxProbabilityMonth - 1;
             UI_Thunderstorm_RainFactor.value = disasterSetupModel.Thunderstorm.RainFactor;
 
-            UI_Sinkhole_Enabled.isChecked = disasterSetupModel.Sinkhole.Enabled;
+            UI_Sinkhole_Enabled.isChecked = disasterSetupModel.Sinkhole.IsDisasterEnabled;
             UI_Sinkhole_EvacuationMode.selectedIndex = (int)disasterSetupModel.Sinkhole.EvacuationMode;
             UI_Sinkhole_MaxProbability.value = disasterSetupModel.Sinkhole.BaseOccurrencePerYear;
             UI_Sinkhole_GroundwaterCapacity.value = disasterSetupModel.Sinkhole.GroundwaterCapacity;
 
-            UI_Tornado_Enabled.isChecked = disasterSetupModel.Tornado.Enabled;
+            UI_Tornado_Enabled.isChecked = disasterSetupModel.Tornado.IsDisasterEnabled;
             UI_Tornado_EvacuationMode.selectedIndex = (int)disasterSetupModel.Tornado.EvacuationMode;
             UI_Tornado_MaxProbability.value = disasterSetupModel.Tornado.BaseOccurrencePerYear;
             UI_Tornado_MaxProbabilityMonth.selectedIndex = disasterSetupModel.Tornado.MaxProbabilityMonth - 1;
@@ -153,12 +153,12 @@ namespace NaturalDisastersRenewal.UI
             UI_Tornado_EnableDestruction.isChecked = disasterSetupModel.Tornado.EnableTornadoDestruction;
             UI_Tornado_IntensityDestructionStart.value = disasterSetupModel.Tornado.MinimalIntensityForDestruction;
 
-            UI_Tsunami_Enabled.isChecked = disasterSetupModel.Tsunami.Enabled;
+            UI_Tsunami_Enabled.isChecked = disasterSetupModel.Tsunami.IsDisasterEnabled;
             UI_Tsunami_EvacuationMode.selectedIndex = (int)disasterSetupModel.Tsunami.EvacuationMode;
             UI_Tsunami_MaxProbability.value = disasterSetupModel.Tsunami.BaseOccurrencePerYear;
             UI_Tsunami_WarmupYears.value = disasterSetupModel.Tsunami.WarmupYears;
 
-            UI_Earthquake_Enabled.isChecked = disasterSetupModel.Earthquake.Enabled;
+            UI_Earthquake_Enabled.isChecked = disasterSetupModel.Earthquake.IsDisasterEnabled;
             UI_Earthquake_EvacuationMode.selectedIndex = (int)disasterSetupModel.Earthquake.EvacuationMode;
             UI_Earthquake_MinIntensityToCrack.value = (int)disasterSetupModel.Earthquake.MinimalIntensityForCracks;
             UI_Earthquake_MaxProbability.value = disasterSetupModel.Earthquake.BaseOccurrencePerYear;
@@ -166,7 +166,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Earthquake_AftershocksEnabled.isChecked = disasterSetupModel.Earthquake.AftershocksEnabled;
             UI_Earthquake_CrackMode.selectedIndex = (int)disasterSetupModel.Earthquake.EarthquakeCrackMode;
 
-            UI_MeteorStrike_Enabled.isChecked = disasterSetupModel.MeteorStrike.Enabled;
+            UI_MeteorStrike_Enabled.isChecked = disasterSetupModel.MeteorStrike.IsDisasterEnabled;
             UI_MeteorStrike_EvacuationMode.selectedIndex = (int)disasterSetupModel.MeteorStrike.EvacuationMode;
             UI_MeteorStrike_MaxProbability.value = disasterSetupModel.MeteorStrike.BaseOccurrencePerYear;
             UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(0);
@@ -297,40 +297,40 @@ namespace NaturalDisastersRenewal.UI
             generalGroup.AddSpace(10);
             UIHelperBase disastersGroup = generalGroup.AddGroup("Enable Disasters:");
 
-            UI_ForestFire_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.ForestFire.GetName(), disasterContainer.ForestFire.Enabled, delegate (bool isChecked)
+            UI_ForestFire_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.ForestFire.GetName(), disasterContainer.ForestFire.IsDisasterEnabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.ForestFire.Enabled = isChecked;
+                    disasterContainer.ForestFire.IsDisasterEnabled = isChecked;
             });
-            UI_Thunderstorm_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Thunderstorm.GetName(), disasterContainer.Thunderstorm.Enabled, delegate (bool isChecked)
+            UI_Thunderstorm_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Thunderstorm.GetName(), disasterContainer.Thunderstorm.IsDisasterEnabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.Thunderstorm.Enabled = isChecked;
+                    disasterContainer.Thunderstorm.IsDisasterEnabled = isChecked;
             });
-            UI_Sinkhole_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Sinkhole.GetName(), disasterContainer.Sinkhole.Enabled, delegate (bool isChecked)
+            UI_Sinkhole_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Sinkhole.GetName(), disasterContainer.Sinkhole.IsDisasterEnabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.Sinkhole.Enabled = isChecked;
+                    disasterContainer.Sinkhole.IsDisasterEnabled = isChecked;
             });
-            UI_Tornado_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tornado.GetName(), disasterContainer.Tornado.Enabled, delegate (bool isChecked)
+            UI_Tornado_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tornado.GetName(), disasterContainer.Tornado.IsDisasterEnabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.Tornado.Enabled = isChecked;
+                    disasterContainer.Tornado.IsDisasterEnabled = isChecked;
             });
-            UI_Tsunami_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tsunami.GetName(), disasterContainer.Tsunami.Enabled, delegate (bool isChecked)
+            UI_Tsunami_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tsunami.GetName(), disasterContainer.Tsunami.IsDisasterEnabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.Tsunami.Enabled = isChecked;
+                    disasterContainer.Tsunami.IsDisasterEnabled = isChecked;
             });
-            UI_Earthquake_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Earthquake.GetName(), disasterContainer.Earthquake.Enabled, delegate (bool isChecked)
+            UI_Earthquake_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Earthquake.GetName(), disasterContainer.Earthquake.IsDisasterEnabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.Earthquake.Enabled = isChecked;
+                    disasterContainer.Earthquake.IsDisasterEnabled = isChecked;
             });
-            UI_MeteorStrike_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.MeteorStrike.GetName(), disasterContainer.MeteorStrike.Enabled, delegate (bool isChecked)
+            UI_MeteorStrike_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.MeteorStrike.GetName(), disasterContainer.MeteorStrike.IsDisasterEnabled, delegate (bool isChecked)
             {
                 if (!freezeUI)
-                    disasterContainer.MeteorStrike.Enabled = isChecked;
+                    disasterContainer.MeteorStrike.IsDisasterEnabled = isChecked;
             });
         }
 

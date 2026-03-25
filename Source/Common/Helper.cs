@@ -1,13 +1,40 @@
 ﻿using System;
+using NaturalDisastersRenewal.Common.enums;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Common
 {
     public static class Helper
     {
+        // public const uint VanillaFramesPerDay = 262144u;
+
+        // public const float VanillaDaysPerFrame = 1f / VanillaFramesPerDay;
+        public const float RealTimeCompatibilityFactor = 365f;
+
+        public static DateTime GameDateTime => Services.Simulation.m_currentGameTime;
+
+        public static float GameDaysPerFrame => (float)Services.Simulation.m_timePerFrame.TotalDays;
+
+        public static float CompatibleDaysPerFrame(bool useCompatibilityMode)
+        {
+            return useCompatibilityMode ? GameDaysPerFrame * RealTimeCompatibilityFactor : GameDaysPerFrame;
+        }
+
+        public static float GetDaysPerFrame(TimeBehaviorMode mode)
+        {
+            switch (mode)
+            {
+                case TimeBehaviorMode.RealTimeCompatible:
+                    return GameDaysPerFrame * RealTimeCompatibilityFactor;
+                default:
+                    return GameDaysPerFrame;
+            }
+        }
+
+        
         public static string[] GetMonths()
         {
-            return new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+            return ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         }
 
         public static string[] GetAllEvacuationOptions(bool allowsFocusedEvacuation = false)

@@ -35,13 +35,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override void OnSimulationFrame()
         {
-            if (!Enabled) return;
+            if (!IsDisasterEnabled) return;
 
             if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere) return;
 
             OnSimulationFrameLocal();
 
-            var daysPerFrame = IsRealTimeActive ? Helper.DaysPerFrame * realTimeAccelerationIndex : Helper.DaysPerFrame;
+            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
 
             if (CalmDaysLeft > 0)
             {
@@ -75,45 +75,48 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var randomizedOccurrence = (uint)(randomizerRange * occurrencePerFrame);
 
             // New Logarithmic activation based on occurrence per year
-            var probabilityProgress = 0f;
-            if (occurrencePerYear <= 0.1f)
-                probabilityProgress = 0f;
-            else if (occurrencePerYear >= 10f)
-                probabilityProgress = 1f;
-            else
-                probabilityProgress = (1f + Mathf.Log10(occurrencePerYear)) / 2f;
-            
-            if (occurrencePerYear > 0.1f && occurrencePerYear < 10f)
+            var probabilityProgress = occurrencePerYear switch
             {
-                var threshold = probabilityProgress * randomizedOccurrence;
+                <= 0.1f => 0f,
+                >= 10f => 1f,
+                _ => (1f + Mathf.Log10(occurrencePerYear)) / 2f
+            };
 
-                if (!(randomizedValue < threshold)) return;
-                
-                var maxIntensity = GetMaximumIntensity();
-                var intensity = GetRandomIntensity(maxIntensity);
-
-                StartDisaster(intensity);
-            }
-            else if (occurrencePerYear >= 10f)
+            switch (occurrencePerYear)
             {
-                Debug.Log("OccurrencePerYear >= 10, disaster always starts.");
-                var maxIntensity = GetMaximumIntensity();
-                var intensity = GetRandomIntensity(maxIntensity);
+                case > 0.1f and < 10f:
+                {
+                    var threshold = probabilityProgress * randomizedOccurrence;
 
-                StartDisaster(intensity);
+                    if (!(randomizedValue < threshold)) return;
+
+                    var maxIntensity = GetMaximumIntensity();
+                    var intensity = GetRandomIntensity(maxIntensity);
+
+                    StartDisaster(intensity);
+                    break;
+                }
+                case >= 10f:
+                {
+                    var maxIntensity = GetMaximumIntensity();
+                    var intensity = GetRandomIntensity(maxIntensity);
+
+                    StartDisaster(intensity);
+                    break;
+                }
             }
         }
 
         protected override void OnSimulationFrameLocal()
         {
-            WeatherManager wm = Singleton<WeatherManager>.instance;
+            var wm = Singleton<WeatherManager>.instance;
             if (wm.m_currentRain > 0)
             {
                 NoRainDays = 0;
             }
             else
             {
-                NoRainDays += Helper.DaysPerFrame;
+                NoRainDays += Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
             }
         }
 
@@ -210,8 +213,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override float GetCurrentOccurrencePerYearLocal()
         {
-            var occurrencePerYear = IsRealTimeActive ? ForestFireDefaultBaseOccurrencePerYear * realTimeAccelerationIndex : ForestFireDefaultBaseOccurrencePerYear;
-            return occurrencePerYear * Math.Min(1f, NoRainDays / WarmupDays);
+            return ForestFireDefaultBaseOccurrencePerYear * Math.Min(1f, NoRainDays / WarmupDays);
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
@@ -235,9 +237,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
+        public override float GetDisasterProbability()
+        {
+            return CalmDaysLeft > 0 ? 0f : base.GetDisasterProbability();
+        }
+
         public override void ResetDisasterProbabilities()
         {
             BaseOccurrencePerYear = ForestFireDefaultBaseOccurrencePerYear;
+            CalmDaysLeft = CalmDays;
+            
             base.ResetDisasterProbabilities();
         }
         

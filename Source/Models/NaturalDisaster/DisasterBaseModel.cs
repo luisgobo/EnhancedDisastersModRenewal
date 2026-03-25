@@ -23,10 +23,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const byte IndexReferenceDisasterValue = 10;
         protected const uint randomizerRange = 67108864u;
         protected const byte baseIntensity = 255; //Base intensity is 100 for all Disasters
-        protected const float realTimeAccelerationIndex = 365f;
 
         //Using Services class for centralized singleton access and better performance
-        protected readonly bool IsRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
+        private readonly bool _isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
 
         // Cooldown variables (Not stored into XML)
         protected int CalmDays = 0;
@@ -41,19 +40,17 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected DisasterType DType = DisasterType.Empty;
 
         protected ProbabilityDistributions ProbabilityDistribution = ProbabilityDistributions.Uniform;
-        //protected int FullIntensityMaxLimitPopulation = 70000;//Original: 20000
         protected OccurrenceAreas OccurrenceAreaBeforeUnlock = OccurrenceAreas.Nowhere;
         protected OccurrenceAreas OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
         protected bool Unlocked;
 
         // Disaster public properties (to be saved in XML)
-        public bool Enabled = true;
+        public bool IsDisasterEnabled = true;
 
         public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
-        private const float DefaultBaseCalmDaysLeft = 1.0f;
         private const double SecondsBeforePausing = 3;
 
-        private readonly HashSet<ushort> _manualReleaseDisasters = new HashSet<ushort>();
+        private readonly HashSet<ushort> _manualReleaseDisasters = [];
         
         public float BaseOccurrencePerYear = 1.0f;        
 
@@ -65,19 +62,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         // Public
         public abstract string GetName();
 
+        protected TimeBehaviorMode CurrentTimeBehaviorMode =>
+            _isRealTimeActive ? TimeBehaviorMode.RealTimeCompatible : TimeBehaviorMode.Original;
+
         protected float GetCurrentOccurrencePerYear()
         {
             //Check here to set up real time occurrence per year
-            if (CalmDaysLeft > 0)
-            {
-                return 0f;
-            }
+            if (CalmDaysLeft > 0) return 0f;
 
             var currentOccurrencePerYearLocal = GetCurrentOccurrencePerYearLocal();
             return ScaleProbabilityByWarmup(currentOccurrencePerYearLocal);
         }
 
-        public float GetDisasterProbability()
+        public virtual float GetDisasterProbability()
         {
             var currentOccurrencePerYearLocal = GetCurrentOccurrencePerYearLocal();
 
@@ -91,11 +88,35 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return (1f + Mathf.Log10(currentOccurrencePerYearLocal)) / 2f;
         }
 
+        protected virtual float GetCurrentOccurrencePerYearLocal()
+        {
+            return BaseOccurrencePerYear;
+        }
 
-        // This is a value constantly monitored, then when this is set to 1 the values will be set to 0 
+        private float ScaleProbabilityByWarmup(float probability)
+        {
+            if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
+            {
+                return 0;
+            }
+
+            if (ProbabilityWarmupDaysLeft > 0 && ProbabilityWarmupDays > 0)
+            {
+                if (ProbabilityWarmupDaysLeft >= ProbabilityWarmupDays)
+                {
+                    probability = 0;
+                }
+                else
+                {
+                    probability *= 1 - ProbabilityWarmupDaysLeft / ProbabilityWarmupDays;
+                }
+            }
+
+            return probability;
+        }
+        
         public virtual void ResetDisasterProbabilities()
         {
-            CalmDaysLeft = DefaultBaseCalmDaysLeft;
             ProbabilityWarmupDaysLeft = 0;
             IntensityWarmupDaysLeft = 0;
         }
@@ -110,7 +131,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         // public void OnSimulationFrame()
         // {
-        //     if (!Enabled)
+        //     if (!IsDisasterEnabled)
         //     {
         //         return;
         //     }
@@ -182,16 +203,17 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual void OnSimulationFrame()
         {
-            if (!Enabled) return;
+            if (!IsDisasterEnabled) return;
 
             if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere) return;
 
             OnSimulationFrameLocal();
 
-            var daysPerFrame = Helper.DaysPerFrame;
+            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
 
             if (CalmDaysLeft > 0)
             {
+                // Based on days per frame, it reduces the calmDaysLeft every time the game changes of day
                 CalmDaysLeft -= daysPerFrame;
                 return;
             }
@@ -220,9 +242,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
             }
 
-            var sm = Singleton<SimulationManager>.instance;
+
+            var simulationManager = CommonServices.Simulation;
             var occurrencePerFrame = occurrencePerYear / 365 * daysPerFrame;
-            if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
+            if (simulationManager.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
             {
                 var maxIntensity = GetMaximumIntensity();
                 var intensity = GetRandomIntensity(maxIntensity);
@@ -288,7 +311,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual void CopySettings(DisasterBaseModel disaster)
         {
-            Enabled = disaster.Enabled;
+            IsDisasterEnabled = disaster.IsDisasterEnabled;
             BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
             EvacuationMode = disaster.EvacuationMode;
         }
@@ -296,12 +319,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public DisasterType GetDisasterType() => DType;
 
         // Utilities
-
-        protected virtual float GetCurrentOccurrencePerYearLocal()
-        {
-            //Not tested yet
-            return IsRealTimeActive ? BaseOccurrencePerYear * realTimeAccelerationIndex : BaseOccurrencePerYear;
-        }
 
         protected virtual byte GetRandomIntensity(byte maxIntensity)
         {
@@ -368,31 +385,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return intensity;
         }
 
-        private float ScaleProbabilityByWarmup(float probability)
-        {
-            if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
-            {
-                return 0;
-            }
-
-            if (ProbabilityWarmupDaysLeft > 0 && ProbabilityWarmupDays > 0)
-            {
-                if (ProbabilityWarmupDaysLeft >= ProbabilityWarmupDays)
-                {
-                    probability = 0;
-                }
-                else
-                {
-                    probability *= 1 - ProbabilityWarmupDaysLeft / ProbabilityWarmupDays;
-                }
-            }
-
-            return probability;
-        }
-
         protected string GetDebugStr()
         {
-            return DType.ToString() + ", " + Singleton<SimulationManager>.instance.m_currentGameTime.ToShortDateString() + ", ";
+            return DType + ", " + Singleton<SimulationManager>.instance.m_currentGameTime.ToShortDateString() + ", ";
         }
 
         // Disaster events
@@ -411,7 +406,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             DebugLogger.Log(msg);
 
             var naturalDisasterSetup = CommonServices.DisasterSetup;
-            DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, SecondsBeforePausing, disasterId, disasterInfo, Enabled);
+            DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, SecondsBeforePausing, disasterId, disasterInfo, IsDisasterEnabled);
         }
 
         public virtual void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
