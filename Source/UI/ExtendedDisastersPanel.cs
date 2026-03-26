@@ -18,6 +18,9 @@ namespace NaturalDisastersRenewal.UI
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
 
+        private static readonly Color32 TextColorProgressBarLower = new (22, 22, 24, 1);
+        private static readonly Color32 TextColorProgressBarHigher = new (255, 255, 255, 1);
+
         private const float PanelWidth = 434f;
         private const float PanelHeight = 320f;
 
@@ -794,7 +797,7 @@ namespace NaturalDisastersRenewal.UI
 
                 // Set label color according to progress bar position:
                 // If percentage is over 33% then use blue, otherwise use white
-                uiLabel.textColor = progressBarValue > 0.33 ? Color.blue : Color.white;
+                uiLabel.textColor = progressBarValue > 0.33 ? TextColorProgressBarLower : TextColorProgressBarHigher;
             }
             else
             {
@@ -807,4 +810,5 @@ namespace NaturalDisastersRenewal.UI
 }
 
 //TODO:
+// * Make all possible elementes of UI reusable components
 // * Adjust recurrence for thunderstorms and earthquakes, calculation is getting extremely fast
