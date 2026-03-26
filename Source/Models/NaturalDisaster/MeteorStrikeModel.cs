@@ -288,16 +288,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return CommonProperties.meteorStrikeName;
         }
 
-        public override string GetProbabilityTooltip(float probabilityValue)
+        public override string GetProbabilityTooltip()
         {
             if (!Unlocked)
             {
                 return "Not Unlocked yet";
             }
 
-            var probability = $"Probability: {(probabilityValue != 0 ? $"{probabilityValue * 10:#.#}" : "0.00")} {CommonProperties.NewLine}";
+            var probability = GetDisasterProbabilityPercentageValue();
 
-            for (int i = 0; i < meteorEvents.Length; i++)
+            for (var i = 0; i < meteorEvents.Length; i++)
                 probability += meteorEvents[i].GetStateDescription() + Environment.NewLine;
 
             return probability;

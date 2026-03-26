@@ -43,7 +43,7 @@ namespace NaturalDisastersRenewal.Common
         /// <summary>
         /// Disaster configuration container (shortcut)
         /// </summary>
-        public static DisasterSetupModel DisasterSetup => DisasterHandler ? DisasterHandler.container : null;
+        public static DisasterSetupModel DisasterSetup => DisasterHandler ? DisasterHandler.Container : null;
 
         #endregion
 

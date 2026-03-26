@@ -74,6 +74,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return ScaleProbabilityByWarmup(currentOccurrencePerYearLocal);
         }
 
+        public string GetDisasterProbabilityPercentageValue()
+        {
+            return $"{GetDisasterProbability() * 100:0.##}%";
+        }
+
         public virtual float GetDisasterProbability()
         {
             var currentOccurrencePerYearLocal = GetCurrentOccurrencePerYear();
@@ -265,7 +270,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             Unlocked = true;
         }
 
-        public virtual string GetProbabilityTooltip(float value)
+        public virtual string GetProbabilityTooltip()
         {
             if (!Unlocked)
             {
@@ -282,8 +287,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "Decreased because " + GetName() + " occured recently.";
             }
 
-            //return $"Probability: {value * 10:#.##}";
-            return $"Probability: {(value*2):#.##}";
+            return $"Probability: {GetDisasterProbabilityPercentageValue()}%";
         }
 
         public virtual string GetIntensityTooltip(float value)
@@ -796,7 +800,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             _manualReleaseDisasters.Add(disasterId);
         }
 
-        private void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
+        protected virtual void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
 

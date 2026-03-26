@@ -44,17 +44,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return occurrence;
         }
 
-        public override string GetProbabilityTooltip(float value)
+        public override string GetProbabilityTooltip()
         {
-            if (CalmDaysLeft <= 0)
+            if (!(CalmDaysLeft <= 0)) return base.GetProbabilityTooltip();
+            
+            if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
             {
-                if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
-                {
-                    return "No " + GetName() + " during fog.";
-                }
+                return "No " + GetName() + " during fog.";
             }
 
-            return base.GetProbabilityTooltip(value);
+            return base.GetProbabilityTooltip();
         }
 
         public override bool CheckDisasterAIType(object disasterAI)

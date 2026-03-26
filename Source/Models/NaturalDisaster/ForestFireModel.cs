@@ -181,33 +181,31 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             activeDisasters.Add(disasterInfoModel);
         }
 
-        public override string GetProbabilityTooltip(float value)
+        public override string GetProbabilityTooltip()
         {
-            string tooltip = "";
+            var tooltip = "";
 
             if (!Unlocked)
             {
                 tooltip = "Not Unlocked yet (occurs only outside of your area)." + Environment.NewLine;
             }
 
-            if (CalmDaysLeft == 0)
-            {
-                if (NoRainDays <= 0)
-                {
-                    return tooltip + "No " + GetName() + " during rain.";
-                }
-                else
-                {
-                    if (NoRainDays >= WarmupDays)
-                    {
-                        return tooltip + "Maximum because there was no rain for more than " + WarmupDays + " days.";
-                    }
+            if (CalmDaysLeft != 0) return base.GetProbabilityTooltip();
 
-                    return tooltip + "Increasing because there was no rain for " + Helper.FormatTimeSpan(NoRainDays);
+            if (NoRainDays <= 0)
+            {
+                return tooltip + "No " + GetName() + " during rain.";
+            }
+            else
+            {
+                if (NoRainDays >= WarmupDays)
+                {
+                    return tooltip + "Maximum because there was no rain for more than " + WarmupDays + " days.";
                 }
+
+                return tooltip + "Increasing because there was no rain for " + Helper.FormatTimeSpan(NoRainDays);
             }
 
-            return base.GetProbabilityTooltip(value);
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()

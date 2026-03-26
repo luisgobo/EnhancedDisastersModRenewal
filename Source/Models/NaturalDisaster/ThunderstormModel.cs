@@ -28,22 +28,21 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
-        public override string GetProbabilityTooltip(float value)
+        public override string GetProbabilityTooltip()
         {
             if (!Unlocked)
             {
                 return "Not Unlocked yet (occurs only outside of your area).";
             }
 
-            if (CalmDaysLeft <= 0)
+            if (!(CalmDaysLeft <= 0)) return base.GetProbabilityTooltip();
+            
+            if (CommonServices.Weather.m_currentRain > 0 && RainFactor > 1)
             {
-                if (CommonServices.Weather.m_currentRain > 0 && RainFactor > 1)
-                {
-                    return "Increased because of rain.";
-                }
+                return "Increased because of rain.";
             }
 
-            return base.GetProbabilityTooltip(value);
+            return base.GetProbabilityTooltip();
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()

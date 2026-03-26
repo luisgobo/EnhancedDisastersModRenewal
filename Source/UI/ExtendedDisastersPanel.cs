@@ -77,7 +77,7 @@ namespace NaturalDisastersRenewal.UI
 
             DefineMinPopulationLabelContent();
 
-            var disasterCount = _disasterHandler.container.DisasterList.Count;
+            var disasterCount = _disasterHandler.Container.DisasterList.Count;
 
             // Simulation params for probability calculation
             var simulation = SimulationManager.instance;
@@ -87,7 +87,7 @@ namespace NaturalDisastersRenewal.UI
 
             for (var i = 0; i < disasterCount; i++)
             {
-                var disaster = _disasterHandler.container.DisasterList[i];
+                var disaster = _disasterHandler.Container.DisasterList[i];
                 var maxIntensityCalculated = disaster.GetMaximumIntensity();
 
                 _statusButtons[i].isVisible = true;
@@ -100,16 +100,14 @@ namespace NaturalDisastersRenewal.UI
                     if (icon)
                         icon.spriteName = PauseSprite;
 
-                    var disasterProbability = disaster.GetDisasterProbability();
-                    
                     _disasterLabelNames[i].text = disaster.GetName();
-                    _disasterLabelCalculations[i].text = SetDisasterProbabilityLabelValue(disasterProbability);
+                    _disasterLabelCalculations[i].text = disaster.GetDisasterProbabilityPercentageValue();
                     _disasterLabelMaxIntensity[i].text = SetMaxIntensityInfoLabel(maxIntensityCalculated);
 
                     //Calculate probability                    
-                    _progressBarsProbability[i].value = disasterProbability;
+                    _progressBarsProbability[i].value = disaster.GetDisasterProbability();
                     SetProgressBarColor(_progressBarsProbability[i], _disasterLabelCalculations[i]);
-                    _progressBarsProbability[i].tooltip = disaster.GetProbabilityTooltip(disasterProbability);
+                    _progressBarsProbability[i].tooltip = disaster.GetProbabilityTooltip();
 
                     //Calculate intensity
                     const float maxIntensity = 255f;
@@ -189,7 +187,7 @@ namespace NaturalDisastersRenewal.UI
             AddLabel(parentPanel, xPosition + 312, yPosition, LabelTextScaleSmall, "0.0");
             AddLabel(parentPanel, xPosition + 375, yPosition, LabelTextScaleSmall, "25.5");
 
-            var disasterCount = _disasterHandler.container.DisasterList.Count;
+            var disasterCount = _disasterHandler.Container.DisasterList.Count;
             _disasterLabelNames = new UILabel[disasterCount];
             _disasterLabelCalculations = new UILabel[disasterCount];
             _disasterLabelMaxIntensity = new UILabel[disasterCount];
@@ -202,7 +200,7 @@ namespace NaturalDisastersRenewal.UI
             for (var i = 0; i < disasterCount; i++)
             {
                 //List of disasters
-                var disaster = _disasterHandler.container.DisasterList[i];
+                var disaster = _disasterHandler.Container.DisasterList[i];
 
                 // Create a button for each disaster to be enabled or disabled
                 _statusButtons[i] =
@@ -216,7 +214,7 @@ namespace NaturalDisastersRenewal.UI
                 //Set progress bar for probability
                 _progressBarsProbability[i] = AddProgressBar(parentPanel, xPosition + 212, yPosition);
                 _disasterLabelCalculations[i] = AddLabel(parentPanel, xPosition + 240, yPosition + 3, LabelTextScaleTiny,
-                    SetDisasterProbabilityLabelValue(disaster.GetDisasterProbability()));
+                    disaster.GetDisasterProbabilityPercentageValue());
                 SetProgressBarColor(_progressBarsProbability[i], _disasterLabelCalculations[i]);
 
                 //Set progress bar for max intensity
@@ -237,7 +235,7 @@ namespace NaturalDisastersRenewal.UI
             var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
             nfi.NumberGroupSeparator = ",";
 
-            var maxPopulationToTriggerDisaster = (int)_disasterHandler.container.MaxPopulationToTriggerHigherDisasters;
+            var maxPopulationToTriggerDisaster = (int)_disasterHandler.Container.MaxPopulationToTriggerHigherDisasters;
 
             var formatNumber = maxPopulationToTriggerDisaster.ToString("#,0", nfi);
 
@@ -636,7 +634,7 @@ namespace NaturalDisastersRenewal.UI
             if (dm != null) dm.EvacuateAll(true);
 
             // Iterate through all disasters and reset them
-            foreach (var disaster in diasterHandler.container.DisasterList)
+            foreach (var disaster in diasterHandler.Container.DisasterList)
             {
                 disaster.ResetDisasterProbabilities();
             }
@@ -703,7 +701,7 @@ namespace NaturalDisastersRenewal.UI
             var disasterHandler = CommonServices.DisasterHandler;
             if (disasterHandler != null)
             {
-                disasterHandler.container.ActiveDisasters.Clear();
+                disasterHandler.Container.ActiveDisasters.Clear();
             }
 
             disasterManager.EvacuateAll(true);
@@ -719,7 +717,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void disasterStateChk_eventCheckChanged(UIComponent component, UIMouseEventParameter eventParam)
         {
-            var disaster = _disasterHandler.container.DisasterList
+            var disaster = _disasterHandler.Container.DisasterList
                 .FirstOrDefault(dis => component.name.Contains(dis.GetName()));
 
             if (disaster == null) return;
@@ -728,31 +726,31 @@ namespace NaturalDisastersRenewal.UI
             switch (disaster.GetName())
             {
                 case CommonProperties.earthquakeName:
-                    _disasterHandler.container.Earthquake.IsDisasterEnabled = disaster.IsDisasterEnabled;
+                    _disasterHandler.Container.Earthquake.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.forestFireName:
-                    _disasterHandler.container.ForestFire.IsDisasterEnabled = disaster.IsDisasterEnabled;
+                    _disasterHandler.Container.ForestFire.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.meteorStrikeName:
-                    _disasterHandler.container.MeteorStrike.IsDisasterEnabled = disaster.IsDisasterEnabled;
+                    _disasterHandler.Container.MeteorStrike.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.sinkholeName:
-                    _disasterHandler.container.Sinkhole.IsDisasterEnabled = disaster.IsDisasterEnabled;
+                    _disasterHandler.Container.Sinkhole.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.thunderstormName:
-                    _disasterHandler.container.Thunderstorm.IsDisasterEnabled = disaster.IsDisasterEnabled;
+                    _disasterHandler.Container.Thunderstorm.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.tornadoName:
-                    _disasterHandler.container.Tornado.IsDisasterEnabled = disaster.IsDisasterEnabled;
+                    _disasterHandler.Container.Tornado.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
                 case CommonProperties.tsunamiName:
-                    _disasterHandler.container.Tsunami.IsDisasterEnabled = disaster.IsDisasterEnabled;
+                    _disasterHandler.Container.Tsunami.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
             }
 
@@ -761,11 +759,6 @@ namespace NaturalDisastersRenewal.UI
             if (icon != null) icon.spriteName = disaster.IsDisasterEnabled ? PauseSprite : PlaySprite;
 
             SettingsScreen.UpdateUISettingsOptions();
-        }
-
-        private static string SetDisasterProbabilityLabelValue(float disasterProbability)
-        {
-            return $"{disasterProbability * 100:0.##}%";
         }
 
         private static string SetMaxIntensityInfoLabel(float maxIntensity = 0)
