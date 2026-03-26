@@ -26,7 +26,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             IntensityWarmupDays = 0;
         }
 
-        public override string GetProbabilityTooltip()
+        public override string GetTooltipInformation()
         {
             if (!Unlocked)
             {
@@ -39,7 +39,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "Ground water level " + groundWaterPercent.ToString() + "%";
             }
 
-            return base.GetProbabilityTooltip();
+            return base.GetTooltipInformation();
         }
 
         protected override void OnSimulationFrameLocal()

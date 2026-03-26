@@ -79,61 +79,48 @@ namespace NaturalDisastersRenewal.UI
 
             var disasterCount = _disasterHandler.Container.DisasterList.Count;
 
-            // Simulation params for probability calculation
-            var simulation = SimulationManager.instance;
-            var dayDurationSeconds = simulation.m_timePerFrame.TotalSeconds * SimulationManager.DAYTIME_FRAMES;
-            const double hoursInGameDay = 24.0;
-            var secondsPerHour = dayDurationSeconds / hoursInGameDay;
-
             for (var i = 0; i < disasterCount; i++)
             {
                 var disaster = _disasterHandler.Container.DisasterList[i];
+                var disasterName = disaster.GetName();
+                var disasterEnabled = disaster.IsDisasterEnabled;
                 var maxIntensityCalculated = disaster.GetMaximumIntensity();
+                var button = _statusButtons[i];
+                var icon = button.components.OfType<UISprite>().FirstOrDefault();
+                var probabilityBar = _progressBarsProbability[i];
+                var intensityBar = _progressBarsMaxIntensity[i];
+                var probabilityLabel = _disasterLabelCalculations[i];
+                var intensityLabel = _disasterLabelMaxIntensity[i];
 
-                _statusButtons[i].isVisible = true;
+                button.isVisible = true;
 
-                if (disaster.IsDisasterEnabled)
+                if (icon)
+                    icon.spriteName = disasterEnabled ? PauseSprite : PlaySprite;
+
+                _disasterLabelNames[i].text = disasterEnabled ? disasterName : $"{disasterName} - Disabled";
+                probabilityLabel.text = disasterEnabled ? disaster.GetDisasterProbabilityPercentageValue() : string.Empty;
+                intensityLabel.text = disasterEnabled ? SetMaxIntensityInfoLabel(maxIntensityCalculated) : string.Empty;
+
+                if (disasterEnabled)
                 {
-                    var button = _statusButtons[i];
-                    var icon = button.components.OfType<UISprite>().FirstOrDefault();
+                    // Calculate probability
+                    probabilityBar.value = disaster.GetDisasterProbability();
+                    SetProgressBarColor(true, probabilityBar, probabilityLabel);
+                    probabilityBar.tooltip = disaster.GetTooltipInformation();
 
-                    if (icon)
-                        icon.spriteName = PauseSprite;
-
-                    _disasterLabelNames[i].text = disaster.GetName();
-                    _disasterLabelCalculations[i].text = disaster.GetDisasterProbabilityPercentageValue();
-                    _disasterLabelMaxIntensity[i].text = SetMaxIntensityInfoLabel(maxIntensityCalculated);
-
-                    //Calculate probability                    
-                    _progressBarsProbability[i].value = disaster.GetDisasterProbability();
-                    SetProgressBarColor(_progressBarsProbability[i], _disasterLabelCalculations[i]);
-                    _progressBarsProbability[i].tooltip = disaster.GetProbabilityTooltip();
-
-                    //Calculate intensity
+                    // Calculate intensity
                     const float maxIntensity = 255f;
-                    var progressBarCalculatedValue = maxIntensityCalculated * (1 / maxIntensity);
-
-                    _progressBarsMaxIntensity[i].value = progressBarCalculatedValue;
-                    SetProgressBarColor(_progressBarsMaxIntensity[i], _disasterLabelMaxIntensity[i]);
-                    _progressBarsMaxIntensity[i].tooltip =
-                        disaster.GetIntensityTooltip(_progressBarsMaxIntensity[i].value);
+                    intensityBar.value = maxIntensityCalculated / maxIntensity;
+                    SetProgressBarColor(true, intensityBar, intensityLabel);
+                    intensityBar.tooltip = disaster.GetIntensityTooltip(intensityBar.value);
                 }
                 else
                 {
-                    var button = _statusButtons[i];
-                    var icon = button.components.OfType<UISprite>().FirstOrDefault();
+                    probabilityBar.tooltip = string.Empty;
+                    intensityBar.tooltip = string.Empty;
 
-                    if (icon)
-                        icon.spriteName = PlaySprite;
-
-                    _disasterLabelNames[i].text = $"{disaster.GetName()} - Disabled";
-                    _disasterLabelCalculations[i].text = string.Empty;
-                    _disasterLabelMaxIntensity[i].text = string.Empty;
-                    
-                    _progressBarsProbability[i].value = 0;
-                    _progressBarsProbability[i].progressColor = Color.black;
-                    _progressBarsMaxIntensity[i].value = 0;
-                    _progressBarsMaxIntensity[i].progressColor = Color.black;
+                    SetProgressBarColor(false, probabilityBar, probabilityLabel);
+                    SetProgressBarColor(false, intensityBar, intensityLabel);
                 }
             }
 
@@ -215,13 +202,13 @@ namespace NaturalDisastersRenewal.UI
                 _progressBarsProbability[i] = AddProgressBar(parentPanel, xPosition + 212, yPosition);
                 _disasterLabelCalculations[i] = AddLabel(parentPanel, xPosition + 240, yPosition + 3, LabelTextScaleTiny,
                     disaster.GetDisasterProbabilityPercentageValue());
-                SetProgressBarColor(_progressBarsProbability[i], _disasterLabelCalculations[i]);
+                SetProgressBarColor(disaster.IsDisasterEnabled, _progressBarsProbability[i], _disasterLabelCalculations[i]);
 
                 //Set progress bar for max intensity
                 _progressBarsMaxIntensity[i] = AddProgressBar(parentPanel, xPosition + 312, yPosition);
                 _disasterLabelMaxIntensity[i] = AddLabel(parentPanel, xPosition + 350, yPosition + 3, LabelTextScaleTiny,
                     SetMaxIntensityInfoLabel());
-                SetProgressBarColor(_progressBarsMaxIntensity[i], _disasterLabelMaxIntensity[i]);
+                SetProgressBarColor(disaster.IsDisasterEnabled, _progressBarsMaxIntensity[i], _disasterLabelMaxIntensity[i]);
 
                 yPosition += itemSpacing;
             }
@@ -282,7 +269,6 @@ namespace NaturalDisastersRenewal.UI
 
             var radioGroup = parentPanel.AddUIComponent<UIPanel>();
             radioGroup.relativePosition = new Vector3(20, yPosition);
-            // radioGroup.relativePosition = new Vector3(20, 240); // Use for scroll functionality checking prurpose 
             radioGroup.size = new Vector2(350, 60);
             radioGroup.backgroundSprite = "SubcategoriesPanel";
             radioGroup.name = "radioGroup";
@@ -391,10 +377,10 @@ namespace NaturalDisastersRenewal.UI
             ShowHelpPanel();
         }
 
-        private void ShowHelpPanel()
+        private static void ShowHelpPanel()
         {
             //TODO: Implement the help panel with information about the mod
-            // * Set a scrolling barr For this panel,
+            // * Set a scrolling bar For this panel,
             // * Split panel in two parts, one for the title and the other for the content
             // * replace content to english 
 
@@ -798,15 +784,24 @@ namespace NaturalDisastersRenewal.UI
             return progressBar;
         }
 
-        private static void SetProgressBarColor(UIProgressBar progressBar, UILabel uiLabel)
+        private static void SetProgressBarColor(bool isDisasterEnabled, UIProgressBar progressBar, UILabel uiLabel)
         {
-            var progressBarValue = progressBar.value;
-            var progressColor = new Color(2.0f * progressBarValue, 2.0f * (1 - progressBarValue), 0);
-            progressBar.progressColor = progressColor;
+            if (isDisasterEnabled)
+            {
+                var progressBarValue = progressBar.value;
+                var progressColor = new Color(2.0f * progressBarValue, 2.0f * (1 - progressBarValue), 0);
+                progressBar.progressColor = progressColor;
 
-            // Set label color according to progress bar position:
-            // If percentage is over 33% then use black, otherwise use white
-            uiLabel.textColor = progressBarValue > 0.33 ? Color.black : Color.white;
+                // Set label color according to progress bar position:
+                // If percentage is over 33% then use blue, otherwise use white
+                uiLabel.textColor = progressBarValue > 0.33 ? Color.blue : Color.white;
+            }
+            else
+            {
+                progressBar.value = 0;
+                progressBar.progressColor = Color.black;
+            }
+            
         }
     }
 }

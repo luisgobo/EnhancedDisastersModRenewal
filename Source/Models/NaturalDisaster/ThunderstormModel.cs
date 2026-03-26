@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
@@ -28,21 +27,21 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
 
-        public override string GetProbabilityTooltip()
+        public override string GetTooltipInformation()
         {
             if (!Unlocked)
             {
                 return "Not Unlocked yet (occurs only outside of your area).";
             }
 
-            if (!(CalmDaysLeft <= 0)) return base.GetProbabilityTooltip();
-            
-            if (CommonServices.Weather.m_currentRain > 0 && RainFactor > 1)
+            if (!(CalmDaysLeft <= 0)) return base.GetTooltipInformation();
+
+            if (IsRainActive() && RainFactor > 1)
             {
                 return "Increased because of rain.";
             }
 
-            return base.GetProbabilityTooltip();
+            return base.GetTooltipInformation();
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()
@@ -53,13 +52,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             float occurence = base.GetCurrentOccurrencePerYearLocal() * (1f - delta_month / 6f);
 
-            WeatherManager wm = Singleton<WeatherManager>.instance;
-            if (wm.m_currentRain > 0)
+            if (IsRainActive())
             {
                 occurence *= RainFactor;
             }
 
             return occurence;
+        }
+
+        private static bool IsRainActive()
+        {
+            var weatherManager = CommonServices.Weather;
+            return weatherManager is not null && (weatherManager.m_currentRain > 0.01f || weatherManager.m_targetRain > 0.01f);
         }
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
@@ -92,7 +96,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override bool CheckDisasterAIType(object disasterAI)
         {
-            return disasterAI as ThunderStormAI != null;
+            return (disasterAI as ThunderStormAI) is not null;
         }
 
         public override string GetName()

@@ -270,7 +270,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             Unlocked = true;
         }
 
-        public virtual string GetProbabilityTooltip()
+        public virtual string GetTooltipInformation()
         {
             if (!Unlocked)
             {
@@ -287,10 +287,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "Decreased because " + GetName() + " occured recently.";
             }
 
-            return $"Probability: {GetDisasterProbabilityPercentageValue()}%";
+            return $"Probability: {GetDisasterProbabilityPercentageValue()}";
         }
 
-        public virtual string GetIntensityTooltip(float value)
+        public virtual string GetIntensityTooltip(float maxDisasterIntensity)
         {
             if (!Unlocked)
             {
@@ -302,7 +302,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "No " + GetName() + " for another " + Helper.FormatTimeSpan(CalmDaysLeft);
             }
 
-            var result = $"Intensity: {value * 25.5:#.##}";
+            var result = $"Intensity: {maxDisasterIntensity * 25.5:#.##}";
 
             if (ProbabilityWarmupDaysLeft > 0)
             {
@@ -310,11 +310,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
 
             var naturalDisasterSetup = CommonServices.DisasterSetup;
-            if (Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
-            {
-                if (result != "") result += CommonProperties.NewLine;
-                result += "Decreased because of low population.";
-            }
+
+            if (!(Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)) return result;
+
+            if (result != "") result += CommonProperties.NewLine;
+            result += "Decreased because of low population.";
 
             return result;
         }
@@ -559,8 +559,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         }
         public virtual void OnDisasterStarted(byte intensity)
         {
-            float framesPerDay = Helper.FramesPerDay;
-
             CalmDaysLeft = CalmDays * intensity / 100; // TO DO: May be defined the minimum CalmDays
             ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
             IntensityWarmupDaysLeft = IntensityWarmupDays;

@@ -288,7 +288,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return CommonProperties.meteorStrikeName;
         }
 
-        public override string GetProbabilityTooltip()
+        public override string GetTooltipInformation()
         {
             if (!Unlocked)
             {

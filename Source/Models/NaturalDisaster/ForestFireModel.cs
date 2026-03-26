@@ -181,7 +181,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             activeDisasters.Add(disasterInfoModel);
         }
 
-        public override string GetProbabilityTooltip()
+        public override string GetTooltipInformation()
         {
             var tooltip = "";
 
@@ -190,7 +190,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 tooltip = "Not Unlocked yet (occurs only outside of your area)." + Environment.NewLine;
             }
 
-            if (CalmDaysLeft != 0) return base.GetProbabilityTooltip();
+            if (CalmDaysLeft != 0) return base.GetTooltipInformation();
 
             if (NoRainDays <= 0)
             {
