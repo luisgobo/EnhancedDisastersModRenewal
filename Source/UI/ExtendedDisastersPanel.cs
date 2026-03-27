@@ -4,6 +4,8 @@ using System.Text;
 using ColossalFramework.UI;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
+using NaturalDisastersRenewal.UI.ComponentHelper;
 using UnityEngine;
 using UnityEngine.Serialization;
 using CommonServices = NaturalDisastersRenewal.Common.Services;
@@ -12,37 +14,24 @@ namespace NaturalDisastersRenewal.UI
 {
     public class ExtendedDisastersPanel : UIPanel
     {
-        private const string PauseSprite = "ButtonPause";
-        private const string PlaySprite = "ButtonPlayFocused";
-        private const float LabelTextScaleTiny = 0.6f;
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
 
-        private static readonly Color32 TextColorProgressBarLower = new (22, 22, 24, 1);
-        private static readonly Color32 TextColorProgressBarHigher = new (255, 255, 255, 1);
-
-        private const float PanelWidth = 434f;
-        private const float PanelHeight = 320f;
+        private const float PanelWidth = 414f;
+        private const float PanelHeight = 326f;
 
         [FormerlySerializedAs("Counter")] public int counter;
         private readonly NaturalDisasterHandler _disasterHandler = CommonServices.DisasterHandler;
         private uint _dayTimeframes;
         private uint _dayTimeOffsetFrames;
 
-        private UILabel[] _disasterLabelCalculations;
-        private UILabel[] _disasterLabelMaxIntensity;
-
-        private UILabel[] _disasterLabelNames;
-
+        private DisasterRowHelper[] _disasterRows;
         private UILabel _populationLabel;
-        private UIProgressBar[] _progressBarsMaxIntensity;
-        private UIProgressBar[] _progressBarsProbability;
         private UILabel _realTimeDayTimeFramesLabel;
         private UILabel _realTimeDayTimeOffsetFramesLabel;
         private UILabel _realTimeStatusLabel;
         private UILabel _realTimeTimeOffsetTicksLabel;
         private UIPanel _selectedRadioPanel;
-        private UIButton[] _statusButtons;
 
         private bool _realTimeStatus;
         private long _timeOffsetTicks;
@@ -84,47 +73,7 @@ namespace NaturalDisastersRenewal.UI
 
             for (var i = 0; i < disasterCount; i++)
             {
-                var disaster = _disasterHandler.Container.DisasterList[i];
-                var disasterName = disaster.GetName();
-                var disasterEnabled = disaster.IsDisasterEnabled;
-                var maxIntensityCalculated = disaster.GetMaximumIntensity();
-                var button = _statusButtons[i];
-                var icon = button.components.OfType<UISprite>().FirstOrDefault();
-                var probabilityBar = _progressBarsProbability[i];
-                var intensityBar = _progressBarsMaxIntensity[i];
-                var probabilityLabel = _disasterLabelCalculations[i];
-                var intensityLabel = _disasterLabelMaxIntensity[i];
-
-                button.isVisible = true;
-
-                if (icon)
-                    icon.spriteName = disasterEnabled ? PauseSprite : PlaySprite;
-
-                _disasterLabelNames[i].text = disasterEnabled ? disasterName : $"{disasterName} - Disabled";
-                probabilityLabel.text = disasterEnabled ? disaster.GetDisasterProbabilityPercentageValue() : string.Empty;
-                intensityLabel.text = disasterEnabled ? SetMaxIntensityInfoLabel(maxIntensityCalculated) : string.Empty;
-
-                if (disasterEnabled)
-                {
-                    // Calculate probability
-                    probabilityBar.value = disaster.GetDisasterProbability();
-                    SetProgressBarColor(true, probabilityBar, probabilityLabel);
-                    probabilityBar.tooltip = disaster.GetTooltipInformation();
-
-                    // Calculate intensity
-                    const float maxIntensity = 255f;
-                    intensityBar.value = maxIntensityCalculated / maxIntensity;
-                    SetProgressBarColor(true, intensityBar, intensityLabel);
-                    intensityBar.tooltip = disaster.GetIntensityTooltip(intensityBar.value);
-                }
-                else
-                {
-                    probabilityBar.tooltip = string.Empty;
-                    intensityBar.tooltip = string.Empty;
-
-                    SetProgressBarColor(false, probabilityBar, probabilityLabel);
-                    SetProgressBarColor(false, intensityBar, intensityLabel);
-                }
+                _disasterRows[i].Refresh();
             }
 
             GetRealTimeModValues();
@@ -135,83 +84,48 @@ namespace NaturalDisastersRenewal.UI
             _realTimeDayTimeOffsetFramesLabel.text = $"Day-Time Offset Frames: {_dayTimeOffsetFrames}";
         }
 
-        private static UIButton CreateTab(UITabstrip tabStrip, string title, float xPosition)
-        {
-            var tab = tabStrip.AddTab(title);
-            tab.width = 100;
-            tab.height = 30;
-            tab.normalBgSprite = "SubBarButtonBase";
-            tab.hoveredBgSprite = "SubBarButtonBaseHovered";
-            tab.pressedBgSprite = "SubBarButtonBasePressed";
-            tab.focusedBgSprite = "SubBarButtonBaseFocused";
-            tab.textColor = Color.white;
-            tab.focusedTextColor = Color.yellow;
-            tab.hoveredTextColor = Color.cyan;
-            tab.pressedTextColor = Color.gray;
-            tab.relativePosition = new Vector2(xPosition, 40);
-            return tab;
-        }
-
         private void BuildStatisticsInfoTabContent(UIScrollablePanel parentPanel)
         {
             const float itemSpacing = 22f;
-            const float xPosition = 10f;
+            const float xPosition = 1f;
             var yPosition = 10f;
+            var probabilityBarStartX = xPosition + DisasterRowHelper.probabilityBarX;
+            var probabilityBarCenterX = probabilityBarStartX + DisasterRowHelper.barWidth * 0.5f;
+            var probabilityBarEndX = probabilityBarStartX + DisasterRowHelper.barWidth;
+            var intensityBarStartX = xPosition + DisasterRowHelper.intensityBarX;
+            var intensityBarCenterX = intensityBarStartX + DisasterRowHelper.barWidth * 0.5f;
+            var intensityBarEndX = intensityBarStartX + DisasterRowHelper.barWidth;
 
             _populationLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal, "");
 
             DefineMinPopulationLabelContent();
 
             yPosition += 22;
-            AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleSmall, "Disaster", "Disaster name");
+            //TODO Adjust this label
+            AddLabel(parentPanel, xPosition + 32f, yPosition, LabelTextScaleSmall, "Disaster", "Disaster name");
 
-            //Add Axis titles
-            AddLabel(parentPanel, xPosition + 212f, yPosition, LabelTextScaleSmall, "Probability %");
-            AddLabel(parentPanel, xPosition + 312f, yPosition, LabelTextScaleSmall, "Max intensity");
+            AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition, LabelTextScaleSmall, "Probability %");
+            AddCenteredLabel(parentPanel, intensityBarCenterX, yPosition, LabelTextScaleSmall, "Max intensity");
 
-            //Add Axis Labels
             yPosition += 15;
-            AddLabel(parentPanel, xPosition + 210, yPosition, LabelTextScaleSmall, "1");
-            AddLabel(parentPanel, xPosition + 246, yPosition, LabelTextScaleSmall, "50");
-            AddLabel(parentPanel, xPosition + 281, yPosition, LabelTextScaleSmall, "100");
-            AddLabel(parentPanel, xPosition + 312, yPosition, LabelTextScaleSmall, "0.0");
-            AddLabel(parentPanel, xPosition + 375, yPosition, LabelTextScaleSmall, "25.5");
+            AddCenteredLabel(parentPanel, probabilityBarStartX + 2f, yPosition, LabelTextScaleSmall, "1");
+            AddCenteredLabel(parentPanel, probabilityBarCenterX, yPosition, LabelTextScaleSmall, "50");
+            AddCenteredLabel(parentPanel, probabilityBarEndX - 10f, yPosition, LabelTextScaleSmall, "100");
+            AddCenteredLabel(parentPanel, intensityBarStartX + 10f, yPosition, LabelTextScaleSmall, "0.0");
+            AddCenteredLabel(parentPanel, intensityBarEndX - 13f, yPosition, LabelTextScaleSmall, "25.5");
 
             var disasterCount = _disasterHandler.Container.DisasterList.Count;
-            _disasterLabelNames = new UILabel[disasterCount];
-            _disasterLabelCalculations = new UILabel[disasterCount];
-            _disasterLabelMaxIntensity = new UILabel[disasterCount];
-            _statusButtons = new UIButton[disasterCount];
-            _progressBarsProbability = new UIProgressBar[disasterCount];
-            _progressBarsMaxIntensity = new UIProgressBar[disasterCount];
+            _disasterRows = new DisasterRowHelper[disasterCount];
 
             //Add each statistic item to the Panel
-            yPosition += 15;
+            yPosition += 20;
             for (var i = 0; i < disasterCount; i++)
             {
-                //List of disasters
                 var disaster = _disasterHandler.Container.DisasterList[i];
-
-                // Create a button for each disaster to be enabled or disabled
-                _statusButtons[i] =
-                    BuildDisasterStatusButton(parentPanel, xPosition, yPosition, disaster.GetName(),
-                        disaster.IsDisasterEnabled);
-
-                //Show disaster name
-                _disasterLabelNames[i] = AddLabel(parentPanel, xPosition + 26, yPosition, LabelTextScaleNormal,
-                    disaster.GetName());
-                
-                //Set progress bar for probability
-                _progressBarsProbability[i] = AddProgressBar(parentPanel, xPosition + 212, yPosition);
-                _disasterLabelCalculations[i] = AddLabel(parentPanel, xPosition + 240, yPosition + 3, LabelTextScaleTiny,
-                    disaster.GetDisasterProbabilityPercentageValue());
-                SetProgressBarColor(disaster.IsDisasterEnabled, _progressBarsProbability[i], _disasterLabelCalculations[i]);
-
-                //Set progress bar for max intensity
-                _progressBarsMaxIntensity[i] = AddProgressBar(parentPanel, xPosition + 312, yPosition);
-                _disasterLabelMaxIntensity[i] = AddLabel(parentPanel, xPosition + 350, yPosition + 3, LabelTextScaleTiny,
-                    SetMaxIntensityInfoLabel());
-                SetProgressBarColor(disaster.IsDisasterEnabled, _progressBarsMaxIntensity[i], _disasterLabelMaxIntensity[i]);
+                var disasterRow = parentPanel.AddUIComponent<DisasterRowHelper>();
+                disasterRow.Initialize(disaster, xPosition, yPosition, ToggleDisasterState);
+                disasterRow.Refresh();
+                _disasterRows[i] = disasterRow;
 
                 yPosition += itemSpacing;
             }
@@ -229,7 +143,7 @@ namespace NaturalDisastersRenewal.UI
 
             var formatNumber = maxPopulationToTriggerDisaster.ToString("#,0", nfi);
 
-            _populationLabel.text = $"Min. Population: {formatNumber} Cims to trigger strongest disasters.";
+            _populationLabel.text = $"Min. Population for strongest disasters: {formatNumber}.";
             _populationLabel.tooltip = "Minimum population to trigger higher disasters";
         }
 
@@ -345,34 +259,24 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildPanelButtons(UIPanel parentPanel)
         {
-            //Help button
-            var helpBtn = parentPanel.AddUIComponent<UIButton>();
-            helpBtn.relativePosition = new Vector3(PanelWidth - 70f, 8f);
-            helpBtn.size = new Vector2(25, 25);
-            helpBtn.normalBgSprite = "OptionBase";
-            helpBtn.hoveredBgSprite = "OptionBaseHovered";
-            helpBtn.pressedBgSprite = "OptionBasePressed";
-            helpBtn.focusedColor = Color.white;
-            helpBtn.textColor = Color.white;
-            helpBtn.focusedTextColor = Color.black;
-            helpBtn.text = "?";
-            helpBtn.textPadding = new RectOffset(1, 0, 5, 0);
-            helpBtn.tooltip = "Help about Natural Disaster Renewal";
-            helpBtn.eventClick += HelpBtn_eventClick;
+            ActionButtonHelper.CreateTextButton(
+                parentPanel,
+                "helpBtn",
+                "?",
+                new Vector3(PanelWidth - 70f, 8f),
+                new Vector2(25f, 25f),
+                "Help about Natural Disaster Renewal",
+                clickHandler:HelpBtn_eventClick,
+                textPadding:new RectOffset(1, 0, 5, 0));
 
-            //Close button
-            var closeBtn = parentPanel.AddUIComponent<UIButton>();
-            closeBtn.relativePosition = new Vector3(PanelWidth - 35f, 8f);
-            closeBtn.size = new Vector2(25, 25);
-            closeBtn.normalBgSprite = "OptionBase";
-            closeBtn.hoveredBgSprite = "OptionBaseHovered";
-            closeBtn.pressedBgSprite = "OptionBasePressed";
-            closeBtn.focusedColor = Color.white;
-            closeBtn.textColor = Color.white;
-            closeBtn.focusedTextColor = Color.black;
-            closeBtn.text = "X";
-            closeBtn.textPadding = new RectOffset(2, 0, 5, 0);
-            closeBtn.eventClick += ClosePanelBtn_eventClick;
+            ActionButtonHelper.CreateTextButton(
+                parentPanel,
+                "closeBtn",
+                "X",
+                new Vector3(PanelWidth - 35f, 8f),
+                new Vector2(25f, 25f),
+                clickHandler:ClosePanelBtn_eventClick,
+                textPadding:new RectOffset(2, 0, 5, 0));
         }
 
         private void HelpBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -399,7 +303,7 @@ namespace NaturalDisastersRenewal.UI
 
             // Título
             var title = helpPanel.AddUIComponent<UILabel>();
-            title.text = "Ayuda - Natural Disasters Renewal";
+            title.text = "Help - Natural Disasters Renewal";
             title.textScale = 1.2f;
             title.relativePosition = new Vector3(10, 10);
             title.textColor = Color.white;
@@ -459,137 +363,54 @@ namespace NaturalDisastersRenewal.UI
             tabStrip.backgroundSprite = "SubcategoriesPanel";
             tabStrip.tabPages = tabContainer;
 
-            var statisticsTab = CreateTab(tabStrip, "Statistics", 0);
-            CreateTab(tabStrip, "Settings", statisticsTab.width);
+            var statisticsTab = TabHelper.CreateStyledTab(tabStrip, "Statistics", 0f);
+            TabHelper.CreateStyledTab(tabStrip, "Settings", statisticsTab.width);
 
             if (tabContainer.components.Count < 2) return;
             const float yPosition = 10f;
 
             // Tab 1: Statistics
             var statisticsTabPanel = tabContainer.components[0] as UIPanel;
-            var statisticsScrollablePanel = ConfigureScrollablePanelWithScrollbar(
-                statisticsTabPanel,
-                yPosition
-            );
+            var statisticsScrollablePanel = ScrollablePanelHelper.Create(statisticsTabPanel, yPosition);
 
             BuildStatisticsInfoTabContent(statisticsScrollablePanel);
             if (statisticsTabPanel != null) statisticsTabPanel.isVisible = true;
 
             // Tab 2: Settings
             var settingsTabPanel = tabContainer.components[1] as UIPanel;
-            var settingsScrollablePanel = ConfigureScrollablePanelWithScrollbar(
-                settingsTabPanel,
-                yPosition
-            );
+            var settingsScrollablePanel = ScrollablePanelHelper.Create(settingsTabPanel, yPosition);
 
             BuildSettingsTabContent(settingsScrollablePanel);
             if (settingsTabPanel != null) settingsTabPanel.isVisible = false;
         }
 
-        private static UIScrollablePanel ConfigureScrollablePanelWithScrollbar(
-            UIPanel tabPanel,
-            float yPosition
-        )
-        {
-            var scrollablePanel = tabPanel.AddUIComponent<UIScrollablePanel>();
-            var scrollbar = tabPanel.AddUIComponent<UIScrollbar>();
-            var track = scrollbar.AddUIComponent<UISlicedSprite>();
-            var thumb = track.AddUIComponent<UISlicedSprite>();
-
-            scrollablePanel.size = new Vector2(tabPanel.width - 12f, tabPanel.height - 20f);
-            scrollablePanel.relativePosition = new Vector2(10f, yPosition);
-            scrollablePanel.height = tabPanel.height - 40f;
-            scrollablePanel.autoLayout = false;
-            scrollablePanel.clipChildren = true;
-            scrollablePanel.scrollWheelAmount = 20;
-            
-            scrollbar.orientation = UIOrientation.Vertical;
-            scrollbar.width = 12f;
-            scrollbar.relativePosition = new Vector2(tabPanel.width - 12f, yPosition);
-            scrollbar.height = tabPanel.height - 20f;
-
-            track.spriteName = "ScrollbarTrack";
-            track.size = new Vector2(12f, tabPanel.height - 20f);
-            track.relativePosition = new Vector2(0, -10);
-            scrollbar.trackObject = track;
-
-            thumb.spriteName = "ScrollbarThumb";
-            thumb.height = 10f;
-            scrollbar.thumbObject = thumb;
-
-            scrollablePanel.verticalScrollbar = scrollbar;
-
-            scrollablePanel.eventMouseWheel += (component, eventParam) =>
-            {
-                scrollablePanel.scrollPosition +=
-                    new Vector2(0, -eventParam.wheelDelta * scrollablePanel.scrollWheelAmount);
-            };
-
-            return scrollablePanel;
-        }
-
-        private UIButton BuildDisasterStatusButton(UIComponent parentPanel, float xPosition, float yPosition,
-            string disasterName,
-            bool isDisasterEnabled)
-        {
-            var disasterStateBtn = parentPanel.AddUIComponent<UIButton>();
-            disasterStateBtn.name = $"disasterState{disasterName}Btn";
-            disasterStateBtn.relativePosition = new Vector3(xPosition, yPosition - 4f);
-            disasterStateBtn.size = new Vector2(18, 18);
-            disasterStateBtn.normalBgSprite = "ButtonMenu";
-            disasterStateBtn.hoveredBgSprite = "ButtonMenuHovered";
-
-            var icon = disasterStateBtn.AddUIComponent<UISprite>();
-            icon.spriteName = isDisasterEnabled ? PauseSprite : PlaySprite;
-            icon.size = new Vector2(12, 12);
-            icon.relativePosition = new Vector2(3, 3);
-
-            disasterStateBtn.eventClick += disasterStateChk_eventCheckChanged;
-
-            return disasterStateBtn;
-        }
-
         private void BuildStopDisasterButton(UIComponent parentPanel, float xPosition, float yPosition)
         {
-            // Stop Button
-            var stopAllDisastersBtn = parentPanel.AddUIComponent<UIButton>();
-            stopAllDisastersBtn.name = "stopDisasterBtn";
-            stopAllDisastersBtn.relativePosition = new Vector3(xPosition, yPosition - 5);
-            stopAllDisastersBtn.size = new Vector2(18, 18);
-            stopAllDisastersBtn.focusedColor = Color.red;
-            stopAllDisastersBtn.textColor = Color.red;
-            stopAllDisastersBtn.focusedTextColor = Color.red;
-            stopAllDisastersBtn.text = "■";
-            stopAllDisastersBtn.normalBgSprite = "ButtonMenu";
-            stopAllDisastersBtn.hoveredBgSprite = "ButtonMenuHovered";
-            stopAllDisastersBtn.eventClick += StopAllDisastersBtn_eventClick;
+            ActionButtonHelper.CreateTextButton(
+                parentPanel,
+                "stopDisasterBtn",
+                "■",
+                new Vector3(xPosition, yPosition - 5),
+                new Vector2(18f, 18f),
+                textColor:Color.red,
+                clickHandler:StopAllDisastersBtn_eventClick,
+                normalBgSprite:"ButtonMenu",
+                hoveredBgSprite:"ButtonMenuHovered",
+                pressedBgSprite:"ButtonMenuHovered",
+                tooltip:"Stop all disasters");
 
-            var stopAllDisastersLabel = parentPanel.AddUIComponent<UILabel>();
-            stopAllDisastersLabel.name = "bigRedBtnLabel";
-            stopAllDisastersLabel.relativePosition = new Vector3(xPosition + 25, yPosition - 5);
-            stopAllDisastersLabel.size = new Vector2(width - 30, 20);
-            stopAllDisastersLabel.textColor = Color.white;
-            stopAllDisastersLabel.text = "← Stop all disasters";
-
-            // Reset Button
-            var resetAllDisastersBtn = parentPanel.AddUIComponent<UIButton>();
-            resetAllDisastersBtn.name = "resetDisasterBtn";
-            resetAllDisastersBtn.relativePosition = new Vector3(xPosition + 200, yPosition - 5);
-            resetAllDisastersBtn.size = new Vector2(18, 18);
-            resetAllDisastersBtn.focusedColor = Color.yellow;
-            resetAllDisastersBtn.textColor = Color.yellow;
-            resetAllDisastersBtn.focusedTextColor = Color.yellow;
-            resetAllDisastersBtn.text = "↺";
-            resetAllDisastersBtn.normalBgSprite = "ButtonMenu";
-            resetAllDisastersBtn.hoveredBgSprite = "ButtonMenuHovered";
-            resetAllDisastersBtn.eventClick += ResetAllDisastersBtn_eventClick;
-
-            var resetAllDisastersLabel = parentPanel.AddUIComponent<UILabel>();
-            resetAllDisastersLabel.name = "resetBtnLabel";
-            resetAllDisastersLabel.relativePosition = new Vector3(xPosition + 225, yPosition - 5);
-            resetAllDisastersLabel.size = new Vector2(width - 30, 20);
-            resetAllDisastersLabel.textColor = Color.white;
-            resetAllDisastersLabel.text = "← Reset all disasters ";
+            ActionButtonHelper.CreateTextButton(
+                parentPanel,
+                "resetDisasterBtn",
+                "↺",
+                new Vector3(xPosition + 22, yPosition - 5),
+                new Vector2(18f, 18f),
+                textColor:Color.yellow,
+                clickHandler:ResetAllDisastersBtn_eventClick,
+                normalBgSprite:"ButtonMenu",
+                hoveredBgSprite:"ButtonMenuHovered",
+                pressedBgSprite:"ButtonMenuHovered",
+                tooltip:"Reset all disasters to default probabilities and intensities");
         }
 
         private static void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -704,13 +525,8 @@ namespace NaturalDisastersRenewal.UI
             Hide();
         }
 
-        private void disasterStateChk_eventCheckChanged(UIComponent component, UIMouseEventParameter eventParam)
+        private void ToggleDisasterState(DisasterBaseModel disaster)
         {
-            var disaster = _disasterHandler.Container.DisasterList
-                .FirstOrDefault(dis => component.name.Contains(dis.GetName()));
-
-            if (disaster == null) return;
-
             disaster.IsDisasterEnabled = !disaster.IsDisasterEnabled;
             switch (disaster.GetName())
             {
@@ -743,16 +559,15 @@ namespace NaturalDisastersRenewal.UI
                     break;
             }
 
-            var button = (UIButton)component;
-            var icon = button.components.OfType<UISprite>().FirstOrDefault();
-            if (icon != null) icon.spriteName = disaster.IsDisasterEnabled ? PauseSprite : PlaySprite;
+            if (_disasterRows != null)
+            {
+                foreach (var disasterRow in _disasterRows)
+                {
+                    disasterRow.Refresh();
+                }
+            }
 
             SettingsScreen.UpdateUISettingsOptions();
-        }
-
-        private static string SetMaxIntensityInfoLabel(float maxIntensity = 0)
-        {
-            return $"{maxIntensity / 10:0.0}";
         }
 
         private static bool IsStoppableDisaster(DisasterAI ai)
@@ -775,36 +590,13 @@ namespace NaturalDisastersRenewal.UI
             return label;
         }
 
-        private static UIProgressBar AddProgressBar(UIComponent parentPanel, float x, float y)
+        private static UILabel AddCenteredLabel(UIComponent parentPanel, float centerX, float y, float textScale,
+            string text, string tooltipText = "")
         {
-            var progressBar = parentPanel.AddUIComponent<UIProgressBar>();
-            progressBar.backgroundSprite = "LevelBarBackground";
-            progressBar.progressSprite = "LevelBarForeground";
-            progressBar.progressColor = Color.red;
-            progressBar.relativePosition = new Vector3(x, y);
-            progressBar.width = 90;
-            progressBar.value = 0.5f;
-            return progressBar;
-        }
-
-        private static void SetProgressBarColor(bool isDisasterEnabled, UIProgressBar progressBar, UILabel uiLabel)
-        {
-            if (isDisasterEnabled)
-            {
-                var progressBarValue = progressBar.value;
-                var progressColor = new Color(2.0f * progressBarValue, 2.0f * (1 - progressBarValue), 0);
-                progressBar.progressColor = progressColor;
-
-                // Set label color according to progress bar position:
-                // If percentage is over 33% then use blue, otherwise use white
-                uiLabel.textColor = progressBarValue > 0.33 ? TextColorProgressBarLower : TextColorProgressBarHigher;
-            }
-            else
-            {
-                progressBar.value = 0;
-                progressBar.progressColor = Color.black;
-            }
-            
+            var label = AddLabel(parentPanel, 0f, y, textScale, text, tooltipText);
+            // label.PerformLayout();
+            label.relativePosition = new Vector3(centerX - label.width * 0.5f, y);
+            return label;
         }
     }
 }

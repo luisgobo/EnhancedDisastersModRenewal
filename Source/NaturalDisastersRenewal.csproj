@@ -95,8 +95,11 @@
     <Compile Include="Models\NaturalDisaster\ThunderstormModel.cs" />
     <Compile Include="Models\NaturalDisaster\TornadoModel.cs" />
     <Compile Include="Models\NaturalDisaster\TsunamiModel.cs" />
+    <Compile Include="UI\ComponentHelper\ActionButtonHelper.cs" />
+    <Compile Include="UI\ComponentHelper\DisasterRowHelper.cs" />
     <Compile Include="UI\ComponentHelper\LabelHelper.cs" />
       <Compile Include="UI\ComponentHelper\ProgressBarHelper.cs"/>
+    <Compile Include="UI\ComponentHelper\ScrollablePanelHelper.cs" />
     <Compile Include="UI\ComponentHelper\TabHelper.cs" />
     <Compile Include="UI\ExtendedDisastersPanel.cs" />
     <Compile Include="Common\Helper.cs" />

@@ -8,6 +8,23 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         private const float V_SCROLLBAR_WIDTH = 16f;
         private const float TAB_STRIP_HEIGHT = 40f;
 
+        public static UIButton CreateStyledTab(UITabstrip tabStrip, string title, float xPosition)
+        {
+            var tab = tabStrip.AddTab(title);
+            tab.width = 100f;
+            tab.height = 30f;
+            tab.normalBgSprite = "SubBarButtonBase";
+            tab.hoveredBgSprite = "SubBarButtonBaseHovered";
+            tab.pressedBgSprite = "SubBarButtonBasePressed";
+            tab.focusedBgSprite = "SubBarButtonBaseFocused";
+            tab.textColor = Color.white;
+            tab.focusedTextColor = Color.yellow;
+            tab.hoveredTextColor = Color.cyan;
+            tab.pressedTextColor = Color.gray;
+            tab.relativePosition = new Vector2(xPosition, 40f);
+            return tab;
+        }
+
         private UIScrollbar CreateVerticalScrollbar(UIPanel panel, UIScrollablePanel scrollablePanel)
         {
             var verticalScrollbar = panel.AddUIComponent<UIScrollbar>();
