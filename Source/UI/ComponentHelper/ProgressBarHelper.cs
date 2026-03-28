@@ -6,8 +6,6 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
     public sealed class ProgressBarHelper : UIPanel
     {
         private static readonly Color32 DisabledColor = new (0, 0, 0, 255);
-
-        // private static readonly Color32 LowerTextColor = new (85, 85, 100, 255);
         private static readonly Color32 LowerTextColor = new (40, 42, 43, 255);
         private static readonly Color32 HigherTextColor = new (255, 255, 255, 255);
 
@@ -17,10 +15,10 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
         public float Value => _progressBar.value;
 
-        public void Initialize(float x, float y, float width, float labelOffsetY, float labelTextScale)
+        public void Initialize(float x, float y, float componentWidth, float labelOffsetY, float labelTextScale)
         {
             relativePosition = new Vector3(x, y);
-            size = new Vector2(width, 18f);
+            size = new Vector2(componentWidth, 18f);
             _labelOffsetY = labelOffsetY;
 
             _progressBar = AddUIComponent<UIProgressBar>();
@@ -28,7 +26,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             _progressBar.progressSprite = "LevelBarForeground";
             _progressBar.progressColor = Color.red;
             _progressBar.relativePosition = Vector3.zero;
-            _progressBar.width = width;
+            _progressBar.width = componentWidth;
             _progressBar.value = 0f;
 
             _valueLabel = AddUIComponent<UILabel>();
@@ -59,8 +57,6 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
         private void CenterValueLabel()
         {
-            // _valueLabel.PerformLayout();
-
             var centeredX = Mathf.Max(0f, (_progressBar.width - _valueLabel.width) * 0.5f);
             _valueLabel.relativePosition = new Vector3(centeredX, _labelOffsetY + 4f);
         }
