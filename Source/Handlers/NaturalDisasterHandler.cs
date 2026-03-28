@@ -12,6 +12,7 @@ using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI;
+using NaturalDisastersRenewal.UI.ComponentHelper;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Handlers
@@ -324,9 +325,7 @@ namespace NaturalDisastersRenewal.Handlers
             toggleButtonObject.transform.localPosition = Vector3.zero;
             _toggleButton = toggleButtonObject.AddComponent<UIButton>();
             _toggleButton.name = "ExtendedDisastersPanelToggleButton";
-            _toggleButton.normalBgSprite = "ToolbarIconZoomOutGlobeHovered";
-            _toggleButton.normalFgSprite = "IconPolicyPowerSavingDisabled";
-            _toggleButton.hoveredFgSprite = "IconPolicyPowerSavingPressed";
+            ApplyDefaultToggleButtonSprites();
             _toggleButton.width = 38f;
             _toggleButton.height = 38f;
             _toggleButton.absolutePosition = new Vector3(90, 62);
@@ -334,6 +333,7 @@ namespace NaturalDisastersRenewal.Handlers
             _toggleButton.isVisible = Container.ShowDisasterPanelButton;
             _toggleButton.eventClick += ToggleButton_eventClick;
             _toggleButton.eventMouseMove += ToggleButton_eventMouseMove;
+            UpdateToggleButtonIcon();
 
             _dPanel.tooltip = LocalizationService.Get("panel.drag.tooltip");
             _dPanel.eventMouseMove += DPanel_eventMouseMove;
@@ -351,6 +351,7 @@ namespace NaturalDisastersRenewal.Handlers
         private void ToggleDisasterPanel()
         {
             _dPanel.isVisible = !_dPanel.isVisible;
+            UpdateToggleButtonIcon();
 
             if (_dPanel.isVisible) _dPanel.counter = 0;
         }
@@ -360,6 +361,7 @@ namespace NaturalDisastersRenewal.Handlers
             if (_toggleButton != null && Container != null)
             {
                 _toggleButton.isVisible = Container.ShowDisasterPanelButton;
+                UpdateToggleButtonIcon();
 
                 if (Container.ToggleButtonPos.x > 10 && Container.ToggleButtonPos.y > 10)
                     _toggleButton.absolutePosition = Container.ToggleButtonPos;
@@ -404,7 +406,36 @@ namespace NaturalDisastersRenewal.Handlers
             if (_toggleButton != null)
             {
                 _toggleButton.absolutePosition = buttonPosition;
+                UpdateToggleButtonIcon();
             }
+        }
+
+        private void UpdateToggleButtonIcon()
+        {
+            if (_toggleButton != null)
+            {
+                ApplyDefaultToggleButtonSprites();
+
+                if (!ToggleButtonIconHelper.Apply(_toggleButton, _dPanel != null && _dPanel.isVisible))
+                    ToggleButtonIconHelper.Hide(_toggleButton);
+            }
+        }
+
+        private void ApplyDefaultToggleButtonSprites()
+        {
+            if (_toggleButton == null)
+                return;
+
+            _toggleButton.normalBgSprite = "ToolbarIconZoomOutGlobeHovered";
+            _toggleButton.hoveredBgSprite = "ToolbarIconZoomOutGlobeHovered";
+            _toggleButton.focusedBgSprite = "ToolbarIconZoomOutGlobeHovered";
+            _toggleButton.pressedBgSprite = "ToolbarIconZoomOutGlobeHovered";
+            _toggleButton.disabledBgSprite = "ToolbarIconZoomOutGlobeHovered";
+            _toggleButton.normalFgSprite = "IconPolicyPowerSavingDisabled";
+            _toggleButton.hoveredFgSprite = "IconPolicyPowerSavingPressed";
+            _toggleButton.focusedFgSprite = _toggleButton.hoveredFgSprite;
+            _toggleButton.pressedFgSprite = _toggleButton.hoveredFgSprite;
+            _toggleButton.disabledFgSprite = _toggleButton.normalFgSprite;
         }
 
         public DisasterWrapper GetDisasterWrapper()
@@ -453,6 +484,7 @@ namespace NaturalDisastersRenewal.Handlers
             if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
             {
                 _dPanel.isVisible = false;
+                UpdateToggleButtonIcon();
                 return;
             }
 
