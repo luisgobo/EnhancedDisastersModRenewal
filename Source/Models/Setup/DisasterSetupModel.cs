@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 using System.IO;
 using System.Xml.Serialization;
 using NaturalDisastersRenewal.Common;
@@ -30,8 +31,8 @@ namespace NaturalDisastersRenewal.Models.Setup
         public bool RecordDisasterEvents = false;
         public bool ShowDisasterPanelButton = true;
         public ModLanguage Language = ModLanguage.English;
-        public KeyCode TogglePanelHotkey = KeyCode.D;
-        public EventModifiers TogglePanelHotkeyModifiers = EventModifiers.Shift;
+        [XmlIgnore] public KeyCode TogglePanelHotkey = KeyCode.D;
+        [XmlIgnore] public EventModifiers TogglePanelHotkeyModifiers = EventModifiers.Shift;
         public Vector3 ToggleButtonPos = new Vector3(90, 62);
         public Vector3 DPanelPos = new Vector3(90, 40);
 
@@ -40,6 +41,59 @@ namespace NaturalDisastersRenewal.Models.Setup
         public List<DisasterInfoModel> ActiveDisasters = new List<DisasterInfoModel>();
 
         [XmlIgnore] public readonly List<DisasterBaseModel> DisasterList = new List<DisasterBaseModel>();
+
+        [XmlElement("TogglePanelHotkey")]
+        public string TogglePanelHotkeySerialized
+        {
+            get
+            {
+                return TogglePanelHotkey.ToString();
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value) || value.Trim().Length == 0)
+                {
+                    TogglePanelHotkey = KeyCode.D;
+                    return;
+                }
+
+                try
+                {
+                    TogglePanelHotkey = (KeyCode)Enum.Parse(typeof(KeyCode), value, true);
+                }
+                catch
+                {
+                    TogglePanelHotkey = KeyCode.D;
+                }
+            }
+        }
+
+        [XmlElement("TogglePanelHotkeyModifiers")]
+        public string TogglePanelHotkeyModifiersSerialized
+        {
+            get
+            {
+                return TogglePanelHotkeyModifiers.ToString();
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value) || value.Trim().Length == 0)
+                {
+                    TogglePanelHotkeyModifiers = EventModifiers.Shift;
+                    return;
+                }
+
+                try
+                {
+                    TogglePanelHotkeyModifiers =
+                        Helper.GetSupportedHotkeyModifiers((EventModifiers)Enum.Parse(typeof(EventModifiers), value, true));
+                }
+                catch
+                {
+                    TogglePanelHotkeyModifiers = EventModifiers.Shift;
+                }
+            }
+        }
 
         public void Save()
         {
