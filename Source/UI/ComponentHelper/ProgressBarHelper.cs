@@ -6,7 +6,9 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
     public sealed class ProgressBarHelper : UIPanel
     {
         private static readonly Color32 DisabledColor = new (0, 0, 0, 255);
-        private static readonly Color32 LowerTextColor = new (85, 85, 100, 255);
+
+        // private static readonly Color32 LowerTextColor = new (85, 85, 100, 255);
+        private static readonly Color32 LowerTextColor = new (40, 42, 43, 255);
         private static readonly Color32 HigherTextColor = new (255, 255, 255, 255);
 
         private UIProgressBar _progressBar;
@@ -60,7 +62,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             // _valueLabel.PerformLayout();
 
             var centeredX = Mathf.Max(0f, (_progressBar.width - _valueLabel.width) * 0.5f);
-            _valueLabel.relativePosition = new Vector3(centeredX, _labelOffsetY);
+            _valueLabel.relativePosition = new Vector3(centeredX, _labelOffsetY + 4f);
         }
     }
 }

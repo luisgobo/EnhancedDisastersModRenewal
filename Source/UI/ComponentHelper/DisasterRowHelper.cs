@@ -38,7 +38,7 @@ public sealed class DisasterRowHelper : UIPanel
         BuildStatusButton();
 
         _nameLabel = AddUIComponent<UILabel>();
-        _nameLabel.relativePosition = new Vector3(NameLabelX, 0f);
+        _nameLabel.relativePosition = new Vector3(NameLabelX, 2f);
         _nameLabel.textScale = LabelTextScaleNormal;
 
         _probabilityBar = AddUIComponent<ProgressBarHelper>();

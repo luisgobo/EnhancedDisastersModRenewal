@@ -100,8 +100,7 @@ namespace NaturalDisastersRenewal.UI
 
             DefineMinPopulationLabelContent();
 
-            yPosition += 22;
-            //TODO Adjust this label
+            yPosition += 22f;
             AddLabel(parentPanel, xPosition + 32f, yPosition, LabelTextScaleSmall, "Disaster", "Disaster name");
 
             AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition, LabelTextScaleSmall, "Probability %");
@@ -118,7 +117,7 @@ namespace NaturalDisastersRenewal.UI
             _disasterRows = new DisasterRowHelper[disasterCount];
 
             //Add each statistic item to the Panel
-            yPosition += 20;
+            yPosition += 15;
             for (var i = 0; i < disasterCount; i++)
             {
                 var disaster = _disasterHandler.Container.DisasterList[i];
