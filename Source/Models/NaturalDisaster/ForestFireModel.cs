@@ -187,23 +187,23 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (!Unlocked)
             {
-                tooltip = "Not Unlocked yet (occurs only outside of your area)." + Environment.NewLine;
+                tooltip = LocalizationService.Get("tooltip.notUnlockedOutsideArea") + Environment.NewLine;
             }
 
             if (CalmDaysLeft != 0) return base.GetTooltipInformation();
 
             if (NoRainDays <= 0)
             {
-                return tooltip + "No " + GetName() + " during rain.";
+                return tooltip + LocalizationService.Get("tooltip.forestFire.noDuringRain");
             }
             else
             {
                 if (NoRainDays >= WarmupDays)
                 {
-                    return tooltip + "Maximum because there was no rain for more than " + WarmupDays + " days.";
+                    return tooltip + LocalizationService.Format("tooltip.forestFire.maxNoRain", WarmupDays);
                 }
 
-                return tooltip + "Increasing because there was no rain for " + Helper.FormatTimeSpan(NoRainDays);
+                return tooltip + LocalizationService.Format("tooltip.forestFire.increasingNoRain", Helper.FormatTimeSpan(NoRainDays));
             }
 
         }
@@ -225,7 +225,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.forestFireName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
         public override void CopySettings(DisasterBaseModel disaster)

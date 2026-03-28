@@ -108,16 +108,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 if (MeteorsFallen > 0)
                 {
-                    return Name + " already fallen.";
+                    return LocalizationService.Format("tooltip.meteor.alreadyFallen", Name);
                 }
 
                 if (DaysUntilNextEvent <= 60)
                 {
-                    return Name + " is approaching.";
+                    return LocalizationService.Format("tooltip.meteor.approaching", Name);
                 }
                 else
                 {
-                    return Name + " will be close in " + Helper.FormatTimeSpan(DaysUntilNextEvent);
+                    return LocalizationService.Format("tooltip.meteor.closeIn", Name, Helper.FormatTimeSpan(DaysUntilNextEvent));
                 }
             }
         }
@@ -285,7 +285,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.meteorStrikeName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
         public override string GetTooltipInformation()

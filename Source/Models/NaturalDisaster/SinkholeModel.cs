@@ -36,7 +36,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (CalmDaysLeft <= 0)
             {
                 int groundWaterPercent = (int)(100 * groundwaterAmount / GroundwaterCapacity);
-                return "Ground water level " + groundWaterPercent.ToString() + "%";
+                return LocalizationService.Format("tooltip.sinkhole.groundwater", groundWaterPercent);
             }
 
             return base.GetTooltipInformation();
@@ -106,7 +106,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.sinkholeName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
         protected override float CalculateDestructionRadio(byte intensity)

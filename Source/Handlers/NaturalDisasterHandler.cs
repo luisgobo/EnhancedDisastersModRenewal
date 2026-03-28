@@ -23,6 +23,7 @@ namespace NaturalDisastersRenewal.Handlers
         private DisasterWrapper _disasterWrapper;
         private ExtendedDisastersPanel _dPanel;
         private UIButton _toggleButton;
+        private bool _keyHandlerRegistered;
 
         private NaturalDisasterHandler()
         {
@@ -83,6 +84,11 @@ namespace NaturalDisastersRenewal.Handlers
                 Container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
                 Container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;
                 Container.ShowDisasterPanelButton = fromContainer.ShowDisasterPanelButton;
+                Container.Language = fromContainer.Language;
+                Container.TogglePanelHotkey = fromContainer.TogglePanelHotkey;
+                Container.TogglePanelHotkeyModifiers = fromContainer.TogglePanelHotkeyModifiers;
+                Container.ToggleButtonPos = fromContainer.ToggleButtonPos;
+                Container.DPanelPos = fromContainer.DPanelPos;
             }
         }
 
@@ -104,7 +110,7 @@ namespace NaturalDisastersRenewal.Handlers
                 if (resetPanelPos)
                 {
                     _dPanel.absolutePosition = new Vector3(90, 100);
-                    Container.ToggleButtonPos = new Vector3(90, 100);
+                    Container.DPanelPos = new Vector3(90, 100);
                 }
             }
         }
@@ -324,18 +330,22 @@ namespace NaturalDisastersRenewal.Handlers
             _toggleButton.width = 38f;
             _toggleButton.height = 38f;
             _toggleButton.absolutePosition = new Vector3(90, 62);
-            _toggleButton.tooltip = "Extended Disasters (drag by right-click)";
+            _toggleButton.tooltip = LocalizationService.Get("panel.toggleButton.tooltip");
             _toggleButton.isVisible = Container.ShowDisasterPanelButton;
             _toggleButton.eventClick += ToggleButton_eventClick;
             _toggleButton.eventMouseMove += ToggleButton_eventMouseMove;
 
-            _dPanel.tooltip = "Drag by right-click to set the panel position.";
+            _dPanel.tooltip = LocalizationService.Get("panel.drag.tooltip");
             _dPanel.eventMouseMove += DPanel_eventMouseMove;
 
             UpdateDisastersPanelToggleBtn();
             UpdateDisastersDPanel();
 
-            UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
+            if (!_keyHandlerRegistered)
+            {
+                UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
+                _keyHandlerRegistered = true;
+            }
         }
 
         private void ToggleDisasterPanel()
@@ -362,6 +372,38 @@ namespace NaturalDisastersRenewal.Handlers
             {
                 if (Container.DPanelPos.x > 10 && Container.DPanelPos.y > 10)
                     _dPanel.absolutePosition = Container.DPanelPos;
+            }
+        }
+
+        public void RefreshLocalizedUI()
+        {
+            var panelVisible = _dPanel != null && _dPanel.isVisible;
+            var panelPosition = _dPanel != null ? _dPanel.absolutePosition : Container?.DPanelPos ?? new Vector3(90, 100);
+            var buttonPosition = _toggleButton != null ? _toggleButton.absolutePosition : Container?.ToggleButtonPos ?? new Vector3(90, 62);
+
+            if (_dPanel != null)
+            {
+                UnityEngine.Object.Destroy(_dPanel.gameObject);
+                _dPanel = null;
+            }
+
+            if (_toggleButton != null)
+            {
+                UnityEngine.Object.Destroy(_toggleButton.gameObject);
+                _toggleButton = null;
+            }
+
+            CreateExtendedDisasterPanel();
+
+            if (_dPanel != null)
+            {
+                _dPanel.absolutePosition = panelPosition;
+                _dPanel.isVisible = panelVisible;
+            }
+
+            if (_toggleButton != null)
+            {
+                _toggleButton.absolutePosition = buttonPosition;
             }
         }
 
@@ -415,7 +457,8 @@ namespace NaturalDisastersRenewal.Handlers
             }
 
             //Show / Hide Panel hotkey
-            if (eventType == EventType.KeyDown && modifiers == EventModifiers.Shift && keyCode == KeyCode.D)
+            if (eventType == EventType.KeyDown &&
+                Helper.MatchesHotkey(Container.TogglePanelHotkey, Container.TogglePanelHotkeyModifiers, keyCode, modifiers))
                 ToggleDisasterPanel();
         }
 

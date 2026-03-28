@@ -2,6 +2,7 @@
 using System.IO;
 using System.Xml.Serialization;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using UnityEngine;
@@ -28,6 +29,9 @@ namespace NaturalDisastersRenewal.Models.Setup
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;
         public bool ShowDisasterPanelButton = true;
+        public ModLanguage Language = ModLanguage.English;
+        public KeyCode TogglePanelHotkey = KeyCode.D;
+        public EventModifiers TogglePanelHotkeyModifiers = EventModifiers.Shift;
         public Vector3 ToggleButtonPos = new Vector3(90, 62);
         public Vector3 DPanelPos = new Vector3(90, 40);
 
@@ -40,9 +44,10 @@ namespace NaturalDisastersRenewal.Models.Setup
         public void Save()
         {
             XmlSerializer ser = new XmlSerializer(typeof(DisasterSetupModel));
-            TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath(CommonProperties.xmlFilename));
-            ser.Serialize(writer, this);
-            writer.Close();
+            using (TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath(CommonProperties.xmlFilename)))
+            {
+                ser.Serialize(writer, this);
+            }
         }
 
         public void CheckObjects()
@@ -74,9 +79,11 @@ namespace NaturalDisastersRenewal.Models.Setup
             try
             {
                 var ser = new XmlSerializer(typeof(DisasterSetupModel));
-                TextReader reader = new StreamReader(path);
-                var instance = (DisasterSetupModel)ser.Deserialize(reader);
-                reader.Close();
+                DisasterSetupModel instance;
+                using (TextReader reader = new StreamReader(path))
+                {
+                    instance = (DisasterSetupModel)ser.Deserialize(reader);
+                }
 
                 instance.CheckObjects();
 

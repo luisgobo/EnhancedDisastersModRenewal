@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using ColossalFramework.UI;
+using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
@@ -78,10 +79,11 @@ namespace NaturalDisastersRenewal.UI
 
             GetRealTimeModValues();
 
-            _realTimeStatusLabel.text = $"Real Time Status: {(_realTimeStatus ? "Active" : "Inactive")}";
-            _realTimeTimeOffsetTicksLabel.text = $"Time Offset Ticks: {_timeOffsetTicks}";
-            _realTimeDayTimeFramesLabel.text = $"Day-Time Frames: {_dayTimeframes}";
-            _realTimeDayTimeOffsetFramesLabel.text = $"Day-Time Offset Frames: {_dayTimeOffsetFrames}";
+            var statusText = LocalizationService.Get(_realTimeStatus ? "status.active" : "status.inactive");
+            _realTimeStatusLabel.text = LocalizationService.Format("panel.realTimeStatus", statusText);
+            _realTimeTimeOffsetTicksLabel.text = LocalizationService.Format("panel.timeOffsetTicks", _timeOffsetTicks);
+            _realTimeDayTimeFramesLabel.text = LocalizationService.Format("panel.dayTimeFrames", _dayTimeframes);
+            _realTimeDayTimeOffsetFramesLabel.text = LocalizationService.Format("panel.dayTimeOffsetFrames", _dayTimeOffsetFrames);
         }
 
         private void BuildStatisticsInfoTabContent(UIScrollablePanel parentPanel)
@@ -101,10 +103,10 @@ namespace NaturalDisastersRenewal.UI
             DefineMinPopulationLabelContent();
 
             yPosition += 22f;
-            AddLabel(parentPanel, xPosition + 32f, yPosition, LabelTextScaleSmall, "Disaster", "Disaster name");
+            AddLabel(parentPanel, xPosition + 32f, yPosition, LabelTextScaleSmall, LocalizationService.Get("panel.header.disaster"), "Disaster name");
 
-            AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition, LabelTextScaleSmall, "Probability %");
-            AddCenteredLabel(parentPanel, intensityBarCenterX, yPosition, LabelTextScaleSmall, "Max intensity");
+            AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition, LabelTextScaleSmall, LocalizationService.Get("panel.header.howOften"));
+            AddCenteredLabel(parentPanel, intensityBarCenterX, yPosition, LabelTextScaleSmall, LocalizationService.Get("panel.header.maxStrength"));
 
             yPosition += 15;
             AddCenteredLabel(parentPanel, probabilityBarStartX + 2f, yPosition, LabelTextScaleSmall, "1");
@@ -142,8 +144,8 @@ namespace NaturalDisastersRenewal.UI
 
             var formatNumber = maxPopulationToTriggerDisaster.ToString("#,0", nfi);
 
-            _populationLabel.text = $"Min. Population for strongest disasters: {formatNumber}.";
-            _populationLabel.tooltip = "Minimum population to trigger higher disasters";
+            _populationLabel.text = LocalizationService.Format("panel.populationThreshold", formatNumber);
+            _populationLabel.tooltip = LocalizationService.Get("panel.populationThreshold.tooltip");
         }
 
         private static void OnTakeItEasySelected()
@@ -166,20 +168,23 @@ namespace NaturalDisastersRenewal.UI
             var yPosition = 10;
 
             _realTimeStatusLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal,
-                $"Real Time Status: {(_realTimeStatus ? "Active" : "Inactive")}");
-            _realTimeStatusLabel.tooltip = "Check if \"Real Time\" Mod status is active";
+                LocalizationService.Format("panel.realTimeStatus", LocalizationService.Get(_realTimeStatus ? "status.active" : "status.inactive")));
+            _realTimeStatusLabel.tooltip = LocalizationService.Get("panel.timeFlowNote");
 
             yPosition += 20;
             _realTimeTimeOffsetTicksLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal,
-                $"Time Offset Ticks: {_timeOffsetTicks}");
+                LocalizationService.Format("panel.timeOffsetTicks", _timeOffsetTicks));
 
             yPosition += 20;
             _realTimeDayTimeFramesLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal,
-                $"Day-Time Frames: {_dayTimeframes}");
+                LocalizationService.Format("panel.dayTimeFrames", _dayTimeframes));
 
             yPosition += 20;
             _realTimeDayTimeOffsetFramesLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal,
-                $"Day-Time Offset Frames: {_dayTimeOffsetFrames}");
+                LocalizationService.Format("panel.dayTimeOffsetFrames", _dayTimeOffsetFrames));
+
+            yPosition += 30;
+            AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleSmall, LocalizationService.Get("panel.timeFlowNote"));
 
             yPosition += 30;
 
@@ -345,7 +350,7 @@ namespace NaturalDisastersRenewal.UI
         {
             var lTitle = AddUIComponent<UILabel>();
             lTitle.relativePosition = new Vector3(10, 15);
-            lTitle.text = "Disasters info";
+            lTitle.text = LocalizationService.Get("panel.title");
         }
 
         private void BuildTabContainer()
@@ -362,8 +367,8 @@ namespace NaturalDisastersRenewal.UI
             tabStrip.backgroundSprite = "SubcategoriesPanel";
             tabStrip.tabPages = tabContainer;
 
-            var statisticsTab = TabHelper.CreateStyledTab(tabStrip, "Statistics", 0f);
-            TabHelper.CreateStyledTab(tabStrip, "Settings", statisticsTab.width);
+            var statisticsTab = TabHelper.CreateStyledTab(tabStrip, LocalizationService.Get("panel.tab.statistics"), 0f);
+            TabHelper.CreateStyledTab(tabStrip, LocalizationService.Get("panel.tab.settings"), statisticsTab.width);
 
             if (tabContainer.components.Count < 2) return;
             const float yPosition = 10f;
@@ -396,7 +401,7 @@ namespace NaturalDisastersRenewal.UI
                 normalBgSprite:"ButtonMenu",
                 hoveredBgSprite:"ButtonMenuHovered",
                 pressedBgSprite:"ButtonMenuHovered",
-                tooltip:"Stop all disasters");
+                tooltip:LocalizationService.Get("panel.stopAll"));
 
             ActionButtonHelper.CreateTextButton(
                 parentPanel,
@@ -409,7 +414,7 @@ namespace NaturalDisastersRenewal.UI
                 normalBgSprite:"ButtonMenu",
                 hoveredBgSprite:"ButtonMenuHovered",
                 pressedBgSprite:"ButtonMenuHovered",
-                tooltip:"Reset all disasters to default probabilities and intensities");
+                tooltip:LocalizationService.Get("panel.resetAll"));
         }
 
         private static void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -527,33 +532,33 @@ namespace NaturalDisastersRenewal.UI
         private void ToggleDisasterState(DisasterBaseModel disaster)
         {
             disaster.IsDisasterEnabled = !disaster.IsDisasterEnabled;
-            switch (disaster.GetName())
+            switch (disaster.GetDisasterType())
             {
-                case CommonProperties.earthquakeName:
+                case DisasterType.Earthquake:
                     _disasterHandler.Container.Earthquake.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
-                case CommonProperties.forestFireName:
+                case DisasterType.ForestFire:
                     _disasterHandler.Container.ForestFire.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
-                case CommonProperties.meteorStrikeName:
+                case DisasterType.MeteorStrike:
                     _disasterHandler.Container.MeteorStrike.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
-                case CommonProperties.sinkholeName:
+                case DisasterType.Sinkhole:
                     _disasterHandler.Container.Sinkhole.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
-                case CommonProperties.thunderstormName:
+                case DisasterType.ThunderStorm:
                     _disasterHandler.Container.Thunderstorm.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
-                case CommonProperties.tornadoName:
+                case DisasterType.Tornado:
                     _disasterHandler.Container.Tornado.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
 
-                case CommonProperties.tsunamiName:
+                case DisasterType.Tsunami:
                     _disasterHandler.Container.Tsunami.IsDisasterEnabled = disaster.IsDisasterEnabled;
                     break;
             }

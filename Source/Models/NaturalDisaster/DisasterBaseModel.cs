@@ -58,7 +58,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private FieldInfo _evacuatingField;
         private WarningPhasePanel _phasePanel;
         
-
         // Public
         public abstract string GetName();
 
@@ -140,78 +139,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return intensity;
         }
 
-        // public void OnSimulationFrame()
-        // {
-        //     if (!IsDisasterEnabled)
-        //     {
-        //         return;
-        //     }
-        //
-        //     if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
-        //     {
-        //         return;
-        //     }
-        //
-        //     OnSimulationFrameLocal();
-        //
-        //     float daysPerFrame = Helper.DaysPerFrame;
-        //
-        //     if (CalmDaysLeft > 0)
-        //     {
-        //         CalmDaysLeft -= daysPerFrame;
-        //         return;
-        //     }
-        //
-        //     if (ProbabilityWarmupDaysLeft > 0)
-        //     {
-        //         if (ProbabilityWarmupDaysLeft > ProbabilityWarmupDays)
-        //         {
-        //             ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
-        //         }
-        //
-        //         ProbabilityWarmupDaysLeft -= daysPerFrame;
-        //     }
-        //
-        //     if (IntensityWarmupDaysLeft > 0)
-        //     {
-        //         if (IntensityWarmupDaysLeft > IntensityWarmupDays)
-        //         {
-        //             IntensityWarmupDaysLeft = IntensityWarmupDays;
-        //         }
-        //
-        //         IntensityWarmupDaysLeft -= daysPerFrame;
-        //     }
-        //
-        //     float occurrencePerYear = GetCurrentOccurrencePerYear();
-        //
-        //     if (occurrencePerYear == 0)
-        //     {
-        //         return;
-        //     }
-        //
-        //     SimulationManager sm = Singleton<SimulationManager>.instance;
-        //     float occurrencePerFrame = (occurrencePerYear / 365) * daysPerFrame;
-        //
-        //     var randomizedValue = sm.m_randomizer.Int32(randomizerRange);
-        //     var randomizedOccurrence = (uint)(randomizerRange * occurrencePerFrame);
-        //     Debug.Log(
-        //         $"occurrencePerYear: {occurrencePerYear}, daysPerFrame: {daysPerFrame}, occurrencePerFrame: {occurrencePerFrame}");
-        //     Debug.Log(
-        //         $"Start Disaster? randomizedValue: {randomizedValue} < randomizedOccurrence {randomizedOccurrence}");
-        //
-        //
-        //     //value is getting stop the evaluation on 10 but never goes here
-        //     // if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
-        //     if (randomizedValue < randomizedOccurrence)
-        //     {
-        //         Debug.Log("Disaster Should be started!!!");           
-        //         var maxIntensity = GetMaximumIntensity();                
-        //         byte intensity = GetRandomIntensity(maxIntensity);
-        //
-        //         StartDisaster(intensity);
-        //     }
-        // }
-
         public virtual void OnSimulationFrame()
         {
             if (!IsDisasterEnabled) return;
@@ -274,39 +201,39 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (!Unlocked)
             {
-                return "Not Unlocked yet";
+                return LocalizationService.Get("tooltip.notUnlocked");
             }
 
             if (CalmDaysLeft > 0)
             {
-                return "No " + GetName() + " for another " + Helper.FormatTimeSpan(CalmDaysLeft);
+                return LocalizationService.Format("tooltip.noDisasterForAnother", GetName(), Helper.FormatTimeSpan(CalmDaysLeft));
             }
 
             if (ProbabilityWarmupDaysLeft > 0)
             {
-                return "Decreased because " + GetName() + " occured recently.";
+                return LocalizationService.Format("tooltip.recentlyOccurred", GetName());
             }
 
-            return $"Probability: {GetDisasterProbabilityPercentageValue()}";
+            return LocalizationService.Format("tooltip.probability", GetDisasterProbabilityPercentageValue());
         }
 
         public virtual string GetIntensityTooltip(float maxDisasterIntensity)
         {
             if (!Unlocked)
             {
-                return "Not Unlocked yet";
+                return LocalizationService.Get("tooltip.notUnlocked");
             }
 
             if (CalmDaysLeft > 0)
             {
-                return "No " + GetName() + " for another " + Helper.FormatTimeSpan(CalmDaysLeft);
+                return LocalizationService.Format("tooltip.noDisasterForAnother", GetName(), Helper.FormatTimeSpan(CalmDaysLeft));
             }
 
-            var result = $"Intensity: {maxDisasterIntensity * 25.5:#.##}";
+            var result = LocalizationService.Format("tooltip.intensity", $"{maxDisasterIntensity * 25.5:#.##}");
 
             if (ProbabilityWarmupDaysLeft > 0)
             {
-                result = "Decreased because " + GetName() + " occured recently.";
+                result = LocalizationService.Format("tooltip.recentlyOccurred", GetName());
             }
 
             var naturalDisasterSetup = CommonServices.DisasterSetup;
@@ -314,7 +241,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (!(Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)) return result;
 
             if (result != "") result += CommonProperties.NewLine;
-            result += "Decreased because of low population.";
+            result += LocalizationService.Get("tooltip.lowPopulation");
 
             return result;
         }

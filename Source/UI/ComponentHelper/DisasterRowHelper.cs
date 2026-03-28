@@ -1,5 +1,6 @@
 using System;
 using ColossalFramework.UI;
+using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using UnityEngine;
 
@@ -52,9 +53,10 @@ public sealed class DisasterRowHelper : UIPanel
     {
         var disasterIsDisasterEnabled = Disaster.IsDisasterEnabled;
         var maxIntensityCalculated = Disaster.GetMaximumIntensity();
+        var disabledSuffix = LocalizationService.Get("status.disabled");
 
         _statusIcon.spriteName = disasterIsDisasterEnabled ? PauseSprite : PlaySprite;
-        _nameLabel.text = disasterIsDisasterEnabled ? Disaster.GetName() : $"{Disaster.GetName()} - Disabled";
+        _nameLabel.text = disasterIsDisasterEnabled ? Disaster.GetName() : $"{Disaster.GetName()} - {disabledSuffix}";
 
         _probabilityBar.SetState(
             disasterIsDisasterEnabled,
@@ -73,7 +75,7 @@ public sealed class DisasterRowHelper : UIPanel
     private void BuildStatusButton()
     {
         var statusButton = AddUIComponent<UIButton>();
-        statusButton.name = $"disasterState{Disaster.GetName()}Btn";
+        statusButton.name = $"disasterState{Disaster.GetDisasterType()}Btn";
         statusButton.relativePosition = new Vector3(0f, -4f);
         statusButton.size = new Vector2(18f, 18f);
         statusButton.normalBgSprite = "ButtonMenu";

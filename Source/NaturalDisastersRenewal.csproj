@@ -62,8 +62,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\CommonProperties.cs" />
+    <Compile Include="Common\LocalizationService.cs" />
     <Compile Include="Common\enums\EarthquakeCrackOptions.cs" />
     <Compile Include="Common\enums\EvacuationOptions.cs" />
+    <Compile Include="Common\enums\ModLanguage.cs" />
       <Compile Include="Common\enums\TimeBehaviorMode.cs"/>
     <Compile Include="Common\Services.cs"/>
     <Compile Include="Common\Types\Triplet.cs" />
