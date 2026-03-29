@@ -13,6 +13,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class EarthquakeModel : DisasterBaseModel
     {
+        protected override TimeBehaviorMode CurrentTimeBehaviorMode => TimeBehaviorMode.VanillaSimulationCompatible;
+
         public bool AftershocksEnabled = true;
         public EarthquakeCrackOptions EarthquakeCrackMode = EarthquakeCrackOptions.NoCracks;
         public float MinimalIntensityForCracks = 12.0f;

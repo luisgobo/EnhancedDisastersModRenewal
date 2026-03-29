@@ -12,6 +12,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class TsunamiModel : DisasterBaseModel
     {
+        protected override TimeBehaviorMode CurrentTimeBehaviorMode => TimeBehaviorMode.VanillaSimulationCompatible;
+
         public TsunamiModel()
         {
             DType = DisasterType.Tsunami;

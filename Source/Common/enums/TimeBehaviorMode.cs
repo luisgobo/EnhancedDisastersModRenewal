@@ -3,5 +3,6 @@ namespace NaturalDisastersRenewal.Common.enums;
 public enum TimeBehaviorMode
 {
     Original,
-    RealTimeCompatible
+    RealTimeCompatible,
+    VanillaSimulationCompatible
 }

@@ -8,6 +8,7 @@ namespace NaturalDisastersRenewal.Common
     public static class Helper
     {
         private const float RealTimeCompatibilityFactor = 365f;
+        private const float VanillaSimulationDaysPerFrame = 1f / 585f;
 
         private static float GameDaysPerFrame => (float)Services.Simulation.m_timePerFrame.TotalDays;
 
@@ -17,6 +18,8 @@ namespace NaturalDisastersRenewal.Common
             {
                 case TimeBehaviorMode.RealTimeCompatible:
                     return GameDaysPerFrame * RealTimeCompatibilityFactor;
+                case TimeBehaviorMode.VanillaSimulationCompatible:
+                    return VanillaSimulationDaysPerFrame;
                 default:
                     return GameDaysPerFrame;
             }

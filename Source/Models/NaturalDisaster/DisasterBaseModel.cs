@@ -61,7 +61,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         // Public
         public abstract string GetName();
 
-        protected TimeBehaviorMode CurrentTimeBehaviorMode =>
+        protected virtual TimeBehaviorMode CurrentTimeBehaviorMode =>
             _isRealTimeActive ? TimeBehaviorMode.RealTimeCompatible : TimeBehaviorMode.Original;
 
         protected float GetCurrentOccurrencePerYear()

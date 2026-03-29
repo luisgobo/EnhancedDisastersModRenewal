@@ -340,7 +340,7 @@ public static class LocalizationService
         return
         [
             GetLanguageDisplayName(ModLanguage.English),
-            GetLanguageDisplayName(ModLanguage.Spanish)
+            // GetLanguageDisplayName(ModLanguage.Spanish)
         ];
     }
 
