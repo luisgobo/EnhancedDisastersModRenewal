@@ -12,9 +12,10 @@ namespace NaturalDisastersRenewal.Models.Disaster
         public static void Log(string msg)
         {
             if (IsDebug)
-            //if (IsDebug && System.Diagnostics.Debugger.IsAttached)
             {
-                File.AppendAllText(GeFilePath(), msg + CommonProperties.NewLine);
+                if (IsLogInFile)
+                    File.AppendAllText(GeFilePath(), msg + CommonProperties.NewLine);
+
                 Debug.Log(msg);
             }
         }

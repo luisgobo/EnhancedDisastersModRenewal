@@ -350,10 +350,19 @@ namespace NaturalDisastersRenewal.Handlers
 
         private void ToggleDisasterPanel()
         {
-            _dPanel.isVisible = !_dPanel.isVisible;
+            SetDisasterPanelVisibility(!(_dPanel != null && _dPanel.isVisible));
+        }
+
+        public void SetDisasterPanelVisibility(bool isVisible)
+        {
+            if (_dPanel == null)
+                return;
+
+            _dPanel.isVisible = isVisible;
             UpdateToggleButtonIcon();
 
-            if (_dPanel.isVisible) _dPanel.counter = 0;
+            if (isVisible)
+                _dPanel.counter = 0;
         }
 
         public void UpdateDisastersPanelToggleBtn()
@@ -483,8 +492,7 @@ namespace NaturalDisastersRenewal.Handlers
             //Hide Panel when main menu is triggered
             if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
             {
-                _dPanel.isVisible = false;
-                UpdateToggleButtonIcon();
+                SetDisasterPanelVisibility(false);
                 return;
             }
 
@@ -526,6 +534,9 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void GetSpriteNames()
         {
+            if (!DebugLogger.IsDebug || !DebugLogger.IsLogInFile)
+                return;
+
             var names = new List<string>();
             var atlas = UIView.GetAView().defaultAtlas;
 

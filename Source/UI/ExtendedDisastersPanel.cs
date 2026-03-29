@@ -19,7 +19,7 @@ namespace NaturalDisastersRenewal.UI
         private const float LabelTextScaleNormal = 0.8f;
 
         private const float PanelWidth = 414f;
-        private const float PanelHeight = 326f;
+        private const float PanelHeight = 320f;
 
         [FormerlySerializedAs("Counter")] public int counter;
         private readonly NaturalDisasterHandler _disasterHandler = CommonServices.DisasterHandler;
@@ -257,7 +257,14 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildInformationBar()
         {
-            BuildPanelTitle();
+            var titleBar = AddUIComponent<UIPanel>();
+            titleBar.name = "titleBar";
+            titleBar.relativePosition = Vector3.zero;
+            titleBar.size = new Vector2(PanelWidth - 80f, 40f);
+            titleBar.tooltip = LocalizationService.Get("panel.drag.tooltip");
+            titleBar.isInteractive = true;
+
+            BuildPanelTitle(titleBar);
             BuildPanelButtons(this);
         }
 
@@ -346,11 +353,12 @@ namespace NaturalDisastersRenewal.UI
             closeButton.eventClick += (c, p) => Destroy(helpPanel);
         }
 
-        private void BuildPanelTitle()
+        private static void BuildPanelTitle(UIComponent parentPanel)
         {
-            var lTitle = AddUIComponent<UILabel>();
+            var lTitle = parentPanel.AddUIComponent<UILabel>();
             lTitle.relativePosition = new Vector3(10, 15);
             lTitle.text = LocalizationService.Get("panel.title");
+            lTitle.tooltip = LocalizationService.Get("panel.drag.tooltip");
         }
 
         private void BuildTabContainer()
@@ -526,7 +534,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void ClosePanelBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-            Hide();
+            _disasterHandler.SetDisasterPanelVisibility(false);
         }
 
         private void ToggleDisasterState(DisasterBaseModel disaster)
@@ -607,4 +615,4 @@ namespace NaturalDisastersRenewal.UI
 
 //TODO:
 // * Make all possible elementes of UI reusable components
-// * Adjust recurrence for thunderstorms and earthquakes, calculation is getting extremely fast
+// * Adjust recurrence earthquakes and tsunamis, calculation is getting extremely slow
