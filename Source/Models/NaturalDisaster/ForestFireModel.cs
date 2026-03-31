@@ -208,7 +208,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
             return ForestFireDefaultBaseOccurrencePerYear * Math.Min(1f, NoRainDays / WarmupDays);
         }

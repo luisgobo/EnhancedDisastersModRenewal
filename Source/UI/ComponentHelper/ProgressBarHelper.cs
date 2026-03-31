@@ -6,8 +6,9 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
     public sealed class ProgressBarHelper : UIPanel
     {
         private static readonly Color32 DisabledColor = new (0, 0, 0, 255);
-        private static readonly Color32 LowerTextColor = new (40, 42, 43, 255);
-        private static readonly Color32 HigherTextColor = new (255, 255, 255, 255);
+        private static readonly Color32 UnfilledBarColor = new (56, 60, 62, 255);
+        private static readonly Color32 DarkContrastTextColor = new (30, 36, 32, 255);
+        private static readonly Color32 LightContrastTextColor = new (242, 245, 240, 255);
 
         private UIProgressBar _progressBar;
         private UILabel _valueLabel;
@@ -46,19 +47,49 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             {
                 _progressBar.value = 0f;
                 _progressBar.progressColor = DisabledColor;
-                _valueLabel.textColor = HigherTextColor;
+                _valueLabel.textColor = LightContrastTextColor;
                 return;
             }
 
             _progressBar.value = Mathf.Clamp01(value);
             _progressBar.progressColor = new Color(2f * _progressBar.value, 2f * (1f - _progressBar.value), 0f);
-            _valueLabel.textColor = _progressBar.value > 0.33f ? LowerTextColor : HigherTextColor;
+            _valueLabel.textColor = GetContrastTextColor();
         }
 
         private void CenterValueLabel()
         {
             var centeredX = Mathf.Max(0f, (_progressBar.width - _valueLabel.width) * 0.5f);
             _valueLabel.relativePosition = new Vector3(centeredX, _labelOffsetY + 4f);
+        }
+
+        private Color32 GetContrastTextColor()
+        {
+            var fillWidth = _progressBar.width * _progressBar.value;
+            var labelStartX = _valueLabel.relativePosition.x;
+            var labelEndX = labelStartX + _valueLabel.width;
+            var overlapWithFill = Mathf.Clamp(Mathf.Min(labelEndX, fillWidth) - labelStartX, 0f, _valueLabel.width);
+            var overlapWithUnfilled = Mathf.Max(0f, _valueLabel.width - overlapWithFill);
+
+            var estimatedBackground = BlendBackground(overlapWithFill, overlapWithUnfilled);
+            return GetPerceivedLuminance(estimatedBackground) >= 0.45f
+                ? DarkContrastTextColor
+                : LightContrastTextColor;
+        }
+
+        private Color BlendBackground(float fillWeight, float unfilledWeight)
+        {
+            var totalWeight = Mathf.Max(0.0001f, fillWeight + unfilledWeight);
+            var fillColor = _progressBar.progressColor;
+
+            return new Color(
+                ((fillColor.r * fillWeight) + (UnfilledBarColor.r / 255f * unfilledWeight)) / totalWeight,
+                ((fillColor.g * fillWeight) + (UnfilledBarColor.g / 255f * unfilledWeight)) / totalWeight,
+                ((fillColor.b * fillWeight) + (UnfilledBarColor.b / 255f * unfilledWeight)) / totalWeight);
+        }
+
+        private static float GetPerceivedLuminance(Color color)
+        {
+            return color.r * 0.299f + color.g * 0.587f + color.b * 0.114f;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             IntensityWarmupDays = 180;
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
             if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
             {
@@ -39,7 +39,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (delta_month > 6) delta_month = 12 - delta_month;
 
-            float occurrence = base.GetCurrentOccurrencePerYearLocal() * (1f - delta_month / 6f);
+            var occurrence = base.GetBaseOccurrencePerYear() * (1f - delta_month / 6f);
 
             return occurrence;
         }

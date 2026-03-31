@@ -64,35 +64,35 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected virtual TimeBehaviorMode CurrentTimeBehaviorMode =>
             _isRealTimeActive ? TimeBehaviorMode.RealTimeCompatible : TimeBehaviorMode.Original;
 
-        protected float GetCurrentOccurrencePerYear()
+        protected virtual float GetCurrentOccurrencePerYear()
         {
             //Check here to set up real time occurrence per year
             if (CalmDaysLeft > 0) return 0f;
 
-            var currentOccurrencePerYearLocal = GetCurrentOccurrencePerYearLocal();
+            var currentOccurrencePerYearLocal = GetBaseOccurrencePerYear();
             return ScaleProbabilityByWarmup(currentOccurrencePerYearLocal);
         }
 
         public string GetDisasterProbabilityPercentageValue()
         {
-            return $"{GetDisasterProbability() * 100:0.##}%";
+            return $"{GetDisasterProbability() * 100:00.00}%";
         }
 
         public virtual float GetDisasterProbability()
         {
-            var currentOccurrencePerYearLocal = GetCurrentOccurrencePerYear();
+            var currentOccurrencePerYear = GetCurrentOccurrencePerYear();
 
-            if (currentOccurrencePerYearLocal <= 0.1)
+            if (currentOccurrencePerYear <= 0.1)
                 return 0;
-            if (currentOccurrencePerYearLocal >= 10)
+            if (currentOccurrencePerYear >= 10)
                 return 1;
 
             //Returns a value between 0 and 1 in intervals of 0.1 units
             //based on the logarithmic scale of the occurrence per year
-            return (1f + Mathf.Log10(currentOccurrencePerYearLocal)) / 2f;
+            return (1f + Mathf.Log10(currentOccurrencePerYear)) / 2f;
         }
 
-        protected virtual float GetCurrentOccurrencePerYearLocal()
+        protected virtual float GetBaseOccurrencePerYear()
         {
             return BaseOccurrencePerYear;
         }

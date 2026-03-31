@@ -79,6 +79,7 @@ namespace NaturalDisastersRenewal.UI
         //Meteor Strike
         private UICheckBox _uiMeteorStrikeEnabled;
         private UISlider _uiMeteorStrikeMaxProbability;
+        private UISlider _uiMeteorStrikeRealTimeFrequencyMultiplier;
         private UICheckBox _uiMeteorStrikeMeteorLongPeriodEnabled;
         private UICheckBox _uiMeteorStrikeMeteorMediumPeriodEnabled;
         private UICheckBox _uiMeteorStrikeMeteorShortPeriodEnabled;
@@ -167,6 +168,8 @@ namespace NaturalDisastersRenewal.UI
             _uiMeteorStrikeEnabled.isChecked = disasterSetupModel.MeteorStrike.IsDisasterEnabled;
             _uiMeteorStrikeEvacuationMode.selectedIndex = (int)disasterSetupModel.MeteorStrike.EvacuationMode;
             _uiMeteorStrikeMaxProbability.value = disasterSetupModel.MeteorStrike.BaseOccurrencePerYear;
+            _uiMeteorStrikeRealTimeFrequencyMultiplier.value = disasterSetupModel.MeteorStrike.RealTimeFrequencyMultiplier;
+            _uiMeteorStrikeRealTimeFrequencyMultiplier.enabled = CommonServices.DisasterHandler.CheckRealTimeModActive();
             _uiMeteorStrikeMeteorLongPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(0);
             _uiMeteorStrikeMeteorMediumPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(1);
             _uiMeteorStrikeMeteorShortPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(2);
@@ -179,15 +182,33 @@ namespace NaturalDisastersRenewal.UI
             UISlider uISlider = obj as UISlider;
             if (uISlider == null) return;
 
-            UILabel label = uISlider.parent.AddUIComponent<UILabel>();
+            var sliderPanel = uISlider.parent as UIPanel;
+            if (sliderPanel == null) return;
+
+            sliderPanel.autoLayout = false;
+
+            UILabel titleLabel = sliderPanel.Find<UILabel>("Label");
+            if (titleLabel != null)
+            {
+                titleLabel.anchor = UIAnchorStyle.None;
+                titleLabel.wordWrap = true;
+                titleLabel.autoHeight = true;
+                titleLabel.position = new Vector3(titleLabel.position.x, titleLabel.position.y + 3);
+
+                // Expand slider rows when the title wraps to multiple lines.
+                const float singleLineTitleHeight = 22f;
+                var wrappedExtraHeight = Mathf.Max(0f, titleLabel.height - singleLineTitleHeight);
+                if (wrappedExtraHeight > 0f)
+                {
+                    uISlider.position = new Vector3(uISlider.position.x, uISlider.position.y + wrappedExtraHeight, uISlider.position.z);
+                    sliderPanel.height += wrappedExtraHeight;
+                }
+            }
+
+            UILabel label = sliderPanel.AddUIComponent<UILabel>();
             label.text = uISlider.value.ToString() + postfix;
             label.textScale = 1f;
-            (uISlider.parent as UIPanel).autoLayout = false;
             label.position = new Vector3(uISlider.position.x + uISlider.width + 15, uISlider.position.y);
-
-            UILabel titleLabel = (uISlider.parent as UIPanel).Find<UILabel>("Label");
-            titleLabel.anchor = UIAnchorStyle.None;
-            titleLabel.position = new Vector3(titleLabel.position.x, titleLabel.position.y + 3);
 
             uISlider.eventValueChanged += new PropertyChangedEventHandler<float>(delegate (UIComponent component, float value)
             {
@@ -395,7 +416,7 @@ namespace NaturalDisastersRenewal.UI
                 CommonServices.DisasterHandler.ResetToDefaultValues(false, true);
                 UpdateSetupContentUI();
             });
-//----------------
+
             var hotkeyGroup = generalGroup.AddGroup(LocalizationService.Get("settings.togglePanelHotkey"));
             if (hotkeyGroup is UIHelper hotkeyUiHelper && hotkeyUiHelper.self is UIPanel hotkeyPanel)
             {
@@ -416,8 +437,7 @@ namespace NaturalDisastersRenewal.UI
             _uiGeneralTogglePanelHotkeyButton.tooltip = LocalizationService.Get("settings.hotkey.tooltip");
             RefreshHotkeyButtonText();
             generalGroup.AddSpace(10);
-//-------------------
-            generalGroup.AddSpace(10);
+            
             var disastersGroup = generalGroup.AddGroup(LocalizationService.Get("settings.group.enableDisasters"));
 
             _uiForestFireEnabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.ForestFire.GetName(), disasterContainer.ForestFire.IsDisasterEnabled, delegate(bool isChecked)
@@ -742,6 +762,7 @@ namespace NaturalDisastersRenewal.UI
         void SetupMeteorStrike(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
             var meteorStrikeGroup = helper.AddGroup(LocalizationService.Format("settings.group.disaster", disasterContainer.MeteorStrike.GetName()));
+            var isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
 
             _uiMeteorStrikeMaxProbability = (UISlider)meteorStrikeGroup.AddSlider(LocalizationService.Get("settings.howOften"), 1f, 50, 1f, disasterContainer.MeteorStrike.BaseOccurrencePerYear, delegate(float val)
             {
@@ -751,6 +772,17 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(_uiMeteorStrikeMaxProbability);
             _uiMeteorStrikeMaxProbability.tooltip = LocalizationService.Get("settings.tooltip.howOften");
 
+            meteorStrikeGroup.AddSpace(15);
+
+            _uiMeteorStrikeRealTimeFrequencyMultiplier = (UISlider)meteorStrikeGroup.AddSlider(LocalizationService.Get("settings.realTimeMeteorFrequency"), 1f, 12f, 0.5f, disasterContainer.MeteorStrike.RealTimeFrequencyMultiplier, delegate(float val)
+            {
+                if (!_freezeUI)
+                    disasterContainer.MeteorStrike.RealTimeFrequencyMultiplier = val;
+            });
+            AddLabelToSlider(_uiMeteorStrikeRealTimeFrequencyMultiplier, "x");
+            _uiMeteorStrikeRealTimeFrequencyMultiplier.tooltip = LocalizationService.Get("settings.tooltip.realTimeMeteorFrequency");
+            _uiMeteorStrikeRealTimeFrequencyMultiplier.enabled = isRealTimeActive;
+            
             _uiMeteorStrikeMeteorLongPeriodEnabled = (UICheckBox)meteorStrikeGroup.AddCheckbox(LocalizationService.Get("settings.enableLongMeteor"), disasterContainer.MeteorStrike.GetEnabled(0), delegate(bool isChecked)
             {
                 if (!_freezeUI)

@@ -89,9 +89,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterStarted(intensity);
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
-            return base.GetCurrentOccurrencePerYearLocal() * groundwaterAmount / GroundwaterCapacity;
+            return base.GetBaseOccurrencePerYear() * groundwaterAmount / GroundwaterCapacity;
         }
 
         protected override void ResetDisasterState()

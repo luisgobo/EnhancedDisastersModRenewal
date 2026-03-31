@@ -59,14 +59,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return base.GetTooltipInformation();
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
             if (aftershocksCount > 0)
             {
                 return 12 * aftershocksCount;
             }
 
-            return base.GetCurrentOccurrencePerYearLocal();
+            return base.GetBaseOccurrencePerYear();
         }
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)

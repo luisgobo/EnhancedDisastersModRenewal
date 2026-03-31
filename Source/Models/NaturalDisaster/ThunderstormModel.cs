@@ -65,14 +65,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return LocalizationService.Format("tooltip.thunderstorm.waitingForRain", (int)(seasonFactor * 100f));
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
             var seasonFactor = GetSeasonFactor();
             var chargeRatio = GetChargeRatio();
             var effectiveSeasonFactor = Mathf.Max(seasonFactor, MinimumSeasonFactor * chargeRatio);
             var effectiveOccurrenceFactor = effectiveSeasonFactor + ChargeOccurrenceBoost * chargeRatio;
 
-            float occurence = base.GetCurrentOccurrencePerYearLocal() * effectiveOccurrenceFactor;
+            var occurence = base.GetBaseOccurrencePerYear() * effectiveOccurrenceFactor;
 
             if (IsRainActive())
             {

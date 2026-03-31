@@ -7,11 +7,16 @@ using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
 using UnityEngine;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class MeteorStrikeModel : DisasterBaseModel
     {
+        private const float DefaultRealTimeFrequencyMultiplier = 4f;
+        private float _realTimeFrequencyMultiplier = DefaultRealTimeFrequencyMultiplier;
+        private readonly bool _isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
+
         protected override TimeBehaviorMode CurrentTimeBehaviorMode => TimeBehaviorMode.VanillaSimulationCompatible;
 
         public struct MeteorEvent
@@ -59,9 +64,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     return 0;
                 }
 
-                float fallPeriod_half = 30; // Days
-                float daysDiffFromPeak = Mathf.Abs(DaysUntilNextEvent - fallPeriod_half);
-                float multiplier = Mathf.Max(0, 1f - daysDiffFromPeak / fallPeriod_half);
+                const float fallPeriodHalfInDays = 30;
+                var daysDiffFromPeak = Mathf.Abs(DaysUntilNextEvent - fallPeriodHalfInDays);
+                var multiplier = Mathf.Max(0, 1f - daysDiffFromPeak / fallPeriodHalfInDays);
 
                 return multiplier;
             }
@@ -183,6 +188,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
+        [XmlElement]
+        public float RealTimeFrequencyMultiplier
+        {
+            get
+            {
+                return _realTimeFrequencyMultiplier;
+            }
+
+            set
+            {
+                _realTimeFrequencyMultiplier = Mathf.Max(1f, value);
+            }
+        }
+
         public bool GetEnabled(int index)
         {
             return meteorEvents[index].Enabled;
@@ -196,6 +215,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected override void OnSimulationFrameLocal()
         {
             var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
+            if (_isRealTimeActive)
+            {
+                daysPerFrame *= Mathf.Max(1f, RealTimeFrequencyMultiplier);
+            }
 
             for (int i = 0; i < meteorEvents.Length; i++)
             {
@@ -252,9 +275,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterStarted(intensity);
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
-            float baseValue = base.GetCurrentOccurrencePerYearLocal();
+            var baseValue = base.GetBaseOccurrencePerYear();
 
             float result = 0;
 
@@ -297,10 +320,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return "Not Unlocked yet";
             }
 
-            var probability = GetDisasterProbabilityPercentageValue();
+            var probability = GetDisasterProbabilityPercentageValue() + Environment.NewLine;
 
             for (var i = 0; i < meteorEvents.Length; i++)
-                probability += meteorEvents[i].GetStateDescription() + Environment.NewLine;
+                probability += $"{meteorEvents[i].GetStateDescription()}{Environment.NewLine}";
 
             return probability;
         }
@@ -308,7 +331,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected override float CalculateDestructionRadio(byte intensity)
         {
             int unitSize = 8;
-            int unitsBase = 24; //24 Original, Distance Fix for proximity
+            var unitsBase = 24;
             float unitCalculation;
             int intensityInt = intensity / 10;
             int intensityDec = intensity % 10;
@@ -369,6 +392,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 MeteorLongPeriodEnabled = d.MeteorLongPeriodEnabled;
                 MeteorMediumPeriodEnabled = d.MeteorMediumPeriodEnabled;
                 MeteorShortPeriodEnabled = d.MeteorShortPeriodEnabled;
+                RealTimeFrequencyMultiplier = d.RealTimeFrequencyMultiplier;
             }
         }
 

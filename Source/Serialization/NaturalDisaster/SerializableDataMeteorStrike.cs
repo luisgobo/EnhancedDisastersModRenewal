@@ -10,6 +10,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
         {
             var meteorStrike = CommonServices.DisasterSetup.MeteorStrike;
             SerializeCommonParameters(dataSerializer, meteorStrike);
+            dataSerializer.WriteFloat(meteorStrike.RealTimeFrequencyMultiplier);
 
             for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
             {
@@ -25,6 +26,10 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
         {
             var meteorStrike = CommonServices.DisasterSetup.MeteorStrike;
             DeserializeCommonParameters(dataSerializer, meteorStrike);
+            if (dataSerializer.version >= 4)
+            {
+                meteorStrike.RealTimeFrequencyMultiplier = dataSerializer.ReadFloat();
+            }
 
             if (dataSerializer.version <= 2)
             {
