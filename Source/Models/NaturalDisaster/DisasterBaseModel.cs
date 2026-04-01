@@ -63,6 +63,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected virtual TimeBehaviorMode CurrentTimeBehaviorMode =>
             _isRealTimeActive ? TimeBehaviorMode.RealTimeCompatible : TimeBehaviorMode.Original;
+        protected virtual float TimeProgressMultiplier => 1f;
 
         protected virtual float GetCurrentOccurrencePerYear()
         {
@@ -147,7 +148,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             OnSimulationFrameLocal();
 
-            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
+            var daysPerFrame = GetSimulationDaysPerFrame();
 
             if (CalmDaysLeft > 0)
             {
@@ -190,6 +191,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 StartDisaster(intensity);
             }
+        }
+
+        protected float GetSimulationDaysPerFrame()
+        {
+            return Helper.GetDaysPerFrame(CurrentTimeBehaviorMode) * Mathf.Max(1f, TimeProgressMultiplier);
         }
 
         public void Unlock()

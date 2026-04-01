@@ -7,12 +7,19 @@ using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
 using UnityEngine;
+using System.Xml.Serialization;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class TsunamiModel : DisasterBaseModel
     {
+        private const float DefaultRealTimeProgressMultiplier = 4f;
+        private float _realTimeProgressMultiplier = DefaultRealTimeProgressMultiplier;
+        private readonly bool _isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
+
         protected override TimeBehaviorMode CurrentTimeBehaviorMode => TimeBehaviorMode.VanillaSimulationCompatible;
+        protected override float TimeProgressMultiplier => _isRealTimeActive ? RealTimeProgressMultiplier : 1f;
 
         public TsunamiModel()
         {
@@ -31,6 +38,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 ProbabilityWarmupDays = (int)(360 * value);
                 IntensityWarmupDays = ProbabilityWarmupDays / 2;
                 CalmDays = ProbabilityWarmupDays;
+            }
+        }
+
+        [XmlElement]
+        public float RealTimeProgressMultiplier
+        {
+            get
+            {
+                return _realTimeProgressMultiplier;
+            }
+
+            set
+            {
+                _realTimeProgressMultiplier = Mathf.Max(1f, value);
             }
         }
 
@@ -102,6 +123,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (d != null)
             {
                 WarmupYears = d.WarmupYears;
+                RealTimeProgressMultiplier = d.RealTimeProgressMultiplier;
             }
         }
 

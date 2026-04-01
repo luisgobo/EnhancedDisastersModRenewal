@@ -14,7 +14,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
     public class LoadedGameSerializableDataExtension : ISerializableDataExtension
     {
         public const string DataID = CommonProperties.dataId;
-        public const uint DataVersion = 4;
+        public const uint DataVersion = 5;
         ISerializableData serializableData;
 
         public void OnCreated(ISerializableData serializedData)

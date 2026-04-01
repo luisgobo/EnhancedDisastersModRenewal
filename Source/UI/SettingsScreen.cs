@@ -63,6 +63,7 @@ namespace NaturalDisastersRenewal.UI
         private UICheckBox _uiTsunamiEnabled;
         private UISlider _uiTsunamiMaxProbability;
         private UISlider _uiTsunamiWarmupYears;
+        private UISlider _uiTsunamiRealTimeProgressMultiplier;
         private UIDropDown _uiTsunamiEvacuationMode;
 
         //Earthquake
@@ -156,6 +157,8 @@ namespace NaturalDisastersRenewal.UI
             _uiTsunamiEvacuationMode.selectedIndex = (int)disasterSetupModel.Tsunami.EvacuationMode;
             _uiTsunamiMaxProbability.value = disasterSetupModel.Tsunami.BaseOccurrencePerYear;
             _uiTsunamiWarmupYears.value = disasterSetupModel.Tsunami.WarmupYears;
+            _uiTsunamiRealTimeProgressMultiplier.value = disasterSetupModel.Tsunami.RealTimeProgressMultiplier;
+            _uiTsunamiRealTimeProgressMultiplier.enabled = CommonServices.DisasterHandler.CheckRealTimeModActive();
 
             _uiEarthquakeEnabled.isChecked = disasterSetupModel.Earthquake.IsDisasterEnabled;
             _uiEarthquakeEvacuationMode.selectedIndex = (int)disasterSetupModel.Earthquake.EvacuationMode;
@@ -659,6 +662,7 @@ namespace NaturalDisastersRenewal.UI
         void SetupTsunami(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
             var tsunamiGroup = helper.AddGroup(LocalizationService.Format("settings.group.disaster", disasterContainer.Tsunami.GetName()));
+            var isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
 
             _uiTsunamiMaxProbability = (UISlider)tsunamiGroup.AddSlider(LocalizationService.Get("settings.howOften"), 0.1f, 10, 0.1f, disasterContainer.Tsunami.BaseOccurrencePerYear, delegate(float val)
             {
@@ -675,6 +679,15 @@ namespace NaturalDisastersRenewal.UI
             });
             AddLabelToSlider(_uiTsunamiWarmupYears, " " + LocalizationService.Get("time.year.plural"));
             _uiTsunamiWarmupYears.tooltip = LocalizationService.Get("settings.tooltip.buildUpTime");
+
+            _uiTsunamiRealTimeProgressMultiplier = (UISlider)tsunamiGroup.AddSlider(LocalizationService.Get("settings.realTimeTsunamiSpeed"), 1f, 12f, 0.5f, disasterContainer.Tsunami.RealTimeProgressMultiplier, delegate(float val)
+            {
+                if (!_freezeUI)
+                    disasterContainer.Tsunami.RealTimeProgressMultiplier = val;
+            });
+            AddLabelToSlider(_uiTsunamiRealTimeProgressMultiplier, "x");
+            _uiTsunamiRealTimeProgressMultiplier.tooltip = LocalizationService.Get("settings.tooltip.realTimeTsunamiSpeed");
+            _uiTsunamiRealTimeProgressMultiplier.enabled = isRealTimeActive;
 
             ComponentHelpers.AddDropDown(
                 ref _uiTsunamiEvacuationMode,
