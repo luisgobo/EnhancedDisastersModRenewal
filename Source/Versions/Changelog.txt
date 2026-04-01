@@ -64,16 +64,22 @@
 		 * Max population limit Default value changed from 100K to 200K.
 		 * Meteor strike tooltip info format fixed
 
-    Version: 1.3
-            Release Date (YYYY-MM-dd): 2026-03-20
-            Change List:
-             * Some fixed typos in this changelog.
-             * Max population limit redefined to "Min population limit" to trigger higher disasters.
-             * Options split in settings panel.
-             * Options split in game panel.             
-             * "End of the times" mode added to potentiate the disasters
-             * Real Time adjusting to do not wait for a long time to get a disaster.
-             * ...
+	Version: 1.3
+		Release Date (YYYY-MM-dd): 2026-03-31
+		Change List:
+		 * Reworked the in-game disaster panel with separate Statistics and Settings tabs, clearer layout, scrollable content, and improved action buttons.
+		 * Reorganized the settings screen into clearer sections for general options, panel positions, disaster enable/disable toggles, per-disaster configuration, hotkeys, and save actions.
+		 * Added configurable hotkey capture for showing or hiding the disaster panel, including XML serialization support for saved hotkey values.
+		 * Added localization infrastructure for disaster names, panel labels, settings text, and tooltips, with English and Spanish translation support.
+		 * Expanded tooltip coverage and improved wording across the in-game panel and settings screen for disaster probability, intensity, and status feedback.
+		 * Added Real Time compatibility improvements so disaster timing adapts better when Real Time is active instead of waiting excessively for events.
+		 * Added Real Time status and timing details to the in-game panel, including active state, time offset ticks, and day-time frame information.
+		 * Added Real Time-specific tuning controls for tsunami progress speed and meteor frequency, plus support for VanillaSimulationCompatible time behavior handling.
+		 * Improved disaster occurrence, probability, intensity, and simulation logic across Forest Fire, Thunderstorm, Meteor Strike, Tsunami, Earthquake, Tornado, and Sinkhole models.
+		 * Improved thunderstorm charge handling, forest fire time optimization, tsunami progress handling, and meteor occurrence calculations.
+		 * Improved disaster reset and cancellation behavior, evacuation release tracking, logging consistency, centralized service access, and helper/component structure.
+		 * Updated setup and disaster serialization to preserve the new settings correctly and improved save/load handling for the active branch changes.
+		 * Added active/inactive panel button icons and updated project/build metadata, including assembly version 1.3.0.1.
              
 	Version: 1.x
 		Release Date (YYYY-MM-dd): ...
