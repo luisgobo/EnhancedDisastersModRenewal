@@ -195,6 +195,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
+        public virtual void OnSimulationFrame(ref List<DisasterInfoModel> activeDisasters)
+        {
+            OnSimulationFrame();
+        }
+
         protected float GetSimulationDaysPerFrame()
         {
             return Helper.GetDaysPerFrame(CurrentTimeBehaviorMode) * Mathf.Max(1f, TimeProgressMultiplier);

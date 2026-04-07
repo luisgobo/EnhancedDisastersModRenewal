@@ -123,7 +123,7 @@ namespace NaturalDisastersRenewal.Handlers
         {
             CheckUnlocks();
 
-            foreach (var ed in Container.DisasterList) ed.OnSimulationFrame();
+            foreach (var ed in Container.DisasterList) ed.OnSimulationFrame(ref Container.ActiveDisasters);
         }
 
         public void OnCreated(IDisaster disasters)

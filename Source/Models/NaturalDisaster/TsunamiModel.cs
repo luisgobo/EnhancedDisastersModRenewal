@@ -15,6 +15,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
     public class TsunamiModel : DisasterBaseModel
     {
         private const float DefaultRealTimeProgressMultiplier = 4f;
+        private const uint ActiveShelterRefreshFrameInterval = 128u;
         private float _realTimeProgressMultiplier = DefaultRealTimeProgressMultiplier;
         private readonly bool _isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
 
@@ -57,7 +58,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfo.type |= DisasterType.Tsunami;            
+            disasterInfo.type |= DisasterType.Tsunami;
+            RefreshActiveTsunamiShelters(disasterInfo, disasterId, ref activeDisasters);
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
@@ -93,6 +95,27 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             disasterInfoUnified.IgnoreDestructionZone = true;
 
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);            
+        }
+
+        public override void OnSimulationFrame(ref List<DisasterInfoModel> activeDisasters)
+        {
+            base.OnSimulationFrame(ref activeDisasters);
+
+            if (activeDisasters == null || activeDisasters.Count == 0)
+                return;
+
+            var currentFrame = Singleton<SimulationManager>.instance.m_currentFrameIndex;
+            if (currentFrame % ActiveShelterRefreshFrameInterval != 0)
+                return;
+
+            for (var i = 0; i < activeDisasters.Count; i++)
+            {
+                var activeDisaster = activeDisasters[i];
+                if ((activeDisaster.DisasterInfo.type & DisasterType.Tsunami) == 0)
+                    continue;
+
+                RefreshActiveTsunamiShelters(activeDisaster.DisasterInfo, activeDisaster.DisasterId, ref activeDisasters, true);
+            }
         }
 
         protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
@@ -193,10 +216,23 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return evaluation;
         }
 
-        private void SetupTsunamiEvacuation(DisasterInfoModel disasterInfoModel, float? focusedRadius, ref List<DisasterInfoModel> activeDisasters)
+        private void SetupTsunamiEvacuation(DisasterInfoModel disasterInfoModel, float? focusedRadius, ref List<DisasterInfoModel> activeDisasters,
+            bool appendOnly = false)
         {
             if (NaturalDisasterHandler.GetDisasterInfo(DType) == null)
                 return;
+
+            var existingDisaster = activeDisasters.Find(disaster => disaster.DisasterId == disasterInfoModel.DisasterId);
+            if (existingDisaster != null && !ReferenceEquals(existingDisaster, disasterInfoModel))
+            {
+                disasterInfoModel = existingDisaster;
+            }
+
+            disasterInfoModel.EvacuationMode = EvacuationMode;
+            disasterInfoModel.FinishOnDeactivate = false;
+            disasterInfoModel.IgnoreDestructionZone = true;
+            if (!appendOnly)
+                disasterInfoModel.ShelterList.Clear();
 
             var buildingManager = Singleton<BuildingManager>.instance;
             var serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
@@ -219,7 +255,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 if (!impactArea.IsInEvacuationArea)
                     continue;
 
-                disasterInfoModel.ShelterList.Add(shelterId);
+                if (!disasterInfoModel.ShelterList.Contains(shelterId))
+                    disasterInfoModel.ShelterList.Add(shelterId);
                 SetBuildingEvacuationStatus(shelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], false);
 
                 DebugLogger.Log(
@@ -235,7 +272,31 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
             }
 
-            activeDisasters.Add(disasterInfoModel);
+            if (existingDisaster == null)
+                activeDisasters.Add(disasterInfoModel);
+        }
+
+        private void RefreshActiveTsunamiShelters(DisasterSettings disasterInfo, ushort disasterId,
+            ref List<DisasterInfoModel> activeDisasters, bool appendOnly = false)
+        {
+            var disasterInfoModel = activeDisasters.Find(disaster => disaster.DisasterId == disasterId) ??
+                                    new DisasterInfoModel
+                                    {
+                                        DisasterInfo = disasterInfo,
+                                        DisasterId = disasterId
+                                    };
+
+            disasterInfoModel.DisasterInfo = disasterInfo;
+
+            switch (EvacuationMode)
+            {
+                case EvacuationOptions.AutoEvacuation:
+                    SetupTsunamiEvacuation(disasterInfoModel, null, ref activeDisasters, appendOnly);
+                    break;
+                case EvacuationOptions.FocusedAutoEvacuation:
+                    SetupTsunamiEvacuation(disasterInfoModel, CommonServices.DisasterSetup.PartialEvacuationRadius, ref activeDisasters, appendOnly);
+                    break;
+            }
         }
 
         private static bool IsInsideWaveCorridor(Vector3 center, float angle, Vector3 pointPosition, float pointRadius, float halfWidth)
