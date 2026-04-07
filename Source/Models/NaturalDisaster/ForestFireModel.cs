@@ -1,20 +1,24 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
+using DisasterType = ICities.DisasterType;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class ForestFireModel : DisasterBaseModel
     {
+        private const float ForestFireDefaultBaseOccurrencePerYear = 0.9f;
+        
         public int WarmupDays = 180;
-        [XmlIgnore] public float noRainDays = 0;
+        [XmlIgnore] public float NoRainDays;
 
         public ForestFireModel()
         {
@@ -23,34 +27,107 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             OccurrenceAreaAfterUnlock = OccurrenceAreas.Everywhere;
             BaseOccurrencePerYear = 10.0f; // In case of dry weather
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
+            CalmDays = 7;
+            ProbabilityWarmupDays = 0;
+            IntensityWarmupDays = 0;
+        }
 
-            calmDays = 7;
-            probabilityWarmupDays = 0;
-            intensityWarmupDays = 0;
+        public override void OnSimulationFrame()
+        {
+            if (!IsDisasterEnabled) return;
+
+            if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere) return;
+
+            OnSimulationFrameLocal();
+
+            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
+
+            if (CalmDaysLeft > 0)
+            {
+                CalmDaysLeft -= daysPerFrame;
+                return;
+            }
+
+            if (ProbabilityWarmupDaysLeft > 0)
+            {
+                if (ProbabilityWarmupDaysLeft > ProbabilityWarmupDays)
+                    ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
+
+                ProbabilityWarmupDaysLeft -= daysPerFrame;
+            }
+
+            if (IntensityWarmupDaysLeft > 0)
+            {
+                if (IntensityWarmupDaysLeft > IntensityWarmupDays) IntensityWarmupDaysLeft = IntensityWarmupDays;
+
+                IntensityWarmupDaysLeft -= daysPerFrame;
+            }
+
+            var occurrencePerYear = GetCurrentOccurrencePerYear();
+
+            if (occurrencePerYear == 0) return;
+
+            var simulationManager = CommonServices.Simulation;
+            var occurrencePerFrame = occurrencePerYear / 365 * daysPerFrame;
+
+            var randomizedValue = simulationManager.m_randomizer.Int32(randomizerRange);
+            var randomizedOccurrence = (uint)(randomizerRange * occurrencePerFrame);
+
+            // New Logarithmic activation based on occurrence per year
+            var probabilityProgress = occurrencePerYear switch
+            {
+                <= 0.1f => 0f,
+                >= 10f => 1f,
+                _ => (1f + Mathf.Log10(occurrencePerYear)) / 2f
+            };
+
+            switch (occurrencePerYear)
+            {
+                case > 0.1f and < 10f:
+                {
+                    var threshold = probabilityProgress * randomizedOccurrence;
+
+                    if (!(randomizedValue < threshold)) return;
+
+                    var maxIntensity = GetMaximumIntensity();
+                    var intensity = GetRandomIntensity(maxIntensity);
+
+                    StartDisaster(intensity);
+                    break;
+                }
+                case >= 10f:
+                {
+                    var maxIntensity = GetMaximumIntensity();
+                    var intensity = GetRandomIntensity(maxIntensity);
+
+                    StartDisaster(intensity);
+                    break;
+                }
+            }
         }
 
         protected override void OnSimulationFrameLocal()
         {
-            WeatherManager wm = Singleton<WeatherManager>.instance;
+            var wm = Singleton<WeatherManager>.instance;
             if (wm.m_currentRain > 0)
             {
-                noRainDays = 0;
+                NoRainDays = 0;
             }
             else
             {
-                noRainDays += Helper.DaysPerFrame;
+                NoRainDays += Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
             }
         }
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfo.type |= DisasterType.ForestFire;
+            disasterInfo.type = DisasterType.ForestFire;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
         public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfoUnified.DisasterInfo.type |= DisasterType.ForestFire;
+            disasterInfoUnified.DisasterInfo.type = DisasterType.ForestFire;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = true;
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
@@ -58,42 +135,45 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfoUnified.DisasterInfo.type |= DisasterType.ForestFire;
+            disasterInfoUnified.DisasterInfo.type = DisasterType.ForestFire;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = true;
 
+
+            DebugLogger.Log("ForestFireModel - OnDisasterDetected: Disaster Type set to ForestFire, EvacuationMode: " + EvacuationMode);
+            
             base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
             //Get disaster Info
-            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+            var disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
             
             if (disasterInfo == null)
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
-            FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
+            var buildingManager = Singleton<BuildingManager>.instance;
+            var serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)
                 return;
 
-            //Release all shelters but Potentyally destroyed
-            for (int i = 0; i < serviceBuildings.m_size; i++)
+            //Release all shelters but Potentially destroyed
+            for (var i = 0; i < serviceBuildings.m_size; i++)
             {
-                ushort num = serviceBuildings.m_buffer[i];
+                var num = serviceBuildings.m_buffer[i];
                 if (num != 0)
                 {
                     //here we got all shelter buildings
                     var buildingInfo = buildingManager.m_buildings.m_buffer[num];
 
-                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
+                    if (buildingInfo.Info.m_buildingAI as ShelterAI != null)
                     {
                         //Add Building/Shelter Data to disaster
                         disasterInfoModel.ShelterList.Add(num);
-                        SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                        SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                     }
                 }
             }
@@ -101,38 +181,41 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             activeDisasters.Add(disasterInfoModel);
         }
 
-        public override string GetProbabilityTooltip(float value)
+        public override string GetTooltipInformation()
         {
-            string tooltip = "";
+            var tooltip = "";
 
-            if (!unlocked)
+            if (!Unlocked)
             {
-                tooltip = "Not unlocked yet (occurs only outside of your area)." + Environment.NewLine;
+                tooltip = LocalizationService.Get("tooltip.notUnlockedOutsideArea") + Environment.NewLine;
             }
 
-            if (calmDaysLeft == 0)
-            {
-                if (noRainDays <= 0)
-                {
-                    return tooltip + "No " + GetName() + " during rain.";
-                }
-                else
-                {
-                    if (noRainDays >= WarmupDays)
-                    {
-                        return tooltip + "Maximum because there was no rain for more than " + WarmupDays.ToString() + " days.";
-                    }
+            if (CalmDaysLeft != 0) return base.GetTooltipInformation();
 
-                    return tooltip + "Increasing because there was no rain for " + Helper.FormatTimeSpan(noRainDays);
+            if (NoRainDays <= 0)
+            {
+                return tooltip + LocalizationService.Get("tooltip.forestFire.noDuringRain");
+            }
+            else
+            {
+                if (NoRainDays >= WarmupDays)
+                {
+                    return tooltip + LocalizationService.Format("tooltip.forestFire.maxNoRain", WarmupDays);
                 }
+
+                return tooltip + LocalizationService.Format("tooltip.forestFire.increasingNoRain", Helper.FormatTimeSpan(NoRainDays));
             }
 
-            return base.GetProbabilityTooltip(value);
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
-            return base.GetCurrentOccurrencePerYearLocal() * Math.Min(1f, noRainDays / WarmupDays);
+            return ForestFireDefaultBaseOccurrencePerYear * Math.Min(1f, NoRainDays / WarmupDays);
+        }
+
+        protected override void ResetDisasterState()
+        {
+            NoRainDays = 0;
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
@@ -142,7 +225,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.forestFireName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
         public override void CopySettings(DisasterBaseModel disaster)
@@ -154,6 +237,17 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 WarmupDays = d.WarmupDays;
             }
+        }
+
+        public override float GetDisasterProbability()
+        {
+            return CalmDaysLeft > 0 ? 0f : base.GetDisasterProbability();
+        }
+
+        public override void ResetDisasterProbabilities()
+        {
+            BaseOccurrencePerYear = ForestFireDefaultBaseOccurrencePerYear;
+            base.ResetDisasterProbabilities();
         }
         
     }

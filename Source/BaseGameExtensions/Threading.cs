@@ -1,6 +1,5 @@
-using ColossalFramework;
 using ICities;
-using NaturalDisastersRenewal.Handlers;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
 {
@@ -9,10 +8,10 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         public override void OnAfterSimulationFrame()
         {
             // This prevent the game original random disasters to occur.
-            Singleton<DisasterManager>.instance.m_randomDisasterCooldown = 0;
+            CommonServices.Disasters.m_randomDisasterCooldown = 0;
 
             // Give disasters a chance to occur
-            Singleton<NaturalDisasterHandler>.instance.OnSimulationFrame();
+            CommonServices.DisasterHandler.OnSimulationFrame();
         }
     }
 }

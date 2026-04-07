@@ -1,8 +1,6 @@
-﻿using ColossalFramework;
-using ColossalFramework.IO;
+﻿using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Handlers;
-using NaturalDisastersRenewal.Models.NaturalDisaster;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
@@ -10,25 +8,25 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            ForestFireModel forestFire = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
+            var forestFire = CommonServices.DisasterSetup.ForestFire;
             SerializeCommonParameters(dataSerializer, forestFire);
             dataSerializer.WriteInt32(forestFire.WarmupDays);
-            dataSerializer.WriteFloat(forestFire.noRainDays);
+            dataSerializer.WriteFloat(forestFire.NoRainDays);
         }
 
         public void Deserialize(DataSerializer dataSeralizer)
         {
-            ForestFireModel forestFire = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
+            var forestFire = CommonServices.DisasterSetup.ForestFire;
             DeserializeCommonParameters(dataSeralizer, forestFire, 2);
             forestFire.WarmupDays = dataSeralizer.ReadInt32();
             if (dataSeralizer.version <= 2)
             {
                 float daysPerFrame = Helper.DaysPerFrame;
-                forestFire.noRainDays = dataSeralizer.ReadInt32() * daysPerFrame;
+                forestFire.NoRainDays = dataSeralizer.ReadInt32() * daysPerFrame;
             }
             else
             {
-                forestFire.noRainDays = dataSeralizer.ReadFloat();
+                forestFire.NoRainDays = dataSeralizer.ReadFloat();
             }
         }
 

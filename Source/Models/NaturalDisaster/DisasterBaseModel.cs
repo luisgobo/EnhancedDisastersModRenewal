@@ -1,4 +1,9 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
@@ -6,195 +11,250 @@ using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Remoting.Messaging;
-using System.Xml.Serialization;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public abstract class DisasterBaseModel
     {
         // Constants
+        private const byte IndexReferenceDisasterValue = 10;
         protected const uint randomizerRange = 67108864u;
         protected const byte baseIntensity = 255; //Base intensity is 100 for all Disasters
-        protected const byte indexReferenceDisasterValue = 10;
+
+        //Using Services class for centralized singleton access and better performance
+        private readonly bool _isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
 
         // Cooldown variables (Not stored into XML)
-        protected int calmDays = 0;
+        protected int CalmDays = 0;
 
-        protected int probabilityWarmupDays = 0;
-        [XmlIgnore] public float calmDaysLeft = 0;
-        [XmlIgnore] public float probabilityWarmupDaysLeft = 0;
-        [XmlIgnore] public int intensityWarmupDays = 0;
-        [XmlIgnore] public float intensityWarmupDaysLeft = 0;
-        
+        [XmlIgnore] public float CalmDaysLeft;
+        [XmlIgnore] public float ProbabilityWarmupDaysLeft;
+        [XmlIgnore] public float IntensityWarmupDaysLeft;
+        [XmlIgnore] protected int IntensityWarmupDays = 0;
+        protected int ProbabilityWarmupDays = 0;
 
         // Disaster properties
         protected DisasterType DType = DisasterType.Empty;
 
         protected ProbabilityDistributions ProbabilityDistribution = ProbabilityDistributions.Uniform;
-        //protected int FullIntensityMaxLimitPopulation = 70000;//Original: 20000
         protected OccurrenceAreas OccurrenceAreaBeforeUnlock = OccurrenceAreas.Nowhere;
         protected OccurrenceAreas OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
-        protected bool unlocked = false;
+        protected bool Unlocked;
 
-        // Disaster public properties (to be saved in xml)
-        public bool Enabled = true;
+        // Disaster public properties (to be saved in XML)
+        public bool IsDisasterEnabled = true;
 
         public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
+        private const double SecondsBeforePausing = 3;
+
+        private readonly HashSet<ushort> _manualReleaseDisasters = [];
+        
         public float BaseOccurrencePerYear = 1.0f;        
 
         // Disaster services
-        FieldInfo evacuatingField;
-
-        WarningPhasePanel phasePanel;
-        readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
-        readonly double secondsBeforePausing = 3;
-
+        private FieldInfo _evacuatingField;
+        private WarningPhasePanel _phasePanel;
+        
         // Public
         public abstract string GetName();
 
-        public float GetCurrentOccurrencePerYear()
+        protected virtual TimeBehaviorMode CurrentTimeBehaviorMode =>
+            _isRealTimeActive ? TimeBehaviorMode.RealTimeCompatible : TimeBehaviorMode.Original;
+        protected virtual float TimeProgressMultiplier => 1f;
+
+        protected virtual float GetCurrentOccurrencePerYear()
         {
-            if (calmDaysLeft > 0)
+            //Check here to set up real time occurrence per year
+            if (CalmDaysLeft > 0) return 0f;
+
+            var currentOccurrencePerYearLocal = GetBaseOccurrencePerYear();
+            return ScaleProbabilityByWarmup(currentOccurrencePerYearLocal);
+        }
+
+        public string GetDisasterProbabilityPercentageValue()
+        {
+            return $"{GetDisasterProbability() * 100:00.00}%";
+        }
+
+        public virtual float GetDisasterProbability()
+        {
+            var currentOccurrencePerYear = GetCurrentOccurrencePerYear();
+
+            if (currentOccurrencePerYear <= 0.1)
+                return 0;
+            if (currentOccurrencePerYear >= 10)
+                return 1;
+
+            //Returns a value between 0 and 1 in intervals of 0.1 units
+            //based on the logarithmic scale of the occurrence per year
+            return (1f + Mathf.Log10(currentOccurrencePerYear)) / 2f;
+        }
+
+        protected virtual float GetBaseOccurrencePerYear()
+        {
+            return BaseOccurrencePerYear;
+        }
+
+        private float ScaleProbabilityByWarmup(float probability)
+        {
+            if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
             {
-                return 0f;
+                return 0;
             }
 
-            return ScaleProbabilityByWarmup(GetCurrentOccurrencePerYearLocal());
+            if (ProbabilityWarmupDaysLeft > 0 && ProbabilityWarmupDays > 0)
+            {
+                if (ProbabilityWarmupDaysLeft >= ProbabilityWarmupDays)
+                {
+                    probability = 0;
+                }
+                else
+                {
+                    probability *= 1 - ProbabilityWarmupDaysLeft / ProbabilityWarmupDays;
+                }
+            }
+
+            return probability;
+        }
+        
+        public virtual void ResetDisasterProbabilities()
+        {
+            CalmDaysLeft = CalmDays;
+            ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
+            IntensityWarmupDaysLeft = IntensityWarmupDays;
+            ResetDisasterState();
+        }
+
+        protected virtual void ResetDisasterState()
+        {
         }
 
         public virtual byte GetMaximumIntensity()
-        {            
-            byte intensity = baseIntensity;            
+        {
+            var intensity = baseIntensity;            
             intensity = ScaleIntensityByWarmup(intensity);
             intensity = ScaleIntensityByPopulation(intensity);
             return intensity;
         }
 
-        public void OnSimulationFrame()
+        public virtual void OnSimulationFrame()
         {
-            if (!Enabled)
-            {
-                return;
-            }
+            if (!IsDisasterEnabled) return;
 
-            if (!unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
-            {
-                return;
-            }
+            if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere) return;
 
             OnSimulationFrameLocal();
 
-            float daysPerFrame = Helper.DaysPerFrame;
+            var daysPerFrame = GetSimulationDaysPerFrame();
 
-            if (calmDaysLeft > 0)
+            if (CalmDaysLeft > 0)
             {
-                calmDaysLeft -= daysPerFrame;
+                // Based on days per frame, it reduces the calmDaysLeft every time the game changes of day
+                CalmDaysLeft -= daysPerFrame;
                 return;
             }
 
-            if (probabilityWarmupDaysLeft > 0)
+            if (ProbabilityWarmupDaysLeft > 0)
             {
-                if (probabilityWarmupDaysLeft > probabilityWarmupDays)
+                if (ProbabilityWarmupDaysLeft > ProbabilityWarmupDays)
                 {
-                    probabilityWarmupDaysLeft = probabilityWarmupDays;
+                    ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
                 }
 
-                probabilityWarmupDaysLeft -= daysPerFrame;
+                ProbabilityWarmupDaysLeft -= daysPerFrame;
             }
 
-            if (intensityWarmupDaysLeft > 0)
+            if (IntensityWarmupDaysLeft > 0)
             {
-                if (intensityWarmupDaysLeft > intensityWarmupDays)
-                {
-                    intensityWarmupDaysLeft = intensityWarmupDays;
-                }
+                if (IntensityWarmupDaysLeft > IntensityWarmupDays) IntensityWarmupDaysLeft = IntensityWarmupDays;
 
-                intensityWarmupDaysLeft -= daysPerFrame;
+                IntensityWarmupDaysLeft -= daysPerFrame;
             }
 
-            float occurrencePerYear = GetCurrentOccurrencePerYear();
+            var occurrencePerYear = GetCurrentOccurrencePerYear();
 
             if (occurrencePerYear == 0)
             {
                 return;
             }
 
-            SimulationManager sm = Singleton<SimulationManager>.instance;
-            float occurrencePerFrame = (occurrencePerYear / 365) * daysPerFrame;
-            if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
-            {                
-                var maxIntensity = GetMaximumIntensity();                
-                byte intensity = GetRandomIntensity(maxIntensity);
+
+            var simulationManager = CommonServices.Simulation;
+            var occurrencePerFrame = occurrencePerYear / 365 * daysPerFrame;
+            if (simulationManager.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
+            {
+                var maxIntensity = GetMaximumIntensity();
+                var intensity = GetRandomIntensity(maxIntensity);
 
                 StartDisaster(intensity);
             }
         }
 
+        protected float GetSimulationDaysPerFrame()
+        {
+            return Helper.GetDaysPerFrame(CurrentTimeBehaviorMode) * Mathf.Max(1f, TimeProgressMultiplier);
+        }
+
         public void Unlock()
         {
-            unlocked = true;
+            Unlocked = true;
         }
 
-        public virtual string GetProbabilityTooltip(float value)
+        public virtual string GetTooltipInformation()
         {
-            if (!unlocked)
+            if (!Unlocked)
             {
-                return "Not unlocked yet";
+                return LocalizationService.Get("tooltip.notUnlocked");
             }
 
-            if (calmDaysLeft > 0)
+            if (CalmDaysLeft > 0)
             {
-                return "No " + GetName() + " for another " + Helper.FormatTimeSpan(calmDaysLeft);
+                return LocalizationService.Format("tooltip.noDisasterForAnother", GetName(), Helper.FormatTimeSpan(CalmDaysLeft));
             }
 
-            if (probabilityWarmupDaysLeft > 0)
+            if (ProbabilityWarmupDaysLeft > 0)
             {
-                return "Decreased because " + GetName() + " occured recently.";
+                return LocalizationService.Format("tooltip.recentlyOccurred", GetName());
             }
 
-            //return $"Probability: {value * 10:#.##}";
-            return $"Probability: {(value*2):#.##}";
+            return LocalizationService.Format("tooltip.probability", GetDisasterProbabilityPercentageValue());
         }
 
-        public virtual string GetIntensityTooltip(float value)
+        public virtual string GetIntensityTooltip(float maxDisasterIntensity)
         {
-            if (!unlocked)
+            if (!Unlocked)
             {
-                return "Not unlocked yet";
+                return LocalizationService.Get("tooltip.notUnlocked");
             }
 
-            if (calmDaysLeft > 0)
+            if (CalmDaysLeft > 0)
             {
-                return "No " + GetName() + " for another " + Helper.FormatTimeSpan(calmDaysLeft);
+                return LocalizationService.Format("tooltip.noDisasterForAnother", GetName(), Helper.FormatTimeSpan(CalmDaysLeft));
             }
 
-            string result = $"Intensity: {value * 25.5:#.##}";            
+            var result = LocalizationService.Format("tooltip.intensity", $"{maxDisasterIntensity * 25.5:#.##}");
 
-            if (probabilityWarmupDaysLeft > 0)
+            if (ProbabilityWarmupDaysLeft > 0)
             {
-                result = "Decreased because " + GetName() + " occured recently.";
+                result = LocalizationService.Format("tooltip.recentlyOccurred", GetName());
             }
 
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-            if (Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
-            {
-                if (result != "") result += CommonProperties.newLine;
-                result += "Decreased because of low population.";
-            }
+            var naturalDisasterSetup = CommonServices.DisasterSetup;
+
+            if (!(Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)) return result;
+
+            if (result != "") result += CommonProperties.NewLine;
+            result += LocalizationService.Get("tooltip.lowPopulation");
 
             return result;
         }
 
         public virtual void CopySettings(DisasterBaseModel disaster)
         {
-            Enabled = disaster.Enabled;
+            IsDisasterEnabled = disaster.IsDisasterEnabled;
             BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
             EvacuationMode = disaster.EvacuationMode;
         }
@@ -203,11 +263,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         // Utilities
 
-        protected virtual float GetCurrentOccurrencePerYearLocal()
-        {
-            return BaseOccurrencePerYear;
-        }
-
         protected virtual byte GetRandomIntensity(byte maxIntensity)
         {
             byte intensity;            
@@ -215,7 +270,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             //if based on Gutenberg–Richter law
             if (ProbabilityDistribution == ProbabilityDistributions.PowerLow)
             {
-                float randomValue = Singleton<SimulationManager>.instance.m_randomizer.Int32(1000, 10000) / 10000.0f; // from range 0.1 - 1.0
+                var randomValue =
+                    Singleton<SimulationManager>.instance.m_randomizer.Int32(1000, 10000) /
+                    10000.0f; // from range 0.1 - 1.0
 
                 // See Gutenberg–Richter law.
                 // a, b = 0.11
@@ -240,63 +297,40 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return intensity;
         }
 
-        protected byte ScaleIntensityByWarmup(byte intensity)
+        private byte ScaleIntensityByWarmup(byte intensity)
         {
-            if (intensityWarmupDaysLeft > 0 && intensityWarmupDays > 0)
+            if (IntensityWarmupDaysLeft > 0 && IntensityWarmupDays > 0)
             {
-                if (intensityWarmupDaysLeft >= intensityWarmupDays)
+                if (IntensityWarmupDaysLeft >= IntensityWarmupDays)
                 {
-                    intensity = indexReferenceDisasterValue;
+                    intensity = IndexReferenceDisasterValue;
                 }
                 else
                 {
-                    intensity = (byte)(indexReferenceDisasterValue + (intensity - indexReferenceDisasterValue) * (1 - (intensityWarmupDaysLeft / intensityWarmupDays)));
+                    intensity = (byte)(IndexReferenceDisasterValue + (intensity - IndexReferenceDisasterValue) * (1 - IntensityWarmupDaysLeft / IntensityWarmupDays));
                 }
             }                       
 
             return intensity;
         }
 
-        protected byte ScaleIntensityByPopulation(byte intensity)
+        protected static byte ScaleIntensityByPopulation(byte intensity)
         {
-            if (Singleton<NaturalDisasterHandler>.instance.container.ScaleMaxIntensityWithPopulation)
+            var naturalDisasterSetup = CommonServices.DisasterSetup;
+            if (naturalDisasterSetup.ScaleMaxIntensityWithPopulation)
             {                
                 int population = Helper.GetPopulation();
-                var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-                if (population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
+                if (population < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
                 {
-                    intensity = (byte)(indexReferenceDisasterValue + (((intensity - indexReferenceDisasterValue) * population) / naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters));
-
+                    intensity = (byte)(IndexReferenceDisasterValue + (intensity - IndexReferenceDisasterValue) * population / naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters);
                 }
             }
             return intensity;
         }
 
-        float ScaleProbabilityByWarmup(float probability)
-        {
-            if (!unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere)
-            {
-                return 0;
-            }
-
-            if (probabilityWarmupDaysLeft > 0 && probabilityWarmupDays > 0)
-            {
-                if (probabilityWarmupDaysLeft >= probabilityWarmupDays)
-                {
-                    probability = 0;
-                }
-                else
-                {
-                    probability *= 1 - probabilityWarmupDaysLeft / probabilityWarmupDays;
-                }
-            }
-
-            return probability;
-        }
-
         protected string GetDebugStr()
         {
-            return DType.ToString() + ", " + Singleton<SimulationManager>.instance.m_currentGameTime.ToShortDateString() + ", ";
+            return DType + ", " + Singleton<SimulationManager>.instance.m_currentGameTime.ToShortDateString() + ", ";
         }
 
         // Disaster events
@@ -314,8 +348,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 disasterInfo.intensity);
             DebugLogger.Log(msg);
 
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-            DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, secondsBeforePausing, disasterId, disasterInfo, Enabled);
+            var naturalDisasterSetup = CommonServices.DisasterSetup;
+            DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, SecondsBeforePausing, disasterId, disasterInfo, IsDisasterEnabled);
         }
 
         public virtual void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
@@ -340,7 +374,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 if (!IsEvacuating())
                 {
                     //Not evacuating. Clear list of active manual release disasters                    
-                    manualReleaseDisasters.Clear();
+                    _manualReleaseDisasters.Clear();
                     return;
                 }
 
@@ -359,7 +393,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         case EvacuationOptions.AutoEvacuation:
                         case EvacuationOptions.FocusedAutoEvacuation:
                             //When all list empty, then release all using basegame code for it.
-                            if (!manualReleaseDisasters.Any() && !activeDisasters.Any())
+                            if (!_manualReleaseDisasters.Any() && !activeDisasters.Any())
                             {
                                 //Auto releasing citizens
                                 DisasterManager.instance.EvacuateAll(true);
@@ -370,29 +404,37 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                             if (activeDisasters.Any())
                             {
                                 var pendingShelters = new List<ushort>();
-                                //If pending disaster then get all pending shelters that souldnt be released
-                                foreach (var disaster in activeDisasters)
+                                // //If pending disaster then get all pending shelters that souldnt be released
+                                // foreach (var disaster in activeDisasters)
+                                // {
+                                //     //this is not being filled
+                                //     foreach (var shelterId in disaster.ShelterList)
+                                //     {
+                                //         if (!pendingShelters.Contains(shelterId))
+                                //             pendingShelters.Add(shelterId);
+                                //     }
+                                // }
+                                
+                                //If pending disaster then get all pending shelters that shouldn't be released
+                                foreach (var shelterId in activeDisasters
+                                             .SelectMany(disaster => disaster
+                                                 .ShelterList.Where(shelterId => !pendingShelters.Contains(shelterId))))
                                 {
-                                    //this is not being filled
-                                    foreach (var shelterId in disaster.ShelterList)
-                                    {
-                                        if (!pendingShelters.Contains(shelterId))
-                                            pendingShelters.Add(shelterId);
-                                    }
+                                    pendingShelters.Add(shelterId);
                                 }
 
-                                var sheltersToBeReleased = disasterFinishing.ShelterList.Where(disFinishing => pendingShelters.All(pendSh => pendSh != disFinishing)).ToList();
-                                BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+                                var sheltersToBeReleased =
+                                    disasterFinishing.ShelterList.Where(disFinishing => pendingShelters.All(pendSh => pendSh != disFinishing))
+                                        .ToList();
+
+                                var buildingManager = Singleton<BuildingManager>.instance;
 
                                 foreach (var shelterId in sheltersToBeReleased)
                                 {
                                     var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
-                                    SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);
+                                    SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], true);
                                 }
                             }
-                            break;
-
-                        default:
                             break;
                     }
                 }
@@ -415,7 +457,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                                   $"EvacuationMode: {disasterInfoUnified.EvacuationMode}";
             DebugLogger.Log(msg);
 
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            var naturalDisasterSetup = CommonServices.DisasterSetup;
 
             DisasterExtension.SetDisableDisasterFocus(naturalDisasterSetup.DisableDisasterFocus);
 
@@ -450,11 +492,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         }
         public virtual void OnDisasterStarted(byte intensity)
         {
-            float framesPerDay = Helper.FramesPerDay;
-
-            calmDaysLeft = calmDays * intensity / 100; // TO DO: May be define minimum calmDays
-            probabilityWarmupDaysLeft = probabilityWarmupDays;
-            intensityWarmupDaysLeft = intensityWarmupDays;
+            CalmDaysLeft = CalmDays * intensity / 100; // TO DO: May be defined the minimum CalmDays
+            ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
+            IntensityWarmupDaysLeft = IntensityWarmupDays;
         }
 
         protected virtual void DisasterStarting(DisasterInfo disasterInfo)
@@ -494,12 +534,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             expr_98_cp_0[(int)expr_98_cp_1].m_flags = (expr_98_cp_0[(int)expr_98_cp_1].m_flags | DisasterData.Flags.SelfTrigger);
             disasterInfo.m_disasterAI.StartNow(disasterIndex, ref dm.m_disasters.m_buffer[(int)disasterIndex]);
 
-            DebugLogger.Log(GetDebugStr() + string.Format("disaster intensity: {0}, area: {1}", intensity, unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock));
+            DebugLogger.Log(GetDebugStr() + string.Format("disaster intensity: {0}, area: {1}", intensity, Unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock));
         }
 
         protected virtual bool FindTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
         {
-            OccurrenceAreas area = unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock;
+            var area = Unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock;
 
             switch (area)
             {
@@ -519,12 +559,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        public virtual float CalculateDestructionRadio(byte intensity)
+        protected virtual float CalculateDestructionRadio(byte intensity)
         {
             return 5.656854249f; //min Value Radio
         }
 
-        public virtual void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        protected virtual void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
 
@@ -535,8 +575,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
-            FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
+            var buildingManager = Singleton<BuildingManager>.instance;
+            var serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)
                 return;
@@ -562,10 +602,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
+                        if (!disasterInfoModel.IgnoreDestructionZone && DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
-                            SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                            SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                     }
                 }
             }
@@ -608,10 +648,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return false;
             }
 
-            int lockedAreaCounter = sm.m_randomizer.Int32(1, 25 - gam.m_areaCount);
-            for (int i = 0; i < 5; i++)
+            var lockedAreaCounter = sm.m_randomizer.Int32(1, 25 - gam.m_areaCount);
+
+            for (var i = 0; i < 5; i++)
             {
-                for (int j = 0; j < 5; j++)
+                for (var j = 0; j < 5; j++)
                 {
                     if (IsUnlocked(i, j))
                     {
@@ -625,7 +666,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         float maxX;
                         float maxZ;
                         gam.GetAreaBounds(j, i, out minX, out minZ, out maxX, out maxZ);
-                        float minimumEdgeDistance = 100f;
+
+                        const float minimumEdgeDistance = 100f;
+                        
                         if (IsUnlocked(j - 1, i))
                         {
                             minX += minimumEdgeDistance;
@@ -643,13 +686,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                             maxZ -= minimumEdgeDistance;
                         }
 
-                        float randX = (float)sm.m_randomizer.Int32(0, 10000) * 0.0001f;
-                        float randZ = (float)sm.m_randomizer.Int32(0, 10000) * 0.0001f;
+                        var randX = sm.m_randomizer.Int32(0, 10000) * 0.0001f;
+                        var randZ = sm.m_randomizer.Int32(0, 10000) * 0.0001f;
                         target.x = minX + (maxX - minX) * randX;
                         target.y = 0f;
                         target.z = minZ + (maxZ - minZ) * randZ;
                         target.y = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(target, false, 0f);
-                        angle = (float)sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;
+                        angle = sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;
                         return true;
                     }
                 }
@@ -660,43 +703,44 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return false;
         }
 
-        bool IsUnlocked(int x, int z)
+        private static bool IsUnlocked(int x, int z)
         {
             return x >= 0 && z >= 0 && x < 5 && z < 5 && Singleton<GameAreaManager>.instance.m_areaGrid[z * 5 + x] != 0;
         }
 
-        void FindPhasePanel()
+        private void FindPhasePanel()
         {
             DebugLogger.Log("ES: Find Phase Panel");
 
-            if (phasePanel != null)
+            if (_phasePanel != null)
                 return;
 
-            phasePanel = UnityObject.FindObjectOfType<WarningPhasePanel>();
-            evacuatingField = phasePanel.GetType().GetField("m_isEvacuating", BindingFlags.NonPublic | BindingFlags.Instance);
+            _phasePanel = UnityObject.FindObjectOfType<WarningPhasePanel>();
+            _evacuatingField = _phasePanel.GetType().GetField("m_isEvacuating", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         protected bool IsEvacuating()
         {
             FindPhasePanel();
-            return (bool)evacuatingField.GetValue(phasePanel);
+            return (bool)_evacuatingField.GetValue(_phasePanel);
         }
 
-        void SetupManualEvacuation(ushort disasterId)
+        private void SetupManualEvacuation(ushort disasterId)
         {
             //Should be manually released
-            manualReleaseDisasters.Add(disasterId);
+            _manualReleaseDisasters.Add(disasterId);
         }
 
-        void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
+        protected virtual void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
         {
+            DebugLogger.Log("SetupAutomaticFocusedEvacuation");
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
-
+            DebugLogger.Log(disasterTargetPosition.ToString());
             //Get disaster Info
-            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+            var disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
 
             //Get Disaster Radio from Settings property
-            float disasterRadioEvacuation = (float)Math.Sqrt(disasterRadius); //32f as default aprox;
+            var disasterRadioEvacuation = (float)Math.Sqrt(disasterRadius); //32f as default approx;
 
             if (disasterInfo == null)
                 return;
@@ -705,62 +749,68 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BuildingManager buildingManager = Singleton<BuildingManager>.instance;
             FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
+            DebugLogger.Log("serviceBuildings == null: " + (serviceBuildings == null));
             if (serviceBuildings == null)
                 return;
 
             //Release Specific shelters based on disaster radius proximity
-            for (int i = 0; i < serviceBuildings.m_size; i++)
+            for (var i = 0; i < serviceBuildings.m_size; i++)
             {
-                ushort num = serviceBuildings.m_buffer[i];
-                if (num != 0)
+                var num = serviceBuildings.m_buffer[i];
+                if (num == 0) continue;
+
+                //here we got all shelter buildings
+                var buildingInfo = buildingManager.m_buildings.m_buffer[num];
+                var shelterPosition = buildingInfo.m_position;
+
+                //Once this is located into Risk Zone, it's needed to verify if building would be destroyed by Natural disaster (setup in each one)
+                //Getting diaster core
+                var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
+
+                var shelterRadius =
+                    (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8f / 2f;
+
+                if (buildingInfo.Info.m_buildingAI as ShelterAI == null
+                    || !DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius > disasterRadioEvacuation
+                        ? disasterDestructionRadius : disasterRadioEvacuation)) continue;
+
+                //Add Building/Shelter Data to disaster
+                disasterInfoModel.ShelterList.Add(num);
+
+                DebugLogger.Log(
+                    $"Disaster intensity: {disasterInfoModel.DisasterInfo.intensity}. " +
+                    $"DisasterRadioEvacuation: {disasterRadioEvacuation}. " +
+                    $"DisasterRadioEvacuation into destruction (New Calculation): {disasterDestructionRadius}"
+                );
+
+                //if Shelter will be destroyed, don't evacuate
+                if (!disasterInfoModel.IgnoreDestructionZone
+                    && DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
                 {
-                    //here we got all shelter buildings
-                    var buildingInfo = buildingManager.m_buildings.m_buffer[num];
-                    var shelterPosition = buildingInfo.m_position;
-
-                    //Once this is located into Risk Zone, it's needed verify if building would be destroyed by Natural disaster (setup in each one)
-                    //Getting diaster core
-                    var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
-
-                    float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
-
-                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius > disasterRadioEvacuation ? disasterDestructionRadius : disasterRadioEvacuation))
-                    {
-                        //Add Building/Shelter Data to disaster
-                        disasterInfoModel.ShelterList.Add(num);
-
-                        DebugLogger.Log(
-                            $"Disaster intensity: {disasterInfoModel.DisasterInfo.intensity}. " +
-                            $"DisasterRadioEvacuation: {disasterRadioEvacuation}. " +
-                            $"DisasterRadioEvacuation into destruction (New Calculation): {disasterDestructionRadius}"
-                        );
-
-                        //if Shelter will be destroyed, don't evacuate
-                        if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
-                            DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
-                        else
-                            SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
-                    }
+                    DebugLogger.Log("Shelter is located in Destruction Zone. Won't be evacuated");
+                }
+                else
+                {
+                    SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                 }
             }
 
             activeDisasters.Add(disasterInfoModel);
         }
 
-        protected void SetBuidingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
+        protected static void SetBuildingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
         {
             shelterAI?.SetEmptying(num, ref buildingData, release);
         }
 
-        protected Boolean IsShelterInDisasterZone(Vector3 disasterPosition, Vector3 shelterPosition, float shelterRadius, float evacuationRadius)
+        protected static bool DiscardShelterToBeDestroyed(Vector3 disasterPosition, Vector3 shelterPosition, float shelterRadius, float evacuationRadius)
         {
-
             //First Squared Is required for correct calculation
             evacuationRadius *= evacuationRadius;
             // Compare radius of circle with distance
             // of its center from given point
-            
-            float distanceBetweenTwoPoints = (float)Math.Sqrt((disasterPosition.x - shelterPosition.x) * (disasterPosition.x - shelterPosition.x) + (disasterPosition.z - shelterPosition.z) * (disasterPosition.z - shelterPosition.z));
+
+            var distanceBetweenTwoPoints = (float)Math.Sqrt((disasterPosition.x - shelterPosition.x) * (disasterPosition.x - shelterPosition.x) + (disasterPosition.z - shelterPosition.z) * (disasterPosition.z - shelterPosition.z));
 
             if (distanceBetweenTwoPoints <= evacuationRadius - shelterRadius)
                 return true;
@@ -768,20 +818,28 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (distanceBetweenTwoPoints <= shelterRadius - evacuationRadius)
                 return true;
 
-            if (distanceBetweenTwoPoints < evacuationRadius + shelterRadius)
-                return true;
-
-            if (distanceBetweenTwoPoints == evacuationRadius + shelterRadius)
-                return true;
-            else
-                return false;
+            return distanceBetweenTwoPoints < evacuationRadius + shelterRadius || Mathf.Approximately(distanceBetweenTwoPoints, evacuationRadius + shelterRadius);
         }
 
-        public virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)
+        protected virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)
         {
-            priority = 0f;            
-            bool canAffect =  (data.m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) != 0;            
+            priority = 0f;
+            var canAffect = (data.m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) != 0;            
             return canAffect;
+        }
+
+        public void DisableRain()
+        {
+            var weatherManager = Singleton<WeatherManager>.instance;
+            if (weatherManager == null) return;
+
+            // Stop current rain
+            weatherManager.m_targetRain = 0f;
+            weatherManager.m_currentRain = 0f;
+
+            //Deactivate weather effects
+            weatherManager.m_currentFog = 0f;
+            weatherManager.m_targetFog = 0f;
         }
     }
 }

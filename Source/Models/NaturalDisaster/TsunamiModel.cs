@@ -1,21 +1,26 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Common.Types;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using static ColossalFramework.DataBinding.BindPropertyByKey;
-using static RenderManager;
+using System.Xml.Serialization;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class TsunamiModel : DisasterBaseModel
     {
+        private const float DefaultRealTimeProgressMultiplier = 4f;
+        private float _realTimeProgressMultiplier = DefaultRealTimeProgressMultiplier;
+        private readonly bool _isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
+
+        protected override TimeBehaviorMode CurrentTimeBehaviorMode => TimeBehaviorMode.VanillaSimulationCompatible;
+        protected override float TimeProgressMultiplier => _isRealTimeActive ? RealTimeProgressMultiplier : 1f;
+
         public TsunamiModel()
         {
             DType = DisasterType.Tsunami;
@@ -26,16 +31,27 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public float WarmupYears
         {
+            get => ProbabilityWarmupDays / 360f;
+
+            set
+            {
+                ProbabilityWarmupDays = (int)(360 * value);
+                IntensityWarmupDays = ProbabilityWarmupDays / 2;
+                CalmDays = ProbabilityWarmupDays;
+            }
+        }
+
+        [XmlElement]
+        public float RealTimeProgressMultiplier
+        {
             get
             {
-                return probabilityWarmupDays / 360f;
+                return _realTimeProgressMultiplier;
             }
 
             set
             {
-                probabilityWarmupDays = (int)(360 * value);
-                intensityWarmupDays = probabilityWarmupDays / 2;
-                calmDays = probabilityWarmupDays;
+                _realTimeProgressMultiplier = Mathf.Max(1f, value);
             }
         }
 
@@ -79,40 +95,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);            
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
-            //Get disaster Info
-            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+            SetupTsunamiEvacuation(disasterInfoModel, null, ref activeDisasters);
+        }
 
-            if (disasterInfo == null)
-                return;
-
-            //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;            
-            FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
-
-            if (serviceBuildings == null)
-                return;
-
-            //Release all shelters but Potentyally destroyed
-            for (int i = 0; i < serviceBuildings.m_size; i++)
-            {
-                ushort num = serviceBuildings.m_buffer[i];
-                if (num != 0)
-                {
-                    //here we got all shelter buildings
-                    var buildingInfo = buildingManager.m_buildings.m_buffer[num];
-
-                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
-                    {                                                
-                            disasterInfoModel.ShelterList.Add(num);
-                            SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
-                    }
-                }
-            }
-
-            activeDisasters.Add(disasterInfoModel);
-        }        
+        protected override void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
+        {
+            SetupTsunamiEvacuation(disasterInfoModel, disasterRadius, ref activeDisasters);
+        }
                 
         public override bool CheckDisasterAIType(object disasterAI)
         {
@@ -121,7 +112,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.tsunamiName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
         public override void CopySettings(DisasterBaseModel disaster)
@@ -132,10 +123,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (d != null)
             {
                 WarmupYears = d.WarmupYears;
+                RealTimeProgressMultiplier = d.RealTimeProgressMultiplier;
             }
         }
 
-        public override bool CanAffectAt(ushort disasterID, ref DisasterData disasterData, Vector3 buildingPosition, Vector3 closestShelter, out float priority)
+        protected override bool CanAffectAt(ushort disasterID, ref DisasterData disasterData, Vector3 buildingPosition, Vector3 closestShelter, out float priority)
         {
             string nl = $"{Environment.NewLine}";
             DebugLogger.Log($"DisasterId: {disasterID}");
@@ -149,20 +141,86 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var disasterStartFrame = disasterData.m_startFrame;
 
             var dot1 = 0f - Mathf.Sin(disasterData.m_angle);
-            var dot2 = 0f;
+            const float dot2 = 0f;
             var dot3 = Mathf.Cos(disasterData.m_angle);
-            Vector3 rhsVector = new Vector3(dot1, dot2, dot3);
-            Vector3 lhsVector = buildingPosition - closestShelter;
+            var rhsVector = new Vector3(dot1, dot2, dot3);
+            var lhsVector = buildingPosition - closestShelter;
 
             //DOT => lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z
-            float num = Vector3.Dot(lhsVector, rhsVector);
-            uint num2 = simulationFrame - disasterStartFrame;
-            float num3 = (float)num2 * 0.125f - 3000f;
-            float num4 = (float)num2 * 0.125f;
+            var num = Vector3.Dot(lhsVector, rhsVector);
+            var num2 = simulationFrame - disasterStartFrame;
+            var num3 = num2 * 0.125f - 3000f;
+            var num4 = num2 * 0.125f;
             priority = Mathf.Clamp01(Mathf.Min((num4 - num) * 0.01f, (num - num3) * 0.0005f));
-            bool calculation = num >= num3 && num <= num4;
-            
+            var calculation = num >= num3 && num <= num4;
+             
             return calculation;
+        }
+
+        private void SetupTsunamiEvacuation(DisasterInfoModel disasterInfoModel, float? focusedRadius, ref List<DisasterInfoModel> activeDisasters)
+        {
+            if (NaturalDisasterHandler.GetDisasterInfo(DType) == null)
+                return;
+
+            var disasterTargetPosition = new Vector3(
+                disasterInfoModel.DisasterInfo.targetX,
+                disasterInfoModel.DisasterInfo.targetY,
+                disasterInfoModel.DisasterInfo.targetZ);
+
+            var buildingManager = Singleton<BuildingManager>.instance;
+            var serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
+            if (serviceBuildings == null)
+                return;
+
+            var focusedEvacuationRadius = focusedRadius.HasValue ? (float)Math.Sqrt(focusedRadius.Value) : 0f;
+
+            for (var i = 0; i < serviceBuildings.m_size; i++)
+            {
+                var shelterId = serviceBuildings.m_buffer[i];
+                if (shelterId == 0)
+                    continue;
+
+                var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
+                if (buildingInfo.Info == null || buildingInfo.Info.m_buildingAI is not ShelterAI shelterAI)
+                    continue;
+
+                var shelterPosition = buildingInfo.m_position;
+                if (!CanTsunamiAffectShelter(disasterInfoModel.DisasterId, shelterPosition, disasterTargetPosition, out var priority))
+                    continue;
+
+                var shelterRadius = (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8 / 2f;
+                if (focusedRadius.HasValue &&
+                    !DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, focusedEvacuationRadius))
+                    continue;
+
+                disasterInfoModel.ShelterList.Add(shelterId);
+                SetBuildingEvacuationStatus(shelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], false);
+
+                DebugLogger.Log(
+                    $"Tsunami evacuation enabled for shelter {shelterId}. Priority: {priority:0.000}, " +
+                    $"Focused radius active: {focusedRadius.HasValue}");
+            }
+
+            if (disasterInfoModel.ShelterList.Count == 0)
+            {
+                DebugLogger.Log(
+                    $"No shelters found inside tsunami affectation range. DisasterId: {disasterInfoModel.DisasterId}");
+                return;
+            }
+
+            activeDisasters.Add(disasterInfoModel);
+        }
+
+        private bool CanTsunamiAffectShelter(ushort disasterId, Vector3 shelterPosition, Vector3 disasterTargetPosition, out float priority)
+        {
+            priority = 0f;
+
+            var disasterManager = Singleton<DisasterManager>.instance;
+            if (disasterManager == null || disasterId >= disasterManager.m_disasters.m_buffer.Length)
+                return false;
+
+            var disasterData = disasterManager.m_disasters.m_buffer[disasterId];
+            return CanAffectAt(disasterId, ref disasterData, shelterPosition, disasterTargetPosition, out priority);
         }
     }
 }

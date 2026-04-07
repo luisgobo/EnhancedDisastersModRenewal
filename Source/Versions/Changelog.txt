@@ -6,8 +6,8 @@
 		Release Date (YYYY-MM-dd): 2023-04-04
 		Change List:
 			* Initial changes.
-			* Reestructurig Natural Disaster Overhaul Code.
-			* Including Raganaroks functionalities.
+			* Restructuring Natural Disaster Overhaul Code.
+			* Including Ragnarok functionalities.
 			* Setup panel functionalities Added.
 			* Improved Evacuation Method included.
 			* Adding Functionalities for button and panel info to be placed anywhere.
@@ -17,7 +17,7 @@
 		Release Date (YYYY-MM-dd): 2023-05-06
 		Change List:
 		 * Added reset button/panel position.
-		 * Icon size changed and icon modiffied.
+		 * Icon size changed and icon modified.
 		 * Settings panel organization changed.
 		 * New property to enable/disable tornado destruction included.
 		 * Disaster name identifier moved to common properties class instead of static string,
@@ -30,8 +30,8 @@
 		Release Date (YYYY-MM-dd): 2023-05-21
 		Change List:
 		 * Added constant for debugging (new line)
-		 * Fixed tooltip to show intensity and probabiilty value
-		 * Fixed propability/intensity calculations
+		 * Fixed tooltip to show intensity and probability value
+		 * Fixed probability/intensity calculations
 		 * Set value for max population to trigger higher disasters from settings menu.
 		 * Disable/enable disasters from information Panel.
 		 * Mod description updated, small spelling fixes in text descriptions
@@ -59,11 +59,28 @@
 	Version: 1.2.4
 		Release Date (YYYY-MM-dd): 2023-06-03
 		Change List:
-		 * Extra fix for meteor strike max intensiti internal seup when save.
-		 * Max population limit to trigger higher disasters moved from 400K to 800K
+		 * Extra fix for meteor strike max intensity internal setup when save.
+		 * Setup panel: Max population limit to trigger higher disasters moved from 400K to 800K
 		 * Max population limit Default value changed from 100K to 200K.
 		 * Meteor strike tooltip info format fixed
 
+	Version: 1.3
+		Release Date (YYYY-MM-dd): 2026-03-31
+		Change List:
+		 * Reworked the in-game disaster panel with separate Statistics and Settings tabs, clearer layout, scrollable content, and improved action buttons.
+		 * Reorganized the settings screen into clearer sections for general options, panel positions, disaster enable/disable toggles, per-disaster configuration, hotkeys, and save actions.
+		 * Added configurable hotkey capture for showing or hiding the disaster panel, including XML serialization support for saved hotkey values.
+		 * Added localization infrastructure for disaster names, panel labels, settings text, and tooltips, with English and Spanish translation support.
+		 * Expanded tooltip coverage and improved wording across the in-game panel and settings screen for disaster probability, intensity, and status feedback.
+		 * Added Real Time compatibility improvements so disaster timing adapts better when Real Time is active instead of waiting excessively for events.
+		 * Added Real Time status and timing details to the in-game panel, including active state, time offset ticks, and day-time frame information.
+		 * Added Real Time-specific tuning controls for tsunami progress speed and meteor frequency, plus support for VanillaSimulationCompatible time behavior handling.
+		 * Improved disaster occurrence, probability, intensity, and simulation logic across Forest Fire, Thunderstorm, Meteor Strike, Tsunami, Earthquake, Tornado, and Sinkhole models.
+		 * Improved thunderstorm charge handling, forest fire time optimization, tsunami progress handling, and meteor occurrence calculations.
+		 * Improved disaster reset and cancellation behavior, evacuation release tracking, logging consistency, centralized service access, and helper/component structure.
+		 * Updated setup and disaster serialization to preserve the new settings correctly and improved save/load handling for the active branch changes.
+		 * Added active/inactive panel button icons and updated project/build metadata, including assembly version 1.3.0.1.
+             
 	Version: 1.x
 		Release Date (YYYY-MM-dd): ...
 		Change List:

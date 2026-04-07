@@ -1,18 +1,20 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class EarthquakeModel : DisasterBaseModel
     {
+        protected override TimeBehaviorMode CurrentTimeBehaviorMode => TimeBehaviorMode.VanillaSimulationCompatible;
+
         public bool AftershocksEnabled = true;
         public EarthquakeCrackOptions EarthquakeCrackMode = EarthquakeCrackOptions.NoCracks;
         public float MinimalIntensityForCracks = 12.0f;
@@ -34,40 +36,37 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             WarmupYears = 3;
         }
 
-        [System.Xml.Serialization.XmlElement]
+        [XmlElement]
         public float WarmupYears
         {
-            get
-            {
-                return probabilityWarmupDays / 360f;
-            }
+            get => ProbabilityWarmupDays / 360f;
 
             set
             {
-                probabilityWarmupDays = (int)(360 * value);
-                intensityWarmupDays = probabilityWarmupDays / 2;
-                calmDays = probabilityWarmupDays / 2;
+                ProbabilityWarmupDays = (int)(360 * value);
+                IntensityWarmupDays = ProbabilityWarmupDays / 2;
+                CalmDays = ProbabilityWarmupDays / 2;
             }
         }
 
-        public override string GetProbabilityTooltip(float value)
+        public override string GetTooltipInformation()
         {
             if (aftershocksCount > 0)
             {
-                return "Expect " + aftershocksCount.ToString() + " more aftershocks";
+                return LocalizationService.Format("tooltip.earthquake.aftershocks", aftershocksCount);
             }
 
-            return base.GetProbabilityTooltip(value);
+            return base.GetTooltipInformation();
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
             if (aftershocksCount > 0)
             {
                 return 12 * aftershocksCount;
             }
 
-            return base.GetCurrentOccurrencePerYearLocal();
+            return base.GetBaseOccurrencePerYear();
         }
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
@@ -122,9 +121,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (aftershocksCount > 0)
             {
-                calmDays = 15;
-                probabilityWarmupDaysLeft = 0;
-                intensityWarmupDaysLeft = 0;
+                CalmDays = 15;
+                ProbabilityWarmupDaysLeft = 0;
+                IntensityWarmupDaysLeft = 0;
 
                 Debug.Log(string.Format(CommonProperties.logMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
             }
@@ -170,10 +169,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return "Earthquake";
+            return LocalizationService.GetDisasterName(DType);
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             int unitSize = 8;
             int unitsBase = 30; //24 Original, Distance Fix for proximity
@@ -227,7 +226,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
 
@@ -285,10 +284,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         }
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (base.IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
+                        if (DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
-                            base.SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                            SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                     }
                 }
             }
@@ -355,6 +354,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 AftershocksEnabled = earthquake.AftershocksEnabled;
                 WarmupYears = earthquake.WarmupYears;
             }
+        }
+
+        protected override void ResetDisasterState()
+        {
+            aftershocksCount = 0;
+            aftershockMaxIntensity = 0;
+            mainStrikeIntensity = 0;
+            lastTargetPosition = Vector3.zero;
+            lastAngle = 0;
         }
 
     }

@@ -1,11 +1,11 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -21,32 +21,32 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = 1.5f; // When groundwater is full
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
-            calmDays = 30;
-            probabilityWarmupDays = 0;
-            intensityWarmupDays = 0;
+            CalmDays = 30;
+            ProbabilityWarmupDays = 0;
+            IntensityWarmupDays = 0;
         }
 
-        public override string GetProbabilityTooltip(float value)
+        public override string GetTooltipInformation()
         {
-            if (!unlocked)
+            if (!Unlocked)
             {
-                return "Not unlocked yet";
+                return "Not Unlocked yet";
             }
 
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
             {
                 int groundWaterPercent = (int)(100 * groundwaterAmount / GroundwaterCapacity);
-                return "Ground water level " + groundWaterPercent.ToString() + "%";
+                return LocalizationService.Format("tooltip.sinkhole.groundwater", groundWaterPercent);
             }
 
-            return base.GetProbabilityTooltip(value);
+            return base.GetTooltipInformation();
         }
 
         protected override void OnSimulationFrameLocal()
         {
-            float daysPerFrame = Helper.DaysPerFrame;
+            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
 
-            WeatherManager wm = Singleton<WeatherManager>.instance;
+            var wm = CommonServices.Weather;
             if (wm.m_currentRain > 0)
             {
                 groundwaterAmount += wm.m_currentRain * daysPerFrame;
@@ -89,9 +89,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterStarted(intensity);
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
-            return base.GetCurrentOccurrencePerYearLocal() * groundwaterAmount / GroundwaterCapacity;
+            return base.GetBaseOccurrencePerYear() * groundwaterAmount / GroundwaterCapacity;
+        }
+
+        protected override void ResetDisasterState()
+        {
+            groundwaterAmount = 0;
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
@@ -101,10 +106,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.sinkholeName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             int unitSize = 8;
             int unitsBase = 24; //24 + 4 Original, Distance Fix for proximity

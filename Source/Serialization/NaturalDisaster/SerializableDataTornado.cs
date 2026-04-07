@@ -1,7 +1,5 @@
-﻿using ColossalFramework;
-using ColossalFramework.IO;
-using NaturalDisastersRenewal.Handlers;
-using NaturalDisastersRenewal.Models.NaturalDisaster;
+﻿using ColossalFramework.IO;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
@@ -9,7 +7,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            TornadoModel tornado = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
+            var tornado = CommonServices.DisasterSetup.Tornado;
             SerializeCommonParameters(dataSerializer, tornado);
             dataSerializer.WriteInt32(tornado.MaxProbabilityMonth);
             dataSerializer.WriteBool(tornado.NoTornadoDuringFog);
@@ -20,7 +18,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
         public void Deserialize(DataSerializer dataSerializer)
         {
-            TornadoModel tornado = Singleton<NaturalDisasterHandler>.instance.container.Tornado;
+            var tornado = CommonServices.DisasterSetup.Tornado;
             DeserializeCommonParameters(dataSerializer, tornado);
 
             if (dataSerializer.version >= 3)

@@ -1,8 +1,7 @@
-﻿using ColossalFramework;
-using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Handlers;
-using System;
+﻿using System;
 using System.IO;
+using NaturalDisastersRenewal.Common;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Logger
 {
@@ -12,13 +11,13 @@ namespace NaturalDisastersRenewal.Logger
 
         public static void AddDisaster(DateTime dt, string disasterName, byte intensity)
         {
-            if (!Singleton<NaturalDisasterHandler>.instance.container.RecordDisasterEvents) return;
+            if (!CommonServices.DisasterSetup.RecordDisasterEvents) return;
 
             string filePath = GetDisasterListFilePath();
 
             if (!File.Exists(filePath))
             {
-                File.AppendAllText(filePath, "date,disaster,intensity,started by" + CommonProperties.newLine);
+                File.AppendAllText(filePath, "date,disaster,intensity,started by" + CommonProperties.NewLine);
             }
 
             string startedBy = "Vanilla";

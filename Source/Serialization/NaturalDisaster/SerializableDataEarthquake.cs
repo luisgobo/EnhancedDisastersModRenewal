@@ -1,9 +1,7 @@
-﻿using ColossalFramework;
-using ColossalFramework.IO;
+﻿using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Handlers;
-using NaturalDisastersRenewal.Models.NaturalDisaster;
 using UnityEngine;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
@@ -11,7 +9,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            EarthquakeModel earthquake = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
+            var earthquake = CommonServices.DisasterSetup.Earthquake;
             SerializeCommonParameters(dataSerializer, earthquake);
 
             dataSerializer.WriteFloat(earthquake.WarmupYears);
@@ -30,7 +28,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
         public void Deserialize(DataSerializer dataSerializer)
         {
-            EarthquakeModel earthquake = Singleton<NaturalDisasterHandler>.instance.container.Earthquake;
+            var earthquake = CommonServices.DisasterSetup.Earthquake;
             DeserializeCommonParameters(dataSerializer, earthquake);
 
             earthquake.WarmupYears = dataSerializer.ReadFloat();

@@ -1,14 +1,12 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.IO;
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Serialization.NaturalDisaster;
 using NaturalDisastersRenewal.UI;
-using System;
-using System.IO;
-using System.Linq;
 using UnityEngine;
+using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 //This class allows to save/load specific configuration for loadded game.
 namespace NaturalDisastersRenewal.Serialization.Setup
@@ -16,7 +14,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
     public class LoadedGameSerializableDataExtension : ISerializableDataExtension
     {
         public const string DataID = CommonProperties.dataId;
-        public const uint DataVersion = 3;
+        public const uint DataVersion = 5;
         ISerializableData serializableData;
 
         public void OnCreated(ISerializableData serializedData)
@@ -33,7 +31,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
                 using (var stream = new MemoryStream())
                 {
-                    NaturalDisasterHandler edm = Singleton<NaturalDisasterHandler>.instance;
+                    var edm = CommonServices.DisasterHandler;
 
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new SerializableDataDisasterSetup());
 

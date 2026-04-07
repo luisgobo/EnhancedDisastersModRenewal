@@ -1,11 +1,11 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Collections.Generic;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.DisasterServices.HarmonyPatches;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
+using NaturalDisastersRenewal.Services.HarmonyPatches;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -22,13 +22,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = 1.5f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            calmDays = 360 * 2;
-            probabilityWarmupDays = 180;
-            intensityWarmupDays = 180;
-            intensityWarmupDays = 180;
+            CalmDays = 360 * 2;
+            ProbabilityWarmupDays = 180;
+            IntensityWarmupDays = 180;
+            IntensityWarmupDays = 180;
         }
 
-        protected override float GetCurrentOccurrencePerYearLocal()
+        protected override float GetBaseOccurrencePerYear()
         {
             if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
             {
@@ -39,22 +39,21 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (delta_month > 6) delta_month = 12 - delta_month;
 
-            float occurrence = base.GetCurrentOccurrencePerYearLocal() * (1f - delta_month / 6f);
+            var occurrence = base.GetBaseOccurrencePerYear() * (1f - delta_month / 6f);
 
             return occurrence;
         }
 
-        public override string GetProbabilityTooltip(float value)
+        public override string GetTooltipInformation()
         {
-            if (calmDaysLeft <= 0)
+            if (!(CalmDaysLeft <= 0)) return base.GetTooltipInformation();
+            
+            if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
             {
-                if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
-                {
-                    return "No " + GetName() + " during fog.";
-                }
+                return LocalizationService.Get("tooltip.tornado.noDuringFog");
             }
 
-            return base.GetProbabilityTooltip(value);
+            return base.GetTooltipInformation();
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
@@ -92,10 +91,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.tornadoName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             int unitSize = 8;
             int unitsBase = 72;

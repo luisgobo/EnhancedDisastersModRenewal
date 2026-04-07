@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+      <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -61,10 +62,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\CommonProperties.cs" />
+    <Compile Include="Common\LocalizationService.cs" />
     <Compile Include="Common\enums\EarthquakeCrackOptions.cs" />
     <Compile Include="Common\enums\EvacuationOptions.cs" />
+    <Compile Include="Common\enums\ModLanguage.cs" />
+      <Compile Include="Common\enums\TimeBehaviorMode.cs"/>
+    <Compile Include="Common\Services.cs"/>
     <Compile Include="Common\Types\Triplet.cs" />
     <Compile Include="Logger\DebugLogger.cs" />
+    <Compile Include="Logger\StripesLogger.cs"/>
     <Compile Include="Serialization\NaturalDisaster\SerializableDataDisasterBase.cs" />
     <Compile Include="Serialization\NaturalDisaster\SerializableDataForestFire.cs" />
     <Compile Include="Serialization\NaturalDisaster\SerializableDataTsunami.cs" />
@@ -91,7 +97,12 @@
     <Compile Include="Models\NaturalDisaster\ThunderstormModel.cs" />
     <Compile Include="Models\NaturalDisaster\TornadoModel.cs" />
     <Compile Include="Models\NaturalDisaster\TsunamiModel.cs" />
+    <Compile Include="UI\ComponentHelper\ActionButtonHelper.cs" />
+      <Compile Include="UI\ComponentHelper\ToggleButtonIconHelper.cs"/>
+    <Compile Include="UI\ComponentHelper\DisasterRowHelper.cs" />
     <Compile Include="UI\ComponentHelper\LabelHelper.cs" />
+      <Compile Include="UI\ComponentHelper\ProgressBarHelper.cs"/>
+    <Compile Include="UI\ComponentHelper\ScrollablePanelHelper.cs" />
     <Compile Include="UI\ComponentHelper\TabHelper.cs" />
     <Compile Include="UI\ExtendedDisastersPanel.cs" />
     <Compile Include="Common\Helper.cs" />
@@ -115,13 +126,25 @@
     <Folder Include="Resources\Files\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Versions\Changelog.txt" />
+      <EmbeddedResource Include="Resources\Images\icon-active.png">
+          <LogicalName>NaturalDisastersRenewal.Resources.Images.icon-active.png</LogicalName>
+      </EmbeddedResource>
+      <EmbeddedResource Include="Resources\Images\icon-inactive.png">
+          <LogicalName>NaturalDisastersRenewal.Resources.Images.icon-inactive.png</LogicalName>
+      </EmbeddedResource>
+      <Content Include="Versions\Changelog.txt"/>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"
-del "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)\$(TargetFileName)"
-xcopy /y "$(TargetPath)" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"</PostBuildEvent>
+      <PostBuildEvent>
+          tasklist /FI "IMAGENAME eq Cities.exe" | find /I "Cities.exe" &gt;nul
+          if "%25ERRORLEVEL%25"=="0" goto SkipDeploy
+          mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"
+          del "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)\$(TargetFileName)"
+          xcopy /y "$(TargetPath)" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"
+          xcopy /y "$(TargetDir)$(TargetName).pdb" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"
+          :SkipDeploy
+      </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
