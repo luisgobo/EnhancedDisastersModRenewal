@@ -12,13 +12,13 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             SerializeCommonParameters(dataSerializer, meteorStrike);
             dataSerializer.WriteFloat(meteorStrike.RealTimeFrequencyMultiplier);
 
-            for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
+            for (var i = 0; i < meteorStrike.MeteorEvents.Length; i++)
             {
-                dataSerializer.WriteBool(meteorStrike.meteorEvents[i].Enabled);
-                dataSerializer.WriteFloat(meteorStrike.meteorEvents[i].PeriodDays);                
-                dataSerializer.WriteInt16(meteorStrike.meteorEvents[i].MaxIntensity);
-                dataSerializer.WriteFloat(meteorStrike.meteorEvents[i].DaysUntilNextEvent);
-                dataSerializer.WriteInt32(meteorStrike.meteorEvents[i].MeteorsFallen);
+                dataSerializer.WriteBool(meteorStrike.MeteorEvents[i].Enabled);
+                dataSerializer.WriteFloat(meteorStrike.MeteorEvents[i].PeriodDays);
+                dataSerializer.WriteInt16(meteorStrike.MeteorEvents[i].MaxIntensity);
+                dataSerializer.WriteFloat(meteorStrike.MeteorEvents[i].DaysUntilNextEvent);
+                dataSerializer.WriteInt32(meteorStrike.MeteorEvents[i].MeteorsFallen);
             }
         }
 
@@ -34,24 +34,24 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             if (dataSerializer.version <= 2)
             {
                 float daysPerFrame = Helper.DaysPerFrame;
-                for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
+                for (var i = 0; i < meteorStrike.MeteorEvents.Length; i++)
                 {
-                    meteorStrike.meteorEvents[i].Enabled = dataSerializer.ReadBool();
-                    meteorStrike.meteorEvents[i].PeriodDays = dataSerializer.ReadInt32() * daysPerFrame;
-                    meteorStrike.meteorEvents[i].MaxIntensity = (byte)dataSerializer.ReadInt16();
-                    meteorStrike.meteorEvents[i].DaysUntilNextEvent = dataSerializer.ReadInt32() * daysPerFrame;
-                    meteorStrike.meteorEvents[i].MeteorsFallen = dataSerializer.ReadInt32();
+                    meteorStrike.MeteorEvents[i].Enabled = dataSerializer.ReadBool();
+                    meteorStrike.MeteorEvents[i].PeriodDays = dataSerializer.ReadInt32() * daysPerFrame;
+                    meteorStrike.MeteorEvents[i].MaxIntensity = (byte)dataSerializer.ReadInt16();
+                    meteorStrike.MeteorEvents[i].DaysUntilNextEvent = dataSerializer.ReadInt32() * daysPerFrame;
+                    meteorStrike.MeteorEvents[i].MeteorsFallen = dataSerializer.ReadInt32();
                 }
             }
             else
             {
-                for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
+                for (var i = 0; i < meteorStrike.MeteorEvents.Length; i++)
                 {
-                    meteorStrike.meteorEvents[i].Enabled = dataSerializer.ReadBool();
-                    meteorStrike.meteorEvents[i].PeriodDays = dataSerializer.ReadFloat();
-                    meteorStrike.meteorEvents[i].MaxIntensity = (byte)dataSerializer.ReadInt16();
-                    meteorStrike.meteorEvents[i].DaysUntilNextEvent = dataSerializer.ReadFloat();
-                    meteorStrike.meteorEvents[i].MeteorsFallen = dataSerializer.ReadInt32();
+                    meteorStrike.MeteorEvents[i].Enabled = dataSerializer.ReadBool();
+                    meteorStrike.MeteorEvents[i].PeriodDays = dataSerializer.ReadFloat();
+                    meteorStrike.MeteorEvents[i].MaxIntensity = (byte)dataSerializer.ReadInt16();
+                    meteorStrike.MeteorEvents[i].DaysUntilNextEvent = dataSerializer.ReadFloat();
+                    meteorStrike.MeteorEvents[i].MeteorsFallen = dataSerializer.ReadInt32();
                 }
             }
         }

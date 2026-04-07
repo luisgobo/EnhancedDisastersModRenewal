@@ -733,13 +733,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected virtual void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
         {
+            DebugLogger.Log("SetupAutomaticFocusedEvacuation");
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
-
+            DebugLogger.Log(disasterTargetPosition.ToString());
             //Get disaster Info
             var disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
 
             //Get Disaster Radio from Settings property
-            var disasterRadioEvacuation = (float)Math.Sqrt(disasterRadius); //32f as default aprox;
+            var disasterRadioEvacuation = (float)Math.Sqrt(disasterRadius); //32f as default approx;
 
             if (disasterInfo == null)
                 return;
@@ -748,6 +749,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BuildingManager buildingManager = Singleton<BuildingManager>.instance;
             FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
+            DebugLogger.Log("serviceBuildings == null: " + (serviceBuildings == null));
             if (serviceBuildings == null)
                 return;
 
@@ -761,11 +763,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 var buildingInfo = buildingManager.m_buildings.m_buffer[num];
                 var shelterPosition = buildingInfo.m_position;
 
-                //Once this is located into Risk Zone, it's needed verify if building would be destroyed by Natural disaster (setup in each one)
+                //Once this is located into Risk Zone, it's needed to verify if building would be destroyed by Natural disaster (setup in each one)
                 //Getting diaster core
                 var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
 
-                float shelterRadius = (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8 / 2;
+                var shelterRadius =
+                    (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8f / 2f;
 
                 if (buildingInfo.Info.m_buildingAI as ShelterAI == null
                     || !IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius > disasterRadioEvacuation
@@ -816,10 +819,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (distanceBetweenTwoPoints <= shelterRadius - evacuationRadius)
                 return true;
 
-            if (distanceBetweenTwoPoints < evacuationRadius + shelterRadius)
-                return true;
+            return distanceBetweenTwoPoints < evacuationRadius + shelterRadius || Mathf.Approximately(distanceBetweenTwoPoints, evacuationRadius + shelterRadius);
 
-            return distanceBetweenTwoPoints == evacuationRadius + shelterRadius;
         }
 
         protected virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)

@@ -13,24 +13,27 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class MeteorStrikeModel : DisasterBaseModel
     {
+        [XmlIgnore] public MeteorEvent[] MeteorEvents;
+        
         private const float DefaultRealTimeFrequencyMultiplier = 4f;
-        private float _realTimeFrequencyMultiplier = DefaultRealTimeFrequencyMultiplier;
         private readonly bool _isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
 
         protected override TimeBehaviorMode CurrentTimeBehaviorMode => TimeBehaviorMode.VanillaSimulationCompatible;
 
         public struct MeteorEvent
         {
-            public string Name;
+            private readonly string _name;
             public float PeriodDays;
             public byte MaxIntensity;
             public float DaysUntilNextEvent;
             public int MeteorsFallen;
             public bool Enabled;
 
+           
+
             public MeteorEvent(string name, float periodDays, byte maxIntensity, float daysUntilNextEvent)
             {
-                Name = name;
+                _name = name;
                 PeriodDays = periodDays;
                 MaxIntensity = maxIntensity;
                 DaysUntilNextEvent = daysUntilNextEvent;
@@ -40,12 +43,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             public static MeteorEvent Init(string eventName, float periodYears, byte maxIntensity)
             {
-                SimulationManager sm = Singleton<SimulationManager>.instance;
+                var simulationManager = Singleton<SimulationManager>.instance;
 
-                float periodDays = periodYears * 365;
-
-                var periodDaysCalc = periodDays * 0.95f + sm.m_randomizer.Int32((uint)(periodDays * 0.1f));
-                var daysUntilNextEventCalc = periodDays / 2 + sm.m_randomizer.Int32((uint)(periodDays / 2));
+                var periodDays = periodYears * 365;
+                var periodDaysCalc = periodDays * 0.95f + simulationManager.m_randomizer.Int32((uint)(periodDays * 0.1f));
+                var daysUntilNextEventCalc = periodDays / 2 + simulationManager.m_randomizer.Int32((uint)(periodDays / 2));
 
                 return new MeteorEvent(
                     eventName,
@@ -75,12 +77,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 if (!Enabled) return 1;
 
-                if (DaysUntilNextEvent < 60)
-                {
-                    return MaxIntensity;
-                }
+                return DaysUntilNextEvent < 60 ? MaxIntensity : (byte)1;
 
-                return 1;
             }
 
             public void OnSimulationFrame(float daysPerFrame)
@@ -89,11 +87,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 DaysUntilNextEvent -= daysPerFrame;
 
-                if (DaysUntilNextEvent <= 0)
-                {
-                    DaysUntilNextEvent = PeriodDays;
-                    MeteorsFallen = 0;
-                }
+                if (!(DaysUntilNextEvent <= 0)) return;
+                DaysUntilNextEvent = PeriodDays;
+                MeteorsFallen = 0;
             }
 
             public void OnMeteorFallen()
@@ -105,8 +101,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             public override string ToString()
             {
-                return string.Format("Period {0} years, max intensity {1}, next meteor in {2}",
-                    PeriodDays / 365, MaxIntensity, Helper.FormatTimeSpan(DaysUntilNextEvent));
+                return $"Period {PeriodDays / 365} years, max intensity {MaxIntensity}, next meteor in {Helper.FormatTimeSpan(DaysUntilNextEvent)}";
             }
 
             public string GetStateDescription()
@@ -115,21 +110,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 if (MeteorsFallen > 0)
                 {
-                    return LocalizationService.Format("tooltip.meteor.alreadyFallen", Name);
+                    return LocalizationService.Format("tooltip.meteor.alreadyFallen", _name);
                 }
 
-                if (DaysUntilNextEvent <= 60)
-                {
-                    return LocalizationService.Format("tooltip.meteor.approaching", Name);
-                }
-                else
-                {
-                    return LocalizationService.Format("tooltip.meteor.closeIn", Name, Helper.FormatTimeSpan(DaysUntilNextEvent));
-                }
+                return DaysUntilNextEvent <= 60 ?
+                    LocalizationService.Format("tooltip.meteor.approaching", _name) :
+                    LocalizationService.Format("tooltip.meteor.closeIn", _name, Helper.FormatTimeSpan(DaysUntilNextEvent));
             }
         }
 
-        [XmlIgnore] public MeteorEvent[] meteorEvents;
+        
 
         public MeteorStrikeModel()
         {
@@ -139,77 +129,54 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
             //Change
-            meteorEvents = new MeteorEvent[] {
+            MeteorEvents =
+            [
                 MeteorEvent.Init("Long period meteor", 9, 200),
                 MeteorEvent.Init("Medium period meteor", 5, 120),
                 MeteorEvent.Init("Short period meteor", 2, 30)
-            };
+            ];
         }
 
         [XmlElement]
         public bool MeteorLongPeriodEnabled
         {
-            get
-            {
-                return GetEnabled(0);
-            }
+            get => GetEnabled(0);
 
-            set
-            {
-                SetEnabled(0, value);
-            }
+            set => SetEnabled(0, value);
         }
 
         [XmlElement]
         public bool MeteorMediumPeriodEnabled
         {
-            get
-            {
-                return GetEnabled(1);
-            }
+            get => GetEnabled(1);
 
-            set
-            {
-                SetEnabled(1, value);
-            }
+            set => SetEnabled(1, value);
         }
 
         [XmlElement]
         public bool MeteorShortPeriodEnabled
         {
-            get
-            {
-                return GetEnabled(2);
-            }
+            get => GetEnabled(2);
 
-            set
-            {
-                SetEnabled(2, value);
-            }
+            set => SetEnabled(2, value);
         }
 
         [XmlElement]
         public float RealTimeFrequencyMultiplier
         {
-            get
-            {
-                return _realTimeFrequencyMultiplier;
-            }
+            get => field;
 
-            set
-            {
-                _realTimeFrequencyMultiplier = Mathf.Max(1f, value);
-            }
-        }
+            set => field = Mathf.Max(1f, value);
+        } = DefaultRealTimeFrequencyMultiplier;
 
         public bool GetEnabled(int index)
         {
-            return meteorEvents[index].Enabled;
+            return MeteorEvents[index].Enabled;
         }
 
         public void SetEnabled(int index, bool value)
         {
-            meteorEvents[index].Enabled = value;
+            MeteorEvents[index].Enabled = value;
         }
 
         protected override void OnSimulationFrameLocal()
@@ -220,9 +187,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 daysPerFrame *= Mathf.Max(1f, RealTimeFrequencyMultiplier);
             }
 
-            for (int i = 0; i < meteorEvents.Length; i++)
+            for (var i = 0; i < MeteorEvents.Length; i++)
             {
-                meteorEvents[i].OnSimulationFrame(daysPerFrame);
+                MeteorEvents[i].OnSimulationFrame(daysPerFrame);
             }
         }
 
@@ -242,7 +209,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfoUnified.DisasterInfo.type |= DisasterType.MeteorStrike;
+            disasterInfoUnified.DisasterInfo.type = DisasterType.MeteorStrike;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = false;
 
@@ -254,9 +221,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             int meteorIndex = -1;
             float maxProbability = 0;
 
-            for (int i = 0; i < meteorEvents.Length; i++)
+            for (var i = 0; i < MeteorEvents.Length; i++)
             {
-                float prob = meteorEvents[i].GetProbabilityMultiplier();
+                var prob = MeteorEvents[i].GetProbabilityMultiplier();
                 if (prob > maxProbability)
                 {
                     maxProbability = prob;
@@ -270,7 +237,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 meteorIndex = 2;
             }
 
-            meteorEvents[meteorIndex].OnMeteorFallen();
+            MeteorEvents[meteorIndex].OnMeteorFallen();
 
             base.OnDisasterStarted(intensity);
         }
@@ -281,9 +248,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             float result = 0;
 
-            for (int i = 0; i < meteorEvents.Length; i++)
+            for (var i = 0; i < MeteorEvents.Length; i++)
             {
-                result += baseValue * meteorEvents[i].GetProbabilityMultiplier();
+                result += baseValue * MeteorEvents[i].GetProbabilityMultiplier();
             }
 
             return result;
@@ -293,9 +260,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             byte intensity = baseIntensity;
 
-            for (int i = 0; i < meteorEvents.Length; i++)
+            for (var i = 0; i < MeteorEvents.Length; i++)
             {
-                intensity = Math.Max(intensity, meteorEvents[i].GetActualMaxIntensity());
+                intensity = Math.Max(intensity, MeteorEvents[i].GetActualMaxIntensity());
             }
 
             intensity = ScaleIntensityByPopulation(intensity);
@@ -322,8 +289,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             var probability = GetDisasterProbabilityPercentageValue() + Environment.NewLine;
 
-            for (var i = 0; i < meteorEvents.Length; i++)
-                probability += $"{meteorEvents[i].GetStateDescription()}{Environment.NewLine}";
+            for (var i = 0; i < MeteorEvents.Length; i++)
+                probability += $"{MeteorEvents[i].GetStateDescription()}{Environment.NewLine}";
 
             return probability;
         }
@@ -398,7 +365,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void ResetDisasterState()
         {
-            meteorEvents =
+            MeteorEvents =
             [
                 MeteorEvent.Init("Long period meteor", 9, 200),
                 MeteorEvent.Init("Medium period meteor", 5, 120),
