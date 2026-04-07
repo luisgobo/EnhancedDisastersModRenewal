@@ -20,6 +20,7 @@ namespace NaturalDisastersRenewal.Handlers
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
         private readonly Harmony _harmony = new (CommonProperties.modNameForHarmony);
+        private readonly Dictionary<Type, Models.NaturalDisaster.DisasterBaseModel> _disasterModelByAIType = new();
         public DisasterSetupModel Container;
         private DisasterWrapper _disasterWrapper;
         private ExtendedDisastersPanel _dPanel;
@@ -91,6 +92,8 @@ namespace NaturalDisastersRenewal.Handlers
                 Container.ToggleButtonPos = fromContainer.ToggleButtonPos;
                 Container.DPanelPos = fromContainer.DPanelPos;
             }
+
+            RebuildDisasterModelCache();
         }
 
         private void ResetInterfaceElementPosition(DisasterSetupModel fromContainer, bool resetButtonPos = false,
@@ -130,12 +133,11 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void OnDisasterStarted(DisasterAI disasterAI, byte intensity)
         {
-            foreach (var ed in Container.DisasterList)
-                if (ed.CheckDisasterAIType(disasterAI))
-                {
-                    ed.OnDisasterStarted(intensity);
-                    return;
-                }
+            var disasterModel = ResolveDisasterModel(disasterAI);
+            if (disasterModel == null)
+                return;
+
+            disasterModel.OnDisasterStarted(intensity);
         }
 
         public void OnDisasterActivated(DisasterAI disasterAI, ushort disasterId)
@@ -145,12 +147,11 @@ namespace NaturalDisastersRenewal.Handlers
                 $"EvacuationService.OnDisasterActivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
             DebugLogger.Log(msg);
 
-            foreach (var ed in Container.DisasterList)
-                if (ed.CheckDisasterAIType(disasterAI))
-                {
-                    ed.OnDisasterActivated(disasterInfo, disasterId, ref Container.ActiveDisasters);
-                    return;
-                }
+            var disasterModel = ResolveDisasterModel(disasterAI);
+            if (disasterModel == null)
+                return;
+
+            disasterModel.OnDisasterActivated(disasterInfo, disasterId, ref Container.ActiveDisasters);
         }
 
         public void OnDisasterDeactivated(DisasterAI disasterAI, ushort disasterId)
@@ -163,16 +164,15 @@ namespace NaturalDisastersRenewal.Handlers
                     $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
                 DebugLogger.Log(msg);
 
-                foreach (var ed in Container.DisasterList)
-                    if (ed.CheckDisasterAIType(disasterAI))
-                    {
-                        ed.OnDisasterDeactivated(new DisasterInfoModel
-                        {
-                            DisasterInfo = disasterInfo,
-                            DisasterId = disasterId
-                        }, ref Container.ActiveDisasters);
-                        return;
-                    }
+                var disasterModel = ResolveDisasterModel(disasterAI);
+                if (disasterModel == null)
+                    return;
+
+                disasterModel.OnDisasterDeactivated(new DisasterInfoModel
+                {
+                    DisasterInfo = disasterInfo,
+                    DisasterId = disasterId
+                }, ref Container.ActiveDisasters);
             }
             catch (Exception ex)
             {
@@ -186,22 +186,21 @@ namespace NaturalDisastersRenewal.Handlers
         {
             try
             {
-                foreach (var disasterService in Container.DisasterList)
-                    if (disasterService.CheckDisasterAIType(disasterAI))
-                    {
-                        var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
-                        var msg =
-                            $"EvacuationService.OnDisasterDetected. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
-                        DebugLogger.Log(msg);
-                        var disasterInfoUnified = new DisasterInfoModel
-                        {
-                            DisasterInfo = disasterInfo,
-                            DisasterId = disasterId
-                        };
+                var disasterService = ResolveDisasterModel(disasterAI);
+                if (disasterService == null)
+                    return;
 
-                        disasterService.OnDisasterDetected(disasterInfoUnified, ref Container.ActiveDisasters);
-                        return;
-                    }
+                var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
+                var msg =
+                    $"EvacuationService.OnDisasterDetected. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
+                DebugLogger.Log(msg);
+                var disasterInfoUnified = new DisasterInfoModel
+                {
+                    DisasterInfo = disasterInfo,
+                    DisasterId = disasterId
+                };
+
+                disasterService.OnDisasterDetected(disasterInfoUnified, ref Container.ActiveDisasters);
             }
             catch (Exception ex)
             {
@@ -214,25 +213,24 @@ namespace NaturalDisastersRenewal.Handlers
         {
             try
             {
-                foreach (var disasterService in Container.DisasterList)
-                    if (disasterService.CheckDisasterAIType(disasterAI))
-                    {
-                        var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
-                        var msg = $"EvacuationService.OnDisasterFinished. Id: {disasterId}, " +
-                                  $"Name: {disasterInfo.name}, " +
-                                  $"Type: {disasterInfo.type}, " +
-                                  $"Intensity: {disasterInfo.intensity}";
-                        DebugLogger.Log(msg);
+                var disasterService = ResolveDisasterModel(disasterAI);
+                if (disasterService == null)
+                    return;
 
-                        var disasterInfoUnified = new DisasterInfoModel
-                        {
-                            DisasterInfo = disasterInfo,
-                            DisasterId = disasterId
-                        };
+                var disasterInfo = _disasterWrapper.GetDisasterSettings(disasterId);
+                var msg = $"EvacuationService.OnDisasterFinished. Id: {disasterId}, " +
+                          $"Name: {disasterInfo.name}, " +
+                          $"Type: {disasterInfo.type}, " +
+                          $"Intensity: {disasterInfo.intensity}";
+                DebugLogger.Log(msg);
 
-                        disasterService.OnDisasterFinished(disasterInfoUnified, ref Container.ActiveDisasters);
-                        return;
-                    }
+                var disasterInfoUnified = new DisasterInfoModel
+                {
+                    DisasterInfo = disasterInfo,
+                    DisasterId = disasterId
+                };
+
+                disasterService.OnDisasterFinished(disasterInfoUnified, ref Container.ActiveDisasters);
             }
             catch (Exception ex)
             {
@@ -287,6 +285,32 @@ namespace NaturalDisastersRenewal.Handlers
                             if (disasterInfo.m_disasterAI as SinkholeAI != null) return disasterInfo;
                             break;
                     }
+            }
+
+            return null;
+        }
+
+        private void RebuildDisasterModelCache()
+        {
+            _disasterModelByAIType.Clear();
+        }
+
+        private Models.NaturalDisaster.DisasterBaseModel ResolveDisasterModel(DisasterAI disasterAI)
+        {
+            if (disasterAI == null || Container?.DisasterList == null)
+                return null;
+
+            var aiType = disasterAI.GetType();
+            if (_disasterModelByAIType.TryGetValue(aiType, out var cachedModel))
+                return cachedModel;
+
+            foreach (var disasterModel in Container.DisasterList)
+            {
+                if (!disasterModel.CheckDisasterAIType(disasterAI))
+                    continue;
+
+                _disasterModelByAIType[aiType] = disasterModel;
+                return disasterModel;
             }
 
             return null;

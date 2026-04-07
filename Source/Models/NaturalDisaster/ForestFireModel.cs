@@ -38,75 +38,76 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere) return;
 
-            OnSimulationFrameLocal();
-
-            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
-
-            if (CalmDaysLeft > 0)
+            while (TryConsumeSimulationStep(out var elapsedDays))
             {
-                CalmDaysLeft -= daysPerFrame;
-                return;
-            }
+                OnSimulationFrameLocal(elapsedDays);
 
-            if (ProbabilityWarmupDaysLeft > 0)
-            {
-                if (ProbabilityWarmupDaysLeft > ProbabilityWarmupDays)
-                    ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
-
-                ProbabilityWarmupDaysLeft -= daysPerFrame;
-            }
-
-            if (IntensityWarmupDaysLeft > 0)
-            {
-                if (IntensityWarmupDaysLeft > IntensityWarmupDays) IntensityWarmupDaysLeft = IntensityWarmupDays;
-
-                IntensityWarmupDaysLeft -= daysPerFrame;
-            }
-
-            var occurrencePerYear = GetCurrentOccurrencePerYear();
-
-            if (occurrencePerYear == 0) return;
-
-            var simulationManager = CommonServices.Simulation;
-            var occurrencePerFrame = occurrencePerYear / 365 * daysPerFrame;
-
-            var randomizedValue = simulationManager.m_randomizer.Int32(randomizerRange);
-            var randomizedOccurrence = (uint)(randomizerRange * occurrencePerFrame);
-
-            // New Logarithmic activation based on occurrence per year
-            var probabilityProgress = occurrencePerYear switch
-            {
-                <= 0.1f => 0f,
-                >= 10f => 1f,
-                _ => (1f + Mathf.Log10(occurrencePerYear)) / 2f
-            };
-
-            switch (occurrencePerYear)
-            {
-                case > 0.1f and < 10f:
+                if (CalmDaysLeft > 0)
                 {
-                    var threshold = probabilityProgress * randomizedOccurrence;
-
-                    if (!(randomizedValue < threshold)) return;
-
-                    var maxIntensity = GetMaximumIntensity();
-                    var intensity = GetRandomIntensity(maxIntensity);
-
-                    StartDisaster(intensity);
-                    break;
+                    CalmDaysLeft -= elapsedDays;
+                    continue;
                 }
-                case >= 10f:
-                {
-                    var maxIntensity = GetMaximumIntensity();
-                    var intensity = GetRandomIntensity(maxIntensity);
 
-                    StartDisaster(intensity);
-                    break;
+                if (ProbabilityWarmupDaysLeft > 0)
+                {
+                    if (ProbabilityWarmupDaysLeft > ProbabilityWarmupDays)
+                        ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
+
+                    ProbabilityWarmupDaysLeft -= elapsedDays;
+                }
+
+                if (IntensityWarmupDaysLeft > 0)
+                {
+                    if (IntensityWarmupDaysLeft > IntensityWarmupDays) IntensityWarmupDaysLeft = IntensityWarmupDays;
+
+                    IntensityWarmupDaysLeft -= elapsedDays;
+                }
+
+                var occurrencePerYear = GetCurrentOccurrencePerYear();
+
+                if (occurrencePerYear == 0) continue;
+
+                var simulationManager = CommonServices.Simulation;
+                var occurrencePerStep = occurrencePerYear / 365 * elapsedDays;
+
+                var randomizedValue = simulationManager.m_randomizer.Int32(randomizerRange);
+                var randomizedOccurrence = (uint)(randomizerRange * occurrencePerStep);
+
+                // New Logarithmic activation based on occurrence per year
+                var probabilityProgress = occurrencePerYear switch
+                {
+                    <= 0.1f => 0f,
+                    >= 10f => 1f,
+                    _ => (1f + Mathf.Log10(occurrencePerYear)) / 2f
+                };
+
+                switch (occurrencePerYear)
+                {
+                    case > 0.1f and < 10f:
+                    {
+                        var threshold = probabilityProgress * randomizedOccurrence;
+
+                        if (!(randomizedValue < threshold)) continue;
+
+                        var maxIntensity = GetMaximumIntensity();
+                        var intensity = GetRandomIntensity(maxIntensity);
+
+                        StartDisaster(intensity);
+                        break;
+                    }
+                    case >= 10f:
+                    {
+                        var maxIntensity = GetMaximumIntensity();
+                        var intensity = GetRandomIntensity(maxIntensity);
+
+                        StartDisaster(intensity);
+                        break;
+                    }
                 }
             }
         }
 
-        protected override void OnSimulationFrameLocal()
+        protected override void OnSimulationFrameLocal(float elapsedDays)
         {
             var wm = Singleton<WeatherManager>.instance;
             if (wm.m_currentRain > 0)
@@ -115,7 +116,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
             else
             {
-                NoRainDays += Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
+                NoRainDays += elapsedDays;
             }
         }
 

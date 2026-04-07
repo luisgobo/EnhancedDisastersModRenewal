@@ -82,23 +82,22 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return occurence;
         }
 
-        protected override void OnSimulationFrameLocal()
+        protected override void OnSimulationFrameLocal(float elapsedDays)
         {
-            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
             var seasonFactor = GetSeasonFactor();
 
             if (seasonFactor > 0f)
             {
-                StormChargeDays += daysPerFrame * (0.4f + seasonFactor);
+                StormChargeDays += elapsedDays * (0.4f + seasonFactor);
             }
             else
             {
-                StormChargeDays -= daysPerFrame * 0.75f;
+                StormChargeDays -= elapsedDays * 0.75f;
             }
 
             if (IsRainActive())
             {
-                StormChargeDays += daysPerFrame * 0.75f;
+                StormChargeDays += elapsedDays * 0.75f;
             }
 
             StormChargeDays = Mathf.Clamp(StormChargeDays, 0f, ChargeDaysToMax);

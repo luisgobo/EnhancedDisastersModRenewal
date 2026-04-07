@@ -6,6 +6,7 @@ using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Services.HarmonyPatches;
+using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
@@ -150,6 +151,41 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
 
             return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
+        }
+
+        protected override ImpactAreaInfo EvaluateImpactArea(DisasterInfoModel disasterInfoModel, Vector3 pointPosition,
+            float pointRadius, float? focusedRadius = null)
+        {
+            var center = new Vector3(
+                disasterInfoModel.DisasterInfo.targetX,
+                disasterInfoModel.DisasterInfo.targetY,
+                disasterInfoModel.DisasterInfo.targetZ);
+
+            var destructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
+            var normalizedIntensity = Mathf.Clamp01(disasterInfoModel.DisasterInfo.intensity / 255f);
+
+            var destructionLength = destructionRadius * Mathf.Lerp(1.8f, 3.2f, normalizedIntensity);
+            var destructionHalfWidth = destructionRadius * Mathf.Lerp(0.85f, 1.15f, normalizedIntensity);
+            var evacuationLength = destructionLength;
+            var evacuationHalfWidth = destructionHalfWidth * 1.4f;
+
+            if (focusedRadius.HasValue)
+            {
+                var focusBaseRadius = Mathf.Sqrt(focusedRadius.Value);
+                evacuationLength = Mathf.Max(evacuationLength, focusBaseRadius * 2.4f);
+                evacuationHalfWidth = Mathf.Max(evacuationHalfWidth, focusBaseRadius);
+            }
+
+            return EvaluateDirectionalImpactArea(
+                center,
+                disasterInfoModel.DisasterInfo.angle,
+                pointPosition,
+                pointRadius,
+                evacuationLength,
+                evacuationHalfWidth,
+                destructionLength,
+                destructionHalfWidth,
+                destructionHalfWidth * 0.25f);
         }
 
         public override void CopySettings(DisasterBaseModel disaster)

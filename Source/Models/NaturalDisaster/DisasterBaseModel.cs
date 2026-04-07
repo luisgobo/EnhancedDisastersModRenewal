@@ -35,6 +35,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlIgnore] public float IntensityWarmupDaysLeft;
         [XmlIgnore] protected int IntensityWarmupDays = 0;
         protected int ProbabilityWarmupDays = 0;
+        [XmlIgnore] private float _simulationDaysAccumulator;
 
         // Disaster properties
         protected DisasterType DType = DisasterType.Empty;
@@ -64,6 +65,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected virtual TimeBehaviorMode CurrentTimeBehaviorMode =>
             _isRealTimeActive ? TimeBehaviorMode.RealTimeCompatible : TimeBehaviorMode.Original;
         protected virtual float TimeProgressMultiplier => 1f;
+        protected virtual float SimulationCheckIntervalDays => 0.25f;
 
         protected virtual float GetCurrentOccurrencePerYear()
         {
@@ -125,6 +127,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             CalmDaysLeft = CalmDays;
             ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
             IntensityWarmupDaysLeft = IntensityWarmupDays;
+            _simulationDaysAccumulator = 0f;
             ResetDisasterState();
         }
 
@@ -146,50 +149,49 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (!Unlocked && OccurrenceAreaBeforeUnlock == OccurrenceAreas.Nowhere) return;
 
-            OnSimulationFrameLocal();
-
-            var daysPerFrame = GetSimulationDaysPerFrame();
-
-            if (CalmDaysLeft > 0)
+            while (TryConsumeSimulationStep(out var elapsedDays))
             {
-                // Based on days per frame, it reduces the calmDaysLeft every time the game changes of day
-                CalmDaysLeft -= daysPerFrame;
-                return;
-            }
+                OnSimulationFrameLocal(elapsedDays);
 
-            if (ProbabilityWarmupDaysLeft > 0)
-            {
-                if (ProbabilityWarmupDaysLeft > ProbabilityWarmupDays)
+                if (CalmDaysLeft > 0)
                 {
-                    ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
+                    CalmDaysLeft -= elapsedDays;
+                    continue;
                 }
 
-                ProbabilityWarmupDaysLeft -= daysPerFrame;
-            }
+                if (ProbabilityWarmupDaysLeft > 0)
+                {
+                    if (ProbabilityWarmupDaysLeft > ProbabilityWarmupDays)
+                    {
+                        ProbabilityWarmupDaysLeft = ProbabilityWarmupDays;
+                    }
 
-            if (IntensityWarmupDaysLeft > 0)
-            {
-                if (IntensityWarmupDaysLeft > IntensityWarmupDays) IntensityWarmupDaysLeft = IntensityWarmupDays;
+                    ProbabilityWarmupDaysLeft -= elapsedDays;
+                }
 
-                IntensityWarmupDaysLeft -= daysPerFrame;
-            }
+                if (IntensityWarmupDaysLeft > 0)
+                {
+                    if (IntensityWarmupDaysLeft > IntensityWarmupDays) IntensityWarmupDaysLeft = IntensityWarmupDays;
 
-            var occurrencePerYear = GetCurrentOccurrencePerYear();
+                    IntensityWarmupDaysLeft -= elapsedDays;
+                }
 
-            if (occurrencePerYear == 0)
-            {
-                return;
-            }
+                var occurrencePerYear = GetCurrentOccurrencePerYear();
 
+                if (occurrencePerYear == 0)
+                {
+                    continue;
+                }
 
-            var simulationManager = CommonServices.Simulation;
-            var occurrencePerFrame = occurrencePerYear / 365 * daysPerFrame;
-            if (simulationManager.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
-            {
-                var maxIntensity = GetMaximumIntensity();
-                var intensity = GetRandomIntensity(maxIntensity);
+                var simulationManager = CommonServices.Simulation;
+                var occurrencePerStep = occurrencePerYear / 365 * elapsedDays;
+                if (simulationManager.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerStep))
+                {
+                    var maxIntensity = GetMaximumIntensity();
+                    var intensity = GetRandomIntensity(maxIntensity);
 
-                StartDisaster(intensity);
+                    StartDisaster(intensity);
+                }
             }
         }
 
@@ -335,8 +337,23 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         // Disaster events
 
-        protected virtual void OnSimulationFrameLocal()
+        protected virtual void OnSimulationFrameLocal(float elapsedDays)
         {
+        }
+
+        protected bool TryConsumeSimulationStep(out float elapsedDays)
+        {
+            _simulationDaysAccumulator += GetSimulationDaysPerFrame();
+
+            if (_simulationDaysAccumulator < SimulationCheckIntervalDays)
+            {
+                elapsedDays = 0f;
+                return false;
+            }
+
+            elapsedDays = _simulationDaysAccumulator;
+            _simulationDaysAccumulator = 0f;
+            return true;
         }
 
         public virtual void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisaster)
@@ -564,10 +581,122 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return 5.656854249f; //min Value Radio
         }
 
+        protected enum ImpactZone
+        {
+            None,
+            Outer,
+            Middle,
+            Inner,
+            Core
+        }
+
+        protected class ImpactAreaInfo
+        {
+            public ImpactZone Zone = ImpactZone.None;
+            public bool IsInEvacuationArea;
+            public bool IsInDestructionArea;
+            public float Priority;
+        }
+
+        protected virtual ImpactAreaInfo EvaluateImpactArea(DisasterInfoModel disasterInfoModel, Vector3 pointPosition,
+            float pointRadius, float? focusedRadius = null)
+        {
+            var disasterTargetPosition = new Vector3(
+                disasterInfoModel.DisasterInfo.targetX,
+                disasterInfoModel.DisasterInfo.targetY,
+                disasterInfoModel.DisasterInfo.targetZ);
+
+            var destructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
+            var evacuationRadius = destructionRadius;
+
+            if (focusedRadius.HasValue)
+            {
+                evacuationRadius = Mathf.Max(evacuationRadius, Mathf.Sqrt(focusedRadius.Value));
+            }
+
+            return EvaluateCircularImpactArea(disasterTargetPosition, pointPosition, pointRadius, evacuationRadius, destructionRadius);
+        }
+
+        protected static ImpactAreaInfo EvaluateCircularImpactArea(Vector3 center, Vector3 pointPosition, float pointRadius,
+            float evacuationRadius, float destructionRadius)
+        {
+            var planarDistance = Vector2.Distance(new Vector2(center.x, center.z), new Vector2(pointPosition.x, pointPosition.z));
+            var evaluation = new ImpactAreaInfo
+            {
+                IsInEvacuationArea = planarDistance <= evacuationRadius + pointRadius,
+                IsInDestructionArea = planarDistance <= destructionRadius + pointRadius
+            };
+
+            if (!evaluation.IsInEvacuationArea)
+            {
+                return evaluation;
+            }
+
+            var normalizedDistance = evacuationRadius > 0f
+                ? Mathf.Clamp01(planarDistance / evacuationRadius)
+                : 1f;
+
+            evaluation.Priority = 1f - normalizedDistance;
+            evaluation.Zone = GetImpactZoneFromNormalizedDistance(normalizedDistance);
+            return evaluation;
+        }
+
+        protected static ImpactAreaInfo EvaluateDirectionalImpactArea(Vector3 center, float angle, Vector3 pointPosition,
+            float pointRadius, float trailLength, float baseHalfWidth, float destructionLength, float destructionHalfWidth,
+            float forwardPadding = 0f)
+        {
+            var offset = new Vector2(pointPosition.x - center.x, pointPosition.z - center.z);
+            var direction = new Vector2(0f - Mathf.Sin(angle), Mathf.Cos(angle)).normalized;
+            var perpendicular = new Vector2(direction.y, -direction.x);
+
+            var forwardDistance = Vector2.Dot(offset, direction) + forwardPadding;
+            var lateralDistance = Mathf.Abs(Vector2.Dot(offset, perpendicular));
+            var maxForwardDistance = Mathf.Max(trailLength + pointRadius, 0f);
+
+            var evaluation = new ImpactAreaInfo();
+
+            if (forwardDistance < -pointRadius || forwardDistance > maxForwardDistance)
+            {
+                return evaluation;
+            }
+
+            var forwardRatio = maxForwardDistance > 0f ? Mathf.Clamp01(forwardDistance / maxForwardDistance) : 0f;
+            var evacuationHalfWidth = Mathf.Lerp(baseHalfWidth, Mathf.Max(baseHalfWidth * 0.35f, pointRadius), forwardRatio);
+            evaluation.IsInEvacuationArea = lateralDistance <= evacuationHalfWidth + pointRadius;
+
+            if (!evaluation.IsInEvacuationArea)
+            {
+                return evaluation;
+            }
+
+            var destructionRatio = destructionLength > 0f ? Mathf.Clamp01(forwardDistance / destructionLength) : 1f;
+            var destructionWidth = Mathf.Lerp(destructionHalfWidth, Mathf.Max(destructionHalfWidth * 0.35f, pointRadius), destructionRatio);
+            evaluation.IsInDestructionArea = forwardDistance <= destructionLength + pointRadius &&
+                                             lateralDistance <= destructionWidth + pointRadius;
+
+            var lateralRatio = evacuationHalfWidth > 0f ? Mathf.Clamp01(lateralDistance / evacuationHalfWidth) : 1f;
+            evaluation.Priority = 1f - Mathf.Clamp01(Mathf.Max(forwardRatio, lateralRatio));
+            evaluation.Zone = GetImpactZoneFromNormalizedDistance(1f - evaluation.Priority);
+
+            return evaluation;
+        }
+
+        protected static ImpactZone GetImpactZoneFromNormalizedDistance(float normalizedDistance)
+        {
+            if (normalizedDistance <= 0.2f)
+                return ImpactZone.Core;
+            if (normalizedDistance <= 0.45f)
+                return ImpactZone.Inner;
+            if (normalizedDistance <= 0.7f)
+                return ImpactZone.Middle;
+            if (normalizedDistance <= 1f)
+                return ImpactZone.Outer;
+
+            return ImpactZone.None;
+        }
+
         protected virtual void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
-            var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
-
             //Get disaster Info
             DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
 
@@ -593,19 +722,22 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                     if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
                     {
-                        //Add Building/Shelter Data to disaster
+                        float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
+                        var impactArea = EvaluateImpactArea(disasterInfoModel, shelterPosition, shelterRadius);
+
+                        if (!impactArea.IsInEvacuationArea)
+                            continue;
+
                         disasterInfoModel.ShelterList.Add(num);
 
-                        //Getting diaster core
-                        var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
-
-                        float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
-
                         //if Shelter will be destroyed, don't evacuate
-                        if (!disasterInfoModel.IgnoreDestructionZone && DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
+                        if (!disasterInfoModel.IgnoreDestructionZone && impactArea.IsInDestructionArea)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
+                        {
+                            DebugLogger.Log($"Shelter {num} mapped to {impactArea.Zone} zone.");
                             SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                        }
                     }
                 }
             }
@@ -734,13 +866,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected virtual void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius, ref List<DisasterInfoModel> activeDisasters)
         {
             DebugLogger.Log("SetupAutomaticFocusedEvacuation");
-            var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
-            DebugLogger.Log(disasterTargetPosition.ToString());
             //Get disaster Info
             var disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
-
-            //Get Disaster Radio from Settings property
-            var disasterRadioEvacuation = (float)Math.Sqrt(disasterRadius); //32f as default approx;
 
             if (disasterInfo == null)
                 return;
@@ -763,29 +890,27 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 var buildingInfo = buildingManager.m_buildings.m_buffer[num];
                 var shelterPosition = buildingInfo.m_position;
 
-                //Once this is located into Risk Zone, it's needed to verify if building would be destroyed by Natural disaster (setup in each one)
-                //Getting diaster core
-                var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
-
                 var shelterRadius =
                     (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8f / 2f;
 
                 if (buildingInfo.Info.m_buildingAI as ShelterAI == null
-                    || !DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius > disasterRadioEvacuation
-                        ? disasterDestructionRadius : disasterRadioEvacuation)) continue;
+                    ) continue;
+
+                var impactArea = EvaluateImpactArea(disasterInfoModel, shelterPosition, shelterRadius, disasterRadius);
+                if (!impactArea.IsInEvacuationArea)
+                    continue;
 
                 //Add Building/Shelter Data to disaster
                 disasterInfoModel.ShelterList.Add(num);
 
                 DebugLogger.Log(
                     $"Disaster intensity: {disasterInfoModel.DisasterInfo.intensity}. " +
-                    $"DisasterRadioEvacuation: {disasterRadioEvacuation}. " +
-                    $"DisasterRadioEvacuation into destruction (New Calculation): {disasterDestructionRadius}"
+                    $"Focused evacuation radius: {Mathf.Sqrt(disasterRadius)}. " +
+                    $"Resolved zone: {impactArea.Zone}"
                 );
 
                 //if Shelter will be destroyed, don't evacuate
-                if (!disasterInfoModel.IgnoreDestructionZone
-                    && DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
+                if (!disasterInfoModel.IgnoreDestructionZone && impactArea.IsInDestructionArea)
                 {
                     DebugLogger.Log("Shelter is located in Destruction Zone. Won't be evacuated");
                 }
@@ -801,24 +926,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected static void SetBuildingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData, bool release)
         {
             shelterAI?.SetEmptying(num, ref buildingData, release);
-        }
-
-        protected static bool DiscardShelterToBeDestroyed(Vector3 disasterPosition, Vector3 shelterPosition, float shelterRadius, float evacuationRadius)
-        {
-            //First Squared Is required for correct calculation
-            evacuationRadius *= evacuationRadius;
-            // Compare radius of circle with distance
-            // of its center from given point
-
-            var distanceBetweenTwoPoints = (float)Math.Sqrt((disasterPosition.x - shelterPosition.x) * (disasterPosition.x - shelterPosition.x) + (disasterPosition.z - shelterPosition.z) * (disasterPosition.z - shelterPosition.z));
-
-            if (distanceBetweenTwoPoints <= evacuationRadius - shelterRadius)
-                return true;
-
-            if (distanceBetweenTwoPoints <= shelterRadius - evacuationRadius)
-                return true;
-
-            return distanceBetweenTwoPoints < evacuationRadius + shelterRadius || Mathf.Approximately(distanceBetweenTwoPoints, evacuationRadius + shelterRadius);
         }
 
         protected virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)

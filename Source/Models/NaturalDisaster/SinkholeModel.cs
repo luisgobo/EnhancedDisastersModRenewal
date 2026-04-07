@@ -42,17 +42,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return base.GetTooltipInformation();
         }
 
-        protected override void OnSimulationFrameLocal()
+        protected override void OnSimulationFrameLocal(float elapsedDays)
         {
-            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
-
             var wm = CommonServices.Weather;
             if (wm.m_currentRain > 0)
             {
-                groundwaterAmount += wm.m_currentRain * daysPerFrame;
+                groundwaterAmount += wm.m_currentRain * elapsedDays;
             }
 
-            groundwaterAmount -= (groundwaterAmount / GroundwaterCapacity) * daysPerFrame;
+            groundwaterAmount -= (groundwaterAmount / GroundwaterCapacity) * elapsedDays;
 
             if (groundwaterAmount < 0)
             {

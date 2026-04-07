@@ -228,8 +228,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
         {
-            var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
-
             //Get disaster Info
             DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
 
@@ -256,12 +254,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                     if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
                     {
-                        //Add Building/Shelter Data to disaster
-                        disasterInfoModel.ShelterList.Add(num);
-
-                        //Getting diaster core
-                        var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
                         float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
+                        var impactArea = EvaluateImpactArea(disasterInfoModel, shelterPosition, shelterRadius);
+
+                        if (!impactArea.IsInEvacuationArea)
+                            continue;
                         
                         bool IgnoreDestructionZoneForEarthquake;
                         switch (EarthquakeCrackMode)
@@ -283,11 +280,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                                 break;
                         }
 
+                        disasterInfoModel.ShelterList.Add(num);
+
                         //if Shelter will be destroyed, don't evacuate
-                        if (DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
+                        if (impactArea.IsInDestructionArea && !IgnoreDestructionZoneForEarthquake)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
+                        {
+                            DebugLogger.Log($"Shelter {num} mapped to {impactArea.Zone} earthquake zone.");
                             SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                        }
                     }
                 }
             }

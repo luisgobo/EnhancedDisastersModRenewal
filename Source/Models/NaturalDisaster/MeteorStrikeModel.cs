@@ -16,9 +16,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlIgnore] public MeteorEvent[] MeteorEvents;
         
         private const float DefaultRealTimeFrequencyMultiplier = 4f;
-        private readonly bool _isRealTimeActive = CommonServices.DisasterHandler.CheckRealTimeModActive();
-
         protected override TimeBehaviorMode CurrentTimeBehaviorMode => TimeBehaviorMode.VanillaSimulationCompatible;
+        protected override float TimeProgressMultiplier => CommonServices.DisasterHandler.CheckRealTimeModActive() ? RealTimeFrequencyMultiplier : 1f;
 
         public struct MeteorEvent
         {
@@ -179,17 +178,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             MeteorEvents[index].Enabled = value;
         }
 
-        protected override void OnSimulationFrameLocal()
+        protected override void OnSimulationFrameLocal(float elapsedDays)
         {
-            var daysPerFrame = Helper.GetDaysPerFrame(CurrentTimeBehaviorMode);
-            if (_isRealTimeActive)
-            {
-                daysPerFrame *= Mathf.Max(1f, RealTimeFrequencyMultiplier);
-            }
-
             for (var i = 0; i < MeteorEvents.Length; i++)
             {
-                MeteorEvents[i].OnSimulationFrame(daysPerFrame);
+                MeteorEvents[i].OnSimulationFrame(elapsedDays);
             }
         }
 
@@ -224,11 +217,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             for (var i = 0; i < MeteorEvents.Length; i++)
             {
                 var prob = MeteorEvents[i].GetProbabilityMultiplier();
-                if (prob > maxProbability)
-                {
-                    maxProbability = prob;
-                    meteorIndex = i;
-                }
+                
+                if (!(prob > maxProbability)) continue;
+                
+                maxProbability = prob;
+                meteorIndex = i;
             }
 
             // Should not happen
@@ -258,7 +251,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override byte GetMaximumIntensity()
         {
-            byte intensity = baseIntensity;
+            var intensity = baseIntensity;
 
             for (var i = 0; i < MeteorEvents.Length; i++)
             {

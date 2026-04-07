@@ -157,22 +157,51 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return calculation;
         }
 
+        protected override ImpactAreaInfo EvaluateImpactArea(DisasterInfoModel disasterInfoModel, Vector3 pointPosition,
+            float pointRadius, float? focusedRadius = null)
+        {
+            var evaluation = new ImpactAreaInfo();
+
+            var disasterManager = Singleton<DisasterManager>.instance;
+            if (disasterManager == null || disasterInfoModel.DisasterId >= disasterManager.m_disasters.m_buffer.Length)
+                return evaluation;
+
+            var disasterData = disasterManager.m_disasters.m_buffer[disasterInfoModel.DisasterId];
+            float priority;
+
+            var center = new Vector3(
+                disasterInfoModel.DisasterInfo.targetX,
+                disasterInfoModel.DisasterInfo.targetY,
+                disasterInfoModel.DisasterInfo.targetZ);
+
+            if (!CanAffectAt(disasterInfoModel.DisasterId, ref disasterData, pointPosition, center, out priority))
+                return evaluation;
+
+            if (focusedRadius.HasValue && !IsInsideWaveCorridor(center, disasterInfoModel.DisasterInfo.angle, pointPosition, pointRadius, Mathf.Sqrt(focusedRadius.Value)))
+                return evaluation;
+
+            evaluation.IsInEvacuationArea = true;
+            evaluation.Priority = Mathf.Clamp01(priority);
+            evaluation.Zone = evaluation.Priority switch
+            {
+                >= 0.75f => ImpactZone.Core,
+                >= 0.5f => ImpactZone.Inner,
+                >= 0.25f => ImpactZone.Middle,
+                _ => ImpactZone.Outer
+            };
+
+            return evaluation;
+        }
+
         private void SetupTsunamiEvacuation(DisasterInfoModel disasterInfoModel, float? focusedRadius, ref List<DisasterInfoModel> activeDisasters)
         {
             if (NaturalDisasterHandler.GetDisasterInfo(DType) == null)
                 return;
 
-            var disasterTargetPosition = new Vector3(
-                disasterInfoModel.DisasterInfo.targetX,
-                disasterInfoModel.DisasterInfo.targetY,
-                disasterInfoModel.DisasterInfo.targetZ);
-
             var buildingManager = Singleton<BuildingManager>.instance;
             var serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
             if (serviceBuildings == null)
                 return;
-
-            var focusedEvacuationRadius = focusedRadius.HasValue ? (float)Math.Sqrt(focusedRadius.Value) : 0f;
 
             for (var i = 0; i < serviceBuildings.m_size; i++)
             {
@@ -184,20 +213,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 if (buildingInfo.Info == null || buildingInfo.Info.m_buildingAI is not ShelterAI shelterAI)
                     continue;
 
-                var shelterPosition = buildingInfo.m_position;
-                if (!CanTsunamiAffectShelter(disasterInfoModel.DisasterId, shelterPosition, disasterTargetPosition, out var priority))
-                    continue;
-
                 var shelterRadius = (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8 / 2f;
-                if (focusedRadius.HasValue &&
-                    !DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, focusedEvacuationRadius))
+                var shelterPosition = buildingInfo.m_position;
+                var impactArea = EvaluateImpactArea(disasterInfoModel, shelterPosition, shelterRadius, focusedRadius);
+                if (!impactArea.IsInEvacuationArea)
                     continue;
 
                 disasterInfoModel.ShelterList.Add(shelterId);
                 SetBuildingEvacuationStatus(shelterAI, shelterId, ref buildingManager.m_buildings.m_buffer[shelterId], false);
 
                 DebugLogger.Log(
-                    $"Tsunami evacuation enabled for shelter {shelterId}. Priority: {priority:0.000}, " +
+                    $"Tsunami evacuation enabled for shelter {shelterId}. Priority: {impactArea.Priority:0.000}, " +
+                    $"Zone: {impactArea.Zone}, " +
                     $"Focused radius active: {focusedRadius.HasValue}");
             }
 
@@ -211,16 +238,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             activeDisasters.Add(disasterInfoModel);
         }
 
-        private bool CanTsunamiAffectShelter(ushort disasterId, Vector3 shelterPosition, Vector3 disasterTargetPosition, out float priority)
+        private static bool IsInsideWaveCorridor(Vector3 center, float angle, Vector3 pointPosition, float pointRadius, float halfWidth)
         {
-            priority = 0f;
-
-            var disasterManager = Singleton<DisasterManager>.instance;
-            if (disasterManager == null || disasterId >= disasterManager.m_disasters.m_buffer.Length)
-                return false;
-
-            var disasterData = disasterManager.m_disasters.m_buffer[disasterId];
-            return CanAffectAt(disasterId, ref disasterData, shelterPosition, disasterTargetPosition, out priority);
+            var direction = new Vector2(0f - Mathf.Sin(angle), Mathf.Cos(angle)).normalized;
+            var perpendicular = new Vector2(direction.y, -direction.x);
+            var offset = new Vector2(pointPosition.x - center.x, pointPosition.z - center.z);
+            var lateralDistance = Mathf.Abs(Vector2.Dot(offset, perpendicular));
+            return lateralDistance <= halfWidth + pointRadius;
         }
     }
 }
