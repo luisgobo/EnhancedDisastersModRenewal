@@ -602,7 +602,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (!disasterInfoModel.IgnoreDestructionZone && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
+                        if (!disasterInfoModel.IgnoreDestructionZone && DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
                             SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
@@ -771,7 +771,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8f / 2f;
 
                 if (buildingInfo.Info.m_buildingAI as ShelterAI == null
-                    || !IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius > disasterRadioEvacuation
+                    || !DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius > disasterRadioEvacuation
                         ? disasterDestructionRadius : disasterRadioEvacuation)) continue;
 
                 //Add Building/Shelter Data to disaster
@@ -785,7 +785,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 //if Shelter will be destroyed, don't evacuate
                 if (!disasterInfoModel.IgnoreDestructionZone
-                    && IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
+                    && DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius))
                 {
                     DebugLogger.Log("Shelter is located in Destruction Zone. Won't be evacuated");
                 }
@@ -803,9 +803,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             shelterAI?.SetEmptying(num, ref buildingData, release);
         }
 
-        protected static bool IsShelterInDisasterZone(Vector3 disasterPosition, Vector3 shelterPosition, float shelterRadius, float evacuationRadius)
+        protected static bool DiscardShelterToBeDestroyed(Vector3 disasterPosition, Vector3 shelterPosition, float shelterRadius, float evacuationRadius)
         {
-
             //First Squared Is required for correct calculation
             evacuationRadius *= evacuationRadius;
             // Compare radius of circle with distance
@@ -820,7 +819,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return true;
 
             return distanceBetweenTwoPoints < evacuationRadius + shelterRadius || Mathf.Approximately(distanceBetweenTwoPoints, evacuationRadius + shelterRadius);
-
         }
 
         protected virtual bool CanAffectAt(ushort disasterID, ref DisasterData data, Vector3 buildingPosition, Vector3 seasidePosition, out float priority)

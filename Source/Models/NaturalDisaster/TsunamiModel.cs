@@ -190,7 +190,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 var shelterRadius = (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8 / 2f;
                 if (focusedRadius.HasValue &&
-                    !IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, focusedEvacuationRadius))
+                    !DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, focusedEvacuationRadius))
                     continue;
 
                 disasterInfoModel.ShelterList.Add(shelterId);

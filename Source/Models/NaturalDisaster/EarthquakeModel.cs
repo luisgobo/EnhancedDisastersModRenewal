@@ -284,7 +284,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         }
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
+                        if (DiscardShelterToBeDestroyed(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
                             DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
                         else
                             SetBuildingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
