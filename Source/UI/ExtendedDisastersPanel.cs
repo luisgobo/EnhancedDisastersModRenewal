@@ -1,6 +1,9 @@
-﻿using System.Globalization;
+﻿using System.Collections;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.Common;
@@ -17,6 +20,7 @@ namespace NaturalDisastersRenewal.UI
     {
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
+        private const string HelpTutorialKey = "NDR_TUTORIAL_PANEL_HELP";
 
         private const float PanelWidth = 414f;
         private const float PanelHeight = 320f;
@@ -276,7 +280,7 @@ namespace NaturalDisastersRenewal.UI
                 "?",
                 new Vector3(PanelWidth - 70f, 8f),
                 new Vector2(25f, 25f),
-                "Help about Natural Disaster Renewal",
+                LocalizationService.Get("panel.help.button.tooltip"),
                 clickHandler:HelpBtn_eventClick,
                 textPadding:new RectOffset(1, 0, 5, 0));
 
@@ -297,60 +301,82 @@ namespace NaturalDisastersRenewal.UI
 
         private static void ShowHelpPanel()
         {
-            //TODO: Implement the help panel with information about the mod
-            // * Set a scrolling bar For this panel,
-            // * Split panel in two parts, one for the title and the other for the content
-            // * replace content to english 
+            var advisorPanel = ToolsModifierControl.advisorPanel;
+            if (advisorPanel == null)
+            {
+                return;
+            }
 
-            // Crear panel principal
-            var helpPanel = (UIPanel)UIView.GetAView().AddUIComponent(typeof(UIPanel));
-            helpPanel.name = "NDRHelpPanel";
-            //helpPanel.atlas = UIUtils.GetAtlas("Ingame"); // Replace with the correct atlas
-            helpPanel.backgroundSprite = "GenericPanel";
-            helpPanel.color = new Color32(50, 50, 50, 250);
-            helpPanel.size = new Vector2(400, 300);
-            helpPanel.relativePosition = new Vector3(Mathf.Floor((UIView.GetAView().fixedWidth - 400f) / 2f),
-                Mathf.Floor((UIView.GetAView().fixedHeight - 300f) / 2f));
+            RegisterHelpTutorialLocalization();
+            advisorPanel.Show(HelpTutorialKey, "ToolbarIconZoomOutGlobe", string.Empty, 0f);
+        }
 
-            // Título
-            var title = helpPanel.AddUIComponent<UILabel>();
-            title.text = "Help - Natural Disasters Renewal";
-            title.textScale = 1.2f;
-            title.relativePosition = new Vector3(10, 10);
-            title.textColor = Color.white;
+        private static void RegisterHelpTutorialLocalization()
+        {
+            var locale = GetLocale();
+            if (locale == null)
+            {
+                return;
+            }
 
-            // Contenido
-            var content = helpPanel.AddUIComponent<UILabel>();
-            content.text =
-                "ESTADÍSTICAS:\n\n" +
-                "• Barras de Probabilidad (Rojo → Verde):\n" +
-                "  - 0.1 a 10 eventos por año\n" +
-                "  - Más rojo = Mayor probabilidad\n\n" +
-                "• Barras de Intensidad (Rojo → Verde):\n" +
-                "  - 0 a 25.5 de intensidad máxima\n" +
-                "  - Más verde = Mayor intensidad\n\n" +
-                "CONTROLES:\n" +
-                "• ▶/⏸ : Activar/Desactivar desastre\n" +
-                "• ■ : Detener todos los desastres activos\n" +
-                "• ↺ : Reiniciar todos los desastres\n\n" +
-                "Los desastres se activan según la probabilidad\n" +
-                "configurada y la población de la ciudad.";
-            content.textColor = Color.white;
-            content.wordWrap = true;
-            content.autoSize = false;
-            content.size = new Vector2(380, 240);
-            content.relativePosition = new Vector3(10, 40);
+            SetLocalizedString(
+                locale,
+                new Locale.Key
+                {
+                    m_Identifier = "TUTORIAL_ADVISER_TITLE",
+                    m_Key = HelpTutorialKey
+                },
+                LocalizationService.Get("panel.help.title"));
 
-            // Botón cerrar
-            var closeButton = helpPanel.AddUIComponent<UIButton>();
-            closeButton.text = "X";
-            //closeButton.atlas = UIUtils.("Ingame"); // Replace with the correct atlas
-            closeButton.normalBgSprite = "ButtonMenu";
-            closeButton.hoveredBgSprite = "ButtonMenuHovered";
-            closeButton.size = new Vector2(30, 30);
-            closeButton.textScale = 1.2f;
-            closeButton.relativePosition = new Vector3(helpPanel.width - 35, 5);
-            closeButton.eventClick += (c, p) => Destroy(helpPanel);
+            SetLocalizedString(
+                locale,
+                new Locale.Key
+                {
+                    m_Identifier = "TUTORIAL_ADVISER",
+                    m_Key = HelpTutorialKey
+                },
+                LocalizationService.Get("panel.help.content"));
+        }
+
+        private static void SetLocalizedString(Locale locale, Locale.Key key, string value)
+        {
+            try
+            {
+                locale.AddLocalizedString(key, value);
+            }
+            catch (System.ArgumentException)
+            {
+                TryUpdateLocalizedString(locale, key, value);
+            }
+        }
+
+        private static void TryUpdateLocalizedString(Locale locale, Locale.Key key, string value)
+        {
+            var localeType = locale.GetType();
+            var fields = localeType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            foreach (var field in fields)
+            {
+                if (!typeof(IDictionary).IsAssignableFrom(field.FieldType))
+                {
+                    continue;
+                }
+
+                if (field.GetValue(locale) is not IDictionary dictionary)
+                {
+                    continue;
+                }
+
+                dictionary[key] = value;
+                return;
+            }
+        }
+
+        private static Locale GetLocale()
+        {
+            return typeof(LocaleManager)
+                .GetField("m_Locale", BindingFlags.Instance | BindingFlags.NonPublic)?
+                .GetValue(LocaleManager.instance) as Locale;
         }
 
         private static void BuildPanelTitle(UIComponent parentPanel)

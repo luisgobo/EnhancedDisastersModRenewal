@@ -69,6 +69,22 @@ public static class LocalizationService
                     ["panel.timeOffsetTicks"] = "Time offset ticks: {0}",
                     ["panel.dayTimeFrames"] = "Day-time frames: {0}",
                     ["panel.dayTimeOffsetFrames"] = "Day-time offset frames: {0}",
+                    ["panel.help.button.tooltip"] = "Open help",
+                    ["panel.help.title"] = "Natural Disasters Renewal",
+                    ["panel.help.content"] =
+                        "This panel shows the current disaster balance for your city.\n\n" +
+                        "Statistics\n" +
+                        "The left side of each row identifies the disaster type.\n" +
+                        "How often shows how likely that disaster is to happen.\n" +
+                        "Max strength shows the strongest intensity that disaster can currently reach.\n" +
+                        "The population line explains when the strongest disasters become available.\n\n" +
+                        "Controls\n" +
+                        "Click the status icon in a row to enable or disable that disaster.\n" +
+                        "The red square stops active disasters that can be cancelled safely.\n" +
+                        "The yellow reset button restarts disaster progress and cooldowns.\n\n" +
+                        "Settings\n" +
+                        "The settings tab shows timing values used for compatibility with Real Time.\n" +
+                        "This mod adapts its timing to the time flow used by the current save.",
                     ["settings.group.general"] = "General",
                     ["settings.group.positions"] = "Panel positions",
                     ["settings.group.enableDisasters"] = "Enable disasters",
@@ -226,6 +242,22 @@ public static class LocalizationService
                     ["panel.timeOffsetTicks"] = "Ticks de desfase: {0}",
                     ["panel.dayTimeFrames"] = "Frames del ciclo dia/noche: {0}",
                     ["panel.dayTimeOffsetFrames"] = "Frames de desfase del ciclo dia/noche: {0}",
+                    ["panel.help.button.tooltip"] = "Abrir ayuda",
+                    ["panel.help.title"] = "Natural Disasters Renewal",
+                    ["panel.help.content"] =
+                        "Este panel muestra el balance actual de desastres en tu ciudad.\n\n" +
+                        "Estadisticas\n" +
+                        "La parte izquierda de cada fila identifica el tipo de desastre.\n" +
+                        "Frecuencia indica que tan probable es que ocurra ese desastre.\n" +
+                        "Fuerza max. muestra la intensidad maxima que ese desastre puede alcanzar en este momento.\n" +
+                        "La linea de poblacion indica cuando se habilitan los desastres mas fuertes.\n\n" +
+                        "Controles\n" +
+                        "Haz clic en el icono de estado de una fila para activar o desactivar ese desastre.\n" +
+                        "El boton rojo detiene los desastres activos que se pueden cancelar de forma segura.\n" +
+                        "El boton amarillo reinicia el progreso y los tiempos de espera de los desastres.\n\n" +
+                        "Ajustes\n" +
+                        "La pestana de ajustes muestra valores de tiempo usados para compatibilidad con Real Time.\n" +
+                        "Este mod adapta sus tiempos al flujo temporal usado por la partida actual.",
                     ["settings.group.general"] = "General",
                     ["settings.group.positions"] = "Posiciones del panel",
                     ["settings.group.enableDisasters"] = "Activar desastres",

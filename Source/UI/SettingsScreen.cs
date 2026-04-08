@@ -182,7 +182,8 @@ namespace NaturalDisastersRenewal.UI
 
         void AddLabelToSlider(object obj, string postfix = "")
         {
-            UISlider uISlider = obj as UISlider;
+            var uISlider = obj as UISlider;
+            
             if (uISlider == null) return;
 
             var sliderPanel = uISlider.parent as UIPanel;
