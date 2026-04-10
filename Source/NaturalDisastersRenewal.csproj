@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\CommonProperties.cs" />
+    <Compile Include="Common\Services.cs" />
     <Compile Include="Common\enums\EarthquakeCrackOptions.cs" />
     <Compile Include="Common\enums\EvacuationOptions.cs" />
     <Compile Include="Common\Types\Triplet.cs" />
@@ -94,7 +95,7 @@
     <Compile Include="UI\ComponentHelper\LabelHelper.cs" />
     <Compile Include="UI\ComponentHelper\TabHelper.cs" />
     <Compile Include="UI\ExtendedDisastersPanel.cs" />
-    <Compile Include="Common\Helper.cs" />
+    <Compile Include="Common\DisasterSimulationUtils.cs" />
     <Compile Include="BaseGameExtensions\LoadingExtension.cs" />
     <Compile Include="Common\enums\OccurrenceAreas.cs" />
     <Compile Include="Services\HarmonyPatches\DisasterHelpersModified.cs" />

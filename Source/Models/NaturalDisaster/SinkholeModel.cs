@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
@@ -44,9 +44,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
-            float daysPerFrame = Helper.DaysPerFrame;
+            float daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
 
-            WeatherManager wm = Singleton<WeatherManager>.instance;
+            WeatherManager wm = Services.Weather;
             if (wm.m_currentRain > 0)
             {
                 groundwaterAmount += wm.m_currentRain * daysPerFrame;

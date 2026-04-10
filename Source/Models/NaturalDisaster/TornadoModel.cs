@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
@@ -30,12 +30,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override float GetCurrentOccurrencePerYearLocal()
         {
-            if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
+            if (NoTornadoDuringFog && Services.Weather.m_currentFog > 0)
             {
                 return 0;
             }
 
-            DateTime dt = Singleton<SimulationManager>.instance.m_currentGameTime;
+            DateTime dt = Services.Simulation.m_currentGameTime;
             int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (delta_month > 6) delta_month = 12 - delta_month;
 
@@ -48,7 +48,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (calmDaysLeft <= 0)
             {
-                if (NoTornadoDuringFog && Singleton<WeatherManager>.instance.m_currentFog > 0)
+                if (NoTornadoDuringFog && Services.Weather.m_currentFog > 0)
                 {
                     return "No " + GetName() + " during fog.";
                 }

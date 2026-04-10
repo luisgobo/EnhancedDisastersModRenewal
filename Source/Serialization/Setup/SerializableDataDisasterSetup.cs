@@ -1,4 +1,5 @@
-﻿using ColossalFramework;
+using ColossalFramework;
+using NaturalDisastersRenewal.Common;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Setup;
@@ -10,7 +11,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            DisasterSetupModel disasterSetupmodel = Singleton<NaturalDisasterHandler>.instance.container;
+            DisasterSetupModel disasterSetupmodel = Services.DisasterSetup;
 
             dataSerializer.WriteBool(disasterSetupmodel.ScaleMaxIntensityWithPopulation);
             dataSerializer.WriteBool(disasterSetupmodel.RecordDisasterEvents);
@@ -30,7 +31,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
         public void Deserialize(DataSerializer dataSerializer)
         {
-            DisasterSetupModel disasterSetupmodel = Singleton<NaturalDisasterHandler>.instance.container;
+            DisasterSetupModel disasterSetupmodel = Services.DisasterSetup;
 
             disasterSetupmodel.ScaleMaxIntensityWithPopulation = dataSerializer.ReadBool();
             disasterSetupmodel.RecordDisasterEvents = dataSerializer.ReadBool();
@@ -50,8 +51,8 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
         public void AfterDeserialize(DataSerializer dataSerializer)
         {
-            Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
-            Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
+            Services.DisasterHandler.UpdateDisastersPanelToggleBtn();
+            Services.DisasterHandler.UpdateDisastersDPanel();
         }
     }
 }

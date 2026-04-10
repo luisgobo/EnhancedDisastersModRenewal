@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
@@ -33,8 +33,6 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
                 using (var stream = new MemoryStream())
                 {
-                    NaturalDisasterHandler edm = Singleton<NaturalDisasterHandler>.instance;
-
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new SerializableDataDisasterSetup());
 
                     DataSerializer.Serialize(stream, DataSerializer.Mode.Memory, DataVersion, new SerializableDataForestFire());

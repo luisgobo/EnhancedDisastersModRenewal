@@ -1,4 +1,5 @@
-﻿using ColossalFramework;
+using ColossalFramework;
+using NaturalDisastersRenewal.Common;
 using ICities;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Logger;
@@ -12,44 +13,44 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
     {
         public override void OnCreated(IDisaster disasters)
         {
-            Singleton<NaturalDisasterHandler>.instance.OnCreated(disasters);
+            Services.DisasterHandler.OnCreated(disasters);
         }
 
         public override void OnDisasterStarted(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterStarted(disasterData.Info.m_disasterAI, disasterData.m_intensity);
+            DisasterData disasterData = Services.Disasters.m_disasters.m_buffer[disasterID];
+            Services.DisasterHandler.OnDisasterStarted(disasterData.Info.m_disasterAI, disasterData.m_intensity);
 
-            DisasterLogger.AddDisaster(Singleton<SimulationManager>.instance.m_currentGameTime, disasterData.Info.GetAI().name, disasterData.m_intensity);
+            DisasterLogger.AddDisaster(Services.Simulation.m_currentGameTime, disasterData.Info.GetAI().name, disasterData.m_intensity);
         }
 
         public override void OnDisasterActivated(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterActivated(disasterData.Info.m_disasterAI, disasterID);
+            DisasterData disasterData = Services.Disasters.m_disasters.m_buffer[disasterID];
+            Services.DisasterHandler.OnDisasterActivated(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public override void OnDisasterDeactivated(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterDeactivated(disasterData.Info.m_disasterAI, disasterID);
+            DisasterData disasterData = Services.Disasters.m_disasters.m_buffer[disasterID];
+            Services.DisasterHandler.OnDisasterDeactivated(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public override void OnDisasterDetected(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterDetected(disasterData.Info.m_disasterAI, disasterID);
+            DisasterData disasterData = Services.Disasters.m_disasters.m_buffer[disasterID];
+            Services.DisasterHandler.OnDisasterDetected(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public override void OnDisasterFinished(ushort disasterID)
         {
-            DisasterData disasterData = Singleton<DisasterManager>.instance.m_disasters.m_buffer[disasterID];
-            Singleton<NaturalDisasterHandler>.instance.OnDisasterFinished(disasterData.Info.m_disasterAI, disasterID);
+            DisasterData disasterData = Services.Disasters.m_disasters.m_buffer[disasterID];
+            Services.DisasterHandler.OnDisasterFinished(disasterData.Info.m_disasterAI, disasterID);
         }
 
         public static void SetDisableDisasterFocus(bool disableDisasterFocus)
         {
-            DisasterManager.instance.m_disableAutomaticFollow = disableDisasterFocus;
+            Services.Disasters.m_disableAutomaticFollow = disableDisasterFocus;
         }
 
         public static void SetPauseOnDisasterStarts(bool disablePause, double secondsBeforePausing, ushort disasterId, DisasterSettings disasterInfo, bool enabled)
@@ -71,7 +72,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
 
                             while (DateTime.UtcNow < pauseStart) { }
 
-                            SimulationManager.instance.SimulationPaused = true;
+                            Services.Simulation.SimulationPaused = true;
                         }
                         catch (Exception ex)
                         {
@@ -85,7 +86,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
 
         static bool TryDisableDisaster(ushort disasterId, DisasterSettings disasterInfo, bool enabled)
         {
-            var disasterHandler = Singleton<NaturalDisasterHandler>.instance;
+            var disasterHandler = Services.DisasterHandler;
             if (!enabled)
             {
                 DebugLogger.Log("DDS: Deactivating disaster");

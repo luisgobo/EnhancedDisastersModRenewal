@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
@@ -31,14 +31,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
-            WeatherManager wm = Singleton<WeatherManager>.instance;
+            WeatherManager wm = Services.Weather;
             if (wm.m_currentRain > 0)
             {
                 noRainDays = 0;
             }
             else
             {
-                noRainDays += Helper.DaysPerFrame;
+                noRainDays += DisasterSimulationUtils.DaysPerFrame;
             }
         }
 
@@ -74,7 +74,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+            BuildingManager buildingManager = Services.Buildings;
             FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)
@@ -123,7 +123,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         return tooltip + "Maximum because there was no rain for more than " + WarmupDays.ToString() + " days.";
                     }
 
-                    return tooltip + "Increasing because there was no rain for " + Helper.FormatTimeSpan(noRainDays);
+                    return tooltip + "Increasing because there was no rain for " + DisasterSimulationUtils.FormatTimeSpan(noRainDays);
                 }
             }
 

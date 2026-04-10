@@ -1,4 +1,5 @@
-﻿using ColossalFramework;
+using ColossalFramework;
+using NaturalDisastersRenewal.Common;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
@@ -9,7 +10,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            SinkholeModel sinkhole = Singleton<NaturalDisasterHandler>.instance.container.Sinkhole;
+            SinkholeModel sinkhole = Services.DisasterSetup.Sinkhole;
             SerializeCommonParameters(dataSerializer, sinkhole);
             dataSerializer.WriteFloat(sinkhole.GroundwaterCapacity);
             dataSerializer.WriteFloat(sinkhole.groundwaterAmount);
@@ -17,7 +18,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
         public void Deserialize(DataSerializer dataSerializer)
         {
-            SinkholeModel sinkhole = Singleton<NaturalDisasterHandler>.instance.container.Sinkhole;
+            SinkholeModel sinkhole = Services.DisasterSetup.Sinkhole;
             DeserializeCommonParameters(dataSerializer, sinkhole);
             sinkhole.GroundwaterCapacity = dataSerializer.ReadFloat();
             sinkhole.groundwaterAmount = dataSerializer.ReadFloat();

@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
@@ -10,7 +10,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            MeteorStrikeModel meteorStrike = Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike;
+            MeteorStrikeModel meteorStrike = Services.DisasterSetup.MeteorStrike;
             SerializeCommonParameters(dataSerializer, meteorStrike);
 
             for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
@@ -25,12 +25,12 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
         public void Deserialize(DataSerializer dataSerializer)
         {
-            MeteorStrikeModel meteorStrike = Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike;
+            MeteorStrikeModel meteorStrike = Services.DisasterSetup.MeteorStrike;
             DeserializeCommonParameters(dataSerializer, meteorStrike);
 
             if (dataSerializer.version <= 2)
             {
-                float daysPerFrame = Helper.DaysPerFrame;
+                float daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
                 for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
                 {
                     meteorStrike.meteorEvents[i].Enabled = dataSerializer.ReadBool();
