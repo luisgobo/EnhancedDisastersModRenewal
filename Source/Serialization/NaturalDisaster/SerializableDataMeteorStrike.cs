@@ -30,7 +30,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
             if (dataSerializer.version <= 2)
             {
-                float daysPerFrame = Helper.DaysPerFrame;
+                float daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
                 for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
                 {
                     meteorStrike.meteorEvents[i].Enabled = dataSerializer.ReadBool();

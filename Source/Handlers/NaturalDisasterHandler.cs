@@ -22,6 +22,11 @@ namespace NaturalDisastersRenewal.Handlers
         readonly Harmony harmony = new Harmony(CommonProperties.modNameForHarmony);
         DisasterWrapper disasterWrapper;
 
+        public DisasterSetupModel Container
+        {
+            get { return container; }
+        }
+
         NaturalDisasterHandler()
         {
             ReadValuesFromFile();
@@ -302,7 +307,7 @@ namespace NaturalDisastersRenewal.Handlers
         {
             int milestoneNum = 99; // Unlock all disasters in case of error
 
-            MilestoneInfo mi = Singleton<UnlockManager>.instance.GetCurrentMilestone();
+            MilestoneInfo mi = Services.Unlocks.GetCurrentMilestone();
             if (mi != null)
             {
                 int.TryParse(mi.name.Substring(9), out milestoneNum);

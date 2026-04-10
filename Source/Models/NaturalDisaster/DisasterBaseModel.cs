@@ -91,7 +91,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             OnSimulationFrameLocal();
 
-            float daysPerFrame = Helper.DaysPerFrame;
+            float daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
 
             if (calmDaysLeft > 0)
             {
@@ -151,7 +151,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (calmDaysLeft > 0)
             {
-                return "No " + GetName() + " for another " + Helper.FormatTimeSpan(calmDaysLeft);
+                return "No " + GetName() + " for another " + DisasterSimulationUtils.FormatTimeSpan(calmDaysLeft);
             }
 
             if (probabilityWarmupDaysLeft > 0)
@@ -172,7 +172,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (calmDaysLeft > 0)
             {
-                return "No " + GetName() + " for another " + Helper.FormatTimeSpan(calmDaysLeft);
+                return "No " + GetName() + " for another " + DisasterSimulationUtils.FormatTimeSpan(calmDaysLeft);
             }
 
             string result = $"Intensity: {value * 25.5:#.##}";            
@@ -183,7 +183,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
 
             var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
-            if (Helper.GetPopulation() < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
+            if (DisasterSimulationUtils.GetPopulation() < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
             {
                 if (result != "") result += CommonProperties.newLine;
                 result += "Decreased because of low population.";
@@ -261,7 +261,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (Singleton<NaturalDisasterHandler>.instance.container.ScaleMaxIntensityWithPopulation)
             {                
-                int population = Helper.GetPopulation();
+                int population = DisasterSimulationUtils.GetPopulation();
                 var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
                 if (population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
                 {
@@ -450,7 +450,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         }
         public virtual void OnDisasterStarted(byte intensity)
         {
-            float framesPerDay = Helper.FramesPerDay;
+            float framesPerDay = DisasterSimulationUtils.FramesPerDay;
 
             calmDaysLeft = calmDays * intensity / 100; // TO DO: May be define minimum calmDays
             probabilityWarmupDaysLeft = probabilityWarmupDays;

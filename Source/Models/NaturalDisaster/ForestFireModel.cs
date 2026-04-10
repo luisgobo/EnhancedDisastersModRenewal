@@ -38,7 +38,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
             else
             {
-                noRainDays += Helper.DaysPerFrame;
+                noRainDays += DisasterSimulationUtils.DaysPerFrame;
             }
         }
 
@@ -123,7 +123,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         return tooltip + "Maximum because there was no rain for more than " + WarmupDays.ToString() + " days.";
                     }
 
-                    return tooltip + "Increasing because there was no rain for " + Helper.FormatTimeSpan(noRainDays);
+                    return tooltip + "Increasing because there was no rain for " + DisasterSimulationUtils.FormatTimeSpan(noRainDays);
                 }
             }
 

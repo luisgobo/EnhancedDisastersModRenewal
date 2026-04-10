@@ -44,7 +44,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
-            float daysPerFrame = Helper.DaysPerFrame;
+            float daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
 
             WeatherManager wm = Singleton<WeatherManager>.instance;
             if (wm.m_currentRain > 0)

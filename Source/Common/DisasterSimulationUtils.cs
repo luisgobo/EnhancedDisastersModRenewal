@@ -1,10 +1,9 @@
-﻿using ColossalFramework;
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Common
 {
-    public static class Helper
+    public static class DisasterSimulationUtils
     {
         public static string[] GetMonths()
         {
@@ -60,7 +59,7 @@ namespace NaturalDisastersRenewal.Common
         {
             get
             {
-                return (float)SimulationManager.instance.m_timePerFrame.TotalDays;
+                return (float)Services.Simulation.m_timePerFrame.TotalDays;
             }
         }
 
@@ -118,9 +117,10 @@ namespace NaturalDisastersRenewal.Common
 
         public static int GetPopulation()
         {
-            if (Singleton<DistrictManager>.exists)
+            var districts = Services.Districts;
+            if (districts)
             {
-                return (int)Singleton<DistrictManager>.instance.m_districts.m_buffer[0].m_populationData.m_finalCount;
+                return (int)districts.m_districts.m_buffer[0].m_populationData.m_finalCount;
             }
             return 0;
         }

@@ -23,7 +23,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             forestFire.WarmupDays = dataSeralizer.ReadInt32();
             if (dataSeralizer.version <= 2)
             {
-                float daysPerFrame = Helper.DaysPerFrame;
+                float daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
                 forestFire.noRainDays = dataSeralizer.ReadInt32() * daysPerFrame;
             }
             else

@@ -10,8 +10,8 @@ using NaturalDisastersRenewal.UI.ComponentHelper;
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using NaturalDisastersRenewal.Common;
 using UnityEngine;
-using Helper = NaturalDisastersRenewal.Common.Helper;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -362,7 +362,7 @@ namespace NaturalDisastersRenewal.UI
                 ref UI_ForestFire_EvacuationMode,
                 ref forestFireGroup,
                 evacuationModeText,
-                Helper.GetManualAndFocusedEvacuationOptions(),
+                DisasterSimulationUtils.GetManualAndFocusedEvacuationOptions(),
                 ref disasterContainer.ForestFire.EvacuationMode,
                 delegate (int selection)
                 {
@@ -387,7 +387,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Thunderstorm_MaxProbability.tooltip = "Occurrence (per year) in thunderstorm season";
 
             UI_Thunderstorm_MaxProbabilityMonth = (UIDropDown)thunderstormGroup.AddDropdown("Thunderstorm season peak",
-                Helper.GetMonths(),
+                DisasterSimulationUtils.GetMonths(),
                 disasterContainer.Thunderstorm.MaxProbabilityMonth - 1,
                 delegate (int selection)
                 {
@@ -407,7 +407,7 @@ namespace NaturalDisastersRenewal.UI
                 ref UI_Thunderstorm_EvacuationMode,
                 ref thunderstormGroup,
                 evacuationModeText,
-                Helper.GetAllEvacuationOptions(),
+                DisasterSimulationUtils.GetAllEvacuationOptions(),
                 ref disasterContainer.Thunderstorm.EvacuationMode,
                 delegate (int selection)
                 {
@@ -443,7 +443,7 @@ namespace NaturalDisastersRenewal.UI
                 ref UI_Sinkhole_EvacuationMode,
                 ref sinkholeGroup,
                 evacuationModeText,
-                Helper.GetAllEvacuationOptions(true),
+                DisasterSimulationUtils.GetAllEvacuationOptions(true),
                 ref disasterContainer.Sinkhole.EvacuationMode,
                 delegate (int selection)
                 {
@@ -468,7 +468,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Tornado_MaxProbability.tooltip = "Occurrence (per year) in Tornado season";
 
             UI_Tornado_MaxProbabilityMonth = (UIDropDown)tornadoGroup.AddDropdown("Tornado season peak",
-                Helper.GetMonths(),
+                DisasterSimulationUtils.GetMonths(),
                 disasterContainer.Tornado.MaxProbabilityMonth - 1,
                 delegate (int selection)
                 {
@@ -504,7 +504,7 @@ namespace NaturalDisastersRenewal.UI
                 ref UI_Tornado_EvacuationMode,
                 ref tornadoGroup,
                 evacuationModeText,
-                Helper.GetAllEvacuationOptions(true),
+                DisasterSimulationUtils.GetAllEvacuationOptions(true),
                 ref disasterContainer.Tornado.EvacuationMode, delegate (int selection)
                 {
                     if (!freezeUI)
@@ -539,7 +539,7 @@ namespace NaturalDisastersRenewal.UI
                 ref UI_Tsunami_EvacuationMode,
                 ref tsunamiGroup,
                 evacuationModeText,
-                Helper.GetAllEvacuationOptions(),
+                DisasterSimulationUtils.GetAllEvacuationOptions(),
                 ref disasterContainer.Tsunami.EvacuationMode, delegate (int selection)
                 {
                     if (!freezeUI)
@@ -582,7 +582,7 @@ namespace NaturalDisastersRenewal.UI
                  ref UI_Earthquake_CrackMode,
                  ref earthquakeGroup,
                  "Cracks in the ground:",
-                 Helper.GetCrackModes(),
+                 DisasterSimulationUtils.GetCrackModes(),
                  ref disasterContainer.Earthquake.EarthquakeCrackMode,
                  delegate (int selection)
                  {
@@ -605,7 +605,7 @@ namespace NaturalDisastersRenewal.UI
                  ref UI_Earthquake_EvacuationMode,
                  ref earthquakeGroup,
                  evacuationModeText,
-                 Helper.GetAllEvacuationOptions(),
+                 DisasterSimulationUtils.GetAllEvacuationOptions(),
                  ref disasterContainer.Earthquake.EvacuationMode,
                  delegate (int selection)
                  {
@@ -652,7 +652,7 @@ namespace NaturalDisastersRenewal.UI
                 ref UI_MeteorStrike_EvacuationMode,
                 ref meteorStrikeGroup,
                 evacuationModeText,
-                Helper.GetAllEvacuationOptions(true),
+                DisasterSimulationUtils.GetAllEvacuationOptions(true),
                 ref disasterContainer.MeteorStrike.EvacuationMode,
                 delegate (int selection)
                 {

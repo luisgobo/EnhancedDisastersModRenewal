@@ -80,7 +80,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 if (!Enabled) return;
 
-                DaysUntilNextEvent -= Helper.DaysPerFrame;
+                DaysUntilNextEvent -= DisasterSimulationUtils.DaysPerFrame;
 
                 if (DaysUntilNextEvent <= 0)
                 {
@@ -99,7 +99,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             public override string ToString()
             {
                 return string.Format("Period {0} years, max intensity {1}, next meteor in {2}",
-                    PeriodDays / 365, MaxIntensity, Helper.FormatTimeSpan(DaysUntilNextEvent));
+                    PeriodDays / 365, MaxIntensity, DisasterSimulationUtils.FormatTimeSpan(DaysUntilNextEvent));
             }
 
             public string GetStateDescription()
@@ -117,7 +117,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
                 else
                 {
-                    return Name + " will be close in " + Helper.FormatTimeSpan(DaysUntilNextEvent);
+                    return Name + " will be close in " + DisasterSimulationUtils.FormatTimeSpan(DaysUntilNextEvent);
                 }
             }
         }
