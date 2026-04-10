@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
@@ -126,7 +126,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
             }
 
-            SimulationManager sm = Singleton<SimulationManager>.instance;
+            SimulationManager sm = Services.Simulation;
             float occurrencePerFrame = (occurrencePerYear / 365) * daysPerFrame;
             if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
             {                
@@ -182,7 +182,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 result = "Decreased because " + GetName() + " occured recently.";
             }
 
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            var naturalDisasterSetup = Services.DisasterSetup;
             if (DisasterSimulationUtils.GetPopulation() < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
             {
                 if (result != "") result += CommonProperties.newLine;
@@ -215,7 +215,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             //if based on Gutenberg–Richter law
             if (ProbabilityDistribution == ProbabilityDistributions.PowerLow)
             {
-                float randomValue = Singleton<SimulationManager>.instance.m_randomizer.Int32(1000, 10000) / 10000.0f; // from range 0.1 - 1.0
+                float randomValue = Services.Simulation.m_randomizer.Int32(1000, 10000) / 10000.0f; // from range 0.1 - 1.0
 
                 // See Gutenberg–Richter law.
                 // a, b = 0.11
@@ -229,7 +229,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             else
             {
                 //Otherwise uniform increment based on random value between 10 and 100
-                intensity = (byte)Singleton<SimulationManager>.instance.m_randomizer.Int32(10, 100);
+                intensity = (byte)Services.Simulation.m_randomizer.Int32(10, 100);
             }
 
             if (maxIntensity < 100)
@@ -259,10 +259,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected byte ScaleIntensityByPopulation(byte intensity)
         {
-            if (Singleton<NaturalDisasterHandler>.instance.container.ScaleMaxIntensityWithPopulation)
+            if (Services.DisasterSetup.ScaleMaxIntensityWithPopulation)
             {                
                 int population = DisasterSimulationUtils.GetPopulation();
-                var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+                var naturalDisasterSetup = Services.DisasterSetup;
                 if (population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
                 {
                     intensity = (byte)(indexReferenceDisasterValue + (((intensity - indexReferenceDisasterValue) * population) / naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters));
@@ -296,7 +296,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected string GetDebugStr()
         {
-            return DType.ToString() + ", " + Singleton<SimulationManager>.instance.m_currentGameTime.ToShortDateString() + ", ";
+            return DType.ToString() + ", " + Services.Simulation.m_currentGameTime.ToShortDateString() + ", ";
         }
 
         // Disaster events
@@ -314,7 +314,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 disasterInfo.intensity);
             DebugLogger.Log(msg);
 
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            var naturalDisasterSetup = Services.DisasterSetup;
             DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, secondsBeforePausing, disasterId, disasterInfo, Enabled);
         }
 
@@ -362,7 +362,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                             if (!manualReleaseDisasters.Any() && !activeDisasters.Any())
                             {
                                 //Auto releasing citizens
-                                DisasterManager.instance.EvacuateAll(true);
+                                Services.Disasters.EvacuateAll(true);
                                 break;
                             }
 
@@ -382,7 +382,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                                 }
 
                                 var sheltersToBeReleased = disasterFinishing.ShelterList.Where(disFinishing => pendingShelters.All(pendSh => pendSh != disFinishing)).ToList();
-                                BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+                                BuildingManager buildingManager = Services.Buildings;
 
                                 foreach (var shelterId in sheltersToBeReleased)
                                 {
@@ -415,7 +415,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                                   $"EvacuationMode: {disasterInfoUnified.EvacuationMode}";
             DebugLogger.Log(msg);
 
-            var naturalDisasterSetup = Singleton<NaturalDisasterHandler>.instance.container;
+            var naturalDisasterSetup = Services.DisasterSetup;
 
             DisasterExtension.SetDisableDisasterFocus(naturalDisasterSetup.DisableDisasterFocus);
 
@@ -476,7 +476,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (!targetFound)
                 return;
 
-            DisasterManager dm = Singleton<DisasterManager>.instance;
+            DisasterManager dm = Services.Disasters;
 
             bool disasterCreated = dm.CreateDisaster(out ushort disasterIndex, disasterInfo);
             if (!disasterCreated)
@@ -535,7 +535,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+            BuildingManager buildingManager = Services.Buildings;
             FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)
@@ -575,8 +575,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         bool FindRandomTargetEverywhere(out Vector3 target, out float angle)
         {
-            GameAreaManager gam = Singleton<GameAreaManager>.instance;
-            SimulationManager sm = Singleton<SimulationManager>.instance;
+            GameAreaManager gam = Services.GameArea;
+            SimulationManager sm = Services.Simulation;
             int i = sm.m_randomizer.Int32(0, 4);
             int j = sm.m_randomizer.Int32(0, 4);
             float minX;
@@ -590,15 +590,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             target.x = minX + (maxX - minX) * randX;
             target.y = 0f;
             target.z = minZ + (maxZ - minZ) * randZ;
-            target.y = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(target, false, 0f);
+            target.y = Services.Terrain.SampleRawHeightSmoothWithWater(target, false, 0f);
             angle = (float)sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;
             return true;
         }
 
         bool FindRandomTargetInLockedAreas(out Vector3 target, out float angle)
         {
-            GameAreaManager gam = Singleton<GameAreaManager>.instance;
-            SimulationManager sm = Singleton<SimulationManager>.instance;
+            GameAreaManager gam = Services.GameArea;
+            SimulationManager sm = Services.Simulation;
 
             // No locked areas
             if (gam.m_areaCount >= 25)
@@ -648,7 +648,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         target.x = minX + (maxX - minX) * randX;
                         target.y = 0f;
                         target.z = minZ + (maxZ - minZ) * randZ;
-                        target.y = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(target, false, 0f);
+                        target.y = Services.Terrain.SampleRawHeightSmoothWithWater(target, false, 0f);
                         angle = (float)sm.m_randomizer.Int32(0, 10000) * 0.0006283185f;
                         return true;
                     }
@@ -662,7 +662,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         bool IsUnlocked(int x, int z)
         {
-            return x >= 0 && z >= 0 && x < 5 && z < 5 && Singleton<GameAreaManager>.instance.m_areaGrid[z * 5 + x] != 0;
+            return x >= 0 && z >= 0 && x < 5 && z < 5 && Services.GameArea.m_areaGrid[z * 5 + x] != 0;
         }
 
         void FindPhasePanel()
@@ -702,7 +702,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+            BuildingManager buildingManager = Services.Buildings;
             FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)

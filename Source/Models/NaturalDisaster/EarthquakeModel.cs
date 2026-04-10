@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
@@ -111,7 +111,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 aftershockMaxIntensity = (byte)(10 + (intensity - 10) * 3 / 4);
                 if (intensity > 20)
                 {
-                    aftershocksCount = (byte)(1 + Singleton<SimulationManager>.instance.m_randomizer.Int32(1 + (uint)intensity / 20));
+                    aftershocksCount = (byte)(1 + Services.Simulation.m_randomizer.Int32(1 + (uint)intensity / 20));
                 }
             }
             else
@@ -155,7 +155,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (aftershocksCount > 0)
             {
-                return (byte)Singleton<SimulationManager>.instance.m_randomizer.Int32(10, aftershockMaxIntensity);
+                return (byte)Services.Simulation.m_randomizer.Int32(10, aftershockMaxIntensity);
             }
             else
             {
@@ -238,7 +238,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+            BuildingManager buildingManager = Services.Buildings;
             FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)

@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ColossalFramework.IO;
 using ICities;
 using NaturalDisastersRenewal.Common;
@@ -39,7 +39,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (calmDaysLeft <= 0)
             {
-                if (Singleton<WeatherManager>.instance.m_currentRain > 0 && RainFactor > 1)
+                if (Services.Weather.m_currentRain > 0 && RainFactor > 1)
                 {
                     return "Increased because of rain.";
                 }
@@ -50,13 +50,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override float GetCurrentOccurrencePerYearLocal()
         {
-            DateTime dt = Singleton<SimulationManager>.instance.m_currentGameTime;
+            DateTime dt = Services.Simulation.m_currentGameTime;
             int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (delta_month > 6) delta_month = 12 - delta_month;
 
             float occurence = base.GetCurrentOccurrencePerYearLocal() * (1f - delta_month / 6f);
 
-            WeatherManager wm = Singleton<WeatherManager>.instance;
+            WeatherManager wm = Services.Weather;
             if (wm.m_currentRain > 0)
             {
                 occurence *= RainFactor;

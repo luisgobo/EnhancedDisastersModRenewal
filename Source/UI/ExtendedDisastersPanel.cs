@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ColossalFramework.UI;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
@@ -66,14 +66,14 @@ namespace NaturalDisastersRenewal.UI
             int y = -50;
             int h = -20;
 
-            NaturalDisasterHandler disasterHandler = Singleton<NaturalDisasterHandler>.instance;
+            NaturalDisasterHandler disasterHandler = Services.DisasterHandler;
             var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
             nfi.NumberGroupSeparator = ",";
             string formatNumber = ((int)disasterHandler.container.MaxPopulationToTrigguerHigherDisasters).ToString("#,0", nfi);
 
             pupulationLabel = AddLabel(28, y);
             pupulationLabel.text = $"MPTHD: {formatNumber}";
-            pupulationLabel.tooltip = "Max population to trigger higher disasters";            
+            pupulationLabel.tooltip = "Max population to trigger higher disasters";
             y -= 22;
 
             //currentOccurrencePerYear:0.00}/{maxIntensity}
@@ -138,7 +138,7 @@ namespace NaturalDisastersRenewal.UI
             stopAllDisastersBtn.focusedColor = Color.red;
             stopAllDisastersBtn.textColor = Color.red;
             stopAllDisastersBtn.focusedTextColor = Color.red;
-            stopAllDisastersBtn.text = "■";
+            stopAllDisastersBtn.text = "â– ";
             stopAllDisastersBtn.normalBgSprite = "ButtonMenu";
             stopAllDisastersBtn.hoveredBgSprite = "ButtonMenuHovered";
             stopAllDisastersBtn.eventClick += StopAllDisastersBtn_eventClick;
@@ -149,14 +149,14 @@ namespace NaturalDisastersRenewal.UI
             stopAllDisastersLabel.size = new Vector2(width - 30, 20);
             stopAllDisastersLabel.textColor = Color.white;
             //bigRedBtnLabel.textScale = 0.7f;
-            stopAllDisastersLabel.text = "← Emergency Button (stop all disasters)";
+            stopAllDisastersLabel.text = "â† Emergency Button (stop all disasters)";
         }
 
         void StopAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             StringBuilder sb = new StringBuilder();
 
-            VehicleManager vm = Singleton<VehicleManager>.instance;
+            VehicleManager vm = Services.Vehicles;
             for (int i = 1; i < 16384; i++)
             {
                 if ((vm.m_vehicles.m_buffer[i].m_flags & Vehicle.Flags.Created) != (Vehicle.Flags)0)
@@ -173,13 +173,13 @@ namespace NaturalDisastersRenewal.UI
                 }
             }
 
-            WaterSimulation ws = Singleton<WaterSimulation>.instance;
+            WaterSimulation ws = Services.Water;
             for (int i = ws.m_waterWaves.m_size; i >= 1; i--)
             {
-                Singleton<TerrainManager>.instance.WaterSimulation.ReleaseWaterWave((ushort)i);
+                Services.Terrain.WaterSimulation.ReleaseWaterWave((ushort)i);
             }
 
-            DisasterManager dm = Singleton<DisasterManager>.instance;
+            DisasterManager dm = Services.Disasters;
             for (ushort i = 0; i < dm.m_disasterCount; i++)
             {
                 sb.AppendLine(dm.m_disasters.m_buffer[i].Info.name + " flags: " + dm.m_disasters.m_buffer[i].m_flags.ToString());
@@ -202,7 +202,7 @@ namespace NaturalDisastersRenewal.UI
 
         void disasterStateChk_eventCheckChanged(UIComponent component, UIMouseEventParameter eventParam)
         {
-            NaturalDisasterHandler disasterHandler = Singleton<NaturalDisasterHandler>.instance;
+            NaturalDisasterHandler disasterHandler = Services.DisasterHandler;
             DisasterBaseModel disaster = disasterHandler.container.AllDisasters.Where(dis => component.name.Contains(dis.GetName())).FirstOrDefault();
 
             if (disaster != null)
@@ -211,31 +211,31 @@ namespace NaturalDisastersRenewal.UI
                 switch (disaster.GetName())
                 {
                     case CommonProperties.EarthquakeName:
-                        Singleton<NaturalDisasterHandler>.instance.container.Earthquake.Enabled = disaster.Enabled;
+                        Services.DisasterSetup.Earthquake.Enabled = disaster.Enabled;
                         break;
 
                     case CommonProperties.forestFireName:
-                        Singleton<NaturalDisasterHandler>.instance.container.ForestFire.Enabled = disaster.Enabled;
+                        Services.DisasterSetup.ForestFire.Enabled = disaster.Enabled;
                         break;
 
                     case CommonProperties.meteorStrikeName:
-                        Singleton<NaturalDisasterHandler>.instance.container.MeteorStrike.Enabled = disaster.Enabled;
+                        Services.DisasterSetup.MeteorStrike.Enabled = disaster.Enabled;
                         break;
 
                     case CommonProperties.sinkholeName:
-                        Singleton<NaturalDisasterHandler>.instance.container.Sinkhole.Enabled = disaster.Enabled;
+                        Services.DisasterSetup.Sinkhole.Enabled = disaster.Enabled;
                         break;
 
                     case CommonProperties.thunderstormName:
-                        Singleton<NaturalDisasterHandler>.instance.container.Thunderstorm.Enabled = disaster.Enabled;
+                        Services.DisasterSetup.Thunderstorm.Enabled = disaster.Enabled;
                         break;
 
                     case CommonProperties.tornadoName:
-                        Singleton<NaturalDisasterHandler>.instance.container.Tornado.Enabled = disaster.Enabled;
+                        Services.DisasterSetup.Tornado.Enabled = disaster.Enabled;
                         break;
 
                     case CommonProperties.tsunamiName:
-                        Singleton<NaturalDisasterHandler>.instance.container.Tsunami.Enabled = disaster.Enabled;
+                        Services.DisasterSetup.Tsunami.Enabled = disaster.Enabled;
                         break;
 
                     default:
@@ -318,7 +318,7 @@ namespace NaturalDisastersRenewal.UI
             if (--Counter > 0) return;
             Counter = 10;
 
-            NaturalDisasterHandler disasterHandler = Singleton<NaturalDisasterHandler>.instance;            
+            NaturalDisasterHandler disasterHandler = Services.DisasterHandler;
             var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
             nfi.NumberGroupSeparator = ",";
             string formatNumber = ((int)disasterHandler.container.MaxPopulationToTrigguerHigherDisasters).ToString("#,0", nfi);
@@ -329,7 +329,7 @@ namespace NaturalDisastersRenewal.UI
 
             for (int i = 0; i < disasterCount; i++)
             {
-                DisasterBaseModel disaster = disasterHandler.container.AllDisasters[i];                
+                DisasterBaseModel disaster = disasterHandler.container.AllDisasters[i];
                 float currentOcurrencePerYear = disaster.GetCurrentOccurrencePerYear();
 
                 byte maxIntensityCalculated = disaster.GetMaximumIntensity();
@@ -341,8 +341,8 @@ namespace NaturalDisastersRenewal.UI
                     statusButtons[i].normalFgSprite = "ButtonPause";
                     labels[i].text = SetDisasterInfoLabel(disaster.GetName(), currentOcurrencePerYear, maxIntensityCalculated);
 
-                    //Calculate probability                    
-                    
+                    //Calculate probability
+
                     var propbabilityValue = GetProbabilityProgressValueLog(currentOcurrencePerYear);
 
                     progressBars_probability[i].value = propbabilityValue;

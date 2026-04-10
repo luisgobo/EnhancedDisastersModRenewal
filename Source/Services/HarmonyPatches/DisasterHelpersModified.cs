@@ -1,4 +1,5 @@
-﻿using ColossalFramework;
+using ColossalFramework;
+using NaturalDisastersRenewal.Common;
 using ColossalFramework.Math;
 using ICities;
 using System;
@@ -20,8 +21,8 @@ namespace NaturalDisastersRenewal.DisasterServices.HarmonyPatches
             int num2 = Mathf.Max((int)((position.z - preRadius - 72f) / 64f + 135f), 0);
             int num3 = Mathf.Min((int)((position.x + preRadius + 72f) / 64f + 135f), 269);
             int num4 = Mathf.Min((int)((position.z + preRadius + 72f) / 64f + 135f), 269);
-            Array16<Building> buildings = Singleton<BuildingManager>.instance.m_buildings;
-            ushort[] buildingGrid = Singleton<BuildingManager>.instance.m_buildingGrid;
+            Array16<Building> buildings = Services.Buildings.m_buildings;
+            ushort[] buildingGrid = Services.Buildings.m_buildingGrid;
             for (int i = num2; i <= num4; i++)
             {
                 for (int j = num; j <= num3; j++)

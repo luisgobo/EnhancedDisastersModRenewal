@@ -1,4 +1,5 @@
-﻿using ColossalFramework;
+using ColossalFramework;
+using NaturalDisastersRenewal.Common;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
@@ -9,7 +10,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            TsunamiModel tsunami = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
+            TsunamiModel tsunami = Services.DisasterSetup.Tsunami;
             SerializeCommonParameters(dataSerializer, tsunami);
 
             dataSerializer.WriteFloat(tsunami.WarmupYears);
@@ -17,7 +18,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
         public void Deserialize(DataSerializer dataSerializer)
         {
-            TsunamiModel tsunami = Singleton<NaturalDisasterHandler>.instance.container.Tsunami;
+            TsunamiModel tsunami = Services.DisasterSetup.Tsunami;
             DeserializeCommonParameters(dataSerializer, tsunami);
 
             tsunami.WarmupYears = dataSerializer.ReadFloat();

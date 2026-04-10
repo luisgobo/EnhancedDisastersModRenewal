@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
@@ -33,7 +33,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             public static MeteorEvent Init(string eventName, float periodYears, byte maxIntensity)
             {
-                SimulationManager sm = Singleton<SimulationManager>.instance;
+                SimulationManager sm = Services.Simulation;
 
                 float periodDays = periodYears * 365;
 

@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Handlers;
@@ -10,7 +10,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            ForestFireModel forestFire = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
+            ForestFireModel forestFire = Services.DisasterSetup.ForestFire;
             SerializeCommonParameters(dataSerializer, forestFire);
             dataSerializer.WriteInt32(forestFire.WarmupDays);
             dataSerializer.WriteFloat(forestFire.noRainDays);
@@ -18,7 +18,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
         public void Deserialize(DataSerializer dataSeralizer)
         {
-            ForestFireModel forestFire = Singleton<NaturalDisasterHandler>.instance.container.ForestFire;
+            ForestFireModel forestFire = Services.DisasterSetup.ForestFire;
             DeserializeCommonParameters(dataSeralizer, forestFire, 2);
             forestFire.WarmupDays = dataSeralizer.ReadInt32();
             if (dataSeralizer.version <= 2)

@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
@@ -31,7 +31,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
-            WeatherManager wm = Singleton<WeatherManager>.instance;
+            WeatherManager wm = Services.Weather;
             if (wm.m_currentRain > 0)
             {
                 noRainDays = 0;
@@ -74,7 +74,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+            BuildingManager buildingManager = Services.Buildings;
             FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)

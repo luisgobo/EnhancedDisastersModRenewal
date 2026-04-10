@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
@@ -99,7 +99,7 @@ namespace NaturalDisastersRenewal.UI
 
         public static void UpdateUISettingsOptions()
         {
-            foreach (PluginManager.PluginInfo current in Singleton<PluginManager>.instance.GetPluginsInfo())
+            foreach (PluginManager.PluginInfo current in Services.Plugins.GetPluginsInfo())
             {
                 if (current.isEnabled)
                 {
@@ -121,7 +121,7 @@ namespace NaturalDisastersRenewal.UI
             if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisasterSetupModel disasterSetupModel = Singleton<NaturalDisasterHandler>.instance.container;
+            DisasterSetupModel disasterSetupModel = Services.DisasterSetup;
             freezeUI = true;
 
             UI_General_DisableDisasterFocus.isChecked = disasterSetupModel.DisableDisasterFocus;
@@ -203,7 +203,7 @@ namespace NaturalDisastersRenewal.UI
 
         public void BuildSettingsMenu(UIHelper helper)
         {
-            DisasterSetupModel disasterContainer = Singleton<NaturalDisasterHandler>.instance.container;
+            DisasterSetupModel disasterContainer = Services.DisasterSetup;
 
             SetupGeneralTab(ref helper, disasterContainer);
             SetupForestFire(ref helper, disasterContainer);
@@ -275,8 +275,8 @@ namespace NaturalDisastersRenewal.UI
                 if (!freezeUI)
                     disasterContainer.ShowDisasterPanelButton = isChecked;
 
-                Singleton<NaturalDisasterHandler>.instance.UpdateDisastersPanelToggleBtn();
-                Singleton<NaturalDisasterHandler>.instance.UpdateDisastersDPanel();
+                Services.DisasterHandler.UpdateDisastersPanelToggleBtn();
+                Services.DisasterHandler.UpdateDisastersDPanel();
             });
 
             generalGroup.AddSpace(10);
@@ -285,13 +285,13 @@ namespace NaturalDisastersRenewal.UI
 
             elementPositionsGroup.AddButton("Reset Button Position", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(true, false);
+                Services.DisasterHandler.ResetToDefaultValues(true, false);
                 UpdateSetupContentUI();
             });
 
             elementPositionsGroup.AddButton("Reset Panel Position", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues(false, true);
+                Services.DisasterHandler.ResetToDefaultValues(false, true);
                 UpdateSetupContentUI();
             });
             
@@ -678,16 +678,16 @@ namespace NaturalDisastersRenewal.UI
 
             saveOptionsGroup.AddButton("Save as default for new games", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.container.Save();
+                Services.DisasterSetup.Save();
             });
             saveOptionsGroup.AddButton("Reset to the last saved values", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.ReadValuesFromFile();
+                Services.DisasterHandler.ReadValuesFromFile();
                 UpdateSetupContentUI();
             });
             saveOptionsGroup.AddButton("Reset to the mod default values", delegate ()
             {
-                Singleton<NaturalDisasterHandler>.instance.ResetToDefaultValues();
+                Services.DisasterHandler.ResetToDefaultValues();
                 UpdateSetupContentUI();
             });
         }

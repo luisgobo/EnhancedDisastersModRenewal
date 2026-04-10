@@ -1,4 +1,4 @@
-﻿using ColossalFramework;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
@@ -41,7 +41,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
         {
-            disasterInfo.type |= DisasterType.Tsunami;            
+            disasterInfo.type |= DisasterType.Tsunami;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
@@ -54,7 +54,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (!IsEvacuating())
             {
-                base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);                
+                base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
             }
 
         }
@@ -76,7 +76,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             disasterInfoUnified.FinishOnDeactivate = true;
             disasterInfoUnified.IgnoreDestructionZone = true;
 
-            base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);            
+            base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
         }
 
         public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
@@ -88,7 +88,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Singleton<BuildingManager>.instance;            
+            BuildingManager buildingManager = Services.Buildings;
             FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)
@@ -104,7 +104,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     var buildingInfo = buildingManager.m_buildings.m_buffer[num];
 
                     if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
-                    {                                                
+                    {
                             disasterInfoModel.ShelterList.Add(num);
                             SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
                     }
@@ -112,8 +112,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
 
             activeDisasters.Add(disasterInfoModel);
-        }        
-                
+        }
+
         public override bool CheckDisasterAIType(object disasterAI)
         {
             return disasterAI as TsunamiAI != null;
@@ -145,7 +145,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 return false;
             }
-            var simulationFrame = Singleton<SimulationManager>.instance.m_currentFrameIndex;
+            var simulationFrame = Services.Simulation.m_currentFrameIndex;
             var disasterStartFrame = disasterData.m_startFrame;
 
             var dot1 = 0f - Mathf.Sin(disasterData.m_angle);
@@ -161,7 +161,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             float num4 = (float)num2 * 0.125f;
             priority = Mathf.Clamp01(Mathf.Min((num4 - num) * 0.01f, (num - num3) * 0.0005f));
             bool calculation = num >= num3 && num <= num4;
-            
+
             return calculation;
         }
     }
