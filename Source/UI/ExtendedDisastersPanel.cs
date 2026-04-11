@@ -164,7 +164,7 @@ namespace NaturalDisastersRenewal.UI
             AddAxisLabel(285, y, "10");
             AddAxisLabel(310, y, "0.0");
             AddAxisLabel(370, y, "25.5");
-            y -= 15;
+            y -= 15; 
 
             var disasterCount = disasterHandler.container.AllDisasters.Count;
             labels = new UILabel[disasterCount];
