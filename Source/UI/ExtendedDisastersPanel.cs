@@ -1,6 +1,9 @@
+using System.Collections;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.Common;
@@ -15,6 +18,7 @@ namespace NaturalDisastersRenewal.UI
     {
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
+        private const string HelpTutorialKey = "NDR_TUTORIAL_PANEL_HELP";
         private const float PanelWidth = 414f;
         private const float PanelHeight = 320f;
 
@@ -304,37 +308,85 @@ namespace NaturalDisastersRenewal.UI
 
         private static void ShowHelpPanel()
         {
-            UIPanel helpPanel = (UIPanel)UIView.GetAView().AddUIComponent(typeof(UIPanel));
-            helpPanel.name = "NDRHelpPanel";
-            helpPanel.backgroundSprite = "GenericPanel";
-            helpPanel.color = new Color32(50, 50, 50, 250);
-            helpPanel.size = new Vector2(400f, 300f);
-            helpPanel.relativePosition = new Vector3(
-                Mathf.Floor((UIView.GetAView().fixedWidth - 400f) / 2f),
-                Mathf.Floor((UIView.GetAView().fixedHeight - 300f) / 2f));
+            var advisorPanel = ToolsModifierControl.advisorPanel;
+            if (advisorPanel == null)
+            {
+                return;
+            }
 
-            UILabel title = helpPanel.AddUIComponent<UILabel>();
-            title.text = LocalizationService.Get("panel.help.title");
-            title.textScale = 1.2f;
-            title.relativePosition = new Vector3(10f, 10f);
-            title.textColor = Color.white;
+            RegisterHelpTutorialLocalization();
+            advisorPanel.Show(HelpTutorialKey, "ToolbarIconZoomOutGlobe", string.Empty, 0f);
+        }
 
-            UILabel content = helpPanel.AddUIComponent<UILabel>();
-            content.text = LocalizationService.Get("panel.help.content");
-            content.textColor = Color.white;
-            content.wordWrap = true;
-            content.autoSize = false;
-            content.size = new Vector2(380f, 240f);
-            content.relativePosition = new Vector3(10f, 40f);
+        private static void RegisterHelpTutorialLocalization()
+        {
+            Locale locale = GetLocale();
+            if (locale == null)
+            {
+                return;
+            }
 
-            UIButton closeButton = helpPanel.AddUIComponent<UIButton>();
-            closeButton.text = "X";
-            closeButton.normalBgSprite = "ButtonMenu";
-            closeButton.hoveredBgSprite = "ButtonMenuHovered";
-            closeButton.size = new Vector2(30f, 30f);
-            closeButton.textScale = 1.2f;
-            closeButton.relativePosition = new Vector3(helpPanel.width - 35f, 5f);
-            closeButton.eventClick += delegate { Destroy(helpPanel); };
+            SetLocalizedString(
+                locale,
+                new Locale.Key
+                {
+                    m_Identifier = "TUTORIAL_ADVISER_TITLE",
+                    m_Key = HelpTutorialKey
+                },
+                LocalizationService.Get("panel.help.title"));
+
+            SetLocalizedString(
+                locale,
+                new Locale.Key
+                {
+                    m_Identifier = "TUTORIAL_ADVISER",
+                    m_Key = HelpTutorialKey
+                },
+                LocalizationService.Get("panel.help.content"));
+        }
+
+        private static void SetLocalizedString(Locale locale, Locale.Key key, string value)
+        {
+            try
+            {
+                locale.AddLocalizedString(key, value);
+            }
+            catch (System.ArgumentException)
+            {
+                TryUpdateLocalizedString(locale, key, value);
+            }
+        }
+
+        private static void TryUpdateLocalizedString(Locale locale, Locale.Key key, string value)
+        {
+            FieldInfo[] fields = locale.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (!typeof(IDictionary).IsAssignableFrom(fields[i].FieldType))
+                {
+                    continue;
+                }
+
+                IDictionary dictionary = fields[i].GetValue(locale) as IDictionary;
+                if (dictionary == null)
+                {
+                    continue;
+                }
+
+                dictionary[key] = value;
+                return;
+            }
+        }
+
+        private static Locale GetLocale()
+        {
+            FieldInfo localeField = typeof(LocaleManager).GetField("m_Locale", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (localeField == null)
+            {
+                return null;
+            }
+
+            return localeField.GetValue(LocaleManager.instance) as Locale;
         }
 
         private static void StopAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)

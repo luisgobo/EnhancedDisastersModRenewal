@@ -61,6 +61,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Common\CommonProperties.cs"/>
+        <Compile Include="Common\HotkeyHelper.cs"/>
         <Compile Include="Common\LocalizationService.cs"/>
         <Compile Include="Common\Services.cs"/>
         <Compile Include="Common\enums\EarthquakeCrackOptions.cs"/>

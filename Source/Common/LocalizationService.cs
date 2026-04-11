@@ -46,13 +46,28 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.help.tooltip", "Open panel help" },
                         { "panel.close.tooltip", "Close panel" },
                         { "panel.controls.title", "Controls" },
-                        { "panel.controls.toggle", "Use the play/pause button beside each disaster to enable or disable it." },
-                        { "panel.controls.stop", "Use the red square button to stop active disasters and release disaster vehicles." },
-                        { "panel.controls.reset", "Use the reset button to clear current cooldowns and probability warmups." },
-                        { "panel.controls.drag", "Drag the button or the panel with right click to save their position." },
+                        {
+                            "panel.controls.toggle",
+                            "Use the play/pause button beside each disaster to enable or disable it."
+                        },
+                        {
+                            "panel.controls.stop",
+                            "Use the red square button to stop active disasters and release disaster vehicles."
+                        },
+                        {
+                            "panel.controls.reset",
+                            "Use the reset button to clear current cooldowns and probability warmups."
+                        },
+                        {
+                            "panel.controls.drag",
+                            "Drag the button or the panel with right click to save their position."
+                        },
                         { "panel.controls.hotkey", "Use Shift + D to show or hide the panel." },
                         { "panel.help.title", "Help - Natural Disasters Renewal" },
-                        { "panel.help.content", "STATISTICS:\n\n• Probability bars show current disaster chance.\n• Intensity bars show the current maximum intensity.\n\nCONTROLS:\n• Play/Pause toggles each disaster.\n• Square stops active disasters.\n• Reset clears current disaster cooldowns.\n\nUse Shift + D to show or hide the panel." },
+                        {
+                            "panel.help.content",
+                            "STATISTICS:\n\n• Probability bars show current disaster chance.\n• Intensity bars show the current maximum intensity.\n\nCONTROLS:\n• Play/Pause toggles each disaster.\n• Square stops active disasters.\n• Reset clears current disaster cooldowns."
+                        },
                         { "panel.toggle_button.tooltip", "Extended Disasters (drag by right-click)" },
                         { "panel.drag_panel.tooltip", "Drag by right-click to set the panel position." },
                         { "settings.general", "General" },
@@ -62,7 +77,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.pause_on_start", "Pause on disaster starts" },
                         { "settings.focused_radius", "Partial evacuation Radius (In meters)" },
                         { "settings.focused_radius.tooltip", "Select the Radius (In meters) for Focused evacuations." },
-                        { "settings.max_population", "Max population to trigguer higher disasters." },
+                        { "settings.max_population", "Max population to trigger higher disasters." },
                         {
                             "settings.max_population.tooltip",
                             "Select the max population to trigger higher disaster intensity."
@@ -79,6 +94,15 @@ namespace NaturalDisastersRenewal.Common
                         },
                         { "settings.show_panel_button", "Show Disasters Panel toggle button" },
                         { "settings.positions", "Button/Panel positions:" },
+                        { "settings.group.hotkey", "Hotkeys" },
+                        { "settings.hotkey.info", "Use up to 3 keys: up to 2 modifiers plus 1 regular key." },
+                        { "settings.hotkey.capture", "Press a key combination..." },
+                        { "settings.hotkey.none", "Not set" },
+                        {
+                            "settings.hotkey.tooltip",
+                            "Click and then press up to 3 keys. Escape cancels. Backspace or Delete clears the hotkey."
+                        },
+                        { "settings.hotkey.keypad", "Num {0}" },
                         { "settings.reset_button_position", "Reset Button Position" },
                         { "settings.reset_panel_position", "Reset Panel Position" },
                         {
@@ -167,6 +191,16 @@ namespace NaturalDisastersRenewal.Common
                             "settings.meteor.max_probability.tooltip",
                             "Maximum occurrence of meteor strike per year per one meteor when it approaches the Earth."
                         },
+                        { "key.ctrl", "Ctrl" },
+                        { "key.alt", "Alt" },
+                        { "key.shift", "Shift" },
+                        { "key.command", "Cmd" },
+                        { "key.up", "Up" },
+                        { "key.down", "Down" },
+                        { "key.left", "Left" },
+                        { "key.right", "Right" },
+                        { "key.page_up", "Page Up" },
+                        { "key.page_down", "Page Down" },
                         { "tooltip.probability", "Probability: {0}" },
                         { "tooltip.forest_fire.locked", "Not unlocked yet (occurs only outside of your area)." },
                         { "tooltip.not_unlocked", "Not unlocked yet" },
@@ -231,13 +265,28 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.help.tooltip", "Abrir ayuda del panel" },
                         { "panel.close.tooltip", "Cerrar panel" },
                         { "panel.controls.title", "Controles" },
-                        { "panel.controls.toggle", "Usa el boton de play/pausa junto a cada desastre para activarlo o desactivarlo." },
-                        { "panel.controls.stop", "Usa el boton cuadrado rojo para detener desastres activos y liberar vehiculos de desastre." },
-                        { "panel.controls.reset", "Usa el boton de reinicio para limpiar enfriamientos y calentamientos actuales." },
-                        { "panel.controls.drag", "Arrastra el boton o el panel con clic derecho para guardar su posicion." },
+                        {
+                            "panel.controls.toggle",
+                            "Usa el boton de play/pausa junto a cada desastre para activarlo o desactivarlo."
+                        },
+                        {
+                            "panel.controls.stop",
+                            "Usa el boton cuadrado rojo para detener desastres activos y liberar vehiculos de desastre."
+                        },
+                        {
+                            "panel.controls.reset",
+                            "Usa el boton de reinicio para limpiar enfriamientos y calentamientos actuales."
+                        },
+                        {
+                            "panel.controls.drag",
+                            "Arrastra el boton o el panel con clic derecho para guardar su posicion."
+                        },
                         { "panel.controls.hotkey", "Usa Shift + D para mostrar u ocultar el panel." },
                         { "panel.help.title", "Ayuda - Natural Disasters Renewal" },
-                        { "panel.help.content", "ESTADISTICAS:\n\n• Las barras de probabilidad muestran la posibilidad actual del desastre.\n• Las barras de intensidad muestran la intensidad maxima actual.\n\nCONTROLES:\n• Play/Pausa activa o desactiva cada desastre.\n• El cuadrado detiene desastres activos.\n• Reiniciar limpia enfriamientos actuales.\n\nUsa Shift + D para mostrar u ocultar el panel." },
+                        {
+                            "panel.help.content",
+                            "ESTADÍSTICAS:\n\n• Las barras de probabilidad muestran la posibilidad actual del desastre.\n• Las barras de intensidad muestran la intensidad maxima actual.\n\nCONTROLES:\n• Play/Pausa activa o desactiva cada desastre.\n• El cuadrado detiene desastres activos.\n• Reiniciar limpia enfriamientos actuales."
+                        },
                         { "panel.toggle_button.tooltip", "Desastres extendidos (arrastra con clic derecho)" },
                         { "panel.drag_panel.tooltip", "Arrastra con clic derecho para cambiar la posicion del panel." },
                         { "settings.general", "General" },
@@ -270,6 +319,15 @@ namespace NaturalDisastersRenewal.Common
                         },
                         { "settings.show_panel_button", "Mostrar boton del panel de desastres" },
                         { "settings.positions", "Posiciones del boton/panel:" },
+                        { "settings.group.hotkey", "Atajos del teclado" },
+                        { "settings.hotkey.info", "Usa hasta 3 teclas: hasta 2 modificadoras y 1 tecla normal." },
+                        { "settings.hotkey.capture", "Presiona una combinacion..." },
+                        { "settings.hotkey.none", "Sin asignar" },
+                        {
+                            "settings.hotkey.tooltip",
+                            "Haz clic y luego presiona hasta 3 teclas. Escape cancela. Backspace o Delete borra el atajo."
+                        },
+                        { "settings.hotkey.keypad", "Num {0}" },
                         { "settings.reset_button_position", "Restablecer posicion del boton" },
                         { "settings.reset_panel_position", "Restablecer posicion del panel" },
                         {
@@ -361,6 +419,16 @@ namespace NaturalDisastersRenewal.Common
                             "settings.meteor.max_probability.tooltip",
                             "Ocurrencia maxima por ano de impacto de meteorito por cada meteorito cuando se acerca a la Tierra."
                         },
+                        { "key.ctrl", "Ctrl" },
+                        { "key.alt", "Alt" },
+                        { "key.shift", "Shift" },
+                        { "key.command", "Cmd" },
+                        { "key.up", "Arriba" },
+                        { "key.down", "Abajo" },
+                        { "key.left", "Izquierda" },
+                        { "key.right", "Derecha" },
+                        { "key.page_up", "Re Pag" },
+                        { "key.page_down", "Av Pag" },
                         { "tooltip.probability", "Probabilidad: {0}" },
                         { "tooltip.forest_fire.locked", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
                         { "tooltip.not_unlocked", "Aun no desbloqueado" },

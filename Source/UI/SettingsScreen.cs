@@ -1,5 +1,5 @@
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
@@ -17,10 +17,8 @@ namespace NaturalDisastersRenewal.UI
         private bool freezeUI;
         private UIComponent rootComponent;
         private UIHelper rootHelper;
-        private string EvacuationModeText
-        {
-            get { return LocalizationService.Get("settings.evacuation_mode"); }
-        }
+
+        private string EvacuationModeText => LocalizationService.Get("settings.evacuation_mode");
 
         #region UI Components
 
@@ -34,6 +32,7 @@ namespace NaturalDisastersRenewal.UI
         private UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
         private UICheckBox UI_General_RecordDisasterEventsChkBox;
         private UICheckBox UI_General_ShowDisasterPanelButton;
+        private UIButton UI_General_TogglePanelHotkeyButton;
 
         //Forest Fire
         private UICheckBox UI_ForestFire_Enabled;
@@ -100,6 +99,9 @@ namespace NaturalDisastersRenewal.UI
 
         #region Options UI
 
+        private bool hotkeyCaptureHandlerRegistered;
+        private bool isCapturingHotkey;
+
         public static void UpdateUISettingsOptions()
         {
             foreach (var current in Services.Plugins.GetPluginsInfo())
@@ -154,6 +156,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = disasterSetupModel.ScaleMaxIntensityWithPopulation;
             UI_General_RecordDisasterEventsChkBox.isChecked = disasterSetupModel.RecordDisasterEvents;
             UI_General_ShowDisasterPanelButton.isChecked = disasterSetupModel.ShowDisasterPanelButton;
+            RefreshHotkeyButtonText();
 
             UI_ForestFire_Enabled.isChecked = disasterSetupModel.ForestFire.Enabled;
             UI_ForestFire_EvacuationMode.selectedIndex = (int)disasterSetupModel.ForestFire.EvacuationMode;
@@ -224,6 +227,7 @@ namespace NaturalDisastersRenewal.UI
         {
             rootHelper = helper;
             rootComponent = helper.self as UIComponent;
+            EnsureHotkeyCaptureRegistered();
             BuildSettingsContent(helper);
         }
 
@@ -235,9 +239,7 @@ namespace NaturalDisastersRenewal.UI
             freezeUI = true;
 
             foreach (var child in rootComponent.components.OfType<UIComponent>().ToArray())
-            {
                 UnityObject.Destroy(child.gameObject);
-            }
 
             ResetUIReferences();
             BuildSettingsContent(rootHelper);
@@ -258,8 +260,72 @@ namespace NaturalDisastersRenewal.UI
             SetupTsunami(ref helper, disasterContainer);
             SetupEarthquake(ref helper, disasterContainer);
             SetupMeteorStrike(ref helper, disasterContainer);
-            //SetupHotkeySetup(ref helper, disasterContainer);
+            SetupHotkeySetup(ref helper, disasterContainer);
             SetupSaveOptions(ref helper, disasterContainer);
+        }
+
+        private void EnsureHotkeyCaptureRegistered()
+        {
+            if (hotkeyCaptureHandlerRegistered)
+                return;
+
+            UIInput.eventProcessKeyEvent += HotkeyCapture_eventProcessKeyEvent;
+            hotkeyCaptureHandlerRegistered = true;
+        }
+
+        private void HotkeyCapture_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
+        {
+            if (!isCapturingHotkey || eventType != EventType.KeyDown)
+                return;
+
+            if (HotkeyHelper.IsModifierKey(keyCode))
+                return;
+
+            if (keyCode == KeyCode.Escape && modifiers == EventModifiers.None)
+            {
+                isCapturingHotkey = false;
+                RefreshHotkeyButtonText();
+                return;
+            }
+
+            if ((keyCode == KeyCode.Backspace || keyCode == KeyCode.Delete) && modifiers == EventModifiers.None)
+            {
+                Services.DisasterSetup.TogglePanelHotkey = KeyCode.None;
+                Services.DisasterSetup.TogglePanelHotkeyModifiers = EventModifiers.None;
+                isCapturingHotkey = false;
+                RefreshHotkeyButtonText();
+                return;
+            }
+
+            if (keyCode == KeyCode.None || keyCode == KeyCode.Escape)
+                return;
+
+            EventModifiers normalizedModifiers = HotkeyHelper.GetSupportedHotkeyModifiers(modifiers);
+            if (HotkeyHelper.CountHotkeyModifiers(normalizedModifiers) > 2)
+                return;
+
+            Services.DisasterSetup.TogglePanelHotkey = keyCode;
+            Services.DisasterSetup.TogglePanelHotkeyModifiers = normalizedModifiers;
+            isCapturingHotkey = false;
+            RefreshHotkeyButtonText();
+        }
+
+        private void BeginHotkeyCapture()
+        {
+            isCapturingHotkey = true;
+            RefreshHotkeyButtonText();
+        }
+
+        private void RefreshHotkeyButtonText()
+        {
+            if (UI_General_TogglePanelHotkeyButton == null)
+                return;
+
+            UI_General_TogglePanelHotkeyButton.text = isCapturingHotkey
+                ? LocalizationService.Get("settings.hotkey.capture")
+                : HotkeyHelper.FormatHotkey(
+                    Services.DisasterSetup.TogglePanelHotkey,
+                    Services.DisasterSetup.TogglePanelHotkeyModifiers);
         }
 
         private void ResetUIReferences()
@@ -272,6 +338,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_ScaleMaxIntensityWithPopulation = null;
             UI_General_RecordDisasterEventsChkBox = null;
             UI_General_ShowDisasterPanelButton = null;
+            UI_General_TogglePanelHotkeyButton = null;
             UI_ForestFire_Enabled = null;
             UI_ForestFireMaxProbability = null;
             UI_ForestFire_WarmupDays = null;
@@ -416,7 +483,7 @@ namespace NaturalDisastersRenewal.UI
                 UpdateSetupContentUI();
             });
 
-            generalGroup.AddGroup(LocalizationService.Get("settings.hotkey_placeholder"));
+
             generalGroup.AddSpace(10);
 
             generalGroup.AddSpace(10);
@@ -843,9 +910,25 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpace(20);
         }
 
-        //Next enhancement
         private void SetupHotkeySetup(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
+            var hotkeyGroup = helper.AddGroup(LocalizationService.Get("settings.group.hotkey"));
+
+            if (hotkeyGroup is UIHelper hotkeyUiHelper && hotkeyUiHelper.self is UIPanel hotkeyPanel)
+            {
+                UILabel hotkeyInfoLabel = hotkeyPanel.AddUIComponent<UILabel>();
+                hotkeyInfoLabel.text = LocalizationService.Get("settings.hotkey.info");
+                hotkeyInfoLabel.textScale = 0.9f;
+                hotkeyInfoLabel.wordWrap = true;
+                hotkeyInfoLabel.autoHeight = true;
+                hotkeyInfoLabel.width = hotkeyPanel.width > 0 ? hotkeyPanel.width - 20f : 700f;
+            }
+
+            UI_General_TogglePanelHotkeyButton = (UIButton)hotkeyGroup.AddButton(
+                LocalizationService.Get("settings.hotkey.capture"),
+                delegate { BeginHotkeyCapture(); });
+            UI_General_TogglePanelHotkeyButton.tooltip = LocalizationService.Get("settings.hotkey.tooltip");
+            RefreshHotkeyButtonText();
         }
 
         private void SetupSaveOptions(ref UIHelper helper, DisasterSetupModel disasterContainer)
