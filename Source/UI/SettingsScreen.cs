@@ -492,7 +492,7 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_ForestFire_WarmupDays, LocalizationService.Get("settings.warmup_period.days"));
             UI_ForestFire_WarmupDays.tooltip = LocalizationService.Get("settings.forest_fire.warmup.tooltip");
 
-            ComponentHelpers.AddDropDown(
+            DropDownHelper.AddDropDown(
                 ref UI_ForestFire_EvacuationMode,
                 ref forestFireGroup,
                 EvacuationModeText,
@@ -544,7 +544,7 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_Thunderstorm_RainFactor);
             UI_Thunderstorm_RainFactor.tooltip = LocalizationService.Get("settings.rain_factor.tooltip");
 
-            ComponentHelpers.AddDropDown(
+            DropDownHelper.AddDropDown(
                 ref UI_Thunderstorm_EvacuationMode,
                 ref thunderstormGroup,
                 EvacuationModeText,
@@ -585,7 +585,7 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_Sinkhole_GroundwaterCapacity);
             UI_Sinkhole_GroundwaterCapacity.tooltip = LocalizationService.Get("settings.groundwater_capacity.tooltip");
 
-            ComponentHelpers.AddDropDown(
+            DropDownHelper.AddDropDown(
                 ref UI_Sinkhole_EvacuationMode,
                 ref sinkholeGroup,
                 EvacuationModeText,
@@ -656,7 +656,7 @@ namespace NaturalDisastersRenewal.UI
 
             tornadoGroup.AddSpace(10);
 
-            ComponentHelpers.AddDropDown(
+            DropDownHelper.AddDropDown(
                 ref UI_Tornado_EvacuationMode,
                 ref tornadoGroup,
                 EvacuationModeText,
@@ -695,7 +695,7 @@ namespace NaturalDisastersRenewal.UI
             AddLabelToSlider(UI_Tsunami_WarmupYears, LocalizationService.Get("settings.charge_period.years"));
             UI_Tsunami_WarmupYears.tooltip = LocalizationService.Get("settings.tsunami.warmup.tooltip");
 
-            ComponentHelpers.AddDropDown(
+            DropDownHelper.AddDropDown(
                 ref UI_Tsunami_EvacuationMode,
                 ref tsunamiGroup,
                 EvacuationModeText,
@@ -745,7 +745,7 @@ namespace NaturalDisastersRenewal.UI
                 });
             UI_Earthquake_AftershocksEnabled.tooltip = LocalizationService.Get("settings.enable_aftershocks.tooltip");
 
-            ComponentHelpers.AddDropDown(
+            DropDownHelper.AddDropDown(
                 ref UI_Earthquake_CrackMode,
                 ref earthquakeGroup,
                 LocalizationService.Get("settings.ground_cracks"),
@@ -772,7 +772,7 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.min_intensity_cracks.tooltip");
             earthquakeGroup.AddSpace(15);
 
-            ComponentHelpers.AddDropDown(
+            DropDownHelper.AddDropDown(
                 ref UI_Earthquake_EvacuationMode,
                 ref earthquakeGroup,
                 EvacuationModeText,
@@ -827,7 +827,7 @@ namespace NaturalDisastersRenewal.UI
                         disasterContainer.MeteorStrike.SetEnabled(2, isChecked);
                 });
 
-            ComponentHelpers.AddDropDown(
+            DropDownHelper.AddDropDown(
                 ref UI_MeteorStrike_EvacuationMode,
                 ref meteorStrikeGroup,
                 EvacuationModeText,

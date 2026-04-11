@@ -1,13 +1,11 @@
 ﻿using ColossalFramework.UI;
 using ICities;
-using NaturalDisastersRenewal.Common.enums;
 using System;
-using System.Security.Principal;
-using UnityEngine;
+
 
 namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
-    public class ComponentHelpers
+    public static class DropDownHelper
     {
         public static void AddDropDown<T>(ref UIDropDown dropDown, ref UIHelperBase group, string description, string[] itemList, ref T value, OnDropdownSelectionChanged eventCallback, int valueIndex = 1)
         {

@@ -127,5 +127,20 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
             return tabStrip;
         }
+
+        public static UIButton CreateStyledTab(UITabstrip tabStrip, string title, float xPosition)
+        {
+            UIButton tabButton = tabStrip.AddTab(title);
+            tabButton.relativePosition = new Vector3(xPosition, 0f);
+            tabButton.width = 130f;
+            tabButton.height = 30f;
+            tabButton.normalBgSprite = "SubBarButtonBase";
+            tabButton.disabledBgSprite = "SubBarButtonBaseDisabled";
+            tabButton.focusedBgSprite = "SubBarButtonBaseFocused";
+            tabButton.hoveredBgSprite = "SubBarButtonBaseHovered";
+            tabButton.pressedBgSprite = "SubBarButtonBasePressed";
+            tabButton.textPadding = new RectOffset(10, 10, 8, 6);
+            return tabButton;
+        }
     }
 }
