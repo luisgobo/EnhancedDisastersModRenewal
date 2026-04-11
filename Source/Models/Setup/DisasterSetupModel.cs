@@ -1,4 +1,5 @@
-﻿using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using System.Collections.Generic;
@@ -28,6 +29,7 @@ namespace NaturalDisastersRenewal.Models.Setup
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;
         public bool ShowDisasterPanelButton = true;
+        public ModLanguage Language = ModLanguage.English;
         public Vector3 ToggleButtonPos = new Vector3(90, 62);
         public Vector3 DPanelPos = new Vector3(90, 40);
 

@@ -54,7 +54,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (aftershocksCount > 0)
             {
-                return "Expect " + aftershocksCount.ToString() + " more aftershocks";
+                return LocalizationService.Format("tooltip.earthquake.aftershocks", aftershocksCount);
             }
 
             return base.GetProbabilityTooltip(value);
@@ -170,7 +170,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return "Earthquake";
+            return LocalizationService.GetDisasterName(DType);
         }
 
         public override float CalculateDestructionRadio(byte intensity)

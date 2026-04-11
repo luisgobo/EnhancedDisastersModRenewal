@@ -1,20 +1,18 @@
-using ColossalFramework;
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
-using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class ForestFireModel : DisasterBaseModel
     {
+        [XmlIgnore] public float noRainDays;
         public int WarmupDays = 180;
-        [XmlIgnore] public float noRainDays = 0;
 
         public ForestFireModel()
         {
@@ -31,24 +29,22 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
-            WeatherManager wm = Services.Weather;
+            var wm = Services.Weather;
             if (wm.m_currentRain > 0)
-            {
                 noRainDays = 0;
-            }
             else
-            {
                 noRainDays += DisasterSimulationUtils.DaysPerFrame;
-            }
         }
 
-        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfo.type |= DisasterType.ForestFire;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
-        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.ForestFire;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
@@ -56,7 +52,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
         }
 
-        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.ForestFire;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
@@ -65,35 +62,37 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             //Get disaster Info
-            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
-            
+            var disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+
             if (disasterInfo == null)
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Services.Buildings;
-            FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
+            var buildingManager = Services.Buildings;
+            var serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)
                 return;
 
             //Release all shelters but Potentyally destroyed
-            for (int i = 0; i < serviceBuildings.m_size; i++)
+            for (var i = 0; i < serviceBuildings.m_size; i++)
             {
-                ushort num = serviceBuildings.m_buffer[i];
+                var num = serviceBuildings.m_buffer[i];
                 if (num != 0)
                 {
                     //here we got all shelter buildings
                     var buildingInfo = buildingManager.m_buildings.m_buffer[num];
 
-                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
+                    if (buildingInfo.Info.m_buildingAI as ShelterAI != null)
                     {
                         //Add Building/Shelter Data to disaster
                         disasterInfoModel.ShelterList.Add(num);
-                        SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                        SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num,
+                            ref buildingManager.m_buildings.m_buffer[num], false);
                     }
                 }
             }
@@ -103,28 +102,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetProbabilityTooltip(float value)
         {
-            string tooltip = "";
+            var tooltip = "";
 
-            if (!unlocked)
-            {
-                tooltip = "Not unlocked yet (occurs only outside of your area)." + Environment.NewLine;
-            }
+            if (!unlocked) tooltip = LocalizationService.Get("tooltip.forest_fire.locked") + Environment.NewLine;
 
             if (calmDaysLeft == 0)
             {
                 if (noRainDays <= 0)
-                {
-                    return tooltip + "No " + GetName() + " during rain.";
-                }
-                else
-                {
-                    if (noRainDays >= WarmupDays)
-                    {
-                        return tooltip + "Maximum because there was no rain for more than " + WarmupDays.ToString() + " days.";
-                    }
+                    return tooltip + LocalizationService.Format("tooltip.forest_fire.no_during_rain", GetName());
 
-                    return tooltip + "Increasing because there was no rain for " + DisasterSimulationUtils.FormatTimeSpan(noRainDays);
-                }
+                if (noRainDays >= WarmupDays)
+                    return tooltip + LocalizationService.Format("tooltip.forest_fire.maximum_no_rain", WarmupDays);
+
+                return tooltip + LocalizationService.Format("tooltip.forest_fire.increasing_no_rain",
+                    DisasterSimulationUtils.FormatTimeSpan(noRainDays));
             }
 
             return base.GetProbabilityTooltip(value);
@@ -142,19 +133,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.forestFireName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
         public override void CopySettings(DisasterBaseModel disaster)
         {
             base.CopySettings(disaster);
 
-            ForestFireModel d = disaster as ForestFireModel;
-            if (d != null)
-            {
-                WarmupDays = d.WarmupDays;
-            }
+            var d = disaster as ForestFireModel;
+            if (d != null) WarmupDays = d.WarmupDays;
         }
-        
     }
 }

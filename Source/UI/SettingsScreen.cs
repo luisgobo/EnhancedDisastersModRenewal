@@ -1,97 +1,100 @@
-using ColossalFramework;
-using ColossalFramework.Plugins;
+using System.Reflection;
+using System.Linq;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
+using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
-using System;
-using System.Diagnostics;
-using System.Reflection;
-using NaturalDisastersRenewal.Common;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
 
 namespace NaturalDisastersRenewal.UI
 {
     public class SettingsScreen
     {
-        bool freezeUI = false;
-        readonly string evacuationModeText = "Evacuation Mode: ";
+        private bool freezeUI;
+        private UIComponent rootComponent;
+        private UIHelper rootHelper;
+        private string EvacuationModeText
+        {
+            get { return LocalizationService.Get("settings.evacuation_mode"); }
+        }
 
         #region UI Components
 
         //General
-        UICheckBox UI_General_DisableDisasterFocus;
+        private UIDropDown UI_General_Language;
+        private UICheckBox UI_General_DisableDisasterFocus;
 
-        UICheckBox UI_General_PauseOnDisasterStarts;
-        UISlider UI_General_PartialEvacuationRadius;
-        UISlider UI_General_MaxPopulationToTrigguerHigherDisasters;
-        UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
-        UICheckBox UI_General_RecordDisasterEventsChkBox;
-        UICheckBox UI_General_ShowDisasterPanelButton;
+        private UICheckBox UI_General_PauseOnDisasterStarts;
+        private UISlider UI_General_PartialEvacuationRadius;
+        private UISlider UI_General_MaxPopulationToTrigguerHigherDisasters;
+        private UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
+        private UICheckBox UI_General_RecordDisasterEventsChkBox;
+        private UICheckBox UI_General_ShowDisasterPanelButton;
 
         //Forest Fire
-        UICheckBox UI_ForestFire_Enabled;
+        private UICheckBox UI_ForestFire_Enabled;
 
-        UISlider UI_ForestFireMaxProbability;
-        UISlider UI_ForestFire_WarmupDays;
-        UIDropDown UI_ForestFire_EvacuationMode;
+        private UISlider UI_ForestFireMaxProbability;
+        private UISlider UI_ForestFire_WarmupDays;
+        private UIDropDown UI_ForestFire_EvacuationMode;
 
         //Thunderstorm
-        UICheckBox UI_Thunderstorm_Enabled;
+        private UICheckBox UI_Thunderstorm_Enabled;
 
-        UISlider UI_Thunderstorm_MaxProbability;
-        UIDropDown UI_Thunderstorm_MaxProbabilityMonth;
-        UISlider UI_Thunderstorm_RainFactor;
-        UIDropDown UI_Thunderstorm_EvacuationMode;
+        private UISlider UI_Thunderstorm_MaxProbability;
+        private UIDropDown UI_Thunderstorm_MaxProbabilityMonth;
+        private UISlider UI_Thunderstorm_RainFactor;
+        private UIDropDown UI_Thunderstorm_EvacuationMode;
 
         //Sunkhole
-        UICheckBox UI_Sinkhole_Enabled;
+        private UICheckBox UI_Sinkhole_Enabled;
 
-        UISlider UI_Sinkhole_MaxProbability;
-        UISlider UI_Sinkhole_GroundwaterCapacity;
-        UIDropDown UI_Sinkhole_EvacuationMode;
+        private UISlider UI_Sinkhole_MaxProbability;
+        private UISlider UI_Sinkhole_GroundwaterCapacity;
+        private UIDropDown UI_Sinkhole_EvacuationMode;
 
         //Tornado
-        UICheckBox UI_Tornado_Enabled;
+        private UICheckBox UI_Tornado_Enabled;
 
-        UISlider UI_Tornado_MaxProbability;
-        UIDropDown UI_Tornado_MaxProbabilityMonth;
-        UICheckBox UI_Tornado_NoDuringFog;
-        UIDropDown UI_Tornado_EvacuationMode;
-        UICheckBox UI_Tornado_EnableDestruction;
-        UISlider UI_Tornado_IntensityDestructionStart;
+        private UISlider UI_Tornado_MaxProbability;
+        private UIDropDown UI_Tornado_MaxProbabilityMonth;
+        private UICheckBox UI_Tornado_NoDuringFog;
+        private UIDropDown UI_Tornado_EvacuationMode;
+        private UICheckBox UI_Tornado_EnableDestruction;
+        private UISlider UI_Tornado_IntensityDestructionStart;
 
         //Tsunami
-        UICheckBox UI_Tsunami_Enabled;
+        private UICheckBox UI_Tsunami_Enabled;
 
-        UISlider UI_Tsunami_MaxProbability;
-        UISlider UI_Tsunami_WarmupYears;
-        UIDropDown UI_Tsunami_EvacuationMode;
+        private UISlider UI_Tsunami_MaxProbability;
+        private UISlider UI_Tsunami_WarmupYears;
+        private UIDropDown UI_Tsunami_EvacuationMode;
 
         //Earthquake
-        UICheckBox UI_Earthquake_Enabled;
+        private UICheckBox UI_Earthquake_Enabled;
 
-        UISlider UI_Earthquake_MinIntensityToCrack;
-        UISlider UI_Earthquake_MaxProbability;
-        UISlider UI_Earthquake_WarmupYears;
-        UICheckBox UI_Earthquake_AftershocksEnabled;
+        private UISlider UI_Earthquake_MinIntensityToCrack;
+        private UISlider UI_Earthquake_MaxProbability;
+        private UISlider UI_Earthquake_WarmupYears;
+        private UICheckBox UI_Earthquake_AftershocksEnabled;
 
         //UICheckBox UI_Earthquake_NoCrack;
-        UIDropDown UI_Earthquake_CrackMode;
+        private UIDropDown UI_Earthquake_CrackMode;
 
-        UIDropDown UI_Earthquake_EvacuationMode;
+        private UIDropDown UI_Earthquake_EvacuationMode;
 
         //Meteor Strike
-        UICheckBox UI_MeteorStrike_Enabled;
+        private UICheckBox UI_MeteorStrike_Enabled;
 
-        UISlider UI_MeteorStrike_MaxProbability;
-        UICheckBox UI_MeteorStrike_MeteorLongPeriodEnabled;
-        UICheckBox UI_MeteorStrike_MeteorMediumPeriodEnabled;
-        UICheckBox UI_MeteorStrike_MeteorShortPeriodEnabled;
-        UIDropDown UI_MeteorStrike_EvacuationMode;
+        private UISlider UI_MeteorStrike_MaxProbability;
+        private UICheckBox UI_MeteorStrike_MeteorLongPeriodEnabled;
+        private UICheckBox UI_MeteorStrike_MeteorMediumPeriodEnabled;
+        private UICheckBox UI_MeteorStrike_MeteorShortPeriodEnabled;
+        private UIDropDown UI_MeteorStrike_EvacuationMode;
 
         #endregion UI Components
 
@@ -99,13 +102,13 @@ namespace NaturalDisastersRenewal.UI
 
         public static void UpdateUISettingsOptions()
         {
-            foreach (PluginManager.PluginInfo current in Services.Plugins.GetPluginsInfo())
-            {
+            foreach (var current in Services.Plugins.GetPluginsInfo())
                 if (current.isEnabled)
                 {
-                    IUserMod[] instances = current.GetInstances<IUserMod>();
+                    var instances = current.GetInstances<IUserMod>();
 
-                    MethodInfo method = instances[0].GetType().GetMethod("EnhancedDisastersOptionsUpdateUI", BindingFlags.Instance | BindingFlags.Public);
+                    var method = instances[0].GetType().GetMethod("EnhancedDisastersOptionsUpdateUI",
+                        BindingFlags.Instance | BindingFlags.Public);
 
                     if (method != null)
                     {
@@ -113,7 +116,24 @@ namespace NaturalDisastersRenewal.UI
                         return;
                     }
                 }
-            }
+        }
+
+        public static void RebuildUISettingsOptions()
+        {
+            foreach (var current in Services.Plugins.GetPluginsInfo())
+                if (current.isEnabled)
+                {
+                    var instances = current.GetInstances<IUserMod>();
+
+                    var method = instances[0].GetType().GetMethod("EnhancedDisastersOptionsRebuildUI",
+                        BindingFlags.Instance | BindingFlags.Public);
+
+                    if (method != null)
+                    {
+                        method.Invoke(instances[0], new object[] { });
+                        return;
+                    }
+                }
         }
 
         public void UpdateSetupContentUI()
@@ -121,13 +141,15 @@ namespace NaturalDisastersRenewal.UI
             if (UI_ForestFire_Enabled == null)
                 return;
 
-            DisasterSetupModel disasterSetupModel = Services.DisasterSetup;
+            var disasterSetupModel = Services.DisasterSetup;
             freezeUI = true;
 
+            UI_General_Language.selectedIndex = (int)disasterSetupModel.Language;
             UI_General_DisableDisasterFocus.isChecked = disasterSetupModel.DisableDisasterFocus;
             UI_General_PauseOnDisasterStarts.isChecked = disasterSetupModel.PauseOnDisasterStarts;
             UI_General_PartialEvacuationRadius.value = disasterSetupModel.PartialEvacuationRadius;
-            UI_General_MaxPopulationToTrigguerHigherDisasters.value = disasterSetupModel.MaxPopulationToTrigguerHigherDisasters;
+            UI_General_MaxPopulationToTrigguerHigherDisasters.value =
+                disasterSetupModel.MaxPopulationToTrigguerHigherDisasters;
 
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = disasterSetupModel.ScaleMaxIntensityWithPopulation;
             UI_General_RecordDisasterEventsChkBox.isChecked = disasterSetupModel.RecordDisasterEvents;
@@ -180,30 +202,53 @@ namespace NaturalDisastersRenewal.UI
             freezeUI = false;
         }
 
-        void AddLabelToSlider(object obj, string postfix = "")
+        private void AddLabelToSlider(object obj, string postfix = "")
         {
-            UISlider uISlider = obj as UISlider;
+            var uISlider = obj as UISlider;
             if (uISlider == null) return;
 
-            UILabel label = uISlider.parent.AddUIComponent<UILabel>();
-            label.text = uISlider.value.ToString() + postfix;
+            var label = uISlider.parent.AddUIComponent<UILabel>();
+            label.text = uISlider.value + postfix;
             label.textScale = 1f;
             (uISlider.parent as UIPanel).autoLayout = false;
             label.position = new Vector3(uISlider.position.x + uISlider.width + 15, uISlider.position.y);
 
-            UILabel titleLabel = (uISlider.parent as UIPanel).Find<UILabel>("Label");
+            var titleLabel = (uISlider.parent as UIPanel).Find<UILabel>("Label");
             titleLabel.anchor = UIAnchorStyle.None;
             titleLabel.position = new Vector3(titleLabel.position.x, titleLabel.position.y + 3);
 
-            uISlider.eventValueChanged += new PropertyChangedEventHandler<float>(delegate (UIComponent component, float value)
-            {
-                label.text = uISlider.value.ToString() + postfix;
-            });
+            uISlider.eventValueChanged += delegate { label.text = uISlider.value + postfix; };
         }
 
         public void BuildSettingsMenu(UIHelper helper)
         {
-            DisasterSetupModel disasterContainer = Services.DisasterSetup;
+            rootHelper = helper;
+            rootComponent = helper.self as UIComponent;
+            BuildSettingsContent(helper);
+        }
+
+        public void RebuildSettingsMenu()
+        {
+            if (rootHelper == null || rootComponent == null)
+                return;
+
+            freezeUI = true;
+
+            foreach (var child in rootComponent.components.OfType<UIComponent>().ToArray())
+            {
+                UnityObject.Destroy(child.gameObject);
+            }
+
+            ResetUIReferences();
+            BuildSettingsContent(rootHelper);
+            UpdateSetupContentUI();
+
+            freezeUI = false;
+        }
+
+        private void BuildSettingsContent(UIHelper helper)
+        {
+            var disasterContainer = Services.DisasterSetup;
 
             SetupGeneralTab(ref helper, disasterContainer);
             SetupForestFire(ref helper, disasterContainer);
@@ -215,297 +260,408 @@ namespace NaturalDisastersRenewal.UI
             SetupMeteorStrike(ref helper, disasterContainer);
             //SetupHotkeySetup(ref helper, disasterContainer);
             SetupSaveOptions(ref helper, disasterContainer);
-
         }
 
-        void SetupGeneralTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        private void ResetUIReferences()
         {
-            UIHelperBase generalGroup = helper.AddGroup("General");
+            UI_General_Language = null;
+            UI_General_DisableDisasterFocus = null;
+            UI_General_PauseOnDisasterStarts = null;
+            UI_General_PartialEvacuationRadius = null;
+            UI_General_MaxPopulationToTrigguerHigherDisasters = null;
+            UI_General_ScaleMaxIntensityWithPopulation = null;
+            UI_General_RecordDisasterEventsChkBox = null;
+            UI_General_ShowDisasterPanelButton = null;
+            UI_ForestFire_Enabled = null;
+            UI_ForestFireMaxProbability = null;
+            UI_ForestFire_WarmupDays = null;
+            UI_ForestFire_EvacuationMode = null;
+            UI_Thunderstorm_Enabled = null;
+            UI_Thunderstorm_MaxProbability = null;
+            UI_Thunderstorm_MaxProbabilityMonth = null;
+            UI_Thunderstorm_RainFactor = null;
+            UI_Thunderstorm_EvacuationMode = null;
+            UI_Sinkhole_Enabled = null;
+            UI_Sinkhole_MaxProbability = null;
+            UI_Sinkhole_GroundwaterCapacity = null;
+            UI_Sinkhole_EvacuationMode = null;
+            UI_Tornado_Enabled = null;
+            UI_Tornado_MaxProbability = null;
+            UI_Tornado_MaxProbabilityMonth = null;
+            UI_Tornado_NoDuringFog = null;
+            UI_Tornado_EvacuationMode = null;
+            UI_Tornado_EnableDestruction = null;
+            UI_Tornado_IntensityDestructionStart = null;
+            UI_Tsunami_Enabled = null;
+            UI_Tsunami_MaxProbability = null;
+            UI_Tsunami_WarmupYears = null;
+            UI_Tsunami_EvacuationMode = null;
+            UI_Earthquake_Enabled = null;
+            UI_Earthquake_MinIntensityToCrack = null;
+            UI_Earthquake_MaxProbability = null;
+            UI_Earthquake_WarmupYears = null;
+            UI_Earthquake_AftershocksEnabled = null;
+            UI_Earthquake_CrackMode = null;
+            UI_Earthquake_EvacuationMode = null;
+            UI_MeteorStrike_Enabled = null;
+            UI_MeteorStrike_MaxProbability = null;
+            UI_MeteorStrike_MeteorLongPeriodEnabled = null;
+            UI_MeteorStrike_MeteorMediumPeriodEnabled = null;
+            UI_MeteorStrike_MeteorShortPeriodEnabled = null;
+            UI_MeteorStrike_EvacuationMode = null;
+        }
 
-            UI_General_DisableDisasterFocus = (UICheckBox)generalGroup.AddCheckbox("Disable automatic disaster follow when it starts.", disasterContainer.DisableDisasterFocus, delegate (bool isChecked)
-            {
-                if (!freezeUI)
+        private void SetupGeneralTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        {
+            var generalGroup = helper.AddGroup(LocalizationService.Get("settings.general"));
+
+
+            UI_General_Language = (UIDropDown)generalGroup.AddDropdown(LocalizationService.Get("settings.language"),
+                LocalizationService.GetLanguageDisplayNames(), (int)disasterContainer.Language, delegate(int selection)
                 {
-                    disasterContainer.DisableDisasterFocus = isChecked;
-                    DisasterExtension.SetDisableDisasterFocus(disasterContainer.DisableDisasterFocus);
-                }
-            });
+                    if (!freezeUI)
+                    {
+                        disasterContainer.Language = (ModLanguage)selection;
+                        Services.DisasterHandler.RefreshLocalizedUI();
+                        RebuildUISettingsOptions();
+                    }
+                });
+            UI_General_Language.tooltip = LocalizationService.Get("settings.language.tooltip");
+            UI_General_DisableDisasterFocus = (UICheckBox)generalGroup.AddCheckbox(
+                LocalizationService.Get("settings.disable_follow"), disasterContainer.DisableDisasterFocus,
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                    {
+                        disasterContainer.DisableDisasterFocus = isChecked;
+                        DisasterExtension.SetDisableDisasterFocus(disasterContainer.DisableDisasterFocus);
+                    }
+                });
 
-            UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox("Pause on disaster starts", disasterContainer.PauseOnDisasterStarts, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.PauseOnDisasterStarts = isChecked;
-            });
+            UI_General_PauseOnDisasterStarts = (UICheckBox)generalGroup.AddCheckbox(
+                LocalizationService.Get("settings.pause_on_start"), disasterContainer.PauseOnDisasterStarts,
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.PauseOnDisasterStarts = isChecked;
+                });
 
-            UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider("Partial evacuation Radius (In meters)", 300f, 4200f, 100f, disasterContainer.PartialEvacuationRadius, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.PartialEvacuationRadius = val;
-            });
+            UI_General_PartialEvacuationRadius = (UISlider)generalGroup.AddSlider(
+                LocalizationService.Get("settings.focused_radius"), 300f, 4200f, 100f,
+                disasterContainer.PartialEvacuationRadius, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.PartialEvacuationRadius = val;
+                });
             AddLabelToSlider(UI_General_PartialEvacuationRadius);
-            UI_General_PartialEvacuationRadius.tooltip = "Select the Radius (In meters) for Focused evacuations.";
+            UI_General_PartialEvacuationRadius.tooltip = LocalizationService.Get("settings.focused_radius.tooltip");
 
             generalGroup.AddSpace(5);
-            UI_General_MaxPopulationToTrigguerHigherDisasters = (UISlider)generalGroup.AddSlider("Max population to trigguer higher disasters.", 20000f, 800000f, 1000f, disasterContainer.MaxPopulationToTrigguerHigherDisasters, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.MaxPopulationToTrigguerHigherDisasters = val;
-            });
+            UI_General_MaxPopulationToTrigguerHigherDisasters = (UISlider)generalGroup.AddSlider(
+                LocalizationService.Get("settings.max_population"), 20000f, 800000f, 1000f,
+                disasterContainer.MaxPopulationToTrigguerHigherDisasters, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.MaxPopulationToTrigguerHigherDisasters = val;
+                });
             AddLabelToSlider(UI_General_MaxPopulationToTrigguerHigherDisasters);
-            UI_General_MaxPopulationToTrigguerHigherDisasters.tooltip = "Select the max population to trigger higher disaster intensity.";
-
-            generalGroup.AddSpace(10);
-            
-            UI_General_ScaleMaxIntensityWithPopulation = (UICheckBox)generalGroup.AddCheckbox("Scale max intensity with population", disasterContainer.ScaleMaxIntensityWithPopulation, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.ScaleMaxIntensityWithPopulation = isChecked;
-            });
-            UI_General_ScaleMaxIntensityWithPopulation.tooltip = "Maximum intensity for all disasters is set to the minimum at the beginning of the game and gradually increases as the city grows.";
-
-            UI_General_RecordDisasterEventsChkBox = (UICheckBox)generalGroup.AddCheckbox("Record disaster events", disasterContainer.RecordDisasterEvents, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.RecordDisasterEvents = isChecked;
-            });
-            UI_General_RecordDisasterEventsChkBox.tooltip = "Write out disaster name, date of occurrence, and intencity into Disasters.csv file";
-
-            UI_General_ShowDisasterPanelButton = (UICheckBox)generalGroup.AddCheckbox("Show Disasters Panel toggle button", disasterContainer.ShowDisasterPanelButton, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.ShowDisasterPanelButton = isChecked;
-
-                Services.DisasterHandler.UpdateDisastersPanelToggleBtn();
-                Services.DisasterHandler.UpdateDisastersDPanel();
-            });
+            UI_General_MaxPopulationToTrigguerHigherDisasters.tooltip =
+                LocalizationService.Get("settings.max_population.tooltip");
 
             generalGroup.AddSpace(10);
 
-            UIHelperBase elementPositionsGroup = generalGroup.AddGroup("Button/Panel positions:");
+            UI_General_ScaleMaxIntensityWithPopulation = (UICheckBox)generalGroup.AddCheckbox(
+                LocalizationService.Get("settings.scale_intensity"), disasterContainer.ScaleMaxIntensityWithPopulation,
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.ScaleMaxIntensityWithPopulation = isChecked;
+                });
+            UI_General_ScaleMaxIntensityWithPopulation.tooltip =
+                LocalizationService.Get("settings.scale_intensity.tooltip");
 
-            elementPositionsGroup.AddButton("Reset Button Position", delegate ()
+            UI_General_RecordDisasterEventsChkBox = (UICheckBox)generalGroup.AddCheckbox(
+                LocalizationService.Get("settings.record_events"), disasterContainer.RecordDisasterEvents,
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.RecordDisasterEvents = isChecked;
+                });
+            UI_General_RecordDisasterEventsChkBox.tooltip = LocalizationService.Get("settings.record_events.tooltip");
+
+            UI_General_ShowDisasterPanelButton = (UICheckBox)generalGroup.AddCheckbox(
+                LocalizationService.Get("settings.show_panel_button"), disasterContainer.ShowDisasterPanelButton,
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.ShowDisasterPanelButton = isChecked;
+
+                    Services.DisasterHandler.UpdateDisastersPanelToggleBtn();
+                    Services.DisasterHandler.UpdateDisastersDPanel();
+                });
+
+            generalGroup.AddSpace(10);
+
+            var elementPositionsGroup = generalGroup.AddGroup(LocalizationService.Get("settings.positions"));
+
+            elementPositionsGroup.AddButton(LocalizationService.Get("settings.reset_button_position"), delegate
             {
                 Services.DisasterHandler.ResetToDefaultValues(true, false);
                 UpdateSetupContentUI();
             });
 
-            elementPositionsGroup.AddButton("Reset Panel Position", delegate ()
+            elementPositionsGroup.AddButton(LocalizationService.Get("settings.reset_panel_position"), delegate
             {
                 Services.DisasterHandler.ResetToDefaultValues(false, true);
                 UpdateSetupContentUI();
             });
-            
-            generalGroup.AddGroup("Hotkey to display/hide panel info: Shift + D (will be configurable soon).");
+
+            generalGroup.AddGroup(LocalizationService.Get("settings.hotkey_placeholder"));
             generalGroup.AddSpace(10);
 
             generalGroup.AddSpace(10);
-            UIHelperBase disastersGroup = generalGroup.AddGroup("Enable Disasters:");
+            var disastersGroup = generalGroup.AddGroup(LocalizationService.Get("settings.enable_disasters"));
 
-            UI_ForestFire_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.ForestFire.GetName(), disasterContainer.ForestFire.Enabled, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.ForestFire.Enabled = isChecked;
-            });
-            UI_Thunderstorm_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Thunderstorm.GetName(), disasterContainer.Thunderstorm.Enabled, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.Thunderstorm.Enabled = isChecked;
-            });
-            UI_Sinkhole_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Sinkhole.GetName(), disasterContainer.Sinkhole.Enabled, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.Sinkhole.Enabled = isChecked;
-            });
-            UI_Tornado_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tornado.GetName(), disasterContainer.Tornado.Enabled, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.Tornado.Enabled = isChecked;
-            });
-            UI_Tsunami_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tsunami.GetName(), disasterContainer.Tsunami.Enabled, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.Tsunami.Enabled = isChecked;
-            });
-            UI_Earthquake_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Earthquake.GetName(), disasterContainer.Earthquake.Enabled, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.Earthquake.Enabled = isChecked;
-            });
-            UI_MeteorStrike_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.MeteorStrike.GetName(), disasterContainer.MeteorStrike.Enabled, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.MeteorStrike.Enabled = isChecked;
-            });
+            UI_ForestFire_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.ForestFire.GetName(),
+                disasterContainer.ForestFire.Enabled, delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.ForestFire.Enabled = isChecked;
+                });
+            UI_Thunderstorm_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Thunderstorm.GetName(),
+                disasterContainer.Thunderstorm.Enabled, delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Thunderstorm.Enabled = isChecked;
+                });
+            UI_Sinkhole_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Sinkhole.GetName(),
+                disasterContainer.Sinkhole.Enabled, delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Sinkhole.Enabled = isChecked;
+                });
+            UI_Tornado_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tornado.GetName(),
+                disasterContainer.Tornado.Enabled, delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Tornado.Enabled = isChecked;
+                });
+            UI_Tsunami_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Tsunami.GetName(),
+                disasterContainer.Tsunami.Enabled, delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Tsunami.Enabled = isChecked;
+                });
+            UI_Earthquake_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.Earthquake.GetName(),
+                disasterContainer.Earthquake.Enabled, delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Earthquake.Enabled = isChecked;
+                });
+            UI_MeteorStrike_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.MeteorStrike.GetName(),
+                disasterContainer.MeteorStrike.Enabled, delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.MeteorStrike.Enabled = isChecked;
+                });
         }
 
-        void SetupForestFire(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        private void SetupForestFire(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            UIHelperBase forestFireGroup = helper.AddGroup("Forest Fire disaster");
+            var forestFireGroup =
+                helper.AddGroup(LocalizationService.GetDisasterName(disasterContainer.ForestFire.GetDisasterType()));
 
-            UI_ForestFireMaxProbability = (UISlider)forestFireGroup.AddSlider("Max probability", 1, 50, 1, disasterContainer.ForestFire.BaseOccurrencePerYear, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.ForestFire.BaseOccurrencePerYear = val;
-            });
-            AddLabelToSlider(UI_ForestFireMaxProbability, " times per year");
-            UI_ForestFireMaxProbability.tooltip = "Occurrence (per year) in case of a long period without rain";
+            UI_ForestFireMaxProbability = (UISlider)forestFireGroup.AddSlider(
+                LocalizationService.Get("settings.max_probability"), 1, 50, 1,
+                disasterContainer.ForestFire.BaseOccurrencePerYear, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.ForestFire.BaseOccurrencePerYear = val;
+                });
+            AddLabelToSlider(UI_ForestFireMaxProbability, LocalizationService.Get("settings.times_per_year"));
+            UI_ForestFireMaxProbability.tooltip =
+                LocalizationService.Get("settings.forest_fire.max_probability.tooltip");
 
-            UI_ForestFire_WarmupDays = (UISlider)forestFireGroup.AddSlider("Warmup period", 0, 360, 10, disasterContainer.ForestFire.WarmupDays, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.ForestFire.WarmupDays = (int)val;
-            });
-            AddLabelToSlider(UI_ForestFire_WarmupDays, " days");
-            UI_ForestFire_WarmupDays.tooltip = "No-rain period during wich the probability of Forest Fire increases";
+            UI_ForestFire_WarmupDays = (UISlider)forestFireGroup.AddSlider(
+                LocalizationService.Get("settings.warmup_period"), 0, 360, 10, disasterContainer.ForestFire.WarmupDays,
+                delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.ForestFire.WarmupDays = (int)val;
+                });
+            AddLabelToSlider(UI_ForestFire_WarmupDays, LocalizationService.Get("settings.warmup_period.days"));
+            UI_ForestFire_WarmupDays.tooltip = LocalizationService.Get("settings.forest_fire.warmup.tooltip");
 
             ComponentHelpers.AddDropDown(
                 ref UI_ForestFire_EvacuationMode,
                 ref forestFireGroup,
-                evacuationModeText,
+                EvacuationModeText,
                 DisasterSimulationUtils.GetManualAndFocusedEvacuationOptions(),
                 ref disasterContainer.ForestFire.EvacuationMode,
-                delegate (int selection)
+                delegate(int selection)
                 {
                     if (!freezeUI)
                         disasterContainer.ForestFire.EvacuationMode = (EvacuationOptions)(selection * 2);
                 }
             );
 
-            helper.AddSpace(20);            
+            helper.AddSpace(20);
         }
 
-        void SetupThunderstorm(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        private void SetupThunderstorm(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            UIHelperBase thunderstormGroup = helper.AddGroup("Thunderstorm disaster");
+            var thunderstormGroup =
+                helper.AddGroup(LocalizationService.GetDisasterName(disasterContainer.Thunderstorm.GetDisasterType()));
 
-            UI_Thunderstorm_MaxProbability = (UISlider)thunderstormGroup.AddSlider("Max probability", 0.1f, 10f, 0.1f, disasterContainer.Thunderstorm.BaseOccurrencePerYear, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Thunderstorm.BaseOccurrencePerYear = val;
-            });
-            AddLabelToSlider(UI_Thunderstorm_MaxProbability, " times per year");
-            UI_Thunderstorm_MaxProbability.tooltip = "Occurrence (per year) in thunderstorm season";
+            UI_Thunderstorm_MaxProbability = (UISlider)thunderstormGroup.AddSlider(
+                LocalizationService.Get("settings.max_probability"), 0.1f, 10f, 0.1f,
+                disasterContainer.Thunderstorm.BaseOccurrencePerYear, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Thunderstorm.BaseOccurrencePerYear = val;
+                });
+            AddLabelToSlider(UI_Thunderstorm_MaxProbability, LocalizationService.Get("settings.times_per_year"));
+            UI_Thunderstorm_MaxProbability.tooltip =
+                LocalizationService.Get("settings.thunderstorm.max_probability.tooltip");
 
-            UI_Thunderstorm_MaxProbabilityMonth = (UIDropDown)thunderstormGroup.AddDropdown("Thunderstorm season peak",
+            UI_Thunderstorm_MaxProbabilityMonth = (UIDropDown)thunderstormGroup.AddDropdown(
+                LocalizationService.Get("settings.season_peak.thunderstorm"),
                 DisasterSimulationUtils.GetMonths(),
                 disasterContainer.Thunderstorm.MaxProbabilityMonth - 1,
-                delegate (int selection)
+                delegate(int selection)
                 {
                     if (!freezeUI)
                         disasterContainer.Thunderstorm.MaxProbabilityMonth = selection + 1;
                 });
 
-            UI_Thunderstorm_RainFactor = (UISlider)thunderstormGroup.AddSlider("Rain factor", 1f, 5f, 0.1f, disasterContainer.Thunderstorm.RainFactor, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Thunderstorm.RainFactor = val;
-            });
+            UI_Thunderstorm_RainFactor = (UISlider)thunderstormGroup.AddSlider(
+                LocalizationService.Get("settings.rain_factor"), 1f, 5f, 0.1f,
+                disasterContainer.Thunderstorm.RainFactor, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Thunderstorm.RainFactor = val;
+                });
             AddLabelToSlider(UI_Thunderstorm_RainFactor);
-            UI_Thunderstorm_RainFactor.tooltip = "Thunderstorm probability increases by this factor during rain.";
+            UI_Thunderstorm_RainFactor.tooltip = LocalizationService.Get("settings.rain_factor.tooltip");
 
             ComponentHelpers.AddDropDown(
                 ref UI_Thunderstorm_EvacuationMode,
                 ref thunderstormGroup,
-                evacuationModeText,
+                EvacuationModeText,
                 DisasterSimulationUtils.GetAllEvacuationOptions(),
                 ref disasterContainer.Thunderstorm.EvacuationMode,
-                delegate (int selection)
+                delegate(int selection)
                 {
                     if (!freezeUI)
                         disasterContainer.Thunderstorm.EvacuationMode = (EvacuationOptions)selection;
                 }
             );
 
-            helper.AddSpace(20);            
+            helper.AddSpace(20);
         }
 
-        void SetupSinkhole(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        private void SetupSinkhole(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            UIHelperBase sinkholeGroup = helper.AddGroup("Sinkhole disaster");
+            var sinkholeGroup =
+                helper.AddGroup(LocalizationService.GetDisasterName(disasterContainer.Sinkhole.GetDisasterType()));
 
-            UI_Sinkhole_MaxProbability = (UISlider)sinkholeGroup.AddSlider("Max probability", 0.1f, 10, 0.1f, disasterContainer.Sinkhole.BaseOccurrencePerYear, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Sinkhole.BaseOccurrencePerYear = val;
-            });
-            AddLabelToSlider(UI_Sinkhole_MaxProbability, " times per year");
-            UI_Sinkhole_MaxProbability.tooltip = "Occurrence (per year) in case of a long period of rain";
+            UI_Sinkhole_MaxProbability = (UISlider)sinkholeGroup.AddSlider(
+                LocalizationService.Get("settings.max_probability"), 0.1f, 10, 0.1f,
+                disasterContainer.Sinkhole.BaseOccurrencePerYear, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Sinkhole.BaseOccurrencePerYear = val;
+                });
+            AddLabelToSlider(UI_Sinkhole_MaxProbability, LocalizationService.Get("settings.times_per_year"));
+            UI_Sinkhole_MaxProbability.tooltip = LocalizationService.Get("settings.sinkhole.max_probability.tooltip");
 
-            UI_Sinkhole_GroundwaterCapacity = (UISlider)sinkholeGroup.AddSlider("Groundwater capacity", 1, 100, 1, disasterContainer.Sinkhole.GroundwaterCapacity, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Sinkhole.GroundwaterCapacity = val;
-            });
+            UI_Sinkhole_GroundwaterCapacity = (UISlider)sinkholeGroup.AddSlider(
+                LocalizationService.Get("settings.groundwater_capacity"), 1, 100, 1,
+                disasterContainer.Sinkhole.GroundwaterCapacity, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Sinkhole.GroundwaterCapacity = val;
+                });
             AddLabelToSlider(UI_Sinkhole_GroundwaterCapacity);
-            UI_Sinkhole_GroundwaterCapacity.tooltip = "Set how fast groundwater fills up during rain and causes a sinkhole to appear.";
+            UI_Sinkhole_GroundwaterCapacity.tooltip = LocalizationService.Get("settings.groundwater_capacity.tooltip");
 
             ComponentHelpers.AddDropDown(
                 ref UI_Sinkhole_EvacuationMode,
                 ref sinkholeGroup,
-                evacuationModeText,
+                EvacuationModeText,
                 DisasterSimulationUtils.GetAllEvacuationOptions(true),
                 ref disasterContainer.Sinkhole.EvacuationMode,
-                delegate (int selection)
+                delegate(int selection)
                 {
                     if (!freezeUI)
                         disasterContainer.Sinkhole.EvacuationMode = (EvacuationOptions)selection;
                 });
 
             helper.AddSpace(20);
-
         }
 
-        void SetupTornado(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        private void SetupTornado(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            UIHelperBase tornadoGroup = helper.AddGroup("Tornado disaster");
+            var tornadoGroup =
+                helper.AddGroup(LocalizationService.GetDisasterName(disasterContainer.Tornado.GetDisasterType()));
 
-            UI_Tornado_MaxProbability = (UISlider)tornadoGroup.AddSlider("Max probability", 0.1f, 10f, 0.1f, disasterContainer.Tornado.BaseOccurrencePerYear, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Tornado.BaseOccurrencePerYear = val;
-            });
-            AddLabelToSlider(UI_Tornado_MaxProbability, " times per year");
-            UI_Tornado_MaxProbability.tooltip = "Occurrence (per year) in Tornado season";
+            UI_Tornado_MaxProbability = (UISlider)tornadoGroup.AddSlider(
+                LocalizationService.Get("settings.max_probability"), 0.1f, 10f, 0.1f,
+                disasterContainer.Tornado.BaseOccurrencePerYear, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Tornado.BaseOccurrencePerYear = val;
+                });
+            AddLabelToSlider(UI_Tornado_MaxProbability, LocalizationService.Get("settings.times_per_year"));
+            UI_Tornado_MaxProbability.tooltip = LocalizationService.Get("settings.tornado.max_probability.tooltip");
 
-            UI_Tornado_MaxProbabilityMonth = (UIDropDown)tornadoGroup.AddDropdown("Tornado season peak",
+            UI_Tornado_MaxProbabilityMonth = (UIDropDown)tornadoGroup.AddDropdown(
+                LocalizationService.Get("settings.season_peak.tornado"),
                 DisasterSimulationUtils.GetMonths(),
                 disasterContainer.Tornado.MaxProbabilityMonth - 1,
-                delegate (int selection)
+                delegate(int selection)
                 {
                     if (!freezeUI)
                         disasterContainer.Tornado.MaxProbabilityMonth = selection + 1;
                 });
 
-            UI_Tornado_NoDuringFog = (UICheckBox)tornadoGroup.AddCheckbox("No Tornado during fog", disasterContainer.Tornado.NoTornadoDuringFog, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.Tornado.NoTornadoDuringFog = isChecked;
-            });
-            UI_Tornado_NoDuringFog.tooltip = "Tornado does not occur during foggy weather";
+            UI_Tornado_NoDuringFog = (UICheckBox)tornadoGroup.AddCheckbox(
+                LocalizationService.Get("settings.no_tornado_fog"), disasterContainer.Tornado.NoTornadoDuringFog,
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Tornado.NoTornadoDuringFog = isChecked;
+                });
+            UI_Tornado_NoDuringFog.tooltip = LocalizationService.Get("settings.no_tornado_fog.tooltip");
 
-            UI_Tornado_EnableDestruction = (UICheckBox)tornadoGroup.AddCheckbox("Enable tornado destruction", disasterContainer.Tornado.EnableTornadoDestruction, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.Tornado.EnableTornadoDestruction = isChecked;
+            UI_Tornado_EnableDestruction = (UICheckBox)tornadoGroup.AddCheckbox(
+                LocalizationService.Get("settings.enable_tornado_destruction"),
+                disasterContainer.Tornado.EnableTornadoDestruction, delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Tornado.EnableTornadoDestruction = isChecked;
 
-                UI_Tornado_IntensityDestructionStart.enabled = isChecked;
-            });
+                    UI_Tornado_IntensityDestructionStart.enabled = isChecked;
+                });
 
-            UI_Tornado_IntensityDestructionStart = (UISlider)tornadoGroup.AddSlider("Minimal intensity for tornado destruction:", 0.1f, 25.5f, 0.1f, disasterContainer.Tornado.MinimalIntensityForDestruction, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Tornado.MinimalIntensityForDestruction = (byte)val;
-            });
-            AddLabelToSlider(UI_Tornado_IntensityDestructionStart, " Intensity to start destruction");
+            UI_Tornado_IntensityDestructionStart = (UISlider)tornadoGroup.AddSlider(
+                LocalizationService.Get("settings.min_tornado_destruction"), 0.1f, 25.5f, 0.1f,
+                disasterContainer.Tornado.MinimalIntensityForDestruction, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Tornado.MinimalIntensityForDestruction = (byte)val;
+                });
+            AddLabelToSlider(UI_Tornado_IntensityDestructionStart,
+                LocalizationService.Get("settings.min_tornado_destruction.suffix"));
 
             tornadoGroup.AddSpace(10);
 
             ComponentHelpers.AddDropDown(
                 ref UI_Tornado_EvacuationMode,
                 ref tornadoGroup,
-                evacuationModeText,
+                EvacuationModeText,
                 DisasterSimulationUtils.GetAllEvacuationOptions(true),
-                ref disasterContainer.Tornado.EvacuationMode, delegate (int selection)
+                ref disasterContainer.Tornado.EvacuationMode, delegate(int selection)
                 {
                     if (!freezeUI)
                         disasterContainer.Tornado.EvacuationMode = (EvacuationOptions)selection;
@@ -515,146 +671,169 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpace(20);
         }
 
-        void SetupTsunami(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        private void SetupTsunami(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            UIHelperBase tsunamiGroup = helper.AddGroup("Tsunami disaster");
+            var tsunamiGroup =
+                helper.AddGroup(LocalizationService.GetDisasterName(disasterContainer.Tsunami.GetDisasterType()));
 
-            UI_Tsunami_MaxProbability = (UISlider)tsunamiGroup.AddSlider("Max probability", 0.1f, 10, 0.1f, disasterContainer.Tsunami.BaseOccurrencePerYear, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Tsunami.BaseOccurrencePerYear = val;
-            });
-            AddLabelToSlider(UI_Tsunami_MaxProbability, " times per year");
-            UI_Tsunami_MaxProbability.tooltip = "Maximum occurrence (per year) after a long period without tsunamis";
+            UI_Tsunami_MaxProbability = (UISlider)tsunamiGroup.AddSlider(
+                LocalizationService.Get("settings.max_probability"), 0.1f, 10, 0.1f,
+                disasterContainer.Tsunami.BaseOccurrencePerYear, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Tsunami.BaseOccurrencePerYear = val;
+                });
+            AddLabelToSlider(UI_Tsunami_MaxProbability, LocalizationService.Get("settings.times_per_year"));
+            UI_Tsunami_MaxProbability.tooltip = LocalizationService.Get("settings.tsunami.max_probability.tooltip");
 
-            UI_Tsunami_WarmupYears = (UISlider)tsunamiGroup.AddSlider("Charge period", 0, 20, 0.5f, disasterContainer.Tsunami.WarmupYears, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Tsunami.WarmupYears = val;
-            });
-            AddLabelToSlider(UI_Tsunami_WarmupYears, " years");
-            UI_Tsunami_WarmupYears.tooltip = "The probability of tsunami increases to the maximum during this period";
+            UI_Tsunami_WarmupYears = (UISlider)tsunamiGroup.AddSlider(LocalizationService.Get("settings.charge_period"),
+                0, 20, 0.5f, disasterContainer.Tsunami.WarmupYears, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Tsunami.WarmupYears = val;
+                });
+            AddLabelToSlider(UI_Tsunami_WarmupYears, LocalizationService.Get("settings.charge_period.years"));
+            UI_Tsunami_WarmupYears.tooltip = LocalizationService.Get("settings.tsunami.warmup.tooltip");
 
             ComponentHelpers.AddDropDown(
                 ref UI_Tsunami_EvacuationMode,
                 ref tsunamiGroup,
-                evacuationModeText,
+                EvacuationModeText,
                 DisasterSimulationUtils.GetAllEvacuationOptions(),
-                ref disasterContainer.Tsunami.EvacuationMode, delegate (int selection)
+                ref disasterContainer.Tsunami.EvacuationMode, delegate(int selection)
                 {
                     if (!freezeUI)
                         disasterContainer.Tsunami.EvacuationMode = (EvacuationOptions)selection;
                 }
-           );
+            );
 
             helper.AddSpace(20);
-
         }
 
-        void SetupEarthquake(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        private void SetupEarthquake(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            UIHelperBase earthquakeGroup = helper.AddGroup("Earthquake disaster");
+            var earthquakeGroup =
+                helper.AddGroup(LocalizationService.GetDisasterName(disasterContainer.Earthquake.GetDisasterType()));
 
-            UI_Earthquake_MaxProbability = (UISlider)earthquakeGroup.AddSlider("Max probability", 0.1f, 10, 0.1f, disasterContainer.Earthquake.BaseOccurrencePerYear, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Earthquake.BaseOccurrencePerYear = val;
-            });
-            AddLabelToSlider(UI_Earthquake_MaxProbability, " times per year");
-            UI_Earthquake_MaxProbability.tooltip = "Maximum occurrence (per year) after a long period without earthquakes";
+            UI_Earthquake_MaxProbability = (UISlider)earthquakeGroup.AddSlider(
+                LocalizationService.Get("settings.max_probability"), 0.1f, 10, 0.1f,
+                disasterContainer.Earthquake.BaseOccurrencePerYear, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Earthquake.BaseOccurrencePerYear = val;
+                });
+            AddLabelToSlider(UI_Earthquake_MaxProbability, LocalizationService.Get("settings.times_per_year"));
+            UI_Earthquake_MaxProbability.tooltip =
+                LocalizationService.Get("settings.earthquake.max_probability.tooltip");
 
-            UI_Earthquake_WarmupYears = (UISlider)earthquakeGroup.AddSlider("Charge period", 0, 20, 0.5f, disasterContainer.Earthquake.WarmupYears, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Earthquake.WarmupYears = val;
-            });
-            AddLabelToSlider(UI_Earthquake_WarmupYears, " years");
-            UI_Earthquake_WarmupYears.tooltip = "The probability of earthquake increases to the maximum during this period";
+            UI_Earthquake_WarmupYears = (UISlider)earthquakeGroup.AddSlider(
+                LocalizationService.Get("settings.charge_period"), 0, 20, 0.5f,
+                disasterContainer.Earthquake.WarmupYears, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Earthquake.WarmupYears = val;
+                });
+            AddLabelToSlider(UI_Earthquake_WarmupYears, LocalizationService.Get("settings.charge_period.years"));
+            UI_Earthquake_WarmupYears.tooltip = LocalizationService.Get("settings.earthquake.warmup.tooltip");
 
-            UI_Earthquake_AftershocksEnabled = (UICheckBox)earthquakeGroup.AddCheckbox("Enable aftershocks", disasterContainer.Earthquake.AftershocksEnabled, delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.Earthquake.AftershocksEnabled = isChecked;
-            });
-            UI_Earthquake_AftershocksEnabled.tooltip = "Several aftershocks may occur after a big earthquake. Aftershocks strike the same place.";
+            UI_Earthquake_AftershocksEnabled = (UICheckBox)earthquakeGroup.AddCheckbox(
+                LocalizationService.Get("settings.enable_aftershocks"), disasterContainer.Earthquake.AftershocksEnabled,
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Earthquake.AftershocksEnabled = isChecked;
+                });
+            UI_Earthquake_AftershocksEnabled.tooltip = LocalizationService.Get("settings.enable_aftershocks.tooltip");
 
             ComponentHelpers.AddDropDown(
-                 ref UI_Earthquake_CrackMode,
-                 ref earthquakeGroup,
-                 "Cracks in the ground:",
-                 DisasterSimulationUtils.GetCrackModes(),
-                 ref disasterContainer.Earthquake.EarthquakeCrackMode,
-                 delegate (int selection)
-                 {
-                     if (!freezeUI)
-                         disasterContainer.Earthquake.EarthquakeCrackMode = (EarthquakeCrackOptions)selection;
-                 }
-             );
-            UI_Earthquake_CrackMode.tooltip = "Based on selection you can put a crack in the ground, ignoring it or put it based on intensity.";
+                ref UI_Earthquake_CrackMode,
+                ref earthquakeGroup,
+                LocalizationService.Get("settings.ground_cracks"),
+                DisasterSimulationUtils.GetCrackModes(),
+                ref disasterContainer.Earthquake.EarthquakeCrackMode,
+                delegate(int selection)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Earthquake.EarthquakeCrackMode = (EarthquakeCrackOptions)selection;
+                }
+            );
+            UI_Earthquake_CrackMode.tooltip = LocalizationService.Get("settings.ground_cracks.tooltip");
 
-            UI_Earthquake_MinIntensityToCrack = (UISlider)earthquakeGroup.AddSlider("Min. intensity for cracks", 10f, 25.5f, 0.1f, disasterContainer.Earthquake.MinimalIntensityForCracks, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.Earthquake.MinimalIntensityForCracks = (byte)val;
-            });
-            AddLabelToSlider(UI_Earthquake_MinIntensityToCrack, " minimal Intensity");
-            UI_Earthquake_MinIntensityToCrack.tooltip = "Minimal intensity to see cracks on the ground";
+            UI_Earthquake_MinIntensityToCrack = (UISlider)earthquakeGroup.AddSlider(
+                LocalizationService.Get("settings.min_intensity_cracks"), 10f, 25.5f, 0.1f,
+                disasterContainer.Earthquake.MinimalIntensityForCracks, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Earthquake.MinimalIntensityForCracks = (byte)val;
+                });
+            AddLabelToSlider(UI_Earthquake_MinIntensityToCrack,
+                LocalizationService.Get("settings.min_intensity_cracks.suffix"));
+            UI_Earthquake_MinIntensityToCrack.tooltip =
+                LocalizationService.Get("settings.min_intensity_cracks.tooltip");
             earthquakeGroup.AddSpace(15);
 
             ComponentHelpers.AddDropDown(
-                 ref UI_Earthquake_EvacuationMode,
-                 ref earthquakeGroup,
-                 evacuationModeText,
-                 DisasterSimulationUtils.GetAllEvacuationOptions(),
-                 ref disasterContainer.Earthquake.EvacuationMode,
-                 delegate (int selection)
-                 {
-                     if (!freezeUI)
-                         disasterContainer.Earthquake.EvacuationMode = (EvacuationOptions)selection;
-                 }
-             );
+                ref UI_Earthquake_EvacuationMode,
+                ref earthquakeGroup,
+                EvacuationModeText,
+                DisasterSimulationUtils.GetAllEvacuationOptions(),
+                ref disasterContainer.Earthquake.EvacuationMode,
+                delegate(int selection)
+                {
+                    if (!freezeUI)
+                        disasterContainer.Earthquake.EvacuationMode = (EvacuationOptions)selection;
+                }
+            );
 
             helper.AddSpace(20);
-
         }
 
-        void SetupMeteorStrike(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        private void SetupMeteorStrike(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            UIHelperBase meteorStrikeGroup = helper.AddGroup("Meteor Strike disaster");
+            var meteorStrikeGroup =
+                helper.AddGroup(LocalizationService.GetDisasterName(disasterContainer.MeteorStrike.GetDisasterType()));
 
-            UI_MeteorStrike_MaxProbability = (UISlider)meteorStrikeGroup.AddSlider("Max probability", 1f, 50, 1f, disasterContainer.MeteorStrike.BaseOccurrencePerYear, delegate (float val)
-            {
-                if (!freezeUI)
-                    disasterContainer.MeteorStrike.BaseOccurrencePerYear = val;
-            });
-            AddLabelToSlider(UI_MeteorStrike_MaxProbability, " times per year");
-            UI_MeteorStrike_MaxProbability.tooltip = "Maximum occurrence of meteor strike per year per one meteor when it approaches the Earth";
+            UI_MeteorStrike_MaxProbability = (UISlider)meteorStrikeGroup.AddSlider(
+                LocalizationService.Get("settings.max_probability"), 1f, 50, 1f,
+                disasterContainer.MeteorStrike.BaseOccurrencePerYear, delegate(float val)
+                {
+                    if (!freezeUI)
+                        disasterContainer.MeteorStrike.BaseOccurrencePerYear = val;
+                });
+            AddLabelToSlider(UI_MeteorStrike_MaxProbability, LocalizationService.Get("settings.times_per_year"));
+            UI_MeteorStrike_MaxProbability.tooltip = LocalizationService.Get("settings.meteor.max_probability.tooltip");
 
-            UI_MeteorStrike_MeteorLongPeriodEnabled = (UICheckBox)meteorStrikeGroup.AddCheckbox("Enable long period (9 years) meteor", disasterContainer.MeteorStrike.GetEnabled(0), delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.MeteorStrike.SetEnabled(0, isChecked);
-            });
+            UI_MeteorStrike_MeteorLongPeriodEnabled = (UICheckBox)meteorStrikeGroup.AddCheckbox(
+                LocalizationService.Get("settings.enable_long_meteor"), disasterContainer.MeteorStrike.GetEnabled(0),
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.MeteorStrike.SetEnabled(0, isChecked);
+                });
 
-            UI_MeteorStrike_MeteorMediumPeriodEnabled = (UICheckBox)meteorStrikeGroup.AddCheckbox("Enable medium period (5 years) meteor", disasterContainer.MeteorStrike.GetEnabled(1), delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.MeteorStrike.SetEnabled(1, isChecked);
-            });
+            UI_MeteorStrike_MeteorMediumPeriodEnabled = (UICheckBox)meteorStrikeGroup.AddCheckbox(
+                LocalizationService.Get("settings.enable_medium_meteor"), disasterContainer.MeteorStrike.GetEnabled(1),
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.MeteorStrike.SetEnabled(1, isChecked);
+                });
 
-            UI_MeteorStrike_MeteorShortPeriodEnabled = (UICheckBox)meteorStrikeGroup.AddCheckbox("Enable short period (2 years) meteor", disasterContainer.MeteorStrike.GetEnabled(2), delegate (bool isChecked)
-            {
-                if (!freezeUI)
-                    disasterContainer.MeteorStrike.SetEnabled(2, isChecked);
-            });
+            UI_MeteorStrike_MeteorShortPeriodEnabled = (UICheckBox)meteorStrikeGroup.AddCheckbox(
+                LocalizationService.Get("settings.enable_short_meteor"), disasterContainer.MeteorStrike.GetEnabled(2),
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.MeteorStrike.SetEnabled(2, isChecked);
+                });
 
             ComponentHelpers.AddDropDown(
                 ref UI_MeteorStrike_EvacuationMode,
                 ref meteorStrikeGroup,
-                evacuationModeText,
+                EvacuationModeText,
                 DisasterSimulationUtils.GetAllEvacuationOptions(true),
                 ref disasterContainer.MeteorStrike.EvacuationMode,
-                delegate (int selection)
+                delegate(int selection)
                 {
                     if (!freezeUI)
                         disasterContainer.MeteorStrike.EvacuationMode = (EvacuationOptions)selection;
@@ -662,30 +841,26 @@ namespace NaturalDisastersRenewal.UI
             );
 
             helper.AddSpace(20);
-
         }
 
         //Next enhancement
-        void SetupHotkeySetup(ref UIHelper helper, DisasterSetupModel disasterContainer) {
-
-            
+        private void SetupHotkeySetup(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        {
         }
 
-        void SetupSaveOptions(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        private void SetupSaveOptions(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
             // Save buttons
-            UIHelperBase saveOptionsGroup = helper.AddGroup("Save options");
+            var saveOptionsGroup = helper.AddGroup(LocalizationService.Get("settings.save_options"));
 
-            saveOptionsGroup.AddButton("Save as default for new games", delegate ()
-            {
-                Services.DisasterSetup.Save();
-            });
-            saveOptionsGroup.AddButton("Reset to the last saved values", delegate ()
+            saveOptionsGroup.AddButton(LocalizationService.Get("settings.save_default"),
+                delegate { Services.DisasterSetup.Save(); });
+            saveOptionsGroup.AddButton(LocalizationService.Get("settings.reset_saved"), delegate
             {
                 Services.DisasterHandler.ReadValuesFromFile();
                 UpdateSetupContentUI();
             });
-            saveOptionsGroup.AddButton("Reset to the mod default values", delegate ()
+            saveOptionsGroup.AddButton(LocalizationService.Get("settings.reset_defaults"), delegate
             {
                 Services.DisasterHandler.ResetToDefaultValues();
                 UpdateSetupContentUI();

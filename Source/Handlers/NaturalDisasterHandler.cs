@@ -88,6 +88,7 @@ namespace NaturalDisastersRenewal.Handlers
                 container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
                 container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;
                 container.ShowDisasterPanelButton = fromContainer.ShowDisasterPanelButton;
+                container.Language = fromContainer.Language;
             }
         }
 
@@ -345,12 +346,12 @@ namespace NaturalDisastersRenewal.Handlers
             toggleButton.width = 38f;
             toggleButton.height = 38f;
             toggleButton.absolutePosition = new Vector3(90, 62);
-            toggleButton.tooltip = "Extended Disasters (drag by right-click)";
+            toggleButton.tooltip = LocalizationService.Get("panel.toggle_button.tooltip");
             toggleButton.isVisible = container.ShowDisasterPanelButton;
             toggleButton.eventClick += ToggleButton_eventClick;
             toggleButton.eventMouseMove += ToggleButton_eventMouseMove;
 
-            dPanel.tooltip = "Drag by right-click to set the panel position.";
+            dPanel.tooltip = LocalizationService.Get("panel.drag_panel.tooltip");
             dPanel.eventMouseMove += DPanel_eventMouseMove;
 
             UpdateDisastersPanelToggleBtn();
@@ -390,6 +391,20 @@ namespace NaturalDisastersRenewal.Handlers
                 {
                     dPanel.absolutePosition = container.DPanelPos;
                 }
+            }
+        }
+
+        public void RefreshLocalizedUI()
+        {
+            if (toggleButton != null)
+            {
+                toggleButton.tooltip = LocalizationService.Get("panel.toggle_button.tooltip");
+            }
+
+            if (dPanel != null)
+            {
+                dPanel.tooltip = LocalizationService.Get("panel.drag_panel.tooltip");
+                dPanel.RebuildLocalizedContent();
             }
         }
 

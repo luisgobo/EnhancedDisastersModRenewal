@@ -6,17 +6,11 @@ namespace NaturalDisastersRenewal
 {
     public class Mod : IUserMod
     {
-        readonly SettingsScreen settings = new SettingsScreen();
+        private readonly SettingsScreen settings = new SettingsScreen();
 
-        public string Name
-        {
-            get { return CommonProperties.modName; }
-        }
+        public string Name => CommonProperties.modName;
 
-        public string Description
-        {
-            get { return CommonProperties.GetModDescription(); }
-        }
+        public string Description => CommonProperties.GetModDescription();
 
         public void OnSettingsUI(UIHelper helper)
         {
@@ -26,6 +20,11 @@ namespace NaturalDisastersRenewal
         public void EnhancedDisastersOptionsUpdateUI()
         {
             settings.UpdateSetupContentUI();
+        }
+
+        public void EnhancedDisastersOptionsRebuildUI()
+        {
+            settings.RebuildSettingsMenu();
         }
     }
 }

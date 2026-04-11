@@ -50,7 +50,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 if (NoTornadoDuringFog && Services.Weather.m_currentFog > 0)
                 {
-                    return "No " + GetName() + " during fog.";
+                    return LocalizationService.Format("tooltip.tornado.no_during_fog", GetName());
                 }
             }
 
@@ -92,7 +92,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.tornadoName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
         public override float CalculateDestructionRadio(byte intensity)

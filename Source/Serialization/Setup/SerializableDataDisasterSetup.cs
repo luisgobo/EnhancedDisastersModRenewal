@@ -2,6 +2,7 @@ using ColossalFramework;
 using NaturalDisastersRenewal.Common;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Setup;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             dataSerializer.WriteBool(disasterSetupmodel.PauseOnDisasterStarts);
             dataSerializer.WriteFloat(disasterSetupmodel.PartialEvacuationRadius);
             dataSerializer.WriteFloat(disasterSetupmodel.MaxPopulationToTrigguerHigherDisasters);
+            dataSerializer.WriteInt32((int)disasterSetupmodel.Language);
 
             dataSerializer.WriteFloat(disasterSetupmodel.ToggleButtonPos.x);
             dataSerializer.WriteFloat(disasterSetupmodel.ToggleButtonPos.y);
@@ -41,6 +43,15 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             disasterSetupmodel.PauseOnDisasterStarts = dataSerializer.ReadBool();
             disasterSetupmodel.PartialEvacuationRadius = dataSerializer.ReadFloat();
             disasterSetupmodel.MaxPopulationToTrigguerHigherDisasters = dataSerializer.ReadFloat();
+
+            if (dataSerializer.version >= 4)
+            {
+                disasterSetupmodel.Language = (ModLanguage)dataSerializer.ReadInt32();
+            }
+            else
+            {
+                disasterSetupmodel.Language = ModLanguage.English;
+            }
 
             if (dataSerializer.version >= 1)
             {

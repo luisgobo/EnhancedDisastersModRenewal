@@ -34,14 +34,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (!unlocked)
             {
-                return "Not unlocked yet (occurs only outside of your area).";
+                return LocalizationService.Get("tooltip.thunderstorm.outside_area");
             }
 
             if (calmDaysLeft <= 0)
             {
                 if (Services.Weather.m_currentRain > 0 && RainFactor > 1)
                 {
-                    return "Increased because of rain.";
+                    return LocalizationService.Get("tooltip.thunderstorm.rain_increase");
                 }
             }
 
@@ -100,7 +100,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetName()
         {
-            return CommonProperties.thunderstormName;
+            return LocalizationService.GetDisasterName(DType);
         }
 
         public override void CopySettings(DisasterBaseModel disaster)
