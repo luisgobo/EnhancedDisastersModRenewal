@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ColossalFramework.UI;
@@ -101,6 +102,8 @@ namespace NaturalDisastersRenewal.UI
 
         private bool hotkeyCaptureHandlerRegistered;
         private bool isCapturingHotkey;
+        private UIButton[] settingsSectionButtons;
+        private UIPanel[] settingsSectionPages;
 
         public static void UpdateUISettingsOptions()
         {
@@ -218,6 +221,9 @@ namespace NaturalDisastersRenewal.UI
 
             var titleLabel = (uISlider.parent as UIPanel).Find<UILabel>("Label");
             titleLabel.anchor = UIAnchorStyle.None;
+            titleLabel.wordWrap = false;
+            titleLabel.autoHeight = false;
+            titleLabel.autoSize = true;
             titleLabel.position = new Vector3(titleLabel.position.x, titleLabel.position.y + 3);
 
             uISlider.eventValueChanged += delegate { label.text = uISlider.value + postfix; };
@@ -251,17 +257,262 @@ namespace NaturalDisastersRenewal.UI
         private void BuildSettingsContent(UIHelper helper)
         {
             var disasterContainer = Services.DisasterSetup;
+            var settingsRoot = helper.self as UIComponent;
+            if (settingsRoot == null)
+                return;
 
-            SetupGeneralTab(ref helper, disasterContainer);
-            SetupForestFire(ref helper, disasterContainer);
-            SetupThunderstorm(ref helper, disasterContainer);
-            SetupSinkhole(ref helper, disasterContainer);
-            SetupTornado(ref helper, disasterContainer);
-            SetupTsunami(ref helper, disasterContainer);
-            SetupEarthquake(ref helper, disasterContainer);
-            SetupMeteorStrike(ref helper, disasterContainer);
-            SetupHotkeySetup(ref helper, disasterContainer);
-            SetupSaveOptions(ref helper, disasterContainer);
+            const float navigationWidth = 190f;
+            const float footerHeight = 154f;
+            const float panelGap = 10f;
+
+            var availableWidth = settingsRoot.width > 0f ? settingsRoot.width : 980f;
+            var availableHeight = settingsRoot.height > 0f ? settingsRoot.height : 720f;
+            var contentHeight = Mathf.Max(240f, availableHeight - footerHeight - panelGap);
+            var contentWidth = Mathf.Max(320f, availableWidth - navigationWidth - panelGap);
+
+            var settingsCanvas = settingsRoot.AddUIComponent<UIPanel>();
+            settingsCanvas.name = "SettingsCanvas";
+            settingsCanvas.relativePosition = Vector3.zero;
+            settingsCanvas.size = new Vector2(availableWidth, availableHeight);
+            settingsCanvas.autoLayout = false;
+            settingsCanvas.clipChildren = false;
+
+            var navigationPanel = settingsCanvas.AddUIComponent<UIPanel>();
+            navigationPanel.name = "SettingsNavigationPanel";
+            navigationPanel.relativePosition = Vector3.zero;
+            navigationPanel.size = new Vector2(navigationWidth, contentHeight);
+            navigationPanel.backgroundSprite = "SubcategoriesPanel";
+            navigationPanel.autoLayout = false;
+
+            var contentHostPanel = settingsCanvas.AddUIComponent<UIPanel>();
+            contentHostPanel.name = "SettingsContentHostPanel";
+            contentHostPanel.relativePosition = new Vector3(navigationWidth + panelGap, 0f);
+            contentHostPanel.size = new Vector2(contentWidth, contentHeight);
+            contentHostPanel.backgroundSprite = "SubcategoriesPanel";
+            contentHostPanel.autoLayout = false;
+
+            var footerPanel = settingsCanvas.AddUIComponent<UIPanel>();
+            footerPanel.name = "SettingsFooterPanel";
+            footerPanel.relativePosition = new Vector3(0f, contentHeight + panelGap);
+            footerPanel.size = new Vector2(availableWidth, footerHeight);
+            footerPanel.backgroundSprite = "SubcategoriesPanel";
+            footerPanel.autoLayout = false;
+
+            var sectionButtons = new List<UIButton>();
+            var sectionPages = new List<UIPanel>();
+            var buttonY = 10f;
+
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.Get("settings.general"), disasterContainer, SetupGeneralTab, sectionButtons,
+                sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.Get("settings.group.hotkey"), disasterContainer, SetupHotkeySetup, sectionButtons,
+                sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.ForestFire.GetDisasterType()), disasterContainer,
+                SetupForestFire, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.Thunderstorm.GetDisasterType()),
+                disasterContainer, SetupThunderstorm, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.Sinkhole.GetDisasterType()), disasterContainer,
+                SetupSinkhole, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.Tornado.GetDisasterType()), disasterContainer,
+                SetupTornado, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.Tsunami.GetDisasterType()), disasterContainer,
+                SetupTsunami, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.Earthquake.GetDisasterType()), disasterContainer,
+                SetupEarthquake, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.MeteorStrike.GetDisasterType()),
+                disasterContainer, SetupMeteorStrike, sectionButtons, sectionPages);
+
+            settingsSectionButtons = sectionButtons.ToArray();
+            settingsSectionPages = sectionPages.ToArray();
+
+            BuildSaveFooter(footerPanel);
+            SelectSettingsSection(0);
+        }
+
+        private delegate void SettingsSectionBuilder(ref UIHelper helper, DisasterSetupModel disasterContainer);
+
+        private void AddSettingsSection(
+            UIPanel navigationPanel,
+            UIPanel contentHostPanel,
+            ref float buttonY,
+            string sectionTitle,
+            DisasterSetupModel disasterContainer,
+            SettingsSectionBuilder builder,
+            List<UIButton> sectionButtons,
+            List<UIPanel> sectionPages)
+        {
+            var sectionIndex = sectionButtons.Count;
+
+            var button = CreateSectionButton(navigationPanel, sectionTitle, buttonY);
+            button.eventClick += delegate { SelectSettingsSection(sectionIndex); };
+            sectionButtons.Add(button);
+
+            var contentPage = contentHostPanel.AddUIComponent<UIPanel>();
+            contentPage.name = "SettingsSectionPage" + sectionIndex;
+            contentPage.relativePosition = Vector3.zero;
+            contentPage.size = contentHostPanel.size;
+            contentPage.isVisible = false;
+
+            var scrollablePanel = CreateScrollableSettingsPanel(contentPage);
+            var sectionHelper = new UIHelper(scrollablePanel);
+            builder(ref sectionHelper, disasterContainer);
+
+            sectionPages.Add(contentPage);
+            buttonY += 34f;
+        }
+
+        private static UIButton CreateSectionButton(UIPanel parentPanel, string text, float yPosition)
+        {
+            var button = parentPanel.AddUIComponent<UIButton>();
+            button.text = text;
+            button.relativePosition = new Vector3(8f, yPosition);
+            button.size = new Vector2(parentPanel.width - 16f, 30f);
+            button.normalBgSprite = "SubBarButtonBase";
+            button.disabledBgSprite = "SubBarButtonBaseFocused";
+            button.focusedBgSprite = "SubBarButtonBaseFocused";
+            button.hoveredBgSprite = "SubBarButtonBaseHovered";
+            button.pressedBgSprite = "SubBarButtonBasePressed";
+            button.textPadding = new RectOffset(10, 10, 8, 6);
+            button.textHorizontalAlignment = UIHorizontalAlignment.Left;
+            return button;
+        }
+
+        private static UIScrollablePanel CreateScrollableSettingsPanel(UIPanel parentPanel)
+        {
+            const float panelPadding = 8f;
+            const float scrollbarWidth = 12f;
+            const float scrollbarGap = 8f;
+
+            var scrollablePanel = parentPanel.AddUIComponent<UIScrollablePanel>();
+            var scrollbar = parentPanel.AddUIComponent<UIScrollbar>();
+            var track = scrollbar.AddUIComponent<UISlicedSprite>();
+            var thumb = track.AddUIComponent<UISlicedSprite>();
+
+            scrollablePanel.relativePosition = new Vector2(panelPadding, panelPadding);
+            scrollablePanel.size = new Vector2(
+                parentPanel.width - panelPadding * 2f - scrollbarWidth - scrollbarGap,
+                parentPanel.height - panelPadding * 2f);
+            scrollablePanel.clipChildren = true;
+            scrollablePanel.autoLayout = true;
+            scrollablePanel.autoLayoutStart = LayoutStart.TopLeft;
+            scrollablePanel.autoLayoutDirection = LayoutDirection.Vertical;
+            scrollablePanel.autoLayoutPadding = new RectOffset(0, 0, 0, 10);
+            scrollablePanel.wrapLayout = false;
+            scrollablePanel.scrollWheelAmount = 20;
+
+            scrollbar.orientation = UIOrientation.Vertical;
+            scrollbar.width = scrollbarWidth;
+            scrollbar.relativePosition = new Vector2(
+                parentPanel.width - panelPadding - scrollbarWidth,
+                panelPadding);
+            scrollbar.height = parentPanel.height - panelPadding * 2f;
+
+            track.spriteName = "ScrollbarTrack";
+            track.size = new Vector2(scrollbarWidth, scrollbar.height);
+            track.relativePosition = Vector2.zero;
+            scrollbar.trackObject = track;
+
+            thumb.spriteName = "ScrollbarThumb";
+            thumb.width = scrollbarWidth;
+            thumb.height = 48f;
+            scrollbar.thumbObject = thumb;
+
+            scrollablePanel.verticalScrollbar = scrollbar;
+            scrollablePanel.eventMouseWheel += delegate(UIComponent component, UIMouseEventParameter eventParam)
+            {
+                scrollablePanel.scrollPosition +=
+                    new Vector2(0f, -eventParam.wheelDelta * scrollablePanel.scrollWheelAmount);
+            };
+
+            return scrollablePanel;
+        }
+
+        private void BuildSaveFooter(UIPanel footerPanel)
+        {
+            const float sidePadding = 10f;
+            const float buttonTop = 30f;
+            const float buttonGap = 6f;
+            var buttonWidth = Mathf.Min(420f, Mathf.Max(240f, footerPanel.width - 120f));
+            var buttonX = Mathf.Max(sidePadding, (footerPanel.width - buttonWidth) * 0.5f);
+
+            var titleLabel = footerPanel.AddUIComponent<UILabel>();
+            titleLabel.text = LocalizationService.Get("settings.save_options");
+            titleLabel.textScale = 0.9f;
+            titleLabel.relativePosition = new Vector3(sidePadding, 10f);
+
+            CreateFooterButton(
+                footerPanel,
+                LocalizationService.Get("settings.save_default"),
+                new Vector3(buttonX, buttonTop),
+                buttonWidth,
+                24f,
+                delegate { Services.DisasterSetup.Save(); });
+
+            CreateFooterButton(
+                footerPanel,
+                LocalizationService.Get("settings.reset_saved"),
+                new Vector3(buttonX, buttonTop + 24f + buttonGap),
+                buttonWidth,
+                24f,
+                delegate
+                {
+                    Services.DisasterHandler.ReadValuesFromFile();
+                    UpdateSetupContentUI();
+                });
+
+            CreateFooterButton(
+                footerPanel,
+                LocalizationService.Get("settings.reset_defaults"),
+                new Vector3(buttonX, buttonTop + (24f + buttonGap) * 2f),
+                buttonWidth,
+                24f,
+                delegate
+                {
+                    Services.DisasterHandler.ResetToDefaultValues();
+                    UpdateSetupContentUI();
+                });
+        }
+
+        private static void CreateFooterButton(
+            UIPanel footerPanel,
+            string text,
+            Vector3 position,
+            float width,
+            float height,
+            MouseEventHandler clickHandler)
+        {
+            var button = footerPanel.AddUIComponent<UIButton>();
+            button.text = text;
+            button.relativePosition = position;
+            button.size = new Vector2(width, height);
+            button.normalBgSprite = "ButtonMenu";
+            button.disabledBgSprite = "ButtonMenu";
+            button.focusedBgSprite = "ButtonMenuFocused";
+            button.hoveredBgSprite = "ButtonMenuHovered";
+            button.pressedBgSprite = "ButtonMenuPressed";
+            button.textPadding = new RectOffset(8, 8, 4, 3);
+            button.eventClick += clickHandler;
+        }
+
+        private void SelectSettingsSection(int selectedIndex)
+        {
+            if (settingsSectionButtons == null || settingsSectionPages == null)
+                return;
+
+            for (var i = 0; i < settingsSectionButtons.Length; i++)
+            {
+                var isSelected = i == selectedIndex;
+                settingsSectionButtons[i].isEnabled = !isSelected;
+                settingsSectionPages[i].isVisible = isSelected;
+            }
         }
 
         private void EnsureHotkeyCaptureRegistered()
@@ -300,7 +551,7 @@ namespace NaturalDisastersRenewal.UI
             if (keyCode == KeyCode.None || keyCode == KeyCode.Escape)
                 return;
 
-            EventModifiers normalizedModifiers = HotkeyHelper.GetSupportedHotkeyModifiers(modifiers);
+            var normalizedModifiers = HotkeyHelper.GetSupportedHotkeyModifiers(modifiers);
             if (HotkeyHelper.CountHotkeyModifiers(normalizedModifiers) > 2)
                 return;
 
@@ -376,6 +627,8 @@ namespace NaturalDisastersRenewal.UI
             UI_MeteorStrike_MeteorMediumPeriodEnabled = null;
             UI_MeteorStrike_MeteorShortPeriodEnabled = null;
             UI_MeteorStrike_EvacuationMode = null;
+            settingsSectionButtons = null;
+            settingsSectionPages = null;
         }
 
         private void SetupGeneralTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
@@ -916,7 +1169,7 @@ namespace NaturalDisastersRenewal.UI
 
             if (hotkeyGroup is UIHelper hotkeyUiHelper && hotkeyUiHelper.self is UIPanel hotkeyPanel)
             {
-                UILabel hotkeyInfoLabel = hotkeyPanel.AddUIComponent<UILabel>();
+                var hotkeyInfoLabel = hotkeyPanel.AddUIComponent<UILabel>();
                 hotkeyInfoLabel.text = LocalizationService.Get("settings.hotkey.info");
                 hotkeyInfoLabel.textScale = 0.9f;
                 hotkeyInfoLabel.wordWrap = true;

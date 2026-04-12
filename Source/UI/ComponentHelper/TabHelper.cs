@@ -1,4 +1,4 @@
-﻿using ColossalFramework.UI;
+using ColossalFramework.UI;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.UI.ComponentHelper
@@ -38,15 +38,18 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             thumbSprite.spriteName = "ScrollbarThumb";
             verticalScrollbar.thumbObject = thumbSprite;
 
-            verticalScrollbar.eventValueChanged += (component, value) => {
+            verticalScrollbar.eventValueChanged += (component, value) =>
+            {
                 scrollablePanel.scrollPosition = new Vector2(0, value);
             };
 
-            panel.eventMouseWheel += (component, eventParam) => {
+            panel.eventMouseWheel += (component, eventParam) =>
+            {
                 verticalScrollbar.value -= (int)eventParam.wheelDelta * verticalScrollbar.incrementAmount;
             };
 
-            scrollablePanel.eventMouseWheel += (component, eventParam) => {
+            scrollablePanel.eventMouseWheel += (component, eventParam) =>
+            {
                 verticalScrollbar.value -= (int)eventParam.wheelDelta * verticalScrollbar.incrementAmount;
             };
 
@@ -66,7 +69,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             scrollablePanel.autoLayoutStart = LayoutStart.TopLeft;
             scrollablePanel.wrapLayout = true;
             scrollablePanel.size = new Vector2(panel.size.x - V_SCROLLBAR_WIDTH, panel.size.y);
-            scrollablePanel.autoLayoutDirection = LayoutDirection.Horizontal; //Vertical does not work but why?
+            scrollablePanel.autoLayoutDirection = LayoutDirection.Horizontal;
 
             UIScrollbar verticalScrollbar = CreateVerticalScrollbar(panel, scrollablePanel);
             verticalScrollbar.Show();
@@ -86,7 +89,6 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             tabButton.pressedBgSprite = "SubBarButtonBasePressed";
             tabButton.textPadding = new RectOffset(10, 10, 10, 6);
             tabButton.autoSize = true;
-            //tabButton.atlas = TextureUtil.Ingame;
 
             selectedIndex = tabCount - 1;
             UIPanel currentPanel = tabContainer.components[selectedIndex] as UIPanel;
@@ -103,6 +105,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                 currentPanel.autoLayoutDirection = LayoutDirection.Vertical;
                 panelHelper = new UIHelper(currentPanel);
             }
+
             return panelHelper;
         }
 
@@ -112,7 +115,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             float orgOptsContainerWidth = optionsContainer.height;
             float orgOptsContainerHeight = optionsContainer.width;
 
-            int paddingRight = 10; //Options container is Scrollable panel itself(reserves space for scroll - which we don't use)
+            int paddingRight = 10;
             optionsContainer.size = new Vector2(orgOptsContainerWidth + paddingRight, orgOptsContainerHeight);
 
             TabHelper tabStrip = optionsContainer.AddUIComponent<TabHelper>();
