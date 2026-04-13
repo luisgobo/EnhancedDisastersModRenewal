@@ -49,13 +49,13 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             var slider = (UISlider)group.AddSlider(description, min, max, step, value, eventCallback);
 
             slider.tooltip = tooltip;
-            ApplyDropdownStyle(slider);
+            ApplySliderStyle(slider);
             ConfigureValueLabel(slider, postfix);
 
             return slider;
         }
 
-        private static void ApplyDropdownStyle(UISlider slider)
+        private static void ApplySliderStyle(UISlider slider)
         {
             if (slider == null || slider.parent == null)
                 return;
