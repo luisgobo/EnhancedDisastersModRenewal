@@ -15,9 +15,11 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             UISlicedSprite track = scrollbar.AddUIComponent<UISlicedSprite>();
             UISlicedSprite thumb = track.AddUIComponent<UISlicedSprite>();
 
-            scrollablePanel.size = new Vector2(tabPanel.width - ContentLeftInset - ScrollbarWidth, tabPanel.height - 20f);
+            float scrollablePanelWidth = tabPanel.width - ContentLeftInset - ScrollbarWidth;
+            float scrollablePanelHeight = tabPanel.height - 40f;
+
+            scrollablePanel.size = new Vector2(scrollablePanelWidth, scrollablePanelHeight);
             scrollablePanel.relativePosition = new Vector2(ContentLeftInset, yPosition);
-            scrollablePanel.height = tabPanel.height - 40f;
             scrollablePanel.autoLayout = false;
             scrollablePanel.clipChildren = true;
             scrollablePanel.scrollWheelAmount = 20;
