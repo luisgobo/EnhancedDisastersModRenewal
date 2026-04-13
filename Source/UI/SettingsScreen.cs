@@ -264,9 +264,11 @@ namespace NaturalDisastersRenewal.UI
             const float navigationWidth = 190f;
             const float footerHeight = 154f;
             const float panelGap = 10f;
+            const float panelHeightGap = 15f;
+            const float panelWidthGap = 13f;
 
-            var availableWidth = settingsRoot.width > 0f ? settingsRoot.width : 980f;
-            var availableHeight = settingsRoot.height > 0f ? settingsRoot.height : 720f;
+            var availableWidth = settingsRoot.width > 0f ? settingsRoot.width - panelWidthGap : 980f;
+            var availableHeight = settingsRoot.height > 0f ? settingsRoot.height - panelHeightGap : 720f;
             var contentHeight = Mathf.Max(240f, availableHeight - footerHeight - panelGap);
             var contentWidth = Mathf.Max(320f, availableWidth - navigationWidth - panelGap);
 
@@ -276,6 +278,8 @@ namespace NaturalDisastersRenewal.UI
             settingsCanvas.size = new Vector2(availableWidth, availableHeight);
             settingsCanvas.autoLayout = false;
             settingsCanvas.clipChildren = false;
+            settingsCanvas.anchor = UIAnchorStyle.Top | UIAnchorStyle.Left;
+            settingsCanvas.isInteractive = false;
 
             var navigationPanel = settingsCanvas.AddUIComponent<UIPanel>();
             navigationPanel.name = "SettingsNavigationPanel";
@@ -438,30 +442,33 @@ namespace NaturalDisastersRenewal.UI
         private void BuildSaveFooter(UIPanel footerPanel)
         {
             const float sidePadding = 10f;
-            const float buttonTop = 30f;
-            const float buttonGap = 6f;
+            const float buttonTop = 40f;
+            const float buttonHeight = 28f;
+            const float buttonSpacing = 38f;
+
+
             var buttonWidth = Mathf.Min(420f, Mathf.Max(240f, footerPanel.width - 120f));
             var buttonX = Mathf.Max(sidePadding, (footerPanel.width - buttonWidth) * 0.5f);
 
             var titleLabel = footerPanel.AddUIComponent<UILabel>();
             titleLabel.text = LocalizationService.Get("settings.save_options");
             titleLabel.textScale = 0.9f;
-            titleLabel.relativePosition = new Vector3(sidePadding, 10f);
+            titleLabel.relativePosition = new Vector3(sidePadding, 15f);
 
             CreateFooterButton(
                 footerPanel,
                 LocalizationService.Get("settings.save_default"),
                 new Vector3(buttonX, buttonTop),
                 buttonWidth,
-                24f,
+                buttonHeight,
                 delegate { Services.DisasterSetup.Save(); });
 
             CreateFooterButton(
                 footerPanel,
                 LocalizationService.Get("settings.reset_saved"),
-                new Vector3(buttonX, buttonTop + 24f + buttonGap),
+                new Vector3(buttonX, buttonTop + buttonSpacing),
                 buttonWidth,
-                24f,
+                buttonHeight,
                 delegate
                 {
                     Services.DisasterHandler.ReadValuesFromFile();
@@ -471,9 +478,9 @@ namespace NaturalDisastersRenewal.UI
             CreateFooterButton(
                 footerPanel,
                 LocalizationService.Get("settings.reset_defaults"),
-                new Vector3(buttonX, buttonTop + (24f + buttonGap) * 2f),
+                new Vector3(buttonX, buttonTop + buttonSpacing * 2f),
                 buttonWidth,
-                24f,
+                buttonHeight,
                 delegate
                 {
                     Services.DisasterHandler.ResetToDefaultValues();
@@ -498,7 +505,9 @@ namespace NaturalDisastersRenewal.UI
             button.focusedBgSprite = "ButtonMenuFocused";
             button.hoveredBgSprite = "ButtonMenuHovered";
             button.pressedBgSprite = "ButtonMenuPressed";
-            button.textPadding = new RectOffset(8, 8, 4, 3);
+            button.textHorizontalAlignment = UIHorizontalAlignment.Center;
+            button.textVerticalAlignment = UIVerticalAlignment.Middle;
+            button.textPadding = new RectOffset(8, 8, 8, 0);
             button.eventClick += clickHandler;
         }
 
@@ -634,8 +643,7 @@ namespace NaturalDisastersRenewal.UI
         private void SetupGeneralTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
             var generalGroup = helper.AddGroup(LocalizationService.Get("settings.general"));
-
-
+            
             UI_General_Language = (UIDropDown)generalGroup.AddDropdown(LocalizationService.Get("settings.language"),
                 LocalizationService.GetLanguageDisplayNames(), (int)disasterContainer.Language, delegate(int selection)
                 {
@@ -735,11 +743,9 @@ namespace NaturalDisastersRenewal.UI
                 Services.DisasterHandler.ResetToDefaultValues(false, true);
                 UpdateSetupContentUI();
             });
-
-
+            
             generalGroup.AddSpace(10);
-
-            generalGroup.AddSpace(10);
+            
             var disastersGroup = generalGroup.AddGroup(LocalizationService.Get("settings.enable_disasters"));
 
             UI_ForestFire_Enabled = (UICheckBox)disastersGroup.AddCheckbox(disasterContainer.ForestFire.GetName(),
@@ -1184,24 +1190,24 @@ namespace NaturalDisastersRenewal.UI
             RefreshHotkeyButtonText();
         }
 
-        private void SetupSaveOptions(ref UIHelper helper, DisasterSetupModel disasterContainer)
-        {
-            // Save buttons
-            var saveOptionsGroup = helper.AddGroup(LocalizationService.Get("settings.save_options"));
-
-            saveOptionsGroup.AddButton(LocalizationService.Get("settings.save_default"),
-                delegate { Services.DisasterSetup.Save(); });
-            saveOptionsGroup.AddButton(LocalizationService.Get("settings.reset_saved"), delegate
-            {
-                Services.DisasterHandler.ReadValuesFromFile();
-                UpdateSetupContentUI();
-            });
-            saveOptionsGroup.AddButton(LocalizationService.Get("settings.reset_defaults"), delegate
-            {
-                Services.DisasterHandler.ResetToDefaultValues();
-                UpdateSetupContentUI();
-            });
-        }
+        // private void SetupSaveOptions(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        // {
+        //     // Save buttons
+        //     var saveOptionsGroup = helper.AddGroup(LocalizationService.Get("settings.save_options"));
+        //
+        //     saveOptionsGroup.AddButton(LocalizationService.Get("settings.save_default"),
+        //         delegate { Services.DisasterSetup.Save(); });
+        //     saveOptionsGroup.AddButton(LocalizationService.Get("settings.reset_saved"), delegate
+        //     {
+        //         Services.DisasterHandler.ReadValuesFromFile();
+        //         UpdateSetupContentUI();
+        //     });
+        //     saveOptionsGroup.AddButton(LocalizationService.Get("settings.reset_defaults"), delegate
+        //     {
+        //         Services.DisasterHandler.ResetToDefaultValues();
+        //         UpdateSetupContentUI();
+        //     });
+        // }
 
         #endregion Options UI
     }
