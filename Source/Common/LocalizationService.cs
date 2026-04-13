@@ -281,7 +281,7 @@ namespace NaturalDisastersRenewal.Common
                             "panel.controls.drag",
                             "Arrastra el boton o el panel con clic derecho para guardar su posicion."
                         },
-                        { "panel.controls.hotkey", "Usa Shift + D para mostrar u ocultar el panel." },
+                        { "panel.controls.hotkey", "Usa el atajo configurado para mostrar u ocultar el panel." },
                         { "panel.help.title", "Ayuda - Natural Disasters Renewal" },
                         {
                             "panel.help.content",
