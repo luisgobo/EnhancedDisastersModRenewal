@@ -21,7 +21,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             dataSerializer.WriteBool(disasterSetupmodel.DisableDisasterFocus);
             dataSerializer.WriteBool(disasterSetupmodel.PauseOnDisasterStarts);
             dataSerializer.WriteFloat(disasterSetupmodel.PartialEvacuationRadius);
-            dataSerializer.WriteFloat(disasterSetupmodel.MaxPopulationToTrigguerHigherDisasters);
+            dataSerializer.WriteFloat(disasterSetupmodel.MaxPopulationToTriggerHigherDisasters);
             dataSerializer.WriteInt32((int)disasterSetupmodel.Language);
 
             dataSerializer.WriteFloat(disasterSetupmodel.ToggleButtonPos.x);
@@ -29,6 +29,9 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
             dataSerializer.WriteFloat(disasterSetupmodel.DPanelPos.x);
             dataSerializer.WriteFloat(disasterSetupmodel.DPanelPos.y);
+
+            dataSerializer.WriteInt32((int)disasterSetupmodel.TogglePanelHotkey);
+            dataSerializer.WriteInt32((int)disasterSetupmodel.TogglePanelHotkeyModifiers);
         }
 
         public void Deserialize(DataSerializer dataSerializer)
@@ -42,7 +45,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             disasterSetupmodel.DisableDisasterFocus = dataSerializer.ReadBool();
             disasterSetupmodel.PauseOnDisasterStarts = dataSerializer.ReadBool();
             disasterSetupmodel.PartialEvacuationRadius = dataSerializer.ReadFloat();
-            disasterSetupmodel.MaxPopulationToTrigguerHigherDisasters = dataSerializer.ReadFloat();
+            disasterSetupmodel.MaxPopulationToTriggerHigherDisasters = dataSerializer.ReadFloat();
 
             if (dataSerializer.version >= 4)
             {
@@ -57,6 +60,13 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             {
                 disasterSetupmodel.ToggleButtonPos = new Vector3(dataSerializer.ReadFloat(), dataSerializer.ReadFloat());
                 disasterSetupmodel.DPanelPos = new Vector3(dataSerializer.ReadFloat(), dataSerializer.ReadFloat());
+            }
+
+            if (dataSerializer.version >= 5)
+            {
+                disasterSetupmodel.TogglePanelHotkey = (KeyCode)dataSerializer.ReadInt32();
+                disasterSetupmodel.TogglePanelHotkeyModifiers = HotkeyHelper.GetSupportedHotkeyModifiers(
+                    (EventModifiers)dataSerializer.ReadInt32());
             }
         }
 

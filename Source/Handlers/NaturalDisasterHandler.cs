@@ -19,6 +19,7 @@ namespace NaturalDisastersRenewal.Handlers
         public DisasterSetupModel container;
         ExtendedDisastersPanel dPanel;
         UIButton toggleButton;
+        bool keyHandlerRegistered;
         readonly Harmony harmony = new Harmony(CommonProperties.modNameForHarmony);
         DisasterWrapper disasterWrapper;
 
@@ -83,12 +84,16 @@ namespace NaturalDisastersRenewal.Handlers
                 container.DisableDisasterFocus = fromContainer.DisableDisasterFocus;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
                 container.PartialEvacuationRadius = fromContainer.PartialEvacuationRadius;
-                container.MaxPopulationToTrigguerHigherDisasters = fromContainer.MaxPopulationToTrigguerHigherDisasters;
+                container.MaxPopulationToTriggerHigherDisasters = fromContainer.MaxPopulationToTriggerHigherDisasters;
 
                 container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
                 container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;
                 container.ShowDisasterPanelButton = fromContainer.ShowDisasterPanelButton;
                 container.Language = fromContainer.Language;
+                container.TogglePanelHotkey = fromContainer.TogglePanelHotkey;
+                container.TogglePanelHotkeyModifiers = fromContainer.TogglePanelHotkeyModifiers;
+                container.ToggleButtonPos = fromContainer.ToggleButtonPos;
+                container.DPanelPos = fromContainer.DPanelPos;
             }
         }
 
@@ -357,7 +362,11 @@ namespace NaturalDisastersRenewal.Handlers
             UpdateDisastersPanelToggleBtn();
             UpdateDisastersDPanel();
 
-            UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
+            if (!keyHandlerRegistered)
+            {
+                UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
+                keyHandlerRegistered = true;
+            }
         }
 
         void ToggleDisasterPanel()
@@ -446,6 +455,9 @@ namespace NaturalDisastersRenewal.Handlers
 
         void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
+            if (SettingsScreen.IsCapturingHotkey)
+                return;
+
             //Hide Panel when main menu is triggered
             if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
             {
@@ -454,7 +466,8 @@ namespace NaturalDisastersRenewal.Handlers
             }
 
             //Show / Hide Panel hotkey
-            if (eventType == EventType.KeyDown && modifiers == EventModifiers.Shift && keyCode == KeyCode.D)
+            if (eventType == EventType.KeyDown &&
+                HotkeyHelper.MatchesHotkey(container.TogglePanelHotkey, container.TogglePanelHotkeyModifiers, keyCode, modifiers))
             {
                 ToggleDisasterPanel();
             }
