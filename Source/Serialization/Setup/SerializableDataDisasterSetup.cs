@@ -29,6 +29,9 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
             dataSerializer.WriteFloat(disasterSetupmodel.DPanelPos.x);
             dataSerializer.WriteFloat(disasterSetupmodel.DPanelPos.y);
+
+            dataSerializer.WriteInt32((int)disasterSetupmodel.TogglePanelHotkey);
+            dataSerializer.WriteInt32((int)disasterSetupmodel.TogglePanelHotkeyModifiers);
         }
 
         public void Deserialize(DataSerializer dataSerializer)
@@ -57,6 +60,13 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             {
                 disasterSetupmodel.ToggleButtonPos = new Vector3(dataSerializer.ReadFloat(), dataSerializer.ReadFloat());
                 disasterSetupmodel.DPanelPos = new Vector3(dataSerializer.ReadFloat(), dataSerializer.ReadFloat());
+            }
+
+            if (dataSerializer.version >= 5)
+            {
+                disasterSetupmodel.TogglePanelHotkey = (KeyCode)dataSerializer.ReadInt32();
+                disasterSetupmodel.TogglePanelHotkeyModifiers = HotkeyHelper.GetSupportedHotkeyModifiers(
+                    (EventModifiers)dataSerializer.ReadInt32());
             }
         }
 

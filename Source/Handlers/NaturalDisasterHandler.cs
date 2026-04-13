@@ -455,6 +455,9 @@ namespace NaturalDisastersRenewal.Handlers
 
         void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
+            if (SettingsScreen.IsCapturingHotkey)
+                return;
+
             //Hide Panel when main menu is triggered
             if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
             {

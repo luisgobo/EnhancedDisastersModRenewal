@@ -108,6 +108,8 @@ namespace NaturalDisastersRenewal.UI
 
         private const int nextCheckboxSpacing = 0;
 
+        public static bool IsCapturingHotkey { get; private set; }
+
         public static void UpdateUISettingsOptions()
         {
             foreach (var current in Services.Plugins.GetPluginsInfo())
@@ -523,9 +525,9 @@ namespace NaturalDisastersRenewal.UI
             if (HotkeyHelper.IsModifierKey(keyCode))
                 return;
 
-            if (keyCode == KeyCode.Escape && modifiers == EventModifiers.None)
+            if (keyCode == KeyCode.Escape)
             {
-                isCapturingHotkey = false;
+                SetHotkeyCaptureState(false);
                 RefreshHotkeyButtonText();
                 return;
             }
@@ -534,7 +536,7 @@ namespace NaturalDisastersRenewal.UI
             {
                 Services.DisasterSetup.TogglePanelHotkey = KeyCode.None;
                 Services.DisasterSetup.TogglePanelHotkeyModifiers = EventModifiers.None;
-                isCapturingHotkey = false;
+                SetHotkeyCaptureState(false);
                 RefreshHotkeyButtonText();
                 return;
             }
@@ -548,14 +550,20 @@ namespace NaturalDisastersRenewal.UI
 
             Services.DisasterSetup.TogglePanelHotkey = keyCode;
             Services.DisasterSetup.TogglePanelHotkeyModifiers = normalizedModifiers;
-            isCapturingHotkey = false;
+            SetHotkeyCaptureState(false);
             RefreshHotkeyButtonText();
         }
 
         private void BeginHotkeyCapture()
         {
-            isCapturingHotkey = true;
+            SetHotkeyCaptureState(true);
             RefreshHotkeyButtonText();
+        }
+
+        private void SetHotkeyCaptureState(bool isCapturing)
+        {
+            isCapturingHotkey = isCapturing;
+            IsCapturingHotkey = isCapturing;
         }
 
         private void RefreshHotkeyButtonText()
@@ -572,6 +580,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void ResetUIReferences()
         {
+            SetHotkeyCaptureState(false);
             UI_General_Language = null;
             UI_General_DisableDisasterFocus = null;
             UI_General_PauseOnDisasterStarts = null;
@@ -842,16 +851,6 @@ namespace NaturalDisastersRenewal.UI
                         disasterContainer.Thunderstorm.BaseOccurrencePerYear = val;
                 }, LocalizationService.Get("settings.times_per_year"),
                 LocalizationService.Get("settings.thunderstorm.max_probability.tooltip"));
-
-            // UI_Thunderstorm_MaxProbabilityMonth = (UIDropDown)thunderstormGroup.AddDropdown(
-            //     LocalizationService.Get("settings.season_peak.thunderstorm"),
-            //     DisasterSimulationUtils.GetMonths(),
-            //     disasterContainer.Thunderstorm.MaxProbabilityMonth - 1,
-            //     delegate(int selection)
-            //     {
-            //         if (!freezeUI)
-            //             disasterContainer.Thunderstorm.MaxProbabilityMonth = selection + 1;
-            //     });
 
             DropDownHelper.AddDropDown(
                 ref UI_Thunderstorm_MaxProbabilityMonth,

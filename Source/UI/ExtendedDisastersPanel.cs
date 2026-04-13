@@ -21,6 +21,7 @@ namespace NaturalDisastersRenewal.UI
         private const string HelpTutorialKey = "NDR_TUTORIAL_PANEL_HELP";
         private const float PanelWidth = 414f;
         private const float PanelHeight = 320f;
+        private const float ContentInset = 8f;
 
         public int Counter;
         private DisasterRowHelper[] _disasterRows;
@@ -128,8 +129,8 @@ namespace NaturalDisastersRenewal.UI
         private void BuildTabContainer()
         {
             UITabContainer tabContainer = AddUIComponent<UITabContainer>();
-            tabContainer.relativePosition = new Vector3(0f, 70f);
-            tabContainer.size = new Vector2(width, height - 50f);
+            tabContainer.relativePosition = new Vector3(ContentInset, 70f);
+            tabContainer.size = new Vector2(width - (ContentInset * 2f), height - 70f - ContentInset);
 
             UITabstrip tabStrip = AddUIComponent<UITabstrip>();
             tabStrip.relativePosition = new Vector3(0f, 40f);
