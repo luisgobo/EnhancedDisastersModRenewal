@@ -21,7 +21,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             dataSerializer.WriteBool(disasterSetupmodel.DisableDisasterFocus);
             dataSerializer.WriteBool(disasterSetupmodel.PauseOnDisasterStarts);
             dataSerializer.WriteFloat(disasterSetupmodel.PartialEvacuationRadius);
-            dataSerializer.WriteFloat(disasterSetupmodel.MaxPopulationToTrigguerHigherDisasters);
+            dataSerializer.WriteFloat(disasterSetupmodel.MaxPopulationToTriggerHigherDisasters);
             dataSerializer.WriteInt32((int)disasterSetupmodel.Language);
 
             dataSerializer.WriteFloat(disasterSetupmodel.ToggleButtonPos.x);
@@ -45,7 +45,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             disasterSetupmodel.DisableDisasterFocus = dataSerializer.ReadBool();
             disasterSetupmodel.PauseOnDisasterStarts = dataSerializer.ReadBool();
             disasterSetupmodel.PartialEvacuationRadius = dataSerializer.ReadFloat();
-            disasterSetupmodel.MaxPopulationToTrigguerHigherDisasters = dataSerializer.ReadFloat();
+            disasterSetupmodel.MaxPopulationToTriggerHigherDisasters = dataSerializer.ReadFloat();
 
             if (dataSerializer.version >= 4)
             {

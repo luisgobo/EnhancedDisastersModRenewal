@@ -258,7 +258,7 @@ namespace NaturalDisastersRenewal.UI
         {
             NumberFormatInfo nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
             nfi.NumberGroupSeparator = ",";
-            string formatted = ((int)Services.DisasterHandler.container.MaxPopulationToTrigguerHigherDisasters).ToString("#,0", nfi);
+            string formatted = ((int)Services.DisasterHandler.container.MaxPopulationToTriggerHigherDisasters).ToString("#,0", nfi);
             _populationLabel.text = LocalizationService.Format("panel.population_threshold.value", formatted);
             _populationLabel.tooltip = LocalizationService.Get("panel.population_threshold");
         }

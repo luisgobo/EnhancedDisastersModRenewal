@@ -154,7 +154,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 result = LocalizationService.Format("tooltip.recently_occurred", GetName());
 
             var naturalDisasterSetup = Services.DisasterSetup;
-            if (DisasterSimulationUtils.GetPopulation() < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
+            if (DisasterSimulationUtils.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
             {
                 if (result != "") result += CommonProperties.newLine;
                 result += LocalizationService.Get("tooltip.low_population");
@@ -229,9 +229,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 var population = DisasterSimulationUtils.GetPopulation();
                 var naturalDisasterSetup = Services.DisasterSetup;
-                if (population < naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters)
+                if (population < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
                     intensity = (byte)(indexReferenceDisasterValue + (intensity - indexReferenceDisasterValue) *
-                        population / naturalDisasterSetup.MaxPopulationToTrigguerHigherDisasters);
+                        population / naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters);
             }
 
             return intensity;

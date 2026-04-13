@@ -84,7 +84,7 @@ namespace NaturalDisastersRenewal.Handlers
                 container.DisableDisasterFocus = fromContainer.DisableDisasterFocus;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
                 container.PartialEvacuationRadius = fromContainer.PartialEvacuationRadius;
-                container.MaxPopulationToTrigguerHigherDisasters = fromContainer.MaxPopulationToTrigguerHigherDisasters;
+                container.MaxPopulationToTriggerHigherDisasters = fromContainer.MaxPopulationToTriggerHigherDisasters;
 
                 container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
                 container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;

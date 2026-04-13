@@ -25,7 +25,7 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         public bool PauseOnDisasterStarts = false;
         public float PartialEvacuationRadius = 900f;
-        public float MaxPopulationToTrigguerHigherDisasters = 200000;
+        public float MaxPopulationToTriggerHigherDisasters = 200000;
 
         public bool ScaleMaxIntensityWithPopulation = true;
         public bool RecordDisasterEvents = false;

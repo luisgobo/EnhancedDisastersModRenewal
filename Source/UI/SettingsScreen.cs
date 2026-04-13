@@ -159,7 +159,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_PauseOnDisasterStarts.isChecked = disasterSetupModel.PauseOnDisasterStarts;
             UI_General_PartialEvacuationRadius.value = disasterSetupModel.PartialEvacuationRadius;
             UI_General_MaxPopulationToTrigguerHigherDisasters.value =
-                disasterSetupModel.MaxPopulationToTrigguerHigherDisasters;
+                disasterSetupModel.MaxPopulationToTriggerHigherDisasters;
 
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = disasterSetupModel.ScaleMaxIntensityWithPopulation;
             UI_General_RecordDisasterEventsChkBox.isChecked = disasterSetupModel.RecordDisasterEvents;
@@ -682,10 +682,10 @@ namespace NaturalDisastersRenewal.UI
             UI_General_MaxPopulationToTrigguerHigherDisasters = SliderHelper.AddSlider(
                 ref generalGroup,
                 LocalizationService.Get("settings.max_population"), 20000f, 800000f, 1000f,
-                disasterContainer.MaxPopulationToTrigguerHigherDisasters, delegate(float val)
+                disasterContainer.MaxPopulationToTriggerHigherDisasters, delegate(float val)
                 {
                     if (!freezeUI)
-                        disasterContainer.MaxPopulationToTrigguerHigherDisasters = val;
+                        disasterContainer.MaxPopulationToTriggerHigherDisasters = val;
                 }, tooltip: LocalizationService.Get("settings.max_population.tooltip"));
 
             UI_General_ScaleMaxIntensityWithPopulation = CheckboxHelper.AddCheckbox(
