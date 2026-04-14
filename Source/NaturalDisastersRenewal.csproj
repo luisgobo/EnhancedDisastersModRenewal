@@ -97,6 +97,7 @@
         <Compile Include="Models\NaturalDisaster\TsunamiModel.cs"/>
         <Compile Include="UI\ComponentHelper\LabelHelper.cs"/>
         <Compile Include="UI\ComponentHelper\ActionButtonHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\ToggleButtonIconHelper.cs"/>
         <Compile Include="UI\ComponentHelper\DisasterRowHelper.cs"/>
         <Compile Include="UI\ComponentHelper\ProgressBarHelper.cs"/>
         <Compile Include="UI\ComponentHelper\ScrollablePanelHelper.cs"/>
@@ -124,6 +125,14 @@
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Resources\Files\"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Resources\Images\icon-active.png">
+            <LogicalName>NaturalDisastersRenewal.Resources.Images.icon-active.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Resources\Images\icon-inactive.png">
+            <LogicalName>NaturalDisastersRenewal.Resources.Images.icon-inactive.png</LogicalName>
+        </EmbeddedResource>
     </ItemGroup>
     <ItemGroup>
         <Content Include="Versions\Changelog.txt"/>
