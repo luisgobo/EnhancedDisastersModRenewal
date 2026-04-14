@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
@@ -296,6 +297,9 @@ namespace NaturalDisastersRenewal.UI
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.Get("settings.group.hotkey"), disasterContainer, SetupHotkeySetup, sectionButtons,
                 sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.Get("settings.group.dependencies"), disasterContainer, SetupDependenciesTab,
+                sectionButtons, sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.ForestFire.GetDisasterType()), disasterContainer,
                 SetupForestFire, sectionButtons, sectionPages);
@@ -1201,6 +1205,54 @@ namespace NaturalDisastersRenewal.UI
                 delegate { BeginHotkeyCapture(); });
             UI_General_TogglePanelHotkeyButton.tooltip = LocalizationService.Get("settings.hotkey.tooltip");
             RefreshHotkeyButtonText();
+        }
+
+        private void SetupDependenciesTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        {
+            var dependenciesGroup = helper.AddGroup(LocalizationService.Get("settings.group.dependencies"));
+            helper.AddSpacing();
+
+            if (!(dependenciesGroup is UIHelper dependenciesUiHelper) || !(dependenciesUiHelper.self is UIPanel dependenciesPanel))
+                return;
+
+            var realTimeLabel = dependenciesPanel.AddUIComponent<UILabel>();
+            var isRealTimeActive = IsRealTimeModActive();
+
+            realTimeLabel.text = "Real Time: " +
+                                 LocalizationService.Get(isRealTimeActive
+                                     ? "settings.dependency.active"
+                                     : "settings.dependency.inactive");
+            realTimeLabel.textScale = 1f;
+            realTimeLabel.textColor = isRealTimeActive
+                ? new Color32(90, 200, 120, 255)
+                : new Color32(210, 120, 120, 255);
+            realTimeLabel.autoSize = true;
+        }
+
+        private static bool IsRealTimeModActive()
+        {
+            const string realTimeModName = "Real Time";
+            const ulong realTimeWorkshopId = 1420955187;
+            const ulong realTimeWorkshopId26 = 3059406297;
+
+            foreach (var plugin in PluginManager.instance.GetPluginsInfo())
+            {
+                if (plugin?.userModInstance == null || !plugin.isEnabled)
+                    continue;
+
+                var userMod = plugin.userModInstance as IUserMod;
+                var modName = userMod?.Name?.ToLowerInvariant() ?? string.Empty;
+                var pluginName = plugin.name?.ToLowerInvariant() ?? string.Empty;
+                var publishedFileId = plugin.publishedFileID.AsUInt64;
+
+                if (modName.Contains(realTimeModName.ToLowerInvariant()) ||
+                    pluginName.Contains(realTimeModName.ToLowerInvariant()) ||
+                    publishedFileId == realTimeWorkshopId ||
+                    publishedFileId == realTimeWorkshopId26)
+                    return true;
+            }
+
+            return false;
         }
 
         #endregion Options UI
