@@ -1,4 +1,5 @@
-﻿using System;
+﻿﻿using System;
+using System.Linq;
 using System.Reflection;
 using ColossalFramework;
 using ColossalFramework.UI;
@@ -161,16 +162,16 @@ namespace NaturalDisastersRenewal.Handlers
                     $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
                 DebugLogger.Log(msg);
 
-                foreach (var ed in container.AllDisasters)
-                    if (ed.CheckDisasterAIType(disasterAI))
+                foreach (var ed in container.AllDisasters
+                             .Where(ed => ed.CheckDisasterAIType(disasterAI)))
+                {
+                    ed.OnDisasterDeactivated(new DisasterInfoModel
                     {
-                        ed.OnDisasterDeactivated(new DisasterInfoModel
-                        {
-                            DisasterInfo = disasterInfo,
-                            DisasterId = disasterId
-                        }, ref container.activeDisasters);
-                        return;
-                    }
+                        DisasterInfo = disasterInfo,
+                        DisasterId = disasterId
+                    }, ref container.activeDisasters);
+                    return;
+                }
             }
             catch (Exception ex)
             {
@@ -246,48 +247,38 @@ namespace NaturalDisastersRenewal.Handlers
             for (var i = 0; i < prefabCount; i++)
             {
                 var disasterInfo = PrefabCollection<DisasterInfo>.GetPrefab((uint)i);
-                if (disasterInfo != null)
-                    switch (disasterType)
-                    {
-                        case DisasterType.Earthquake:
-                            if (disasterInfo.m_disasterAI as EarthquakeAI != null) return disasterInfo;
-                            break;
-
-                        case DisasterType.ForestFire:
-                            if (disasterInfo.m_disasterAI as ForestFireAI != null) return disasterInfo;
-                            break;
-
-                        case DisasterType.MeteorStrike:
-                            if (disasterInfo.m_disasterAI as MeteorStrikeAI != null) return disasterInfo;
-                            break;
-
-                        case DisasterType.ThunderStorm:
-                            if (disasterInfo.m_disasterAI as ThunderStormAI != null) return disasterInfo;
-                            break;
-
-                        case DisasterType.Tornado:
-                            if (disasterInfo.m_disasterAI as TornadoAI != null) return disasterInfo;
-                            break;
-
-                        case DisasterType.Tsunami:
-                            if (disasterInfo.m_disasterAI as TsunamiAI != null) return disasterInfo;
-                            break;
-
-                        case DisasterType.StructureCollapse:
-                            if (disasterInfo.m_disasterAI as StructureCollapseAI != null) return disasterInfo;
-                            break;
-
-                        case DisasterType.StructureFire:
-                            if (disasterInfo.m_disasterAI as StructureFireAI != null) return disasterInfo;
-                            break;
-
-                        case DisasterType.Sinkhole:
-                            if (disasterInfo.m_disasterAI as SinkholeAI != null) return disasterInfo;
-                            break;
-                    }
+                if (disasterInfo != null && MatchesDisasterType(disasterType, disasterInfo.m_disasterAI))
+                    return disasterInfo;
             }
 
             return null;
+        }
+
+        private static bool MatchesDisasterType(DisasterType disasterType, DisasterAI disasterAI)
+        {
+            switch (disasterType)
+            {
+                case DisasterType.Earthquake:
+                    return disasterAI is EarthquakeAI;
+                case DisasterType.ForestFire:
+                    return disasterAI is ForestFireAI;
+                case DisasterType.MeteorStrike:
+                    return disasterAI is MeteorStrikeAI;
+                case DisasterType.ThunderStorm:
+                    return disasterAI is ThunderStormAI;
+                case DisasterType.Tornado:
+                    return disasterAI is TornadoAI;
+                case DisasterType.Tsunami:
+                    return disasterAI is TsunamiAI;
+                case DisasterType.StructureCollapse:
+                    return disasterAI is StructureCollapseAI;
+                case DisasterType.StructureFire:
+                    return disasterAI is StructureFireAI;
+                case DisasterType.Sinkhole:
+                    return disasterAI is SinkholeAI;
+                default:
+                    return false;
+            }
         }
 
         public void CheckUnlocks()
@@ -297,13 +288,19 @@ namespace NaturalDisastersRenewal.Handlers
             var mi = Services.Unlocks.GetCurrentMilestone();
             if (mi != null) int.TryParse(mi.name.Substring(9), out milestoneNum);
 
-            if (milestoneNum >= 3) container.ForestFire.Unlock();
-            if (milestoneNum >= 3) container.Thunderstorm.Unlock();
-            if (milestoneNum >= 4) container.Sinkhole.Unlock();
-            if (milestoneNum >= 5) container.Tsunami.Unlock();
-            if (milestoneNum >= 5) container.Tornado.Unlock();
-            if (milestoneNum >= 6) container.Earthquake.Unlock();
-            if (milestoneNum >= 6) container.MeteorStrike.Unlock();
+            UnlockDisasterWhenReached(milestoneNum, 3, container.ForestFire.Unlock);
+            UnlockDisasterWhenReached(milestoneNum, 3, container.Thunderstorm.Unlock);
+            UnlockDisasterWhenReached(milestoneNum, 4, container.Sinkhole.Unlock);
+            UnlockDisasterWhenReached(milestoneNum, 5, container.Tsunami.Unlock);
+            UnlockDisasterWhenReached(milestoneNum, 5, container.Tornado.Unlock);
+            UnlockDisasterWhenReached(milestoneNum, 6, container.Earthquake.Unlock);
+            UnlockDisasterWhenReached(milestoneNum, 6, container.MeteorStrike.Unlock);
+        }
+
+        private static void UnlockDisasterWhenReached(int milestoneNum, int requiredMilestone, Action unlockAction)
+        {
+            if (milestoneNum >= requiredMilestone)
+                unlockAction();
         }
 
         public void CreateExtendedDisasterPanel()
@@ -338,11 +335,10 @@ namespace NaturalDisastersRenewal.Handlers
             UpdateDisastersPanelToggleBtn();
             UpdateDisastersDPanel();
 
-            if (!keyHandlerRegistered)
-            {
-                UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
-                keyHandlerRegistered = true;
-            }
+            if (keyHandlerRegistered) return;
+            
+            UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
+            keyHandlerRegistered = true;
         }
 
         private void ToggleDisasterPanel()
@@ -355,21 +351,21 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void UpdateDisastersPanelToggleBtn()
         {
-            if (toggleButton != null && container != null)
-            {
-                toggleButton.isVisible = container.ShowDisasterPanelButton;
-                UpdateToggleButtonIcon();
+            if (toggleButton == null || container == null) return;
+            
+            toggleButton.isVisible = container.ShowDisasterPanelButton;
+            UpdateToggleButtonIcon();
 
-                if (container.ToggleButtonPos.x > 10 && container.ToggleButtonPos.y > 10)
-                    toggleButton.absolutePosition = container.ToggleButtonPos;
-            }
+            if (container.ToggleButtonPos.x > 10 && container.ToggleButtonPos.y > 10)
+                toggleButton.absolutePosition = container.ToggleButtonPos;
         }
 
         public void UpdateDisastersDPanel()
         {
-            if (dPanel != null && container != null)
-                if (container.DPanelPos.x > 10 && container.DPanelPos.y > 10)
-                    dPanel.absolutePosition = container.DPanelPos;
+            if (dPanel == null || container == null) return;
+            
+            if (container.DPanelPos.x > 10 && container.DPanelPos.y > 10)
+                dPanel.absolutePosition = container.DPanelPos;
         }
 
         public void RefreshLocalizedUI()
@@ -380,11 +376,10 @@ namespace NaturalDisastersRenewal.Handlers
                 UpdateToggleButtonIcon();
             }
 
-            if (dPanel != null)
-            {
-                dPanel.tooltip = LocalizationService.Get("panel.drag_panel.tooltip");
-                dPanel.RebuildLocalizedContent();
-            }
+            if (dPanel == null) return;
+            
+            dPanel.tooltip = LocalizationService.Get("panel.drag_panel.tooltip");
+            dPanel.RebuildLocalizedContent();
         }
 
         public DisasterWrapper GetDisasterWrapper()
@@ -427,13 +422,13 @@ namespace NaturalDisastersRenewal.Handlers
 
         private void ToggleButton_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
-            {
-                var ratio = UIView.GetAView().ratio;
-                toggleButton.position = SetUIItemPosition(toggleButton.position, eventParam.moveDelta.x,
-                    eventParam.moveDelta.y, ratio);
-                container.ToggleButtonPos = toggleButton.absolutePosition;
-            }
+            if (!eventParam.buttons.IsFlagSet(UIMouseButton.Right)) return;
+            
+            var ratio = UIView.GetAView().ratio;
+            
+            toggleButton.position = SetUIItemPosition(toggleButton.position, eventParam.moveDelta.x,
+                eventParam.moveDelta.y, ratio);
+            container.ToggleButtonPos = toggleButton.absolutePosition;
         }
 
         private void DPanel_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
