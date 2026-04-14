@@ -1,42 +1,38 @@
-﻿using ColossalFramework;
+﻿using System;
+using System.Reflection;
+using ColossalFramework;
 using ColossalFramework.UI;
 using HarmonyLib;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Models.Disaster;
-using NaturalDisastersRenewal.Models.NaturalDisaster;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI;
-using System;
-using System.Reflection;
+using NaturalDisastersRenewal.UI.ComponentHelper;
 using UnityEngine;
-using UnityObject = UnityEngine.Object;
 
 namespace NaturalDisastersRenewal.Handlers
 {
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
+        private readonly Harmony harmony = new Harmony(CommonProperties.modNameForHarmony);
         public DisasterSetupModel container;
-        ExtendedDisastersPanel dPanel;
-        UIButton toggleButton;
-        bool keyHandlerRegistered;
-        readonly Harmony harmony = new Harmony(CommonProperties.modNameForHarmony);
-        DisasterWrapper disasterWrapper;
+        private DisasterWrapper disasterWrapper;
+        private ExtendedDisastersPanel dPanel;
+        private bool keyHandlerRegistered;
+        private UIButton toggleButton;
 
-        public DisasterSetupModel Container
-        {
-            get { return container; }
-        }
-
-        NaturalDisasterHandler()
+        private NaturalDisasterHandler()
         {
             ReadValuesFromFile();
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
 
+        public DisasterSetupModel Container => container;
+
         public void ReadValuesFromFile()
         {
-            DisasterSetupModel newContainer = DisasterSetupModel.CreateFromFile() ?? new DisasterSetupModel();
+            var newContainer = DisasterSetupModel.CreateFromFile() ?? new DisasterSetupModel();
             newContainer.CheckObjects();
 
             CopySettings(newContainer);
@@ -44,14 +40,14 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void ResetToDefaultValues()
         {
-            DisasterSetupModel newContainer = new DisasterSetupModel();
+            var newContainer = new DisasterSetupModel();
             newContainer.CheckObjects();
             CopySettings(newContainer);
         }
 
         public void ResetToDefaultValues(bool resetButtonPos, bool resetPanelPos)
         {
-            DisasterSetupModel newContainer = new DisasterSetupModel();
+            var newContainer = new DisasterSetupModel();
             newContainer.CheckObjects();
 
             if (resetButtonPos || resetPanelPos)
@@ -62,13 +58,13 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void RedefineDisasterMaxIntensity()
         {
-            var optionPanel = UnityObject.FindObjectOfType<DisastersOptionPanel>();
+            var optionPanel = FindObjectOfType<DisastersOptionPanel>();
             var slider = optionPanel.GetComponentInChildren<UISlider>();
             slider.maxValue = byte.MaxValue;
             slider.minValue = byte.MinValue;
         }
 
-        void CopySettings(DisasterSetupModel fromContainer)
+        private void CopySettings(DisasterSetupModel fromContainer)
         {
             if (container == null)
             {
@@ -76,10 +72,8 @@ namespace NaturalDisastersRenewal.Handlers
             }
             else
             {
-                for (int i = 0; i < container.AllDisasters.Count; i++)
-                {
+                for (var i = 0; i < container.AllDisasters.Count; i++)
                     container.AllDisasters[i].CopySettings(fromContainer.AllDisasters[i]);
-                }
 
                 container.DisableDisasterFocus = fromContainer.DisableDisasterFocus;
                 container.PauseOnDisasterStarts = fromContainer.PauseOnDisasterStarts;
@@ -97,7 +91,8 @@ namespace NaturalDisastersRenewal.Handlers
             }
         }
 
-        void ResetInterfaceElementPosition(DisasterSetupModel fromContainer, bool resetButtonPos = false, bool resetPanelPos = false)
+        private void ResetInterfaceElementPosition(DisasterSetupModel fromContainer, bool resetButtonPos = false,
+            bool resetPanelPos = false)
         {
             if (container == null)
             {
@@ -114,7 +109,7 @@ namespace NaturalDisastersRenewal.Handlers
                 if (resetPanelPos)
                 {
                     dPanel.absolutePosition = new Vector3(90, 100);
-                    container.ToggleButtonPos = new Vector3(90, 100);
+                    container.DPanelPos = new Vector3(90, 100);
                 }
             }
         }
@@ -123,10 +118,7 @@ namespace NaturalDisastersRenewal.Handlers
         {
             CheckUnlocks();
 
-            foreach (DisasterBaseModel ed in container.AllDisasters)
-            {
-                ed.OnSimulationFrame();
-            }
+            foreach (var ed in container.AllDisasters) ed.OnSimulationFrame();
         }
 
         public void OnCreated(IDisaster disasters)
@@ -136,30 +128,27 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void OnDisasterStarted(DisasterAI disasterAI, byte intensity)
         {
-            foreach (DisasterBaseModel ed in container.AllDisasters)
-            {
+            foreach (var ed in container.AllDisasters)
                 if (ed.CheckDisasterAIType(disasterAI))
                 {
                     ed.OnDisasterStarted(intensity);
                     return;
                 }
-            }
         }
 
         public void OnDisasterActivated(DisasterAI disasterAI, ushort disasterId)
         {
             var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
-            var msg = $"EvacuationService.OnDisasterActivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
+            var msg =
+                $"EvacuationService.OnDisasterActivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
             DebugLogger.Log(msg);
 
-            foreach (DisasterBaseModel ed in container.AllDisasters)
-            {
+            foreach (var ed in container.AllDisasters)
                 if (ed.CheckDisasterAIType(disasterAI))
                 {
                     ed.OnDisasterActivated(disasterInfo, disasterId, ref container.activeDisasters);
                     return;
                 }
-            }
         }
 
         public void OnDisasterDeactivated(DisasterAI disasterAI, ushort disasterId)
@@ -168,21 +157,20 @@ namespace NaturalDisastersRenewal.Handlers
             {
                 var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
 
-                var msg = $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
+                var msg =
+                    $"EvacuationService.OnDisasterDeactivated. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
                 DebugLogger.Log(msg);
 
-                foreach (DisasterBaseModel ed in container.AllDisasters)
-                {
+                foreach (var ed in container.AllDisasters)
                     if (ed.CheckDisasterAIType(disasterAI))
                     {
-                        ed.OnDisasterDeactivated(new DisasterInfoModel()
+                        ed.OnDisasterDeactivated(new DisasterInfoModel
                         {
                             DisasterInfo = disasterInfo,
                             DisasterId = disasterId
                         }, ref container.activeDisasters);
                         return;
                     }
-                }
             }
             catch (Exception ex)
             {
@@ -196,16 +184,14 @@ namespace NaturalDisastersRenewal.Handlers
         {
             try
             {
-
-                foreach (DisasterBaseModel disasterService in container.AllDisasters)
-                {
+                foreach (var disasterService in container.AllDisasters)
                     if (disasterService.CheckDisasterAIType(disasterAI))
                     {
-
                         var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
-                        var msg = $"EvacuationService.OnDisasterDetected. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
+                        var msg =
+                            $"EvacuationService.OnDisasterDetected. Id: {disasterId}, Name: {disasterInfo.name}, Type: {disasterInfo.type}, Intensity: {disasterInfo.intensity}";
                         DebugLogger.Log(msg);
-                        DisasterInfoModel disasterInfoUnified = new DisasterInfoModel()
+                        var disasterInfoUnified = new DisasterInfoModel
                         {
                             DisasterInfo = disasterInfo,
                             DisasterId = disasterId
@@ -214,7 +200,6 @@ namespace NaturalDisastersRenewal.Handlers
                         disasterService.OnDisasterDetected(disasterInfoUnified, ref container.activeDisasters);
                         return;
                     }
-                }
             }
             catch (Exception ex)
             {
@@ -227,18 +212,17 @@ namespace NaturalDisastersRenewal.Handlers
         {
             try
             {
-                foreach (DisasterBaseModel disasterService in container.AllDisasters)
-                {
+                foreach (var disasterService in container.AllDisasters)
                     if (disasterService.CheckDisasterAIType(disasterAI))
                     {
                         var disasterInfo = disasterWrapper.GetDisasterSettings(disasterId);
                         var msg = $"EvacuationService.OnDisasterFinished. Id: {disasterId}, " +
-                            $"Name: {disasterInfo.name}, " +
-                            $"Type: {disasterInfo.type}, " +
-                            $"Intensity: {disasterInfo.intensity}";
+                                  $"Name: {disasterInfo.name}, " +
+                                  $"Type: {disasterInfo.type}, " +
+                                  $"Intensity: {disasterInfo.intensity}";
                         DebugLogger.Log(msg);
 
-                        DisasterInfoModel disasterInfoUnified = new DisasterInfoModel()
+                        var disasterInfoUnified = new DisasterInfoModel
                         {
                             DisasterInfo = disasterInfo,
                             DisasterId = disasterId
@@ -247,7 +231,6 @@ namespace NaturalDisastersRenewal.Handlers
                         disasterService.OnDisasterFinished(disasterInfoUnified, ref container.activeDisasters);
                         return;
                     }
-                }
             }
             catch (Exception ex)
             {
@@ -258,13 +241,12 @@ namespace NaturalDisastersRenewal.Handlers
 
         public static DisasterInfo GetDisasterInfo(DisasterType disasterType)
         {
-            int prefabCount = PrefabCollection<DisasterInfo>.PrefabCount();
+            var prefabCount = PrefabCollection<DisasterInfo>.PrefabCount();
 
-            for (int i = 0; i < prefabCount; i++)
+            for (var i = 0; i < prefabCount; i++)
             {
-                DisasterInfo disasterInfo = PrefabCollection<DisasterInfo>.GetPrefab((uint)i);
+                var disasterInfo = PrefabCollection<DisasterInfo>.GetPrefab((uint)i);
                 if (disasterInfo != null)
-                {
                     switch (disasterType)
                     {
                         case DisasterType.Earthquake:
@@ -303,7 +285,6 @@ namespace NaturalDisastersRenewal.Handlers
                             if (disasterInfo.m_disasterAI as SinkholeAI != null) return disasterInfo;
                             break;
                     }
-                }
             }
 
             return null;
@@ -311,13 +292,10 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void CheckUnlocks()
         {
-            int milestoneNum = 99; // Unlock all disasters in case of error
+            var milestoneNum = 99; // Unlock all disasters in case of error
 
-            MilestoneInfo mi = Services.Unlocks.GetCurrentMilestone();
-            if (mi != null)
-            {
-                int.TryParse(mi.name.Substring(9), out milestoneNum);
-            }
+            var mi = Services.Unlocks.GetCurrentMilestone();
+            if (mi != null) int.TryParse(mi.name.Substring(9), out milestoneNum);
 
             if (milestoneNum >= 3) container.ForestFire.Unlock();
             if (milestoneNum >= 3) container.Thunderstorm.Unlock();
@@ -330,26 +308,24 @@ namespace NaturalDisastersRenewal.Handlers
 
         public void CreateExtendedDisasterPanel()
         {
-            if (dPanel != null) 
+            if (dPanel != null)
                 return;
 
-            UIView v = UIView.GetAView();
+            var v = UIView.GetAView();
 
-            GameObject obj = new GameObject("ExtendedDisastersPanel");
+            var obj = new GameObject("ExtendedDisastersPanel");
             obj.transform.parent = v.cachedTransform;
             dPanel = obj.AddComponent<ExtendedDisastersPanel>();
             dPanel.absolutePosition = new Vector3(90, 100);
 
-            GameObject toggleButtonObject = new GameObject("ExtendedDisastersPanelButton");
-            toggleButtonObject.transform.parent = v.transform;            
+            var toggleButtonObject = new GameObject("ExtendedDisastersPanelButton");
+            toggleButtonObject.transform.parent = v.transform;
             toggleButtonObject.transform.localPosition = Vector3.zero;
             toggleButton = toggleButtonObject.AddComponent<UIButton>();
             toggleButton.name = "ExtendedDisastersPanelToggleButton";
-            toggleButton.normalBgSprite = "ToolbarIconZoomOutGlobeHovered";
-            toggleButton.normalFgSprite = "IconPolicyPowerSavingDisabled";
-            toggleButton.hoveredFgSprite = "IconPolicyPowerSavingPressed"; 
-            toggleButton.width = 38f;
-            toggleButton.height = 38f;
+            ApplyDefaultToggleButtonSprites();
+            toggleButton.width = 48f;
+            toggleButton.height = 48f;
             toggleButton.absolutePosition = new Vector3(90, 62);
             toggleButton.tooltip = LocalizationService.Get("panel.toggle_button.tooltip");
             toggleButton.isVisible = container.ShowDisasterPanelButton;
@@ -369,14 +345,12 @@ namespace NaturalDisastersRenewal.Handlers
             }
         }
 
-        void ToggleDisasterPanel()
+        private void ToggleDisasterPanel()
         {
             dPanel.isVisible = !dPanel.isVisible;
+            UpdateToggleButtonIcon();
 
-            if (dPanel.isVisible)
-            {
-                dPanel.Counter = 0;
-            }
+            if (dPanel.isVisible) dPanel.Counter = 0;
         }
 
         public void UpdateDisastersPanelToggleBtn()
@@ -384,23 +358,18 @@ namespace NaturalDisastersRenewal.Handlers
             if (toggleButton != null && container != null)
             {
                 toggleButton.isVisible = container.ShowDisasterPanelButton;
+                UpdateToggleButtonIcon();
 
                 if (container.ToggleButtonPos.x > 10 && container.ToggleButtonPos.y > 10)
-                {
                     toggleButton.absolutePosition = container.ToggleButtonPos;
-                }
             }
         }
 
         public void UpdateDisastersDPanel()
         {
             if (dPanel != null && container != null)
-            {
                 if (container.DPanelPos.x > 10 && container.DPanelPos.y > 10)
-                {
                     dPanel.absolutePosition = container.DPanelPos;
-                }
-            }
         }
 
         public void RefreshLocalizedUI()
@@ -408,6 +377,7 @@ namespace NaturalDisastersRenewal.Handlers
             if (toggleButton != null)
             {
                 toggleButton.tooltip = LocalizationService.Get("panel.toggle_button.tooltip");
+                UpdateToggleButtonIcon();
             }
 
             if (dPanel != null)
@@ -421,26 +391,58 @@ namespace NaturalDisastersRenewal.Handlers
         {
             return disasterWrapper;
         }
-        void ToggleButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+
+        private void UpdateToggleButtonIcon()
+        {
+            if (toggleButton == null)
+                return;
+
+            ApplyDefaultToggleButtonSprites();
+
+            if (!ToggleButtonIconHelper.Apply(toggleButton, dPanel != null && dPanel.isVisible))
+                ToggleButtonIconHelper.Hide(toggleButton);
+        }
+
+        private void ApplyDefaultToggleButtonSprites()
+        {
+            if (toggleButton == null)
+                return;
+
+            toggleButton.normalBgSprite = string.Empty;
+            toggleButton.hoveredBgSprite = string.Empty;
+            toggleButton.focusedBgSprite = string.Empty;
+            toggleButton.pressedBgSprite = string.Empty;
+            toggleButton.disabledBgSprite = string.Empty;
+            toggleButton.normalFgSprite = string.Empty;
+            toggleButton.hoveredFgSprite = string.Empty;
+            toggleButton.focusedFgSprite = string.Empty;
+            toggleButton.pressedFgSprite = string.Empty;
+            toggleButton.disabledFgSprite = string.Empty;
+        }
+
+        private void ToggleButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             ToggleDisasterPanel();
         }
 
-        void ToggleButton_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
+        private void ToggleButton_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
             {
                 var ratio = UIView.GetAView().ratio;
-                toggleButton.position = SetUIItemPosition(toggleButton.position, eventParam.moveDelta.x, eventParam.moveDelta.y, ratio);
+                toggleButton.position = SetUIItemPosition(toggleButton.position, eventParam.moveDelta.x,
+                    eventParam.moveDelta.y, ratio);
                 container.ToggleButtonPos = toggleButton.absolutePosition;
             }
         }
-        void DPanel_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
+
+        private void DPanel_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (eventParam.buttons.IsFlagSet(UIMouseButton.Right))
             {
                 var ratio = UIView.GetAView().ratio;
-                dPanel.position = SetUIItemPosition(dPanel.position, eventParam.moveDelta.x, eventParam.moveDelta.y, ratio);
+                dPanel.position =
+                    SetUIItemPosition(dPanel.position, eventParam.moveDelta.x, eventParam.moveDelta.y, ratio);
                 container.DPanelPos = dPanel.absolutePosition;
             }
         }
@@ -448,12 +450,12 @@ namespace NaturalDisastersRenewal.Handlers
         private Vector3 SetUIItemPosition(Vector3 currentPosition, float x, float y, float ratio)
         {
             return new Vector3(
-                    currentPosition.x + (x * ratio),
-                    currentPosition.y + (y * ratio),
-                    currentPosition.z);
+                currentPosition.x + x * ratio,
+                currentPosition.y + y * ratio,
+                currentPosition.z);
         }
 
-        void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
+        private void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
             if (SettingsScreen.IsCapturingHotkey)
                 return;
@@ -467,10 +469,9 @@ namespace NaturalDisastersRenewal.Handlers
 
             //Show / Hide Panel hotkey
             if (eventType == EventType.KeyDown &&
-                HotkeyHelper.MatchesHotkey(container.TogglePanelHotkey, container.TogglePanelHotkeyModifiers, keyCode, modifiers))
-            {
+                HotkeyHelper.MatchesHotkey(container.TogglePanelHotkey, container.TogglePanelHotkeyModifiers, keyCode,
+                    modifiers))
                 ToggleDisasterPanel();
-            }
         }
     }
 }
