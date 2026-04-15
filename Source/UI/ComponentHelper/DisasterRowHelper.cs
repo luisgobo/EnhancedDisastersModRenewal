@@ -41,6 +41,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             _nameLabel = AddUIComponent<UILabel>();
             _nameLabel.relativePosition = new Vector3(NameLabelX, 2f);
             _nameLabel.textScale = LabelTextScaleNormal;
+            _nameLabel.textColor = UIStyleHelper.PrimaryTextColor;
 
             _probabilityBar = AddUIComponent<ProgressBarHelper>();
             _probabilityBar.Initialize(ProbabilityBarX, 0f, BarWidth, ValueLabelY, LabelTextScaleTiny);
@@ -80,8 +81,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             statusButton.name = "disasterState" + Disaster.GetDisasterType() + "Btn";
             statusButton.relativePosition = new Vector3(0f, -4f);
             statusButton.size = new Vector2(18f, 18f);
-            statusButton.normalBgSprite = "ButtonMenu";
-            statusButton.hoveredBgSprite = "ButtonMenuHovered";
+            UIStyleHelper.ApplyActionButtonStyle(statusButton);
             statusButton.eventClick += delegate
             {
                 if (_toggleHandler != null)

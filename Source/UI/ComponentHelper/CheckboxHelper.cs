@@ -26,6 +26,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         {
             var checkbox = (UICheckBox)group.AddCheckbox(description, defaultValue, eventCallback);
             checkbox.tooltip = tooltip;
+            UIStyleHelper.ApplyCheckboxStyle(checkbox);
             group.AddSpacing(spacing);
 
             return checkbox;

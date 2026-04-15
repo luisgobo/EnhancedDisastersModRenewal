@@ -104,6 +104,7 @@
         <Compile Include="UI\ComponentHelper\SliderHelper.cs"/>
         <Compile Include="UI\ComponentHelper\CheckboxHelper.cs"/>
         <Compile Include="UI\ComponentHelper\HotkeyFieldHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\UIStyleHelper.cs"/>
         <Compile Include="UI\ComponentHelper\TabHelper.cs"/>
         <Compile Include="UI\ExtendedDisastersPanel.cs"/>
         <Compile Include="Common\DisasterSimulationUtils.cs"/>

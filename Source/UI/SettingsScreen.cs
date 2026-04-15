@@ -103,7 +103,6 @@ namespace NaturalDisastersRenewal.UI
         #region Options UI
 
         private bool hotkeyCaptureHandlerRegistered;
-        private bool isCapturingHotkey;
         private UIButton[] settingsSectionButtons;
         private UIPanel[] settingsSectionPages;
 
@@ -363,11 +362,7 @@ namespace NaturalDisastersRenewal.UI
             button.text = text;
             button.relativePosition = new Vector3(8f, yPosition);
             button.size = new Vector2(parentPanel.width - 16f, 30f);
-            button.normalBgSprite = "SubBarButtonBase";
-            button.disabledBgSprite = "SubBarButtonBaseFocused";
-            button.focusedBgSprite = "SubBarButtonBaseFocused";
-            button.hoveredBgSprite = "SubBarButtonBaseHovered";
-            button.pressedBgSprite = "SubBarButtonBasePressed";
+            UIStyleHelper.ApplySectionButtonStyle(button);
             button.textPadding = new RectOffset(10, 10, 8, 6);
             button.textHorizontalAlignment = UIHorizontalAlignment.Left;
             return button;
@@ -412,6 +407,7 @@ namespace NaturalDisastersRenewal.UI
             thumb.width = scrollbarWidth;
             thumb.height = 48f;
             scrollbar.thumbObject = thumb;
+            UIStyleHelper.ApplyScrollbarStyle(track, thumb);
 
             scrollablePanel.verticalScrollbar = scrollbar;
             scrollablePanel.eventMouseWheel += delegate(UIComponent component, UIMouseEventParameter eventParam)
@@ -484,14 +480,7 @@ namespace NaturalDisastersRenewal.UI
             button.text = text;
             button.relativePosition = position;
             button.size = new Vector2(width, height);
-            button.normalBgSprite = "ButtonMenu";
-            button.disabledBgSprite = "ButtonMenu";
-            button.focusedBgSprite = "ButtonMenuFocused";
-            button.hoveredBgSprite = "ButtonMenuHovered";
-            button.pressedBgSprite = "ButtonMenuPressed";
-            button.textHorizontalAlignment = UIHorizontalAlignment.Center;
-            button.textVerticalAlignment = UIVerticalAlignment.Middle;
-            button.textPadding = new RectOffset(8, 8, 8, 0);
+            UIStyleHelper.ApplyActionButtonStyle(button);
             button.eventClick += clickHandler;
         }
 
@@ -519,7 +508,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void HotkeyCapture_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
-            if (!isCapturingHotkey || eventType != EventType.KeyDown)
+            if (!IsCapturingHotkey || eventType != EventType.KeyDown)
                 return;
 
             if (HotkeyHelper.IsModifierKey(keyCode))
@@ -562,7 +551,6 @@ namespace NaturalDisastersRenewal.UI
 
         private void SetHotkeyCaptureState(bool isCapturing)
         {
-            isCapturingHotkey = isCapturing;
             IsCapturingHotkey = isCapturing;
         }
 
@@ -571,7 +559,7 @@ namespace NaturalDisastersRenewal.UI
             if (UI_General_TogglePanelHotkeyField == null)
                 return;
 
-            UI_General_TogglePanelHotkeyField.text = isCapturingHotkey
+            UI_General_TogglePanelHotkeyField.text = IsCapturingHotkey
                 ? LocalizationService.Get("settings.hotkey.capture")
                 : HotkeyHelper.FormatHotkey(
                     Services.DisasterSetup.TogglePanelHotkey,
@@ -645,6 +633,7 @@ namespace NaturalDisastersRenewal.UI
                         RebuildUISettingsOptions();
                     }
                 });
+            UIStyleHelper.ApplyDropDownStyle(UI_General_Language);
             UI_General_Language.tooltip = LocalizationService.Get("settings.language.tooltip");
 
             UI_General_DisableDisasterFocus = CheckboxHelper.AddCheckbox(
@@ -960,6 +949,7 @@ namespace NaturalDisastersRenewal.UI
                     if (!freezeUI)
                         disasterContainer.Tornado.MaxProbabilityMonth = selection + 1;
                 });
+            UIStyleHelper.ApplyDropDownStyle(UI_Tornado_MaxProbabilityMonth);
 
             UI_Tornado_NoDuringFog = CheckboxHelper.AddCheckbox(
                 ref tornadoGroup,
@@ -1239,7 +1229,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void EndHotkeyCapture()
         {
-            if (!isCapturingHotkey)
+            if (!IsCapturingHotkey)
                 return;
 
             SetHotkeyCaptureState(false);

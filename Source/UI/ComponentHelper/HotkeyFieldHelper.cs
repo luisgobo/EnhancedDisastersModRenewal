@@ -32,6 +32,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             label.textAlignment = UIHorizontalAlignment.Left;
             label.verticalAlignment = UIVerticalAlignment.Middle;
             label.padding = new RectOffset(0, 0, 6, 0);
+            label.textColor = UIStyleHelper.SecondaryTextColor;
 
             var textField = container.AddUIComponent<UITextField>();
             textField.width = 170f;
@@ -39,15 +40,11 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             textField.padding = new RectOffset(8, 8, 6, 4);
             textField.text = value;
             textField.tooltip = tooltip;
-            textField.normalBgSprite = "TextFieldPanel";
-            textField.disabledBgSprite = "TextFieldPanelDisabled";
-            textField.focusedBgSprite = "TextFieldPanelHovered";
-            textField.hoveredBgSprite = "TextFieldPanelHovered";
-            textField.selectionSprite = "EmptySprite";
             textField.builtinKeyNavigation = false;
             textField.readOnly = true;
             textField.canFocus = true;
             textField.cursorWidth = 0;
+            UIStyleHelper.ApplyTextFieldStyle(textField);
 
             if (focusHandler != null)
             {

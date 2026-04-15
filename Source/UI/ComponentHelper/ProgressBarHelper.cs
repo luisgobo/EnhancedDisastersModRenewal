@@ -5,10 +5,10 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
     public sealed class ProgressBarHelper : UIPanel
     {
-        private static readonly Color32 DisabledColor = new Color32(0, 0, 0, 255);
-        private static readonly Color32 UnfilledBarColor = new Color32(56, 60, 62, 255);
-        private static readonly Color32 DarkContrastTextColor = new Color32(30, 36, 32, 255);
-        private static readonly Color32 LightContrastTextColor = new Color32(242, 245, 240, 255);
+        private static readonly Color32 DisabledColor = UIStyleHelper.MutedColor;
+        private static readonly Color32 UnfilledBarColor = UIStyleHelper.SurfaceColor;
+        private static readonly Color32 DarkContrastTextColor = new Color32(28, 34, 40, 255);
+        private static readonly Color32 LightContrastTextColor = UIStyleHelper.PrimaryTextColor;
 
         private UIProgressBar _progressBar;
         private UILabel _valueLabel;
@@ -23,7 +23,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             _progressBar = AddUIComponent<UIProgressBar>();
             _progressBar.backgroundSprite = "LevelBarBackground";
             _progressBar.progressSprite = "LevelBarForeground";
-            _progressBar.progressColor = Color.red;
+            _progressBar.progressColor = UIStyleHelper.AccentColor;
             _progressBar.relativePosition = Vector3.zero;
             _progressBar.width = componentWidth;
             _progressBar.value = 0f;
@@ -50,7 +50,10 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             }
 
             _progressBar.value = Mathf.Clamp01(value);
-            _progressBar.progressColor = new Color(2f * _progressBar.value, 2f * (1f - _progressBar.value), 0f);
+            _progressBar.progressColor = Color.Lerp(
+                UIStyleHelper.AccentColor,
+                UIStyleHelper.WarmAccentColor,
+                _progressBar.value);
             _valueLabel.textColor = GetContrastTextColor();
         }
 
