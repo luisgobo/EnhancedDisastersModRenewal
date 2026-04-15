@@ -99,6 +99,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.dependency.active", "active" },
                         { "settings.dependency.inactive", "inactive" },
                         { "settings.hotkey.info", "Use up to 3 keys: up to 2 modifiers plus 1 regular key." },
+                        { "settings.hotkey.field_label", "Shortcut" },
                         { "settings.hotkey.capture", "Press a key combination..." },
                         { "settings.hotkey.none", "Not set" },
                         {
@@ -327,6 +328,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.dependency.active", "activo" },
                         { "settings.dependency.inactive", "inactivo" },
                         { "settings.hotkey.info", "Usa hasta 3 teclas: hasta 2 modificadoras y 1 tecla normal." },
+                        { "settings.hotkey.field_label", "Atajo" },
                         { "settings.hotkey.capture", "Presiona una combinacion..." },
                         { "settings.hotkey.none", "Sin asignar" },
                         {
