@@ -71,6 +71,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.toggle_button.tooltip", "Extended Disasters (drag by right-click)" },
                         { "panel.drag_panel.tooltip", "Drag by right-click to set the panel position." },
                         { "settings.general", "General" },
+                        { "settings.about", "About" },
                         { "settings.language", "Language" },
                         { "settings.language.tooltip", "Choose the language for panel text and tooltips." },
                         { "settings.disable_follow", "Disable automatic disaster follow when it starts." },
@@ -229,7 +230,14 @@ namespace NaturalDisastersRenewal.Common
                         { "disaster.sinkhole", "Sinkhole" },
                         { "disaster.thunderstorm", "Thunderstorm" },
                         { "disaster.tornado", "Tornado" },
-                        { "disaster.tsunami", "Tsunami" }
+                        { "disaster.tsunami", "Tsunami" },
+                        { "about.mod_name", "Natural Disasters Renewal" },
+                        { "about.version", "Version: {0}" },
+                        { "about.updated", "Last updated: {0}" },
+                        { "about.description", "A unified overhaul for natural disasters, evacuation behavior, and disaster control in Cities: Skylines." },
+                        { "about.donate_link", "Open Donations Page" },
+                        { "about.git_link", "Open GitHub Page" },
+                        { "about.steam_link", "Open Steam Workshop Page" }
                     }
                 },
                 {
@@ -294,6 +302,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.toggle_button.tooltip", "Desastres extendidos (arrastra con clic derecho)" },
                         { "panel.drag_panel.tooltip", "Arrastra con clic derecho para cambiar la posicion del panel." },
                         { "settings.general", "General" },
+                        { "settings.about", "About" },
                         { "settings.language", "Idioma" },
                         { "settings.language.tooltip", "Elige el idioma de los textos y tooltips." },
                         {
@@ -458,7 +467,14 @@ namespace NaturalDisastersRenewal.Common
                         { "disaster.sinkhole", "Socavon" },
                         { "disaster.thunderstorm", "Tormenta electrica" },
                         { "disaster.tornado", "Tornado" },
-                        { "disaster.tsunami", "Tsunami" }
+                        { "disaster.tsunami", "Tsunami" },
+                        { "about.mod_name", "Natural Disasters Renewal" },
+                        { "about.version", "Version: {0}" },
+                        { "about.updated", "Ultima actualizacion: {0}" },
+                        { "about.description", "Una renovacion unificada para desastres naturales, comportamiento de evacuacion y control de desastres en Cities: Skylines." },
+                        { "about.donate_link", "Abrir pagina de donaciones" },
+                        { "about.git_link", "Abrir pagina de GitHub" },
+                        { "about.steam_link", "Abrir Pagina de Steam Workshop" }
                     }
                 }
             };
