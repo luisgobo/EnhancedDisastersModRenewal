@@ -346,7 +346,7 @@ namespace NaturalDisastersRenewal.Handlers
             dPanel.isVisible = !dPanel.isVisible;
             UpdateToggleButtonIcon();
 
-            if (dPanel.isVisible) dPanel.Counter = 0;
+            if (dPanel.isVisible) dPanel.counter = 0;
         }
 
         public void UpdateDisastersPanelToggleBtn()

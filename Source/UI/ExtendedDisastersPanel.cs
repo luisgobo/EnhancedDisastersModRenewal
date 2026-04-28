@@ -12,6 +12,7 @@ using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using NaturalDisastersRenewal.UI.ComponentHelper;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace NaturalDisastersRenewal.UI
 {
@@ -25,7 +26,7 @@ namespace NaturalDisastersRenewal.UI
         private const float ContentInset = 8f;
         private const float WrappedContentWidth = 364f;
 
-        public int Counter;
+        [FormerlySerializedAs("Counter")] public int counter;
         private DisasterRowHelper[] _disasterRows;
         private UILabel _populationLabel;
         private UILabel _realTimeDayTimeFramesLabel;
@@ -56,15 +57,15 @@ namespace NaturalDisastersRenewal.UI
 
             if (!isVisible) return;
 
-            if (--Counter > 0) return;
-            Counter = 10;
+            if (--counter > 0) return;
+            counter = 10;
 
             UpdatePopulationLabel();
             UpdateRealTimeLabels();
 
             if (_disasterRows == null) return;
 
-            for (var i = 0; i < _disasterRows.Length; i++) _disasterRows[i].Refresh();
+            RefreshDisasterRow();
         }
 
         public void RebuildLocalizedContent()
@@ -76,7 +77,7 @@ namespace NaturalDisastersRenewal.UI
             BuildTabContainer();
 
             isVisible = currentVisibility;
-            Counter = 0;
+            counter = 0;
         }
 
         private void BuildInformationBar()
@@ -164,12 +165,12 @@ namespace NaturalDisastersRenewal.UI
             const float itemSpacing = 22f;
             const float xPosition = 1f;
             var yPosition = 10f;
-            var probabilityBarStartX = xPosition + DisasterRowHelper.ProbabilityBarX;
-            var probabilityBarCenterX = probabilityBarStartX + DisasterRowHelper.BarWidth * 0.5f;
-            var probabilityBarEndX = probabilityBarStartX + DisasterRowHelper.BarWidth;
-            var intensityBarStartX = xPosition + DisasterRowHelper.IntensityBarX;
-            var intensityBarCenterX = intensityBarStartX + DisasterRowHelper.BarWidth * 0.5f;
-            var intensityBarEndX = intensityBarStartX + DisasterRowHelper.BarWidth;
+            const float probabilityBarStartX = xPosition + DisasterRowHelper.ProbabilityBarX;
+            const float probabilityBarCenterX = probabilityBarStartX + DisasterRowHelper.BarWidth * 0.5f;
+            const float probabilityBarEndX = probabilityBarStartX + DisasterRowHelper.BarWidth;
+            const float intensityBarStartX = xPosition + DisasterRowHelper.IntensityBarX;
+            const float intensityBarCenterX = intensityBarStartX + DisasterRowHelper.BarWidth * 0.5f;
+            const float intensityBarEndX = intensityBarStartX + DisasterRowHelper.BarWidth;
 
             _populationLabel = AddLabel(parentPanel, xPosition, yPosition, LabelTextScaleNormal, string.Empty);
             UpdatePopulationLabel();
@@ -249,7 +250,7 @@ namespace NaturalDisastersRenewal.UI
             UpdateRealTimeLabels();
         }
 
-        private void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
+        private static void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
         {
             ActionButtonHelper.CreateTextButton(
                 parentPanel,
@@ -282,22 +283,19 @@ namespace NaturalDisastersRenewal.UI
 
         private void UpdatePopulationLabel()
         {
-            if (_populationLabel == null) return;
+            if (!_populationLabel) return;
 
-            var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
-            nfi.NumberGroupSeparator = ",";
+            var numberFormatInfo = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+            numberFormatInfo.NumberGroupSeparator = ",";
             var formatted =
-                ((int)Services.DisasterHandler.container.MaxPopulationToTriggerHigherDisasters).ToString("#,0", nfi);
+                ((int)Services.DisasterHandler.container.MaxPopulationToTriggerHigherDisasters).ToString("#,0", numberFormatInfo);
             _populationLabel.text = LocalizationService.Format("panel.population_threshold.value", formatted);
             _populationLabel.tooltip = LocalizationService.Get("panel.population_threshold");
         }
 
         private void UpdateRealTimeLabels()
         {
-            if (_realTimeStatusLabel == null ||
-                _realTimeTimeOffsetTicksLabel == null ||
-                _realTimeDayTimeFramesLabel == null ||
-                _realTimeDayTimeOffsetFramesLabel == null)
+            if (!_realTimeStatusLabel || !_realTimeTimeOffsetTicksLabel || !_realTimeDayTimeFramesLabel || !_realTimeDayTimeOffsetFramesLabel)
                 return;
 
             var isRealTimeActive = IsRealTimeModActive();
@@ -318,27 +316,30 @@ namespace NaturalDisastersRenewal.UI
 
         private static bool IsRealTimeModActive()
         {
-            const string realTimeModName = "Real Time";
-            const ulong realTimeWorkshopId = 1420955187;
-            const ulong realTimeWorkshopId26 = 3059406297;
+            return PluginManager.instance.GetPluginsInfo().Any(IsEnabledRealTimePlugin);
+        }
 
-            foreach (var plugin in PluginManager.instance.GetPluginsInfo())
-            {
-                if (plugin?.userModInstance == null || !plugin.isEnabled) continue;
+        private static bool IsEnabledRealTimePlugin(PluginManager.PluginInfo plugin)
+        {
+            if (plugin?.userModInstance == null || !plugin.isEnabled) return false;
 
-                var userMod = plugin.userModInstance as IUserMod;
-                var modName = userMod?.Name?.ToLowerInvariant() ?? string.Empty;
-                var pluginName = plugin.name?.ToLowerInvariant() ?? string.Empty;
-                var publishedFileId = plugin.publishedFileID.AsUInt64;
+            var userMod = plugin.userModInstance as IUserMod;
+            var publishedFileId = plugin.publishedFileID.AsUInt64;
 
-                if (modName.Contains(realTimeModName.ToLowerInvariant()) ||
-                    pluginName.Contains(realTimeModName.ToLowerInvariant()) ||
-                    publishedFileId == realTimeWorkshopId ||
-                    publishedFileId == realTimeWorkshopId26)
-                    return true;
-            }
+            return ContainsRealTimeName(userMod?.Name) ||
+                   ContainsRealTimeName(plugin.name) ||
+                   IsKnownRealTimeWorkshopId(publishedFileId);
+        }
 
-            return false;
+        private static bool ContainsRealTimeName(string name)
+        {
+            return !string.IsNullOrEmpty(name) &&
+                   name.IndexOf("Real Time", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool IsKnownRealTimeWorkshopId(ulong publishedFileId)
+        {
+            return publishedFileId == 1420955187UL || publishedFileId == 3059406297UL;
         }
 
         private void ToggleDisasterState(DisasterBaseModel disaster)
@@ -370,13 +371,22 @@ namespace NaturalDisastersRenewal.UI
             }
 
             if (_disasterRows != null)
-                for (var i = 0; i < _disasterRows.Length; i++)
-                    _disasterRows[i].Refresh();
+            {
+                RefreshDisasterRow();
+            }
 
             SettingsScreen.UpdateUISettingsOptions();
         }
 
-        private void HelpBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void RefreshDisasterRow()
+        {
+            foreach (var disasterRow in _disasterRows)
+            {
+                disasterRow.Refresh();
+            }
+        }
+
+        private static void HelpBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             ShowHelpPanel();
         }
@@ -550,3 +560,4 @@ namespace NaturalDisastersRenewal.UI
         }
     }
 }
+
