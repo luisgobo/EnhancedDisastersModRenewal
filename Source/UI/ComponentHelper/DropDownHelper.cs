@@ -18,6 +18,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             );
 
             dropDown.width = (int)Math.Round(dropDown.width * 2.1f);
+            UIStyleHelper.ApplyDropDownStyle(dropDown);
             group.AddSpacing();
         }
     }

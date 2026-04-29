@@ -13,14 +13,10 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
         private const float BottomPadding = 10f;
 
-        // private static readonly Color32 SliderBackgroundColor = new Color32(0, 58, 60, 255);
-        // private static readonly Color32 SliderBorderColor = new Color32(174, 180, 184, 255);
-        // private static readonly Color32 SliderTrackColor = new Color32(94, 100, 105, 255);
-        // private static readonly Color32 SliderThumbColor = new Color32(174, 180, 184, 255);
-        private static readonly Color32 SliderBackgroundColor = new Color32(0, 58, 60, 255);
-        private static readonly Color32 SliderBorderColor = new Color32(174, 0, 184, 255);
-        private static readonly Color32 SliderTrackColor = new Color32(94, 100, 0, 255);
-        private static readonly Color32 SliderThumbColor = new Color32(174, 180, 184, 255);
+        private static readonly Color32 SliderBackgroundColor = UIStyleHelper.SurfaceColor;
+        private static readonly Color32 SliderBorderColor = UIStyleHelper.SurfaceBorderColor;
+        private static readonly Color32 SliderTrackColor = UIStyleHelper.AccentColor;
+        private static readonly Color32 SliderThumbColor = UIStyleHelper.PrimaryTextColor;
 
         /// <summary>
         ///     Adds a slider to the provided UI helper group and configures a live value label.
@@ -97,7 +93,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
             var valueLabel = parentPanel.AddUIComponent<UILabel>();
             valueLabel.text = slider.value + postfix;
-            valueLabel.textScale = 1f;
+            valueLabel.textScale = 0.9f;
+            valueLabel.textColor = UIStyleHelper.SecondaryTextColor;
 
             parentPanel.autoLayout = false;
 
@@ -108,6 +105,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                 titleLabel.wordWrap = false;
                 titleLabel.autoHeight = false;
                 titleLabel.autoSize = true;
+                titleLabel.textColor = UIStyleHelper.PrimaryTextColor;
+                titleLabel.textScale = 0.9f;
 
                 titleLabel.relativePosition = Vector3.zero;
 

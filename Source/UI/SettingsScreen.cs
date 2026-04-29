@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
@@ -16,6 +17,25 @@ namespace NaturalDisastersRenewal.UI
 {
     public class SettingsScreen
     {
+        private const string AboutImageResourceName = "NaturalDisastersRenewal.Resources.Images.logo_1.3.0_3.png";
+
+        private const string AboutCompatibilityImageResourceName =
+            "NaturalDisastersRenewal.Resources.Images.mod_compatibility.png";
+
+        private const string AboutGithubImageResourceName =
+            "NaturalDisastersRenewal.Resources.Images.github.png";
+
+        private const string AboutDonationImageResourceName =
+            "NaturalDisastersRenewal.Resources.Images.kofi_dark.png";
+
+        private const string AboutSteamImageResourceName =
+            "NaturalDisastersRenewal.Resources.Images.steam.png";
+
+        private const string AboutGitUrl = "https://github.com/luisgobo/EnhancedDisastersModRenewal";
+        private const string AboutDonationUrl = "https://ko-fi.com/luisgobo2986";
+        private const string AboutSteamModUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=2957578256";
+        private const string AboutLastUpdatedDate = "2026-04-09";
+
         private bool freezeUI;
         private UIComponent rootComponent;
         private UIHelper rootHelper;
@@ -34,7 +54,7 @@ namespace NaturalDisastersRenewal.UI
         private UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
         private UICheckBox UI_General_RecordDisasterEventsChkBox;
         private UICheckBox UI_General_ShowDisasterPanelButton;
-        private UIButton UI_General_TogglePanelHotkeyButton;
+        private UITextField UI_General_TogglePanelHotkeyField;
 
         //Forest Fire
         private UICheckBox UI_ForestFire_Enabled;
@@ -102,7 +122,6 @@ namespace NaturalDisastersRenewal.UI
         #region Options UI
 
         private bool hotkeyCaptureHandlerRegistered;
-        private bool isCapturingHotkey;
         private UIButton[] settingsSectionButtons;
         private UIPanel[] settingsSectionPages;
 
@@ -128,7 +147,7 @@ namespace NaturalDisastersRenewal.UI
                 }
         }
 
-        public static void RebuildUISettingsOptions()
+        private static void RebuildUISettingsOptions()
         {
             foreach (var current in Services.Plugins.GetPluginsInfo())
                 if (current.isEnabled)
@@ -138,11 +157,10 @@ namespace NaturalDisastersRenewal.UI
                     var method = instances[0].GetType().GetMethod("EnhancedDisastersOptionsRebuildUI",
                         BindingFlags.Instance | BindingFlags.Public);
 
-                    if (method != null)
-                    {
-                        method.Invoke(instances[0], new object[] { });
-                        return;
-                    }
+                    if (method == null) continue;
+
+                    method.Invoke(instances[0], new object[] { });
+                    return;
                 }
         }
 
@@ -164,7 +182,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = disasterSetupModel.ScaleMaxIntensityWithPopulation;
             UI_General_RecordDisasterEventsChkBox.isChecked = disasterSetupModel.RecordDisasterEvents;
             UI_General_ShowDisasterPanelButton.isChecked = disasterSetupModel.ShowDisasterPanelButton;
-            RefreshHotkeyButtonText();
+            RefreshHotkeyFieldText();
 
             UI_ForestFire_Enabled.isChecked = disasterSetupModel.ForestFire.Enabled;
             UI_ForestFire_EvacuationMode.selectedIndex = (int)disasterSetupModel.ForestFire.EvacuationMode;
@@ -294,9 +312,6 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.general"), disasterContainer, SetupGeneralTab, sectionButtons,
                 sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
-                LocalizationService.Get("settings.group.hotkey"), disasterContainer, SetupHotkeySetup, sectionButtons,
-                sectionPages);
-            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.ForestFire.GetDisasterType()), disasterContainer,
                 SetupForestFire, sectionButtons, sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
@@ -317,6 +332,12 @@ namespace NaturalDisastersRenewal.UI
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.MeteorStrike.GetDisasterType()),
                 disasterContainer, SetupMeteorStrike, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.Get("settings.group.dependencies"), disasterContainer, SetupDependenciesTab,
+                sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.Get("settings.about"), disasterContainer, SetupAboutTab,
+                sectionButtons, sectionPages);
 
             settingsSectionButtons = sectionButtons.ToArray();
             settingsSectionPages = sectionPages.ToArray();
@@ -363,11 +384,7 @@ namespace NaturalDisastersRenewal.UI
             button.text = text;
             button.relativePosition = new Vector3(8f, yPosition);
             button.size = new Vector2(parentPanel.width - 16f, 30f);
-            button.normalBgSprite = "SubBarButtonBase";
-            button.disabledBgSprite = "SubBarButtonBaseFocused";
-            button.focusedBgSprite = "SubBarButtonBaseFocused";
-            button.hoveredBgSprite = "SubBarButtonBaseHovered";
-            button.pressedBgSprite = "SubBarButtonBasePressed";
+            UIStyleHelper.ApplySectionButtonStyle(button);
             button.textPadding = new RectOffset(10, 10, 8, 6);
             button.textHorizontalAlignment = UIHorizontalAlignment.Left;
             return button;
@@ -412,6 +429,7 @@ namespace NaturalDisastersRenewal.UI
             thumb.width = scrollbarWidth;
             thumb.height = 48f;
             scrollbar.thumbObject = thumb;
+            UIStyleHelper.ApplyScrollbarStyle(track, thumb);
 
             scrollablePanel.verticalScrollbar = scrollbar;
             scrollablePanel.eventMouseWheel += delegate(UIComponent component, UIMouseEventParameter eventParam)
@@ -484,14 +502,7 @@ namespace NaturalDisastersRenewal.UI
             button.text = text;
             button.relativePosition = position;
             button.size = new Vector2(width, height);
-            button.normalBgSprite = "ButtonMenu";
-            button.disabledBgSprite = "ButtonMenu";
-            button.focusedBgSprite = "ButtonMenuFocused";
-            button.hoveredBgSprite = "ButtonMenuHovered";
-            button.pressedBgSprite = "ButtonMenuPressed";
-            button.textHorizontalAlignment = UIHorizontalAlignment.Center;
-            button.textVerticalAlignment = UIVerticalAlignment.Middle;
-            button.textPadding = new RectOffset(8, 8, 8, 0);
+            UIStyleHelper.ApplyActionButtonStyle(button);
             button.eventClick += clickHandler;
         }
 
@@ -519,7 +530,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void HotkeyCapture_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
-            if (!isCapturingHotkey || eventType != EventType.KeyDown)
+            if (!IsCapturingHotkey || eventType != EventType.KeyDown)
                 return;
 
             if (HotkeyHelper.IsModifierKey(keyCode))
@@ -528,7 +539,7 @@ namespace NaturalDisastersRenewal.UI
             if (keyCode == KeyCode.Escape)
             {
                 SetHotkeyCaptureState(false);
-                RefreshHotkeyButtonText();
+                RefreshHotkeyFieldText();
                 return;
             }
 
@@ -537,7 +548,7 @@ namespace NaturalDisastersRenewal.UI
                 Services.DisasterSetup.TogglePanelHotkey = KeyCode.None;
                 Services.DisasterSetup.TogglePanelHotkeyModifiers = EventModifiers.None;
                 SetHotkeyCaptureState(false);
-                RefreshHotkeyButtonText();
+                RefreshHotkeyFieldText();
                 return;
             }
 
@@ -551,27 +562,26 @@ namespace NaturalDisastersRenewal.UI
             Services.DisasterSetup.TogglePanelHotkey = keyCode;
             Services.DisasterSetup.TogglePanelHotkeyModifiers = normalizedModifiers;
             SetHotkeyCaptureState(false);
-            RefreshHotkeyButtonText();
+            RefreshHotkeyFieldText();
         }
 
         private void BeginHotkeyCapture()
         {
             SetHotkeyCaptureState(true);
-            RefreshHotkeyButtonText();
+            RefreshHotkeyFieldText();
         }
 
         private void SetHotkeyCaptureState(bool isCapturing)
         {
-            isCapturingHotkey = isCapturing;
             IsCapturingHotkey = isCapturing;
         }
 
-        private void RefreshHotkeyButtonText()
+        private void RefreshHotkeyFieldText()
         {
-            if (UI_General_TogglePanelHotkeyButton == null)
+            if (UI_General_TogglePanelHotkeyField == null)
                 return;
 
-            UI_General_TogglePanelHotkeyButton.text = isCapturingHotkey
+            UI_General_TogglePanelHotkeyField.text = IsCapturingHotkey
                 ? LocalizationService.Get("settings.hotkey.capture")
                 : HotkeyHelper.FormatHotkey(
                     Services.DisasterSetup.TogglePanelHotkey,
@@ -589,7 +599,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_ScaleMaxIntensityWithPopulation = null;
             UI_General_RecordDisasterEventsChkBox = null;
             UI_General_ShowDisasterPanelButton = null;
-            UI_General_TogglePanelHotkeyButton = null;
+            UI_General_TogglePanelHotkeyField = null;
             UI_ForestFire_Enabled = null;
             UI_ForestFireMaxProbability = null;
             UI_ForestFire_WarmupDays = null;
@@ -645,6 +655,7 @@ namespace NaturalDisastersRenewal.UI
                         RebuildUISettingsOptions();
                     }
                 });
+            UIStyleHelper.ApplyDropDownStyle(UI_General_Language);
             UI_General_Language.tooltip = LocalizationService.Get("settings.language.tooltip");
 
             UI_General_DisableDisasterFocus = CheckboxHelper.AddCheckbox(
@@ -721,6 +732,9 @@ namespace NaturalDisastersRenewal.UI
                     Services.DisasterHandler.UpdateDisastersPanelToggleBtn();
                     Services.DisasterHandler.UpdateDisastersDPanel();
                 });
+
+            generalGroup.AddSpacing();
+            AddHotkeyContent(generalGroup);
 
             generalGroup.AddSpacing();
 
@@ -957,6 +971,7 @@ namespace NaturalDisastersRenewal.UI
                     if (!freezeUI)
                         disasterContainer.Tornado.MaxProbabilityMonth = selection + 1;
                 });
+            UIStyleHelper.ApplyDropDownStyle(UI_Tornado_MaxProbabilityMonth);
 
             UI_Tornado_NoDuringFog = CheckboxHelper.AddCheckbox(
                 ref tornadoGroup,
@@ -1183,24 +1198,229 @@ namespace NaturalDisastersRenewal.UI
 
         private void SetupHotkeySetup(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            var hotkeyGroup = helper.AddGroup(LocalizationService.Get("settings.group.hotkey"));
+            AddHotkeyContent(helper);
+        }
+
+        private void SetupDependenciesTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        {
+            var dependenciesGroup = helper.AddGroup(LocalizationService.Get("settings.group.dependencies"));
             helper.AddSpacing();
 
-            if (hotkeyGroup is UIHelper hotkeyUiHelper && hotkeyUiHelper.self is UIPanel hotkeyPanel)
+            if (!(dependenciesGroup is UIHelper dependenciesUiHelper) ||
+                !(dependenciesUiHelper.self is UIPanel dependenciesPanel))
+                return;
+
+            var realTimeLabel = dependenciesPanel.AddUIComponent<UILabel>();
+            var isRealTimeActive = IsRealTimeModActive();
+
+            realTimeLabel.text = "Real Time: " +
+                                 LocalizationService.Get(isRealTimeActive
+                                     ? "settings.dependency.active"
+                                     : "settings.dependency.inactive");
+            realTimeLabel.textScale = 1f;
+            realTimeLabel.textColor = isRealTimeActive
+                ? new Color32(90, 200, 120, 255)
+                : new Color32(210, 120, 120, 255);
+            realTimeLabel.autoSize = true;
+        }
+
+        private void SetupAboutTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
+        {
+            var aboutGroup = helper.AddGroup(LocalizationService.Get("settings.about"));
+            helper.AddSpacing();
+
+            if (!(aboutGroup is UIHelper aboutUiHelper) || !(aboutUiHelper.self is UIPanel aboutPanel))
+                return;
+
+            var contentWidth = aboutPanel.width > 0f ? aboutPanel.width - 20f : 680f;
+            var image = CreateAboutImageSprite(
+                aboutPanel,
+                AboutImageResourceName,
+                Mathf.Min(contentWidth, 450f), //adjust this value
+                new Vector3(0f, 0f));
+            var imageBottom = image != null ? image.relativePosition.y + image.height : 0f;
+
+            var titleLabel = aboutPanel.AddUIComponent<UILabel>();
+            titleLabel.text = LocalizationService.Get("about.mod_name");
+            titleLabel.textScale = 1.1f;
+            titleLabel.textColor = UIStyleHelper.PrimaryTextColor;
+            titleLabel.relativePosition = new Vector3(0f, imageBottom + 12f);
+
+            var versionLabel = aboutPanel.AddUIComponent<UILabel>();
+            versionLabel.text = LocalizationService.Format("about.version", GetModVersion());
+            versionLabel.textScale = 0.9f;
+            versionLabel.textColor = UIStyleHelper.SecondaryTextColor;
+            versionLabel.relativePosition = new Vector3(0f, titleLabel.relativePosition.y + 28f);
+
+            var updatedLabel = aboutPanel.AddUIComponent<UILabel>();
+            updatedLabel.text = LocalizationService.Format("about.updated", AboutLastUpdatedDate);
+            updatedLabel.textScale = 0.9f;
+            updatedLabel.textColor = UIStyleHelper.SecondaryTextColor;
+            updatedLabel.relativePosition = new Vector3(0f, versionLabel.relativePosition.y + 22f);
+
+            var compatibilityImage = CreateAboutImageSprite(
+                aboutPanel,
+                AboutCompatibilityImageResourceName,
+                contentWidth,
+                new Vector3(0f, updatedLabel.relativePosition.y + 34f));
+
+            var compatibilityBottom = compatibilityImage != null
+                ? compatibilityImage.relativePosition.y + compatibilityImage.height
+                : updatedLabel.relativePosition.y + 34f;
+
+            CreateAboutLinkImage(
+                aboutPanel,
+                AboutGithubImageResourceName,
+                180f,
+                new Vector3(0f, compatibilityBottom + 18f),
+                AboutGitUrl,
+                LocalizationService.Get("about.git_link"));
+
+            CreateAboutLinkImage(
+                aboutPanel,
+                AboutSteamImageResourceName,
+                180f,
+                new Vector3(0f, compatibilityBottom + 62f),
+                AboutSteamModUrl,
+                LocalizationService.Get("about.steam_link"));
+
+            CreateAboutLinkImage(
+                aboutPanel,
+                AboutDonationImageResourceName,
+                220f,
+                new Vector3(0f, compatibilityBottom + 62f),
+                AboutDonationUrl,
+                LocalizationService.Get("about.donate_link"));
+        }
+
+        private void AddHotkeyContent(UIHelperBase helper)
+        {
+            var hotkeyGroup = helper.AddGroup(LocalizationService.Get("settings.group.hotkey"));
+
+            if (!(hotkeyGroup is UIHelper hotkeyUiHelper) || !(hotkeyUiHelper.self is UIPanel hotkeyPanel))
+                return;
+
+            var hotkeyInfoLabel = hotkeyPanel.AddUIComponent<UILabel>();
+            hotkeyInfoLabel.text = LocalizationService.Get("settings.hotkey.info");
+            hotkeyInfoLabel.textScale = 0.9f;
+            hotkeyInfoLabel.wordWrap = true;
+            hotkeyInfoLabel.autoHeight = true;
+            hotkeyInfoLabel.width = hotkeyPanel.width > 0 ? hotkeyPanel.width - 20f : 700f;
+
+            UI_General_TogglePanelHotkeyField = HotkeyFieldHelper.AddHotkeyField(
+                hotkeyPanel,
+                LocalizationService.Get("settings.hotkey.field_label"),
+                HotkeyHelper.FormatHotkey(
+                    Services.DisasterSetup.TogglePanelHotkey,
+                    Services.DisasterSetup.TogglePanelHotkeyModifiers),
+                LocalizationService.Get("settings.hotkey.tooltip"),
+                BeginHotkeyCapture,
+                EndHotkeyCapture);
+            RefreshHotkeyFieldText();
+        }
+
+        private void EndHotkeyCapture()
+        {
+            if (!IsCapturingHotkey)
+                return;
+
+            SetHotkeyCaptureState(false);
+            RefreshHotkeyFieldText();
+        }
+
+        private static bool IsRealTimeModActive()
+        {
+            const string realTimeModName = "Real Time";
+            const ulong realTimeWorkshopId = 1420955187;
+            const ulong realTimeWorkshopId26 = 3059406297;
+
+            foreach (var plugin in PluginManager.instance.GetPluginsInfo())
             {
-                var hotkeyInfoLabel = hotkeyPanel.AddUIComponent<UILabel>();
-                hotkeyInfoLabel.text = LocalizationService.Get("settings.hotkey.info");
-                hotkeyInfoLabel.textScale = 0.9f;
-                hotkeyInfoLabel.wordWrap = true;
-                hotkeyInfoLabel.autoHeight = true;
-                hotkeyInfoLabel.width = hotkeyPanel.width > 0 ? hotkeyPanel.width - 20f : 700f;
+                if (plugin?.userModInstance == null || !plugin.isEnabled)
+                    continue;
+
+                var userMod = plugin.userModInstance as IUserMod;
+                var modName = userMod?.Name?.ToLowerInvariant() ?? string.Empty;
+                var pluginName = plugin.name?.ToLowerInvariant() ?? string.Empty;
+                var publishedFileId = plugin.publishedFileID.AsUInt64;
+
+                if (modName.Contains(realTimeModName.ToLowerInvariant()) ||
+                    pluginName.Contains(realTimeModName.ToLowerInvariant()) ||
+                    publishedFileId == realTimeWorkshopId ||
+                    publishedFileId == realTimeWorkshopId26)
+                    return true;
             }
 
-            UI_General_TogglePanelHotkeyButton = (UIButton)hotkeyGroup.AddButton(
-                LocalizationService.Get("settings.hotkey.capture"),
-                delegate { BeginHotkeyCapture(); });
-            UI_General_TogglePanelHotkeyButton.tooltip = LocalizationService.Get("settings.hotkey.tooltip");
-            RefreshHotkeyButtonText();
+            return false;
+        }
+
+        private static UITextureSprite CreateAboutImageSprite(
+            UIPanel parentPanel,
+            string resourceName,
+            float maxWidth,
+            Vector3 position)
+        {
+            var texture = LoadEmbeddedTexture(resourceName);
+            if (texture == null)
+                return null;
+
+            var sprite = parentPanel.AddUIComponent<UITextureSprite>();
+            sprite.texture = texture;
+            sprite.relativePosition = position;
+            sprite.color = Color.white;
+
+            var width = texture.width;
+            var height = texture.height;
+            var scale = width > maxWidth ? maxWidth / width : 1f;
+            sprite.size = new Vector2(width * scale, height * scale);
+            return sprite;
+        }
+
+        private static UITextureSprite CreateAboutLinkImage(
+            UIPanel parentPanel,
+            string resourceName,
+            float maxWidth,
+            Vector3 position,
+            string url,
+            string tooltip)
+        {
+            var sprite = CreateAboutImageSprite(parentPanel, resourceName, maxWidth, position);
+            if (sprite == null)
+                return null;
+
+            sprite.isInteractive = true;
+            sprite.tooltip = tooltip;
+            sprite.eventClick += delegate { Application.OpenURL(url); };
+            return sprite;
+        }
+
+        private static string GetModVersion()
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            if (version == null)
+                return "1.0.0";
+
+            return version.Build > 0
+                ? string.Format("{0}.{1}.{2}", version.Major, version.Minor, version.Build)
+                : string.Format("{0}.{1}", version.Major, version.Minor);
+        }
+
+        private static Texture2D LoadEmbeddedTexture(string resourceName)
+        {
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            {
+                if (stream == null)
+                    return null;
+
+                var buffer = new byte[stream.Length];
+                stream.Read(buffer, 0, buffer.Length);
+
+                var texture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
+                texture.filterMode = FilterMode.Bilinear;
+                texture.LoadImage(buffer);
+                texture.Apply();
+                return texture;
+            }
         }
 
         #endregion Options UI

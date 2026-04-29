@@ -37,6 +37,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             thumbSprite.width = thumbSprite.parent.width;
             thumbSprite.spriteName = "ScrollbarThumb";
             verticalScrollbar.thumbObject = thumbSprite;
+            UIStyleHelper.ApplyScrollbarStyle(trackSprite, thumbSprite);
 
             verticalScrollbar.eventValueChanged += (component, value) =>
             {
@@ -82,11 +83,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         public UIHelper AddTabPage(string name, bool scrollBars = true)
         {
             UIButton tabButton = base.AddTab(name);
-            tabButton.normalBgSprite = "SubBarButtonBase";
+            UIStyleHelper.ApplySectionButtonStyle(tabButton);
             tabButton.disabledBgSprite = "SubBarButtonBaseDisabled";
-            tabButton.focusedBgSprite = "SubBarButtonBaseFocused";
-            tabButton.hoveredBgSprite = "SubBarButtonBaseHovered";
-            tabButton.pressedBgSprite = "SubBarButtonBasePressed";
             tabButton.textPadding = new RectOffset(10, 10, 10, 6);
             tabButton.autoSize = true;
 
@@ -137,11 +135,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             tabButton.relativePosition = new Vector3(xPosition, 0f);
             tabButton.width = 130f;
             tabButton.height = 30f;
-            tabButton.normalBgSprite = "SubBarButtonBase";
+            UIStyleHelper.ApplySectionButtonStyle(tabButton);
             tabButton.disabledBgSprite = "SubBarButtonBaseDisabled";
-            tabButton.focusedBgSprite = "SubBarButtonBaseFocused";
-            tabButton.hoveredBgSprite = "SubBarButtonBaseHovered";
-            tabButton.pressedBgSprite = "SubBarButtonBasePressed";
             tabButton.textPadding = new RectOffset(10, 10, 8, 6);
             return tabButton;
         }

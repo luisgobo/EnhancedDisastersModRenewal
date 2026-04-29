@@ -5,40 +5,22 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
     public static class ScrollablePanelHelper
     {
-        private const float ScrollbarWidth = 12f;
         private const float ContentLeftInset = 10f;
+        private const float ContentRightInset = 4f;
+        private const float ContentBottomInset = 10f;
 
         public static UIScrollablePanel Create(UIPanel tabPanel, float yPosition)
         {
             UIScrollablePanel scrollablePanel = tabPanel.AddUIComponent<UIScrollablePanel>();
-            UIScrollbar scrollbar = tabPanel.AddUIComponent<UIScrollbar>();
-            UISlicedSprite track = scrollbar.AddUIComponent<UISlicedSprite>();
-            UISlicedSprite thumb = track.AddUIComponent<UISlicedSprite>();
 
-            float scrollablePanelWidth = tabPanel.width - ContentLeftInset - ScrollbarWidth;
-            float scrollablePanelHeight = tabPanel.height - 40f;
+            float scrollablePanelWidth = tabPanel.width - ContentLeftInset - ContentRightInset;
+            float scrollablePanelHeight = tabPanel.height - yPosition - ContentBottomInset;
 
             scrollablePanel.size = new Vector2(scrollablePanelWidth, scrollablePanelHeight);
             scrollablePanel.relativePosition = new Vector2(ContentLeftInset, yPosition);
             scrollablePanel.autoLayout = false;
             scrollablePanel.clipChildren = true;
             scrollablePanel.scrollWheelAmount = 20;
-
-            scrollbar.orientation = UIOrientation.Vertical;
-            scrollbar.width = ScrollbarWidth;
-            scrollbar.relativePosition = new Vector2(tabPanel.width - ScrollbarWidth, yPosition);
-            scrollbar.height = tabPanel.height - 20f;
-
-            track.spriteName = "ScrollbarTrack";
-            track.size = new Vector2(ScrollbarWidth, tabPanel.height - 20f);
-            track.relativePosition = new Vector2(0f, -10f);
-            scrollbar.trackObject = track;
-
-            thumb.spriteName = "ScrollbarThumb";
-            thumb.height = 10f;
-            scrollbar.thumbObject = thumb;
-
-            scrollablePanel.verticalScrollbar = scrollbar;
             scrollablePanel.eventMouseWheel += delegate(UIComponent component, UIMouseEventParameter eventParam)
             {
                 scrollablePanel.scrollPosition +=

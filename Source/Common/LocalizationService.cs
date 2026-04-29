@@ -41,8 +41,8 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.tab.controls", "Controls" },
                         { "panel.header.disaster", "Disaster" },
                         { "panel.header.probability", "Probability" },
-                        { "panel.header.max_intensity", "Max intensity" },
-                        { "panel.population_threshold.value", "MPTHD: {0}" },
+                        { "panel.header.max_intensity", "Max strength" },
+                        { "panel.population_threshold.value", "Min. population for strongest disasters: {0}." },
                         { "panel.help.tooltip", "Open panel help" },
                         { "panel.close.tooltip", "Close panel" },
                         { "panel.controls.title", "Controls" },
@@ -71,6 +71,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.toggle_button.tooltip", "Extended Disasters (drag by right-click)" },
                         { "panel.drag_panel.tooltip", "Drag by right-click to set the panel position." },
                         { "settings.general", "General" },
+                        { "settings.about", "About" },
                         { "settings.language", "Language" },
                         { "settings.language.tooltip", "Choose the language for panel text and tooltips." },
                         { "settings.disable_follow", "Disable automatic disaster follow when it starts." },
@@ -95,7 +96,11 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.show_panel_button", "Show Disasters Panel toggle button" },
                         { "settings.positions", "Button/Panel positions:" },
                         { "settings.group.hotkey", "Hotkeys" },
+                        { "settings.group.dependencies", "Dependencies" },
+                        { "settings.dependency.active", "active" },
+                        { "settings.dependency.inactive", "inactive" },
                         { "settings.hotkey.info", "Use up to 3 keys: up to 2 modifiers plus 1 regular key." },
+                        { "settings.hotkey.field_label", "Shortcut" },
                         { "settings.hotkey.capture", "Press a key combination..." },
                         { "settings.hotkey.none", "Not set" },
                         {
@@ -225,7 +230,14 @@ namespace NaturalDisastersRenewal.Common
                         { "disaster.sinkhole", "Sinkhole" },
                         { "disaster.thunderstorm", "Thunderstorm" },
                         { "disaster.tornado", "Tornado" },
-                        { "disaster.tsunami", "Tsunami" }
+                        { "disaster.tsunami", "Tsunami" },
+                        { "about.mod_name", "Natural Disasters Renewal" },
+                        { "about.version", "Version: {0}" },
+                        { "about.updated", "Last updated: {0}" },
+                        { "about.description", "A unified overhaul for natural disasters, evacuation behavior, and disaster control in Cities: Skylines." },
+                        { "about.donate_link", "Open Donations Page" },
+                        { "about.git_link", "Open GitHub Page" },
+                        { "about.steam_link", "Open Steam Workshop Page" }
                     }
                 },
                 {
@@ -260,8 +272,8 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.tab.controls", "Controles" },
                         { "panel.header.disaster", "Desastre" },
                         { "panel.header.probability", "Probabilidad" },
-                        { "panel.header.max_intensity", "Intensidad maxima" },
-                        { "panel.population_threshold.value", "MPTHD: {0}" },
+                        { "panel.header.max_intensity", "Fuerza max." },
+                        { "panel.population_threshold.value", "Poblacion minima para los desastres mas fuertes: {0}." },
                         { "panel.help.tooltip", "Abrir ayuda del panel" },
                         { "panel.close.tooltip", "Cerrar panel" },
                         { "panel.controls.title", "Controles" },
@@ -290,6 +302,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.toggle_button.tooltip", "Desastres extendidos (arrastra con clic derecho)" },
                         { "panel.drag_panel.tooltip", "Arrastra con clic derecho para cambiar la posicion del panel." },
                         { "settings.general", "General" },
+                        { "settings.about", "About" },
                         { "settings.language", "Idioma" },
                         { "settings.language.tooltip", "Elige el idioma de los textos y tooltips." },
                         {
@@ -320,7 +333,11 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.show_panel_button", "Mostrar boton del panel de desastres" },
                         { "settings.positions", "Posiciones del boton/panel:" },
                         { "settings.group.hotkey", "Atajos del teclado" },
+                        { "settings.group.dependencies", "Dependencias" },
+                        { "settings.dependency.active", "activo" },
+                        { "settings.dependency.inactive", "inactivo" },
                         { "settings.hotkey.info", "Usa hasta 3 teclas: hasta 2 modificadoras y 1 tecla normal." },
+                        { "settings.hotkey.field_label", "Atajo" },
                         { "settings.hotkey.capture", "Presiona una combinacion..." },
                         { "settings.hotkey.none", "Sin asignar" },
                         {
@@ -450,7 +467,14 @@ namespace NaturalDisastersRenewal.Common
                         { "disaster.sinkhole", "Socavon" },
                         { "disaster.thunderstorm", "Tormenta electrica" },
                         { "disaster.tornado", "Tornado" },
-                        { "disaster.tsunami", "Tsunami" }
+                        { "disaster.tsunami", "Tsunami" },
+                        { "about.mod_name", "Natural Disasters Renewal" },
+                        { "about.version", "Version: {0}" },
+                        { "about.updated", "Ultima actualizacion: {0}" },
+                        { "about.description", "Una renovacion unificada para desastres naturales, comportamiento de evacuacion y control de desastres en Cities: Skylines." },
+                        { "about.donate_link", "Abrir pagina de donaciones" },
+                        { "about.git_link", "Abrir pagina de GitHub" },
+                        { "about.steam_link", "Abrir Pagina de Steam Workshop" }
                     }
                 }
             };

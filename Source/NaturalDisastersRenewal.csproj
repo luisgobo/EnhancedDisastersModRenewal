@@ -103,6 +103,8 @@
         <Compile Include="UI\ComponentHelper\ScrollablePanelHelper.cs"/>
         <Compile Include="UI\ComponentHelper\SliderHelper.cs"/>
         <Compile Include="UI\ComponentHelper\CheckboxHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\HotkeyFieldHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\UIStyleHelper.cs"/>
         <Compile Include="UI\ComponentHelper\TabHelper.cs"/>
         <Compile Include="UI\ExtendedDisastersPanel.cs"/>
         <Compile Include="Common\DisasterSimulationUtils.cs"/>
@@ -133,8 +135,15 @@
         <EmbeddedResource Include="Resources\Images\icon-inactive.png">
             <LogicalName>NaturalDisastersRenewal.Resources.Images.icon-inactive.png</LogicalName>
         </EmbeddedResource>
+        <EmbeddedResource Include="Resources\Images\logo_1.3.0_3.png">
+            <LogicalName>NaturalDisastersRenewal.Resources.Images.logo_1.3.0_3.png</LogicalName>
+        </EmbeddedResource>
     </ItemGroup>
     <ItemGroup>
+        <EmbeddedResource Include="Resources\Images\mod_compatibility.png"/>
+        <EmbeddedResource Include="Resources\Images\github.png"/>
+        <EmbeddedResource Include="Resources\Images\kofi_dark.png"/>
+        <EmbeddedResource Include="Resources\Images\steam.png" />
         <Content Include="Versions\Changelog.txt"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
