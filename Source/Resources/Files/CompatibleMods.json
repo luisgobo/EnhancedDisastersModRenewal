@@ -1,0 +1,14 @@
+{
+  "mods": [
+    {
+      "key": "realTime",
+      "namePatterns": [
+        "Real Time"
+      ],
+      "workshopIds": [
+        1420955187,
+        3059406297
+      ]
+    }
+  ]
+}

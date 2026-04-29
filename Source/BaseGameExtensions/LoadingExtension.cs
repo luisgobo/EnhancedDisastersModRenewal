@@ -1,4 +1,5 @@
-﻿using ICities;
+using ICities;
+using NaturalDisastersRenewal.Common;
 using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
@@ -9,6 +10,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         {
             if (mode == LoadMode.NewGame || mode == LoadMode.LoadGame || mode == LoadMode.NewGameFromScenario)
             {
+                ModCompatibilityService.Refresh();
                 CommonServices.DisasterHandler.CreateExtendedDisasterPanel();
                 CommonServices.DisasterHandler.CheckUnlocks();
 
@@ -20,6 +22,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
         public override void OnLevelUnloading()
         {
             CommonServices.DisasterSetup.Earthquake.UpdateDisasterProperties(false);
+            ModCompatibilityService.Reset();
             CommonServices.ResetCache();
         }
     }

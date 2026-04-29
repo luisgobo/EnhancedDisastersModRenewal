@@ -61,11 +61,12 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                 ? Disaster.GetName()
                 : Disaster.GetName() + " - " + LocalizationService.Get("panel.disabled");
 
+            float probabilityProgressValue = GetProbabilityProgressValueLog(occurrencePerYear);
             _probabilityBar.SetState(
                 isEnabled,
-                GetProbabilityProgressValueLog(occurrencePerYear),
-                isEnabled ? string.Format("{0:0.00}", occurrencePerYear) : string.Empty,
-                isEnabled ? Disaster.GetProbabilityTooltip(GetProbabilityProgressValueLog(occurrencePerYear)) : string.Empty);
+                probabilityProgressValue,
+                isEnabled ? string.Format("{0:0.##}%", probabilityProgressValue * 100f) : string.Empty,
+                isEnabled ? Disaster.GetProbabilityTooltip(probabilityProgressValue) : string.Empty);
 
             float normalizedIntensity = maxIntensityCalculated / MaxIntensity;
             _intensityBar.SetState(

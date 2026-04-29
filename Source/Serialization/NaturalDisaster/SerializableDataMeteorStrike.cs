@@ -12,6 +12,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
         {
             MeteorStrikeModel meteorStrike = Services.DisasterSetup.MeteorStrike;
             SerializeCommonParameters(dataSerializer, meteorStrike);
+            dataSerializer.WriteFloat(meteorStrike.RealTimeFrequencyMultiplier);
 
             for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
             {
@@ -28,9 +29,12 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             MeteorStrikeModel meteorStrike = Services.DisasterSetup.MeteorStrike;
             DeserializeCommonParameters(dataSerializer, meteorStrike);
 
+            if (dataSerializer.version >= 6)
+                meteorStrike.RealTimeFrequencyMultiplier = dataSerializer.ReadFloat();
+
             if (dataSerializer.version <= 2)
             {
-                float daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
+                float daysPerFrame = DisasterSimulationUtils.VanillaSimulationDaysPerFrame;
                 for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
                 {
                     meteorStrike.meteorEvents[i].Enabled = dataSerializer.ReadBool();

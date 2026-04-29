@@ -11,7 +11,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class MeteorStrikeModel : DisasterBaseModel
     {
+        private const float DefaultRealTimeFrequencyMultiplier = 4f;
+
         [XmlIgnore] public MeteorEvent[] meteorEvents;
+        private float realTimeFrequencyMultiplier = DefaultRealTimeFrequencyMultiplier;
 
         public MeteorStrikeModel()
         {
@@ -53,6 +56,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             set => SetEnabled(2, value);
         }
 
+        [XmlElement]
+        public float RealTimeFrequencyMultiplier
+        {
+            get { return realTimeFrequencyMultiplier; }
+            set { realTimeFrequencyMultiplier = Mathf.Max(1f, value); }
+        }
+
         public bool GetEnabled(int index)
         {
             return meteorEvents[index].Enabled;
@@ -65,7 +75,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
-            for (var i = 0; i < meteorEvents.Length; i++) meteorEvents[i].OnSimulationFrame();
+            var daysPerFrame = DisasterSimulationUtils.VanillaSimulationDaysPerFrame;
+            if (DisasterSimulationUtils.IsRealTimeModActive())
+                daysPerFrame *= RealTimeFrequencyMultiplier;
+
+            for (var i = 0; i < meteorEvents.Length; i++) meteorEvents[i].OnSimulationFrame(daysPerFrame);
         }
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId,
@@ -237,6 +251,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 MeteorLongPeriodEnabled = d.MeteorLongPeriodEnabled;
                 MeteorMediumPeriodEnabled = d.MeteorMediumPeriodEnabled;
                 MeteorShortPeriodEnabled = d.MeteorShortPeriodEnabled;
+                RealTimeFrequencyMultiplier = d.RealTimeFrequencyMultiplier;
             }
         }
 
@@ -298,11 +313,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return 1;
             }
 
-            public void OnSimulationFrame()
+            public void OnSimulationFrame(float daysPerFrame)
             {
                 if (!Enabled) return;
 
-                DaysUntilNextEvent -= DisasterSimulationUtils.DaysPerFrame;
+                DaysUntilNextEvent -= daysPerFrame;
 
                 if (DaysUntilNextEvent <= 0)
                 {

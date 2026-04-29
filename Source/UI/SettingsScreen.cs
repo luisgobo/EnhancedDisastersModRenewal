@@ -1330,28 +1330,7 @@ namespace NaturalDisastersRenewal.UI
 
         private static bool IsRealTimeModActive()
         {
-            const string realTimeModName = "Real Time";
-            const ulong realTimeWorkshopId = 1420955187;
-            const ulong realTimeWorkshopId26 = 3059406297;
-
-            foreach (var plugin in PluginManager.instance.GetPluginsInfo())
-            {
-                if (plugin?.userModInstance == null || !plugin.isEnabled)
-                    continue;
-
-                var userMod = plugin.userModInstance as IUserMod;
-                var modName = userMod?.Name?.ToLowerInvariant() ?? string.Empty;
-                var pluginName = plugin.name?.ToLowerInvariant() ?? string.Empty;
-                var publishedFileId = plugin.publishedFileID.AsUInt64;
-
-                if (modName.Contains(realTimeModName.ToLowerInvariant()) ||
-                    pluginName.Contains(realTimeModName.ToLowerInvariant()) ||
-                    publishedFileId == realTimeWorkshopId ||
-                    publishedFileId == realTimeWorkshopId26)
-                    return true;
-            }
-
-            return false;
+            return DisasterSimulationUtils.IsRealTimeModActive();
         }
 
         private static UITextureSprite CreateAboutImageSprite(

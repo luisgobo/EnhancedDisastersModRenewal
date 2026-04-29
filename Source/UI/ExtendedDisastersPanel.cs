@@ -184,9 +184,9 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("panel.header.max_intensity"));
 
             yPosition += 15f;
-            AddCenteredLabel(parentPanel, probabilityBarStartX + 2f, yPosition, LabelTextScaleSmall, "0.1");
-            AddCenteredLabel(parentPanel, probabilityBarCenterX, yPosition, LabelTextScaleSmall, "1");
-            AddCenteredLabel(parentPanel, probabilityBarEndX - 10f, yPosition, LabelTextScaleSmall, "10");
+            AddCenteredLabel(parentPanel, probabilityBarStartX + 2f, yPosition, LabelTextScaleSmall, "0");
+            AddCenteredLabel(parentPanel, probabilityBarCenterX, yPosition, LabelTextScaleSmall, "50");
+            AddCenteredLabel(parentPanel, probabilityBarEndX - 10f, yPosition, LabelTextScaleSmall, "100");
             AddCenteredLabel(parentPanel, intensityBarStartX + 10f, yPosition, LabelTextScaleSmall, "0.0");
             AddCenteredLabel(parentPanel, intensityBarEndX - 13f, yPosition, LabelTextScaleSmall, "25.5");
 
@@ -316,30 +316,7 @@ namespace NaturalDisastersRenewal.UI
 
         private static bool IsRealTimeModActive()
         {
-            return PluginManager.instance.GetPluginsInfo().Any(IsEnabledRealTimePlugin);
-        }
-
-        private static bool IsEnabledRealTimePlugin(PluginManager.PluginInfo plugin)
-        {
-            if (plugin?.userModInstance == null || !plugin.isEnabled) return false;
-
-            var userMod = plugin.userModInstance as IUserMod;
-            var publishedFileId = plugin.publishedFileID.AsUInt64;
-
-            return ContainsRealTimeName(userMod?.Name) ||
-                   ContainsRealTimeName(plugin.name) ||
-                   IsKnownRealTimeWorkshopId(publishedFileId);
-        }
-
-        private static bool ContainsRealTimeName(string name)
-        {
-            return !string.IsNullOrEmpty(name) &&
-                   name.IndexOf("Real Time", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        private static bool IsKnownRealTimeWorkshopId(ulong publishedFileId)
-        {
-            return publishedFileId == 1420955187UL || publishedFileId == 3059406297UL;
+            return DisasterSimulationUtils.IsRealTimeModActive();
         }
 
         private void ToggleDisasterState(DisasterBaseModel disaster)
@@ -560,4 +537,3 @@ namespace NaturalDisastersRenewal.UI
         }
     }
 }
-

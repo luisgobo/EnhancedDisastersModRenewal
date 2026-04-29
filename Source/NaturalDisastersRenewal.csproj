@@ -63,6 +63,7 @@
         <Compile Include="Common\CommonProperties.cs"/>
         <Compile Include="Common\HotkeyHelper.cs"/>
         <Compile Include="Common\LocalizationService.cs"/>
+        <Compile Include="Common\ModCompatibilityService.cs"/>
         <Compile Include="Common\Services.cs"/>
         <Compile Include="Common\enums\EarthquakeCrackOptions.cs"/>
         <Compile Include="Common\enums\EvacuationOptions.cs"/>
@@ -126,7 +127,7 @@
         <WCFMetadata Include="Connected Services\"/>
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="Resources\Files\"/>
+        <EmbeddedResource Include="Resources\Files\CompatibleMods.json"/>
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Include="Resources\Images\icon-active.png">
