@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ColossalFramework.Globalization;
-using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.Common;
@@ -16,7 +15,7 @@ using UnityEngine.Serialization;
 
 namespace NaturalDisastersRenewal.UI
 {
-    public class ExtendedDisastersPanel : UIPanel
+    public class InGameDisastersPanel : UIPanel
     {
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
@@ -162,7 +161,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildStatisticsInfoTabContent(UIScrollablePanel parentPanel)
         {
-            const float itemSpacing = 22f;
+            const float itemSpacing = 4f;
             const float xPosition = 1f;
             var yPosition = 10f;
             const float probabilityBarStartX = xPosition + DisasterRowHelper.ProbabilityBarX;
@@ -202,7 +201,7 @@ namespace NaturalDisastersRenewal.UI
                 disasterRow.Initialize(disaster, xPosition, yPosition, ToggleDisasterState);
                 disasterRow.Refresh();
                 _disasterRows[i] = disasterRow;
-                yPosition += itemSpacing;
+                yPosition += disasterRow.height + itemSpacing;
             }
 
             yPosition += 10f;
@@ -252,33 +251,36 @@ namespace NaturalDisastersRenewal.UI
 
         private static void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
         {
+            const float ActionButtonSize = 22f;
+            var actionButtonPadding = new RectOffset(0, 0, 3, 0);
+
             ActionButtonHelper.CreateTextButton(
                 parentPanel,
                 "stopDisasterBtn",
                 "\u25A0",
-                new Vector3(xPosition, yPosition - 5f),
-                new Vector2(18f, 18f),
+                new Vector3(xPosition, yPosition),
+                new Vector2(ActionButtonSize, ActionButtonSize),
                 LocalizationService.Get("panel.stop_all"),
                 StopAllDisastersBtn_eventClick,
                 Color.red,
                 "ButtonMenu",
                 "ButtonMenuHovered",
                 "ButtonMenuHovered",
-                null);
+                actionButtonPadding);
 
             ActionButtonHelper.CreateTextButton(
                 parentPanel,
                 "resetDisasterBtn",
                 "\u21BA",
-                new Vector3(xPosition + 22f, yPosition - 5f),
-                new Vector2(18f, 18f),
+                new Vector3(xPosition + ActionButtonSize + 4f, yPosition),
+                new Vector2(ActionButtonSize, ActionButtonSize),
                 LocalizationService.Get("panel.reset_all"),
                 ResetAllDisastersBtn_eventClick,
                 Color.yellow,
                 "ButtonMenu",
                 "ButtonMenuHovered",
                 "ButtonMenuHovered",
-                null);
+                actionButtonPadding);
         }
 
         private void UpdatePopulationLabel()
@@ -352,7 +354,7 @@ namespace NaturalDisastersRenewal.UI
                 RefreshDisasterRow();
             }
 
-            SettingsScreen.UpdateUISettingsOptions();
+            ModSettingsScreen.UpdateUISettingsOptions();
         }
 
         private void RefreshDisasterRow()

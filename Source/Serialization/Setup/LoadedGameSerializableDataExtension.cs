@@ -12,7 +12,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
     public class LoadedGameSerializableDataExtension : ISerializableDataExtension
     {
         public const string DataID = CommonProperties.dataId;
-        public const uint DataVersion = 6;
+        public const uint DataVersion = 7;
         private ISerializableData serializableData;
 
         public void OnCreated(ISerializableData serializedData)
@@ -91,7 +91,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
                 }
 
                 // Services.DisasterHandler.RefreshLocalizedUI();
-                // SettingsScreen.RebuildUISettingsOptions();
+                // ModSettingsScreen.RebuildUISettingsOptions();
                 Debug.Log("Disaster setup data loaded for current game");
             }
             catch (Exception ex)

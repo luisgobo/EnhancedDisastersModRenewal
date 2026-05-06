@@ -5,14 +5,15 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
     public sealed class ProgressBarHelper : UIPanel
     {
+        private const float TextContrastSwitchStart = 0.28f;
+        private const float TextContrastSwitchEnd = 0.72f;
         private static readonly Color32 DisabledColor = UIStyleHelper.MutedColor;
-        private static readonly Color32 UnfilledBarColor = UIStyleHelper.SurfaceColor;
         private static readonly Color32 DarkContrastTextColor = new Color32(28, 34, 40, 255);
         private static readonly Color32 LightContrastTextColor = UIStyleHelper.PrimaryTextColor;
+        private float _labelOffsetY;
 
         private UIProgressBar _progressBar;
         private UILabel _valueLabel;
-        private float _labelOffsetY;
 
         public void Initialize(float x, float y, float componentWidth, float labelOffsetY, float labelTextScale)
         {
@@ -23,7 +24,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             _progressBar = AddUIComponent<UIProgressBar>();
             _progressBar.backgroundSprite = "LevelBarBackground";
             _progressBar.progressSprite = "LevelBarForeground";
-            _progressBar.progressColor = UIStyleHelper.AccentColor;
+            _progressBar.progressColor = GetProgressColor(0f);
             _progressBar.relativePosition = Vector3.zero;
             _progressBar.width = componentWidth;
             _progressBar.value = 0f;
@@ -50,47 +51,28 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             }
 
             _progressBar.value = Mathf.Clamp01(value);
-            _progressBar.progressColor = Color.Lerp(
-                UIStyleHelper.AccentColor,
-                UIStyleHelper.WarmAccentColor,
-                _progressBar.value);
+            _progressBar.progressColor = GetProgressColor(_progressBar.value);
             _valueLabel.textColor = GetContrastTextColor();
+        }
+
+        private static Color GetProgressColor(float value)
+        {
+            var progress = Mathf.Clamp01(value);
+            return new Color(2f * progress, 2f * (1f - progress), 0f);
         }
 
         private void CenterValueLabel()
         {
-            float centeredX = Mathf.Max(0f, (_progressBar.width - _valueLabel.width) * 0.5f);
+            var centeredX = Mathf.Max(0f, (_progressBar.width - _valueLabel.width) * 0.5f);
             _valueLabel.relativePosition = new Vector3(centeredX, _labelOffsetY + 4f);
         }
 
         private Color32 GetContrastTextColor()
         {
-            float fillWidth = _progressBar.width * _progressBar.value;
-            float labelStartX = _valueLabel.relativePosition.x;
-            float labelEndX = labelStartX + _valueLabel.width;
-            float overlapWithFill = Mathf.Clamp(Mathf.Min(labelEndX, fillWidth) - labelStartX, 0f, _valueLabel.width);
-            float overlapWithUnfilled = Mathf.Max(0f, _valueLabel.width - overlapWithFill);
+            if (_progressBar.value < TextContrastSwitchStart || _progressBar.value >= TextContrastSwitchEnd)
+                return LightContrastTextColor;
 
-            Color estimatedBackground = BlendBackground(overlapWithFill, overlapWithUnfilled);
-            return GetPerceivedLuminance(estimatedBackground) >= 0.45f
-                ? DarkContrastTextColor
-                : LightContrastTextColor;
-        }
-
-        private Color BlendBackground(float fillWeight, float unfilledWeight)
-        {
-            float totalWeight = Mathf.Max(0.0001f, fillWeight + unfilledWeight);
-            Color fillColor = _progressBar.progressColor;
-
-            return new Color(
-                ((fillColor.r * fillWeight) + (UnfilledBarColor.r / 255f * unfilledWeight)) / totalWeight,
-                ((fillColor.g * fillWeight) + (UnfilledBarColor.g / 255f * unfilledWeight)) / totalWeight,
-                ((fillColor.b * fillWeight) + (UnfilledBarColor.b / 255f * unfilledWeight)) / totalWeight);
-        }
-
-        private static float GetPerceivedLuminance(Color color)
-        {
-            return color.r * 0.299f + color.g * 0.587f + color.b * 0.114f;
+            return DarkContrastTextColor;
         }
     }
 }

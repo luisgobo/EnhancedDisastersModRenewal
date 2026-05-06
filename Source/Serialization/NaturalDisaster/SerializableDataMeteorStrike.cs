@@ -13,6 +13,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             MeteorStrikeModel meteorStrike = Services.DisasterSetup.MeteorStrike;
             SerializeCommonParameters(dataSerializer, meteorStrike);
             dataSerializer.WriteFloat(meteorStrike.RealTimeFrequencyMultiplier);
+            dataSerializer.WriteFloat(meteorStrike.realTimeDaysUntilNextMeteor);
 
             for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
             {
@@ -31,6 +32,9 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
             if (dataSerializer.version >= 6)
                 meteorStrike.RealTimeFrequencyMultiplier = dataSerializer.ReadFloat();
+
+            if (dataSerializer.version >= 7)
+                meteorStrike.realTimeDaysUntilNextMeteor = dataSerializer.ReadFloat();
 
             if (dataSerializer.version <= 2)
             {

@@ -15,6 +15,9 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         private const float MaxIntensity = 255f;
         private const float RowWidth = 410f;
         private const float NameLabelX = 26f;
+        private const float MeteorPeriodLabelX = 44f;
+        private const float MeteorPeriodBarX = 195f;
+        private const float MeteorPeriodRowHeight = 18f;
         public const float ProbabilityBarX = 195f;
         public const float IntensityBarX = 295f;
         public const float BarWidth = 90f;
@@ -25,6 +28,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         private UILabel _nameLabel;
         private ProgressBarHelper _probabilityBar;
         private ProgressBarHelper _intensityBar;
+        private UILabel[] _meteorPeriodLabels;
+        private ProgressBarHelper[] _meteorPeriodBars;
 
         public DisasterBaseModel Disaster { get; private set; }
 
@@ -48,6 +53,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
             _intensityBar = AddUIComponent<ProgressBarHelper>();
             _intensityBar.Initialize(IntensityBarX, 0f, BarWidth, ValueLabelY, LabelTextScaleTiny);
+
+            BuildMeteorPeriodBars();
         }
 
         public void Refresh()
@@ -61,11 +68,11 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                 ? Disaster.GetName()
                 : Disaster.GetName() + " - " + LocalizationService.Get("panel.disabled");
 
-            float probabilityProgressValue = GetProbabilityProgressValueLog(occurrencePerYear);
+            float probabilityProgressValue = GetProbabilityProgressValue(occurrencePerYear);
             _probabilityBar.SetState(
                 isEnabled,
                 probabilityProgressValue,
-                isEnabled ? string.Format("{0:0.##}%", probabilityProgressValue * 100f) : string.Empty,
+                isEnabled ? FormatPercentage(probabilityProgressValue) : string.Empty,
                 isEnabled ? Disaster.GetProbabilityTooltip(probabilityProgressValue) : string.Empty);
 
             float normalizedIntensity = maxIntensityCalculated / MaxIntensity;
@@ -74,6 +81,17 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                 normalizedIntensity,
                 isEnabled ? string.Format("{0:0.0}", maxIntensityCalculated / 10f) : string.Empty,
                 isEnabled ? Disaster.GetIntensityTooltip(normalizedIntensity) : string.Empty);
+
+            RefreshMeteorPeriodBars(isEnabled);
+        }
+
+        private float GetProbabilityProgressValue(float occurrencePerYear)
+        {
+            var meteorStrike = Disaster as MeteorStrikeModel;
+            if (meteorStrike != null && !meteorStrike.AreMeteorPeriodsEnabled())
+                return meteorStrike.GetRealTimePatternProbabilityProgress();
+
+            return GetProbabilityProgressValueLog(occurrencePerYear);
         }
 
         private void BuildStatusButton()
@@ -92,6 +110,69 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             _statusIcon = statusButton.AddUIComponent<UISprite>();
             _statusIcon.size = new Vector2(12f, 12f);
             _statusIcon.relativePosition = new Vector2(3f, 3f);
+        }
+
+        private void BuildMeteorPeriodBars()
+        {
+            var meteorStrike = Disaster as MeteorStrikeModel;
+            if (meteorStrike == null)
+                return;
+
+            var periodStatuses = meteorStrike.GetMeteorPeriodStatuses();
+            _meteorPeriodLabels = new UILabel[periodStatuses.Length];
+            _meteorPeriodBars = new ProgressBarHelper[periodStatuses.Length];
+
+            for (var i = 0; i < periodStatuses.Length; i++)
+            {
+                var yPosition = 22f + i * MeteorPeriodRowHeight;
+
+                var label = AddUIComponent<UILabel>();
+                label.relativePosition = new Vector3(MeteorPeriodLabelX, yPosition + 2f);
+                label.textScale = LabelTextScaleTiny;
+                label.textColor = UIStyleHelper.SecondaryTextColor;
+                _meteorPeriodLabels[i] = label;
+
+                var bar = AddUIComponent<ProgressBarHelper>();
+                bar.Initialize(MeteorPeriodBarX, yPosition, BarWidth, ValueLabelY, LabelTextScaleTiny);
+                _meteorPeriodBars[i] = bar;
+            }
+        }
+
+        private void RefreshMeteorPeriodBars(bool isEnabled)
+        {
+            var meteorStrike = Disaster as MeteorStrikeModel;
+            if (meteorStrike == null || _meteorPeriodBars == null || _meteorPeriodLabels == null)
+            {
+                height = 20f;
+                return;
+            }
+
+            var periodsEnabled = meteorStrike.AreMeteorPeriodsEnabled();
+            var periodStatuses = meteorStrike.GetMeteorPeriodStatuses();
+            height = periodsEnabled ? 22f + periodStatuses.Length * MeteorPeriodRowHeight : 20f;
+
+            for (var i = 0; i < _meteorPeriodBars.Length; i++)
+            {
+                var isPeriodVisible = periodsEnabled && i < periodStatuses.Length;
+                _meteorPeriodLabels[i].isVisible = isPeriodVisible;
+                _meteorPeriodBars[i].isVisible = isPeriodVisible;
+
+                if (!isPeriodVisible)
+                    continue;
+
+                var status = periodStatuses[i];
+                _meteorPeriodLabels[i].text = status.Name;
+                _meteorPeriodBars[i].SetState(
+                    isEnabled && status.Enabled,
+                    status.ProbabilityMultiplier,
+                    FormatPercentage(status.ProbabilityMultiplier),
+                    status.Description);
+            }
+        }
+
+        private static string FormatPercentage(float normalizedValue)
+        {
+            return string.Format("{0:00.00}%", normalizedValue * 100f);
         }
 
         private static float GetProbabilityProgressValueLog(float currentOccurrencePerYear)

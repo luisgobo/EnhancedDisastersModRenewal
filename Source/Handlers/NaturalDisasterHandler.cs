@@ -19,7 +19,7 @@ namespace NaturalDisastersRenewal.Handlers
         private readonly Harmony harmony = new Harmony(CommonProperties.modNameForHarmony);
         public DisasterSetupModel container;
         private DisasterWrapper disasterWrapper;
-        private ExtendedDisastersPanel dPanel;
+        private InGameDisastersPanel dPanel;
         private bool keyHandlerRegistered;
         private UIButton toggleButton;
 
@@ -310,9 +310,9 @@ namespace NaturalDisastersRenewal.Handlers
 
             var v = UIView.GetAView();
 
-            var obj = new GameObject("ExtendedDisastersPanel");
+            var obj = new GameObject("InGameDisastersPanel");
             obj.transform.parent = v.cachedTransform;
-            dPanel = obj.AddComponent<ExtendedDisastersPanel>();
+            dPanel = obj.AddComponent<InGameDisastersPanel>();
             dPanel.absolutePosition = new Vector3(90, 100);
 
             var toggleButtonObject = new GameObject("ExtendedDisastersPanelButton");
@@ -452,7 +452,7 @@ namespace NaturalDisastersRenewal.Handlers
 
         private void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)
         {
-            if (SettingsScreen.IsCapturingHotkey)
+            if (ModSettingsScreen.IsCapturingHotkey)
                 return;
 
             //Hide Panel when main menu is triggered

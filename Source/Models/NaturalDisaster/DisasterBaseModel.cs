@@ -82,7 +82,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             OnSimulationFrameLocal();
 
-            var daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
+            var daysPerFrame = GetSimulationDaysPerFrame();
 
             if (calmDaysLeft > 0)
             {
@@ -261,6 +261,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected virtual void OnSimulationFrameLocal()
         {
+        }
+
+        protected virtual float GetSimulationDaysPerFrame()
+        {
+            return DisasterSimulationUtils.DaysPerFrame;
         }
 
         public virtual void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId,

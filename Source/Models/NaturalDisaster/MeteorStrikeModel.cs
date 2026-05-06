@@ -12,8 +12,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
     public class MeteorStrikeModel : DisasterBaseModel
     {
         private const float DefaultRealTimeFrequencyMultiplier = 4f;
+        private const float GuaranteedOccurrencePerFrame = 1f;
 
         [XmlIgnore] public MeteorEvent[] meteorEvents;
+        [XmlIgnore] public float realTimeDaysUntilNextMeteor = -1f;
         private float realTimeFrequencyMultiplier = DefaultRealTimeFrequencyMultiplier;
 
         public MeteorStrikeModel()
@@ -75,9 +77,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
+            if (IsRealTimePatternActive())
+            {
+                EnsureRealTimeSchedule();
+                realTimeDaysUntilNextMeteor = Mathf.Max(
+                    0f,
+                    realTimeDaysUntilNextMeteor - DisasterSimulationUtils.VanillaSimulationDaysPerFrame);
+                return;
+            }
+
             var daysPerFrame = DisasterSimulationUtils.VanillaSimulationDaysPerFrame;
-            if (DisasterSimulationUtils.IsRealTimeModActive())
-                daysPerFrame *= RealTimeFrequencyMultiplier;
 
             for (var i = 0; i < meteorEvents.Length; i++) meteorEvents[i].OnSimulationFrame(daysPerFrame);
         }
@@ -110,6 +119,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override void OnDisasterStarted(byte intensity)
         {
+            if (IsRealTimePatternActive())
+            {
+                base.OnDisasterStarted(intensity);
+                ResetRealTimeSchedule();
+                return;
+            }
+
             var meteorIndex = -1;
             float maxProbability = 0;
 
@@ -135,6 +151,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             var baseValue = base.GetCurrentOccurrencePerYearLocal();
 
+            if (IsRealTimePatternActive())
+                return IsRealTimeMeteorDue()
+                    ? 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame
+                    : 0f;
+
             float result = 0;
 
             for (var i = 0; i < meteorEvents.Length; i++)
@@ -143,8 +164,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return result;
         }
 
+        protected override float GetSimulationDaysPerFrame()
+        {
+            return IsRealTimePatternActive()
+                ? DisasterSimulationUtils.VanillaSimulationDaysPerFrame
+                : base.GetSimulationDaysPerFrame();
+        }
+
         public override byte GetMaximumIntensity()
         {
+            if (IsRealTimePatternActive())
+                return ScaleIntensityByPopulation(baseIntensity);
+
             var intensity = baseIntensity;
 
             for (var i = 0; i < meteorEvents.Length; i++)
@@ -169,13 +200,106 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (!unlocked) return "Not unlocked yet";
 
+            if (IsRealTimePatternActive())
+                return string.Format(
+                    "Progress: {0}{1}Real Time active: meteor periods are disabled.{1}Configured occurrence: {2:0.##} times per year.{1}Real Time reduction: {3:0.##}x.{1}Effective occurrence: {4:0.##} times per year.",
+                    string.Format("{0:00.00}%", probabilityValue * 100),
+                    CommonProperties.newLine,
+                    BaseOccurrencePerYear,
+                    RealTimeFrequencyMultiplier,
+                    GetRealTimeOccurrencePerYear(BaseOccurrencePerYear));
+
             var probability =
-                $"Probability: {(probabilityValue != 0 ? $"{probabilityValue * 10:#.#}" : "0.00")} {CommonProperties.newLine}";
+                string.Format("Probability: {0:00.00}% {1}", probabilityValue * 100, CommonProperties.newLine);
 
             for (var i = 0; i < meteorEvents.Length; i++)
                 probability += meteorEvents[i].GetStateDescription() + Environment.NewLine;
 
             return probability;
+        }
+
+        public bool AreMeteorPeriodsEnabled()
+        {
+            return !IsRealTimePatternActive();
+        }
+
+        public float GetRealTimePatternProbabilityProgress()
+        {
+            EnsureRealTimeSchedule();
+            var periodDays = GetRealTimePeriodDays();
+            return Mathf.Clamp01(1f - realTimeDaysUntilNextMeteor / periodDays);
+        }
+
+        private float GetRealTimeOccurrencePerYear(float occurrencePerYear)
+        {
+            return occurrencePerYear / RealTimeFrequencyMultiplier;
+        }
+
+        private bool IsRealTimeMeteorDue()
+        {
+            EnsureRealTimeSchedule();
+            return realTimeDaysUntilNextMeteor <= 0f;
+        }
+
+        private void EnsureRealTimeSchedule()
+        {
+            var periodDays = GetRealTimePeriodDays();
+
+            if (realTimeDaysUntilNextMeteor < 0f)
+                realTimeDaysUntilNextMeteor = GetRandomRealTimeScheduleOffset(periodDays);
+
+            if (realTimeDaysUntilNextMeteor > periodDays)
+                realTimeDaysUntilNextMeteor = periodDays;
+        }
+
+        private void ResetRealTimeSchedule()
+        {
+            realTimeDaysUntilNextMeteor = GetRealTimePeriodDays();
+        }
+
+        private float GetRealTimePeriodDays()
+        {
+            return 365f / Mathf.Max(0.0001f, GetRealTimeOccurrencePerYear(BaseOccurrencePerYear));
+        }
+
+        private static float GetRandomRealTimeScheduleOffset(float periodDays)
+        {
+            var maxDays = Mathf.Max(1, Mathf.CeilToInt(periodDays));
+            return Services.Simulation.m_randomizer.Int32((uint)maxDays);
+        }
+
+        public MeteorPeriodStatus[] GetMeteorPeriodStatuses()
+        {
+            var statuses = new MeteorPeriodStatus[meteorEvents.Length];
+            var periodsEnabled = AreMeteorPeriodsEnabled();
+
+            for (var i = 0; i < meteorEvents.Length; i++)
+                statuses[i] = new MeteorPeriodStatus
+                {
+                    Name = meteorEvents[i].Name,
+                    Enabled = periodsEnabled && meteorEvents[i].Enabled,
+                    ProbabilityMultiplier = periodsEnabled ? meteorEvents[i].GetProbabilityMultiplier() : 0f,
+                    MaxIntensity = meteorEvents[i].MaxIntensity,
+                    Description = periodsEnabled
+                        ? meteorEvents[i].GetStateDescription()
+                        : "Disabled while Real Time is active."
+                };
+
+            return statuses;
+        }
+
+        private static bool IsRealTimePatternActive()
+        {
+            return DisasterSimulationUtils.IsRealTimeModActive();
+        }
+
+        public struct MeteorPeriodStatus
+        {
+            public string Name;
+            public bool Enabled;
+            public float ProbabilityMultiplier;
+            public byte MaxIntensity;
+            public string Description;
         }
 
         public override float CalculateDestructionRadio(byte intensity)

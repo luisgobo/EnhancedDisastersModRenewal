@@ -107,7 +107,7 @@
         <Compile Include="UI\ComponentHelper\HotkeyFieldHelper.cs"/>
         <Compile Include="UI\ComponentHelper\UIStyleHelper.cs"/>
         <Compile Include="UI\ComponentHelper\TabHelper.cs"/>
-        <Compile Include="UI\ExtendedDisastersPanel.cs"/>
+        <Compile Include="UI\InGameDisastersPanel.cs" />
         <Compile Include="Common\DisasterSimulationUtils.cs"/>
         <Compile Include="BaseGameExtensions\LoadingExtension.cs"/>
         <Compile Include="Common\enums\OccurrenceAreas.cs"/>
@@ -118,7 +118,9 @@
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="UI\ComponentHelper\DropDownHelper.cs"/>
         <Compile Include="UI\Extensions\UIHelperExtensions.cs"/>
-        <Compile Include="UI\SettingsScreen.cs"/>
+        <Compile Include="UI\SettingsSections\AboutSettingsSection.cs"/>
+        <Compile Include="UI\SettingsSections\DependenciesSettingsSection.cs"/>
+        <Compile Include="UI\ModSettingsScreen.cs" />
     </ItemGroup>
     <ItemGroup>
         <None Include="packages.config"/>

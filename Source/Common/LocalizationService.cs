@@ -196,6 +196,14 @@ namespace NaturalDisastersRenewal.Common
                             "settings.meteor.max_probability.tooltip",
                             "Maximum occurrence of meteor strike per year per one meteor when it approaches the Earth."
                         },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier",
+                            "Real Time frequency reduction"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier.tooltip",
+                            "Divides the configured meteor occurrence while Real Time is active. Higher values make automatic meteors less frequent."
+                        },
                         { "key.ctrl", "Ctrl" },
                         { "key.alt", "Alt" },
                         { "key.shift", "Shift" },
@@ -435,6 +443,14 @@ namespace NaturalDisastersRenewal.Common
                         {
                             "settings.meteor.max_probability.tooltip",
                             "Ocurrencia maxima por ano de impacto de meteorito por cada meteorito cuando se acerca a la Tierra."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier",
+                            "Reduccion de frecuencia con Real Time"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier.tooltip",
+                            "Divide la ocurrencia configurada de meteoritos mientras Real Time esta activo. Valores mas altos reducen los meteoritos automaticos."
                         },
                         { "key.ctrl", "Ctrl" },
                         { "key.alt", "Alt" },

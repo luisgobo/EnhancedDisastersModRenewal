@@ -26,6 +26,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             button.hoveredTextColor = UIStyleHelper.PrimaryTextColor;
             button.pressedTextColor = UIStyleHelper.PrimaryTextColor;
             button.textScale = 0.85f;
+            button.textHorizontalAlignment = UIHorizontalAlignment.Center;
+            button.textVerticalAlignment = UIVerticalAlignment.Middle;
             button.text = text;
             button.tooltip = tooltip;
             if (textPadding != null) button.textPadding = textPadding;
