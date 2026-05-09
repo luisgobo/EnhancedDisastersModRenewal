@@ -122,6 +122,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.evacuation_mode", "Evacuation Mode: " },
                         { "settings.max_probability", "Max probability" },
                         { "settings.times_per_year", " times per year" },
+                        { "settings.days", " days" },
                         {
                             "settings.forest_fire.max_probability.tooltip",
                             "Occurrence (per year) in case of a long period without rain."
@@ -194,7 +195,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.enable_short_meteor", "Enable short period (2 years) meteor" },
                         {
                             "settings.meteor.max_probability.tooltip",
-                            "Maximum occurrence of meteor strike per year per one meteor when it approaches the Earth."
+                            "Maximum meteor occurrence per year when Real Time is inactive. Real Time uses the dedicated meteor period setting below."
                         },
                         {
                             "settings.meteor.realtime_frequency_multiplier",
@@ -204,6 +205,26 @@ namespace NaturalDisastersRenewal.Common
                             "settings.meteor.realtime_frequency_multiplier.tooltip",
                             "Divides the configured meteor occurrence while Real Time is active. Higher values make automatic meteors less frequent."
                         },
+                        {
+                            "settings.meteor.realtime_period_days",
+                            "Real Time meteor period"
+                        },
+                        {
+                            "settings.meteor.realtime_period_days.tooltip",
+                            "Number of vanilla-equivalent simulation days required to fill the meteor progress bar while Real Time is active."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency",
+                            "Real Time meteor frequency"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip",
+                            "Chooses the random real-time interval used between automatic meteor strikes while Real Time is active."
+                        },
+                        { "settings.meteor.frequency.apocalypse", "Apocalypse: 4-10 minutes" },
+                        { "settings.meteor.frequency.daily_threat", "Daily threat: 10-30 minutes" },
+                        { "settings.meteor.frequency.occasional", "Occasional: 1-3 hours" },
+                        { "settings.meteor.frequency.rare", "Rare: 30-60 minutes" },
                         { "key.ctrl", "Ctrl" },
                         { "key.alt", "Alt" },
                         { "key.shift", "Shift" },
@@ -367,6 +388,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.evacuation_mode", "Modo de evacuacion: " },
                         { "settings.max_probability", "Probabilidad maxima" },
                         { "settings.times_per_year", " veces por ano" },
+                        { "settings.days", " dias" },
                         {
                             "settings.forest_fire.max_probability.tooltip",
                             "Ocurrencia por ano en caso de un periodo largo sin lluvia."
@@ -442,7 +464,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.enable_short_meteor", "Activar meteorito de periodo corto (2 anos)" },
                         {
                             "settings.meteor.max_probability.tooltip",
-                            "Ocurrencia maxima por ano de impacto de meteorito por cada meteorito cuando se acerca a la Tierra."
+                            "Ocurrencia maxima de meteoritos por ano cuando Real Time no esta activo. Real Time usa el periodo dedicado de meteorito configurado abajo."
                         },
                         {
                             "settings.meteor.realtime_frequency_multiplier",
@@ -452,6 +474,26 @@ namespace NaturalDisastersRenewal.Common
                             "settings.meteor.realtime_frequency_multiplier.tooltip",
                             "Divide la ocurrencia configurada de meteoritos mientras Real Time esta activo. Valores mas altos reducen los meteoritos automaticos."
                         },
+                        {
+                            "settings.meteor.realtime_period_days",
+                            "Periodo de meteorito con Real Time"
+                        },
+                        {
+                            "settings.meteor.realtime_period_days.tooltip",
+                            "Cantidad de dias de simulacion equivalentes a vanilla necesarios para llenar la barra de progreso del meteorito mientras Real Time esta activo."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency",
+                            "Frecuencia de meteoritos con Real Time"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip",
+                            "Elige el intervalo aleatorio en tiempo real entre meteoritos automaticos mientras Real Time esta activo."
+                        },
+                        { "settings.meteor.frequency.apocalypse", "Apocalipsis: 4-10 minutos" },
+                        { "settings.meteor.frequency.daily_threat", "Amenaza diaria: 10-30 minutos" },
+                        { "settings.meteor.frequency.occasional", "Ocasional: 1-3 horas" },
+                        { "settings.meteor.frequency.rare", "Raro: 30-60 minutos" },
                         { "key.ctrl", "Ctrl" },
                         { "key.alt", "Alt" },
                         { "key.shift", "Shift" },

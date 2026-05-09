@@ -20,18 +20,26 @@ namespace NaturalDisastersRenewal.UI.SettingsSections
             if (dependenciesPanel == null)
                 return;
 
-            var realTimeLabel = dependenciesPanel.AddUIComponent<UILabel>();
             var isRealTimeActive = DisasterSimulationUtils.IsRealTimeModActive();
+            AddDependencyLabel(dependenciesPanel, "Real Time", isRealTimeActive, 0f);
 
-            realTimeLabel.text = "Real Time: " +
-                                 LocalizationService.Get(isRealTimeActive
-                                     ? "settings.dependency.active"
-                                     : "settings.dependency.inactive");
-            realTimeLabel.textScale = 1f;
-            realTimeLabel.textColor = isRealTimeActive
+            var isExtendedInfoPanel2Active = DisasterSimulationUtils.IsExtendedInfoPanel2Active();
+            AddDependencyLabel(dependenciesPanel, "Extended InfoPanel 2", isExtendedInfoPanel2Active, 24f);
+        }
+
+        private static void AddDependencyLabel(UIPanel parentPanel, string dependencyName, bool isActive, float y)
+        {
+            var label = parentPanel.AddUIComponent<UILabel>();
+            label.relativePosition = new Vector3(0f, y);
+            label.text = dependencyName + ": " +
+                         LocalizationService.Get(isActive
+                             ? "settings.dependency.active"
+                             : "settings.dependency.inactive");
+            label.textScale = 1f;
+            label.textColor = isActive
                 ? new Color32(90, 200, 120, 255)
                 : new Color32(210, 120, 120, 255);
-            realTimeLabel.autoSize = true;
+            label.autoSize = true;
         }
     }
 }

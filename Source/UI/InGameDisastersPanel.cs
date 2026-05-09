@@ -21,7 +21,7 @@ namespace NaturalDisastersRenewal.UI
         private const float LabelTextScaleNormal = 0.8f;
         private const string HelpTutorialKey = "NDR_TUTORIAL_PANEL_HELP";
         private const float PanelWidth = 420f;
-        private const float PanelHeight = 330f;
+        private const float PanelHeight = 335f;
         private const float ContentInset = 8f;
         private const float WrappedContentWidth = 364f;
 
@@ -131,7 +131,7 @@ namespace NaturalDisastersRenewal.UI
         {
             var tabContainer = AddUIComponent<UITabContainer>();
             tabContainer.relativePosition = new Vector3(ContentInset, 70f);
-            tabContainer.size = new Vector2(width - ContentInset * 2f, height - 70f - ContentInset);
+            tabContainer.size = new Vector2(width - ContentInset * 2f, height - 65f - ContentInset);
 
             var tabStrip = AddUIComponent<UITabstrip>();
             tabStrip.relativePosition = new Vector3(0f, 40f);
@@ -204,7 +204,7 @@ namespace NaturalDisastersRenewal.UI
                 yPosition += disasterRow.height + itemSpacing;
             }
 
-            yPosition += 10f;
+            yPosition += 0f;
             BuildActionButtons(parentPanel, xPosition, yPosition);
             parentPanel.autoLayout = false;
             parentPanel.autoSize = false;
@@ -227,31 +227,31 @@ namespace NaturalDisastersRenewal.UI
                 AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
             yPosition += 28f;
 
-            AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, LocalizationService.Get("panel.controls.title"));
-            yPosition += 28f;
-            var toggleLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.toggle"));
-            yPosition += toggleLabel.height + 10f;
-            var stopLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.stop"));
-            yPosition += stopLabel.height + 10f;
-            var resetLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.reset"));
-            yPosition += resetLabel.height + 10f;
-            var dragLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.drag"));
-            yPosition += dragLabel.height + 10f;
-            AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.hotkey"));
+            // AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, LocalizationService.Get("panel.controls.title"));
+            // yPosition += 28f;
+            // var toggleLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.toggle"));
+            // yPosition += toggleLabel.height + 10f;
+            // var stopLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.stop"));
+            // yPosition += stopLabel.height + 10f;
+            // var resetLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.reset"));
+            // yPosition += resetLabel.height + 10f;
+            // var dragLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.drag"));
+            // yPosition += dragLabel.height + 10f;
+            // AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.hotkey"));
             parentPanel.autoLayout = false;
             parentPanel.autoSize = false;
 
-            UpdateRealTimeLabels();
+            // UpdateRealTimeLabels();
         }
 
         private static void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
         {
-            const float ActionButtonSize = 22f;
+            const float actionButtonSize = 22f;
             var actionButtonPadding = new RectOffset(0, 0, 3, 0);
 
             ActionButtonHelper.CreateTextButton(
@@ -259,7 +259,7 @@ namespace NaturalDisastersRenewal.UI
                 "stopDisasterBtn",
                 "\u25A0",
                 new Vector3(xPosition, yPosition),
-                new Vector2(ActionButtonSize, ActionButtonSize),
+                new Vector2(actionButtonSize, actionButtonSize),
                 LocalizationService.Get("panel.stop_all"),
                 StopAllDisastersBtn_eventClick,
                 Color.red,
@@ -272,8 +272,8 @@ namespace NaturalDisastersRenewal.UI
                 parentPanel,
                 "resetDisasterBtn",
                 "\u21BA",
-                new Vector3(xPosition + ActionButtonSize + 4f, yPosition),
-                new Vector2(ActionButtonSize, ActionButtonSize),
+                new Vector3(xPosition + actionButtonSize + 4f, yPosition),
+                new Vector2(actionButtonSize, actionButtonSize),
                 LocalizationService.Get("panel.reset_all"),
                 ResetAllDisastersBtn_eventClick,
                 Color.yellow,
@@ -290,14 +290,16 @@ namespace NaturalDisastersRenewal.UI
             var numberFormatInfo = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
             numberFormatInfo.NumberGroupSeparator = ",";
             var formatted =
-                ((int)Services.DisasterHandler.container.MaxPopulationToTriggerHigherDisasters).ToString("#,0", numberFormatInfo);
+                ((int)Services.DisasterHandler.container.MaxPopulationToTriggerHigherDisasters).ToString("#,0",
+                    numberFormatInfo);
             _populationLabel.text = LocalizationService.Format("panel.population_threshold.value", formatted);
             _populationLabel.tooltip = LocalizationService.Get("panel.population_threshold");
         }
 
         private void UpdateRealTimeLabels()
         {
-            if (!_realTimeStatusLabel || !_realTimeTimeOffsetTicksLabel || !_realTimeDayTimeFramesLabel || !_realTimeDayTimeOffsetFramesLabel)
+            if (!_realTimeStatusLabel || !_realTimeTimeOffsetTicksLabel || !_realTimeDayTimeFramesLabel ||
+                !_realTimeDayTimeOffsetFramesLabel)
                 return;
 
             var isRealTimeActive = IsRealTimeModActive();
@@ -349,20 +351,14 @@ namespace NaturalDisastersRenewal.UI
                     break;
             }
 
-            if (_disasterRows != null)
-            {
-                RefreshDisasterRow();
-            }
+            if (_disasterRows != null) RefreshDisasterRow();
 
             ModSettingsScreen.UpdateUISettingsOptions();
         }
 
         private void RefreshDisasterRow()
         {
-            foreach (var disasterRow in _disasterRows)
-            {
-                disasterRow.Refresh();
-            }
+            foreach (var disasterRow in _disasterRows) disasterRow.Refresh();
         }
 
         private static void HelpBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)

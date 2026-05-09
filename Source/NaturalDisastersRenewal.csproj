@@ -68,6 +68,7 @@
         <Compile Include="Common\enums\EarthquakeCrackOptions.cs"/>
         <Compile Include="Common\enums\EvacuationOptions.cs"/>
         <Compile Include="Common\enums\ModLanguage.cs"/>
+        <Compile Include="Common\enums\RealTimeMeteorFrequencyPreset.cs"/>
         <Compile Include="Common\Types\Triplet.cs"/>
         <Compile Include="Logger\DebugLogger.cs"/>
         <Compile Include="Serialization\NaturalDisaster\SerializableDataDisasterBase.cs"/>

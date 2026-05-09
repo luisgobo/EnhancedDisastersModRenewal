@@ -5,11 +5,11 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
     public static class ActionButtonHelper
     {
-        public static UIButton CreateTextButton(UIComponent parent, string name, string text, Vector3 position,
+        public static void CreateTextButton(UIComponent parent, string name, string text, Vector3 position,
             Vector2 size, string tooltip, MouseEventHandler clickHandler, Color? textColor,
             string normalBgSprite, string hoveredBgSprite, string pressedBgSprite, RectOffset textPadding)
         {
-            UIButton button = parent.AddUIComponent<UIButton>();
+            var button = parent.AddUIComponent<UIButton>();
             button.name = name;
             button.relativePosition = position;
             button.size = size;
@@ -19,7 +19,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             button.disabledBgSprite = normalBgSprite;
             button.focusedBgSprite = hoveredBgSprite;
             button.focusedColor = UIStyleHelper.SurfaceAltColor;
-            button.color = UIStyleHelper.SurfaceColor;
+            button.color = UIStyleHelper.MutedColor;
             button.textColor = textColor ?? UIStyleHelper.PrimaryTextColor;
             button.disabledTextColor = UIStyleHelper.SecondaryTextColor;
             button.focusedTextColor = UIStyleHelper.PrimaryTextColor;
@@ -32,7 +32,6 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             button.tooltip = tooltip;
             if (textPadding != null) button.textPadding = textPadding;
             if (clickHandler != null) button.eventClick += clickHandler;
-            return button;
         }
     }
 }

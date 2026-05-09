@@ -9,6 +9,15 @@
         1420955187,
         3059406297
       ]
+    },
+    {
+      "key": "extendedInfoPanel2",
+      "namePatterns": [
+        "Extended InfoPanel 2"
+      ],
+      "workshopIds": [
+        2498761388
+      ]
     }
   ]
 }

@@ -35,14 +35,14 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             _valueLabel.text = string.Empty;
         }
 
-        public void SetState(bool isEnabled, float value, string text, string tooltipText)
+        public void SetState(bool isEnabledState, float value, string text, string tooltipText)
         {
             _valueLabel.text = text;
             _valueLabel.tooltip = tooltipText;
             _progressBar.tooltip = tooltipText;
             CenterValueLabel();
 
-            if (!isEnabled)
+            if (!isEnabledState)
             {
                 _progressBar.value = 0f;
                 _progressBar.progressColor = DisabledColor;

@@ -6,6 +6,7 @@ using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
 using NaturalDisastersRenewal.UI.Extensions;
@@ -96,7 +97,7 @@ namespace NaturalDisastersRenewal.UI
         private UICheckBox UI_MeteorStrike_Enabled;
 
         private UISlider UI_MeteorStrike_MaxProbability;
-        private UISlider UI_MeteorStrike_RealTimeFrequencyMultiplier;
+        private UIDropDown UI_MeteorStrike_RealTimeFrequency;
         private UICheckBox UI_MeteorStrike_MeteorLongPeriodEnabled;
         private UICheckBox UI_MeteorStrike_MeteorMediumPeriodEnabled;
         private UICheckBox UI_MeteorStrike_MeteorShortPeriodEnabled;
@@ -209,8 +210,8 @@ namespace NaturalDisastersRenewal.UI
             UI_MeteorStrike_Enabled.isChecked = disasterSetupModel.MeteorStrike.Enabled;
             UI_MeteorStrike_EvacuationMode.selectedIndex = (int)disasterSetupModel.MeteorStrike.EvacuationMode;
             UI_MeteorStrike_MaxProbability.value = disasterSetupModel.MeteorStrike.BaseOccurrencePerYear;
-            UI_MeteorStrike_RealTimeFrequencyMultiplier.value =
-                disasterSetupModel.MeteorStrike.RealTimeFrequencyMultiplier;
+            UI_MeteorStrike_RealTimeFrequency.selectedIndex =
+                (int)disasterSetupModel.MeteorStrike.RealTimeMeteorFrequency;
             var meteorPeriodsEnabled = disasterSetupModel.MeteorStrike.AreMeteorPeriodsEnabled();
             UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked =
                 meteorPeriodsEnabled && disasterSetupModel.MeteorStrike.GetEnabled(0);
@@ -219,6 +220,7 @@ namespace NaturalDisastersRenewal.UI
             UI_MeteorStrike_MeteorShortPeriodEnabled.isChecked =
                 meteorPeriodsEnabled && disasterSetupModel.MeteorStrike.GetEnabled(2);
             SetMeteorPeriodControlsAvailability(meteorPeriodsEnabled);
+            SetMeteorRealTimeControlsAvailability(!meteorPeriodsEnabled);
 
             freezeUI = false;
         }
@@ -625,7 +627,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Earthquake_EvacuationMode = null;
             UI_MeteorStrike_Enabled = null;
             UI_MeteorStrike_MaxProbability = null;
-            UI_MeteorStrike_RealTimeFrequencyMultiplier = null;
+            UI_MeteorStrike_RealTimeFrequency = null;
             UI_MeteorStrike_MeteorLongPeriodEnabled = null;
             UI_MeteorStrike_MeteorMediumPeriodEnabled = null;
             UI_MeteorStrike_MeteorShortPeriodEnabled = null;
@@ -1145,14 +1147,20 @@ namespace NaturalDisastersRenewal.UI
                 }, LocalizationService.Get("settings.times_per_year"),
                 LocalizationService.Get("settings.meteor.max_probability.tooltip"));
 
-            UI_MeteorStrike_RealTimeFrequencyMultiplier = SliderHelper.AddSlider(
+            DropDownHelper.AddDropDown(
+                ref UI_MeteorStrike_RealTimeFrequency,
                 ref meteorStrikeGroup,
-                LocalizationService.Get("settings.meteor.realtime_frequency_multiplier"), 1f, 20f, 1f,
-                disasterContainer.MeteorStrike.RealTimeFrequencyMultiplier, delegate(float val)
+                LocalizationService.Get("settings.meteor.realtime_frequency"),
+                MeteorStrikeModel.GetRealTimeMeteorFrequencyOptions(),
+                ref disasterContainer.MeteorStrike.RealTimeMeteorFrequency,
+                delegate(int selection)
                 {
                     if (!freezeUI)
-                        disasterContainer.MeteorStrike.RealTimeFrequencyMultiplier = val;
-                }, "x", LocalizationService.Get("settings.meteor.realtime_frequency_multiplier.tooltip"));
+                        disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(
+                            (RealTimeMeteorFrequencyPreset)selection);
+                });
+            UI_MeteorStrike_RealTimeFrequency.tooltip =
+                LocalizationService.Get("settings.meteor.realtime_frequency.tooltip");
 
             UI_MeteorStrike_MeteorLongPeriodEnabled = CheckboxHelper.AddCheckbox(
                 ref meteorStrikeGroup,
@@ -1183,6 +1191,7 @@ namespace NaturalDisastersRenewal.UI
                 });
 
             SetMeteorPeriodControlsAvailability(disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled());
+            SetMeteorRealTimeControlsAvailability(!disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled());
 
             DropDownHelper.AddDropDown(
                 ref UI_MeteorStrike_EvacuationMode,
@@ -1205,6 +1214,15 @@ namespace NaturalDisastersRenewal.UI
             SetMeteorPeriodControlAvailability(UI_MeteorStrike_MeteorLongPeriodEnabled, enabled);
             SetMeteorPeriodControlAvailability(UI_MeteorStrike_MeteorMediumPeriodEnabled, enabled);
             SetMeteorPeriodControlAvailability(UI_MeteorStrike_MeteorShortPeriodEnabled, enabled);
+        }
+
+        private void SetMeteorRealTimeControlsAvailability(bool realTimeActive)
+        {
+            if (UI_MeteorStrike_MaxProbability != null)
+                UI_MeteorStrike_MaxProbability.isEnabled = !realTimeActive;
+
+            if (UI_MeteorStrike_RealTimeFrequency != null)
+                UI_MeteorStrike_RealTimeFrequency.isEnabled = realTimeActive;
         }
 
         private static void SetMeteorPeriodControlAvailability(UICheckBox checkbox, bool enabled)

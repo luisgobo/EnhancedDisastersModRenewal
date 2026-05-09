@@ -63,6 +63,11 @@ namespace NaturalDisastersRenewal.Common
             return ModCompatibilityService.IsActive("realTime");
         }
 
+        public static bool IsExtendedInfoPanel2Active()
+        {
+            return ModCompatibilityService.IsActive("extendedInfoPanel2");
+        }
+
         public static string FormatTimeSpan(float daysFloat)
         {
             if (daysFloat <= 0) return "0 " + LocalizationService.Get("time.day") + "s";
