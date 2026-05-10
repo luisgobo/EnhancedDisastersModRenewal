@@ -17,6 +17,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float SecondsPerMinute = 60f;
         private const float MaxRealTimeDeltaSeconds = 5f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
+        private static readonly RealTimeMeteorFrequencyPreset[] RealTimeMeteorFrequencyOptionValues =
+        {
+            RealTimeMeteorFrequencyPreset.Apocalypse,
+            RealTimeMeteorFrequencyPreset.Frequent,
+            RealTimeMeteorFrequencyPreset.Occasional,
+            RealTimeMeteorFrequencyPreset.Uncommon,
+            RealTimeMeteorFrequencyPreset.Rare
+        };
+
         [XmlIgnore] private float lastRealTimeScheduleUpdateSeconds = -1f;
 
         [XmlIgnore] public MeteorEvent[] meteorEvents;
@@ -383,6 +392,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     minMinutes = 45f;
                     maxMinutes = 90f;
                     break;
+                case RealTimeMeteorFrequencyPreset.Uncommon:
+                    minMinutes = 90f;
+                    maxMinutes = 180f;
+                    break;
                 case RealTimeMeteorFrequencyPreset.Rare:
                     minMinutes = 180f;
                     maxMinutes = 360f;
@@ -407,8 +420,26 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 LocalizationService.Get("settings.meteor.frequency.apocalypse"),
                 LocalizationService.Get("settings.meteor.frequency.frequent"),
                 LocalizationService.Get("settings.meteor.frequency.occasional"),
+                LocalizationService.Get("settings.meteor.frequency.uncommon"),
                 LocalizationService.Get("settings.meteor.frequency.rare")
             };
+        }
+
+        public int GetRealTimeMeteorFrequencySelectionIndex()
+        {
+            for (var i = 0; i < RealTimeMeteorFrequencyOptionValues.Length; i++)
+                if (RealTimeMeteorFrequencyOptionValues[i] == RealTimeMeteorFrequency)
+                    return i;
+
+            return 3;
+        }
+
+        public static RealTimeMeteorFrequencyPreset GetRealTimeMeteorFrequencyFromSelection(int selection)
+        {
+            if (selection < 0 || selection >= RealTimeMeteorFrequencyOptionValues.Length)
+                return RealTimeMeteorFrequencyPreset.Uncommon;
+
+            return RealTimeMeteorFrequencyOptionValues[selection];
         }
 
         public string GetRealTimeMeteorFrequencyTooltip()
@@ -428,6 +459,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     return LocalizationService.Get("settings.meteor.frequency_name.frequent");
                 case RealTimeMeteorFrequencyPreset.Occasional:
                     return LocalizationService.Get("settings.meteor.frequency_name.occasional");
+                case RealTimeMeteorFrequencyPreset.Uncommon:
+                    return LocalizationService.Get("settings.meteor.frequency_name.uncommon");
                 case RealTimeMeteorFrequencyPreset.Rare:
                     return LocalizationService.Get("settings.meteor.frequency_name.rare");
                 default:

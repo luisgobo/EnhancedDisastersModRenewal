@@ -211,7 +211,7 @@ namespace NaturalDisastersRenewal.UI
             UI_MeteorStrike_EvacuationMode.selectedIndex = (int)disasterSetupModel.MeteorStrike.EvacuationMode;
             UI_MeteorStrike_MaxProbability.value = disasterSetupModel.MeteorStrike.BaseOccurrencePerYear;
             UI_MeteorStrike_RealTimeFrequency.selectedIndex =
-                (int)disasterSetupModel.MeteorStrike.RealTimeMeteorFrequency;
+                disasterSetupModel.MeteorStrike.GetRealTimeMeteorFrequencySelectionIndex();
             UI_MeteorStrike_RealTimeFrequency.tooltip =
                 disasterSetupModel.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
             var meteorPeriodsEnabled = disasterSetupModel.MeteorStrike.AreMeteorPeriodsEnabled();
@@ -1190,11 +1190,13 @@ namespace NaturalDisastersRenewal.UI
                     if (!freezeUI)
                     {
                         disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(
-                            (RealTimeMeteorFrequencyPreset)selection);
+                            MeteorStrikeModel.GetRealTimeMeteorFrequencyFromSelection(selection));
                         UI_MeteorStrike_RealTimeFrequency.tooltip =
                             disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
                     }
                 });
+            UI_MeteorStrike_RealTimeFrequency.selectedIndex =
+                disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencySelectionIndex();
             UI_MeteorStrike_RealTimeFrequency.tooltip =
                 disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
             SetMeteorRealTimeControlsAvailability(!disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled());

@@ -5,6 +5,8 @@ namespace NaturalDisastersRenewal.Common.enums
         Apocalypse = 0,
         Frequent = 1,
         Occasional = 2,
-        Rare = 3
+        Rare = 3,
+        Uncommon = 4,
+        DailyThreat = Frequent
     }
 }
