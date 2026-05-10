@@ -176,8 +176,9 @@ namespace NaturalDisastersRenewal.UI
             yPosition += 22f;
             AddLabel(parentPanel, xPosition + 27f, yPosition, LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.disaster"));
-            AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition, LabelTextScaleSmall,
+            var probabilityHeader = AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition, LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.probability"));
+            probabilityHeader.tooltip = LocalizationService.Get("panel.header.probability.tooltip");
             AddCenteredLabel(parentPanel, intensityBarCenterX, yPosition, LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.max_intensity"));
 

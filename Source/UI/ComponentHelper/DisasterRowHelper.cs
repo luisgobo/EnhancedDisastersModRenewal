@@ -91,8 +91,10 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         private float GetProbabilityProgressValue(float occurrencePerYear)
         {
             var meteorStrike = Disaster as MeteorStrikeModel;
-            if (meteorStrike != null && !meteorStrike.AreMeteorPeriodsEnabled())
-                return meteorStrike.GetRealTimePatternProbabilityProgress();
+            if (meteorStrike != null)
+                return meteorStrike.AreMeteorPeriodsEnabled()
+                    ? meteorStrike.GetMeteorPeriodProbabilityProgress()
+                    : meteorStrike.GetRealTimePatternProbabilityProgress();
 
             return GetProbabilityProgressValueLog(occurrencePerYear);
         }

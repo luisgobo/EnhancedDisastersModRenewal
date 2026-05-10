@@ -35,7 +35,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.title", "Disasters info" },
                         { "panel.population_threshold", "Max population to trigger higher disasters" },
                         { "panel.disaster_header", "Disaster - COY/Max Int" },
-                        { "panel.axis.probability", "Probability" },
+                        { "panel.axis.probability", "Annual rate" },
                         { "panel.axis.max_intensity", "Max intensity" },
                         { "panel.stop_all", "Emergency Button (stop all disasters)" },
                         { "panel.reset_all", "Reset disaster cooldowns and progress" },
@@ -43,7 +43,11 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.tab.statistics", "Statistics" },
                         { "panel.tab.controls", "Controls" },
                         { "panel.header.disaster", "Disaster" },
-                        { "panel.header.probability", "Probability" },
+                        { "panel.header.probability", "Annual rate" },
+                        {
+                            "panel.header.probability.tooltip",
+                            "Normalized from the current disaster occurrence per year."
+                        },
                         { "panel.header.max_intensity", "Max strength" },
                         { "panel.population_threshold.value", "Min. population for strongest disasters: {0}." },
                         { "panel.help.tooltip", "Open panel help" },
@@ -301,7 +305,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.title", "Informacion de desastres" },
                         { "panel.population_threshold", "Poblacion maxima para activar desastres mas fuertes" },
                         { "panel.disaster_header", "Desastre - FOA/Fuerza Max" },
-                        { "panel.axis.probability", "Probabilidad" },
+                        { "panel.axis.probability", "Tasa anual" },
                         { "panel.axis.max_intensity", "Fuerza maxima" },
                         { "panel.stop_all", "Boton de emergencia (detener todos los desastres)" },
                         { "panel.reset_all", "Reiniciar enfriamientos y progreso de desastres" },
@@ -309,7 +313,11 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.tab.statistics", "Estadisticas" },
                         { "panel.tab.controls", "Controles" },
                         { "panel.header.disaster", "Desastre" },
-                        { "panel.header.probability", "Probabilidad" },
+                        { "panel.header.probability", "Tasa anual" },
+                        {
+                            "panel.header.probability.tooltip",
+                            "Normalizada segun la ocurrencia anual actual del desastre."
+                        },
                         { "panel.header.max_intensity", "Fuerza max." },
                         { "panel.population_threshold.value", "Poblacion minima para los desastres mas fuertes: {0}." },
                         { "panel.help.tooltip", "Abrir ayuda del panel" },

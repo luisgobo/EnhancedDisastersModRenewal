@@ -174,19 +174,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override float GetCurrentOccurrencePerYearLocal()
         {
-            var baseValue = base.GetCurrentOccurrencePerYearLocal();
-
             if (IsRealTimePatternActive())
                 return IsRealTimeMeteorDue()
                     ? 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame
                     : 0f;
 
-            float result = 0;
-
             for (var i = 0; i < meteorEvents.Length; i++)
-                result += baseValue * meteorEvents[i].GetProbabilityMultiplier();
+                if (meteorEvents[i].IsDue())
+                    return 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame;
 
-            return result;
+            return 0f;
         }
 
         protected override float GetSimulationDaysPerFrame()
@@ -245,6 +242,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public bool AreMeteorPeriodsEnabled()
         {
             return !IsRealTimePatternActive();
+        }
+
+        public float GetMeteorPeriodProbabilityProgress()
+        {
+            float progress = 0f;
+
+            for (var i = 0; i < meteorEvents.Length; i++)
+                progress = Mathf.Max(progress, meteorEvents[i].GetProbabilityMultiplier());
+
+            return progress;
         }
 
         public float GetRealTimePatternProbabilityProgress()
@@ -558,11 +565,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 if (MeteorsFallen > 0) return 0;
 
-                float fallPeriod_half = 30; // Days
-                var daysDiffFromPeak = Mathf.Abs(DaysUntilNextEvent - fallPeriod_half);
-                var multiplier = Mathf.Max(0, 1f - daysDiffFromPeak / fallPeriod_half);
+                if (IsDue())
+                    return 1f;
 
-                return multiplier;
+                return Mathf.Clamp01(1f - DaysUntilNextEvent / PeriodDays);
+            }
+
+            public bool IsDue()
+            {
+                return Enabled && MeteorsFallen == 0 && DaysUntilNextEvent <= 0f;
             }
 
             public byte GetActualMaxIntensity()
@@ -579,19 +590,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 if (!Enabled) return;
 
                 DaysUntilNextEvent -= daysPerFrame;
-
-                if (DaysUntilNextEvent <= 0)
-                {
-                    DaysUntilNextEvent = PeriodDays;
-                    MeteorsFallen = 0;
-                }
             }
 
             public void OnMeteorFallen()
             {
-                if (MeteorsFallen > 0) return;
-
-                MeteorsFallen++;
+                DaysUntilNextEvent = PeriodDays;
+                MeteorsFallen = 0;
             }
 
             public override string ToString()
@@ -606,7 +610,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 if (MeteorsFallen > 0) return Name + " already fallen.";
 
-                if (DaysUntilNextEvent <= 60) return Name + " is approaching.";
+                if (GetProbabilityMultiplier() >= 0.9f)
+                    return Name + " is approaching. Time remaining: " +
+                           DisasterSimulationUtils.FormatTimeSpan(DaysUntilNextEvent);
 
                 return Name + " will be close in " + DisasterSimulationUtils.FormatTimeSpan(DaysUntilNextEvent);
             }
