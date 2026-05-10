@@ -111,7 +111,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
-            activeDisasters.Add(disasterInfoModel);
+            AddOrReplaceActiveDisaster(disasterInfoModel, ref activeDisasters);
         }
 
         public override bool CheckDisasterAIType(object disasterAI)

@@ -97,7 +97,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
-            activeDisasters.Add(disasterInfoModel);
+            AddOrReplaceActiveDisaster(disasterInfoModel, ref activeDisasters);
         }
 
         public override string GetProbabilityTooltip(float value)

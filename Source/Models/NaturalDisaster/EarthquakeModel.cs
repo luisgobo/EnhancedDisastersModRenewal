@@ -298,7 +298,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
-            activeDisasters.Add(disasterInfoModel);
+            AddOrReplaceActiveDisaster(disasterInfoModel, ref activeDisasters);
         }
 
         private void SetupCracksOnMap(byte intensity)

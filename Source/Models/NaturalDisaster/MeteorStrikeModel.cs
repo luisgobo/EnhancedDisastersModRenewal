@@ -677,6 +677,3 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         }
     }
 }
-
-//TODO
-// Autoevacuate/release is not working
