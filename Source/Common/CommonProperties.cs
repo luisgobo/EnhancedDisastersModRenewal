@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Globalization;
+using System.Reflection;
 
 namespace NaturalDisastersRenewal.Common
 {
@@ -8,8 +10,6 @@ namespace NaturalDisastersRenewal.Common
         public const string ModName = "Natural Disasters Renewal";
         public const string ModNameForHarmony = "NaturalDisastersRenewal";
         private const string ModVersion = "1.3.0";
-        private const string ModLastVersionYear = "2026";
-        private const string ModLastVersionMonth = "May";
         public const string ModSteamId = "2957578256";
         private const string ContentMainPath = "Colossal Order";
         private const string ContentSubPath = "Cities_Skylines";
@@ -22,11 +22,17 @@ namespace NaturalDisastersRenewal.Common
 
         public static readonly string NewLine = $"{Environment.NewLine}";
 
+        private static DateTime ModBuildDate => File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location);
+
+        private static string ModLastVersionYear => ModBuildDate.ToString("yyyy", CultureInfo.InvariantCulture);
+
+        private static string ModLastVersionMonth => ModBuildDate.ToString("MMMM", CultureInfo.InvariantCulture);
+
         public static string GetModDescription()
         {
             return string.Format(
-                "Bring your city to life with disasters that feel unpredictable, dramatic, and worth preparing for. Shape the challenge, react faster, and keep every storm, fire, quake, tsunami, tornado, sinkhole, and meteor strike under control" +
-                $"Version: {ModVersion}. Last Update: {ModLastVersionMonth},{ModLastVersionYear}");
+                "Make your city feel alive, vulnerable, and thrilling to protect. " +
+                $"Version: {ModVersion}. Last Update: {ModLastVersionMonth}, {ModLastVersionYear}");
         }
 
         public static string GetOptionsFilePath(string filename)
