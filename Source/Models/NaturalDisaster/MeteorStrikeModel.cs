@@ -371,21 +371,21 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (RealTimeMeteorFrequency)
             {
                 case RealTimeMeteorFrequencyPreset.Apocalypse:
-                    minMinutes = 4f;
-                    maxMinutes = 10f;
+                    minMinutes = 5f;
+                    maxMinutes = 12f;
                     break;
-                case RealTimeMeteorFrequencyPreset.DailyThreat:
-                    minMinutes = 10f;
-                    maxMinutes = 30f;
+                case RealTimeMeteorFrequencyPreset.Frequent:
+                    minMinutes = 15f;
+                    maxMinutes = 45f;
                     break;
                 case RealTimeMeteorFrequencyPreset.Occasional:
                 default:
-                    minMinutes = 30f;
-                    maxMinutes = 60f;
+                    minMinutes = 45f;
+                    maxMinutes = 90f;
                     break;
                 case RealTimeMeteorFrequencyPreset.Rare:
-                    minMinutes = 60f;
-                    maxMinutes = 180f;
+                    minMinutes = 180f;
+                    maxMinutes = 360f;
                     break;
             }
         }
@@ -405,7 +405,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return new[]
             {
                 LocalizationService.Get("settings.meteor.frequency.apocalypse"),
-                LocalizationService.Get("settings.meteor.frequency.daily_threat"),
+                LocalizationService.Get("settings.meteor.frequency.frequent"),
                 LocalizationService.Get("settings.meteor.frequency.occasional"),
                 LocalizationService.Get("settings.meteor.frequency.rare")
             };
@@ -420,7 +420,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         private string GetRealTimeMeteorFrequencyName()
         {
-            return RealTimeMeteorFrequency.ToString();
+            switch (RealTimeMeteorFrequency)
+            {
+                case RealTimeMeteorFrequencyPreset.Apocalypse:
+                    return LocalizationService.Get("settings.meteor.frequency_name.apocalypse");
+                case RealTimeMeteorFrequencyPreset.Frequent:
+                    return LocalizationService.Get("settings.meteor.frequency_name.frequent");
+                case RealTimeMeteorFrequencyPreset.Occasional:
+                    return LocalizationService.Get("settings.meteor.frequency_name.occasional");
+                case RealTimeMeteorFrequencyPreset.Rare:
+                    return LocalizationService.Get("settings.meteor.frequency_name.rare");
+                default:
+                    return RealTimeMeteorFrequency.ToString();
+            }
         }
 
         public MeteorPeriodStatus[] GetMeteorPeriodStatuses()

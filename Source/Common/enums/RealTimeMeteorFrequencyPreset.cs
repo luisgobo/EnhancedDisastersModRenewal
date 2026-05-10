@@ -2,9 +2,9 @@ namespace NaturalDisastersRenewal.Common.enums
 {
     public enum RealTimeMeteorFrequencyPreset
     {
-        Apocalypse,
-        DailyThreat,
-        Occasional,
-        Rare
+        Apocalypse = 0,
+        Frequent = 1,
+        Occasional = 2,
+        Rare = 3
     }
 }
