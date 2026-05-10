@@ -455,13 +455,6 @@ namespace NaturalDisastersRenewal.Handlers
             if (ModSettingsScreen.IsCapturingHotkey)
                 return;
 
-            //Hide Panel when main menu is triggered
-            if (eventType == EventType.KeyDown && keyCode == KeyCode.Escape)
-            {
-                dPanel.isVisible = false;
-                return;
-            }
-
             //Show / Hide Panel hotkey
             if (eventType == EventType.KeyDown &&
                 HotkeyHelper.MatchesHotkey(container.TogglePanelHotkey, container.TogglePanelHotkeyModifiers, keyCode,

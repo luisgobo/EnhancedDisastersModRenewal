@@ -97,12 +97,43 @@ namespace NaturalDisastersRenewal.Common
                    FormatValue(months, LocalizationService.Get("time.month"));
         }
 
-        public static string FormatValue(float value, string countableWord)
+        public static string FormatRealTimeMinutes(float minutesFloat)
+        {
+            var totalSeconds = Mathf.RoundToInt(Mathf.Max(0f, minutesFloat) * 60f);
+            if (minutesFloat > 0f && totalSeconds == 0)
+                totalSeconds = 1;
+
+            if (totalSeconds < 60)
+                return FormatValue(totalSeconds, LocalizationService.Get("time.second"));
+
+            var totalMinutes = totalSeconds / 60;
+            var seconds = totalSeconds % 60;
+            if (totalMinutes < 60)
+            {
+                var minutesText = FormatValue(totalMinutes, LocalizationService.Get("time.minute"));
+                if (seconds == 0)
+                    return minutesText;
+
+                return minutesText + " " + LocalizationService.Get("time.and") + " " +
+                       FormatValue(seconds, LocalizationService.Get("time.second"));
+            }
+
+            var hours = totalMinutes / 60;
+            var minutes = totalMinutes % 60;
+            var hoursText = FormatValue(hours, LocalizationService.Get("time.hour"));
+            if (minutes == 0)
+                return hoursText;
+
+            return hoursText + " " + LocalizationService.Get("time.and") + " " +
+                   FormatValue(minutes, LocalizationService.Get("time.minute"));
+        }
+
+        private static string FormatValue(float value, string countableWord)
         {
             return FormatValue(Mathf.FloorToInt(value), countableWord);
         }
 
-        public static string FormatValue(int value, string countableWord)
+        private static string FormatValue(int value, string countableWord)
         {
             return value + " " + countableWord + (value == 1 ? "" : "s");
         }

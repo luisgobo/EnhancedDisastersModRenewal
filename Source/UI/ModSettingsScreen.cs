@@ -1147,21 +1147,6 @@ namespace NaturalDisastersRenewal.UI
                 }, LocalizationService.Get("settings.times_per_year"),
                 LocalizationService.Get("settings.meteor.max_probability.tooltip"));
 
-            DropDownHelper.AddDropDown(
-                ref UI_MeteorStrike_RealTimeFrequency,
-                ref meteorStrikeGroup,
-                LocalizationService.Get("settings.meteor.realtime_frequency"),
-                MeteorStrikeModel.GetRealTimeMeteorFrequencyOptions(),
-                ref disasterContainer.MeteorStrike.RealTimeMeteorFrequency,
-                delegate(int selection)
-                {
-                    if (!freezeUI)
-                        disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(
-                            (RealTimeMeteorFrequencyPreset)selection);
-                });
-            UI_MeteorStrike_RealTimeFrequency.tooltip =
-                LocalizationService.Get("settings.meteor.realtime_frequency.tooltip");
-
             UI_MeteorStrike_MeteorLongPeriodEnabled = CheckboxHelper.AddCheckbox(
                 ref meteorStrikeGroup,
                 LocalizationService.Get("settings.enable_long_meteor"), disasterContainer.MeteorStrike.GetEnabled(0),
@@ -1191,6 +1176,21 @@ namespace NaturalDisastersRenewal.UI
                 });
 
             SetMeteorPeriodControlsAvailability(disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled());
+
+            DropDownHelper.AddDropDown(
+                ref UI_MeteorStrike_RealTimeFrequency,
+                ref meteorStrikeGroup,
+                LocalizationService.Get("settings.meteor.realtime_frequency"),
+                MeteorStrikeModel.GetRealTimeMeteorFrequencyOptions(),
+                ref disasterContainer.MeteorStrike.RealTimeMeteorFrequency,
+                delegate(int selection)
+                {
+                    if (!freezeUI)
+                        disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(
+                            (RealTimeMeteorFrequencyPreset)selection);
+                });
+            UI_MeteorStrike_RealTimeFrequency.tooltip =
+                LocalizationService.Get("settings.meteor.realtime_frequency.tooltip");
             SetMeteorRealTimeControlsAvailability(!disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled());
 
             DropDownHelper.AddDropDown(

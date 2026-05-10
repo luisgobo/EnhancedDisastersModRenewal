@@ -14,7 +14,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         private const float LabelTextScaleTiny = 0.6f;
         private const float MaxIntensity = 255f;
         private const float RowWidth = 410f;
-        private const float NameLabelX = 26f;
+        private const float NameLabelX = 21f;
+        private const float NameLabelBarPadding = 6f;
         private const float MeteorPeriodLabelX = 44f;
         private const float MeteorPeriodBarX = 195f;
         private const float MeteorPeriodRowHeight = 18f;
@@ -67,6 +68,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             _nameLabel.text = isEnabled
                 ? Disaster.GetName()
                 : Disaster.GetName() + " - " + LocalizationService.Get("panel.disabled");
+            _nameLabel.textScale = LabelTextScaleNormal;
+            LabelHelper.ResizeLabel(_nameLabel, ProbabilityBarX - NameLabelX - NameLabelBarPadding, 0.68f);
 
             float probabilityProgressValue = GetProbabilityProgressValue(occurrencePerYear);
             _probabilityBar.SetState(

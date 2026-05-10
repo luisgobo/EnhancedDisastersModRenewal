@@ -20,10 +20,9 @@ namespace NaturalDisastersRenewal.UI
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
         private const string HelpTutorialKey = "NDR_TUTORIAL_PANEL_HELP";
-        private const float PanelWidth = 420f;
+        private const float PanelWidth = 430f;
         private const float PanelHeight = 335f;
         private const float ContentInset = 8f;
-        private const float WrappedContentWidth = 364f;
 
         [FormerlySerializedAs("Counter")] public int counter;
         private DisasterRowHelper[] _disasterRows;
@@ -175,7 +174,7 @@ namespace NaturalDisastersRenewal.UI
             UpdatePopulationLabel();
 
             yPosition += 22f;
-            AddLabel(parentPanel, xPosition + 32f, yPosition, LabelTextScaleSmall,
+            AddLabel(parentPanel, xPosition + 27f, yPosition, LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.disaster"));
             AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition, LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.probability"));

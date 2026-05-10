@@ -16,6 +16,9 @@ namespace NaturalDisastersRenewal.Common
                         { "language.spanish", "Spanish" },
                         { "time.and", "and" },
                         { "time.less_than_one_day", "Less than one day" },
+                        { "time.second", "second" },
+                        { "time.minute", "minute" },
+                        { "time.hour", "hour" },
                         { "time.day", "day" },
                         { "time.month", "month" },
                         { "time.year", "year" },
@@ -195,7 +198,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.enable_short_meteor", "Enable short period (2 years) meteor" },
                         {
                             "settings.meteor.max_probability.tooltip",
-                            "Maximum meteor occurrence per year when Real Time is inactive. Real Time uses the dedicated meteor period setting below."
+                            "Maximum meteor occurrence per year when Real Time is inactive.\nReal Time uses the dedicated meteor period setting below."
                         },
                         {
                             "settings.meteor.realtime_frequency_multiplier",
@@ -223,8 +226,8 @@ namespace NaturalDisastersRenewal.Common
                         },
                         { "settings.meteor.frequency.apocalypse", "Apocalypse: 4-10 minutes" },
                         { "settings.meteor.frequency.daily_threat", "Daily threat: 10-30 minutes" },
-                        { "settings.meteor.frequency.occasional", "Occasional: 1-3 hours" },
-                        { "settings.meteor.frequency.rare", "Rare: 30-60 minutes" },
+                        { "settings.meteor.frequency.occasional", "Occasional: 30-60 minutes" },
+                        { "settings.meteor.frequency.rare", "Rare: 1-3 hours" },
                         { "key.ctrl", "Ctrl" },
                         { "key.alt", "Alt" },
                         { "key.shift", "Shift" },
@@ -263,7 +266,10 @@ namespace NaturalDisastersRenewal.Common
                         { "about.mod_name", "Natural Disasters Renewal" },
                         { "about.version", "Version: {0}" },
                         { "about.updated", "Last updated: {0}" },
-                        { "about.description", "A unified overhaul for natural disasters, evacuation behavior, and disaster control in Cities: Skylines." },
+                        {
+                            "about.description",
+                            "A unified overhaul for natural disasters, evacuation behavior, and disaster control in Cities: Skylines."
+                        },
                         { "about.donate_link", "Open Donations Page" },
                         { "about.git_link", "Open GitHub Page" },
                         { "about.steam_link", "Open Steam Workshop Page" }
@@ -276,6 +282,9 @@ namespace NaturalDisastersRenewal.Common
                         { "language.spanish", "Español" },
                         { "time.and", "y" },
                         { "time.less_than_one_day", "Menos de un dia" },
+                        { "time.second", "segundo" },
+                        { "time.minute", "minuto" },
+                        { "time.hour", "hora" },
                         { "time.day", "dia" },
                         { "time.month", "mes" },
                         { "time.year", "ano" },
@@ -492,8 +501,8 @@ namespace NaturalDisastersRenewal.Common
                         },
                         { "settings.meteor.frequency.apocalypse", "Apocalipsis: 4-10 minutos" },
                         { "settings.meteor.frequency.daily_threat", "Amenaza diaria: 10-30 minutos" },
-                        { "settings.meteor.frequency.occasional", "Ocasional: 1-3 horas" },
-                        { "settings.meteor.frequency.rare", "Raro: 30-60 minutos" },
+                        { "settings.meteor.frequency.occasional", "Ocasional: 30-60 minutos" },
+                        { "settings.meteor.frequency.rare", "Raro: 1-3 horas" },
                         { "key.ctrl", "Ctrl" },
                         { "key.alt", "Alt" },
                         { "key.shift", "Shift" },
@@ -529,7 +538,10 @@ namespace NaturalDisastersRenewal.Common
                         { "about.mod_name", "Natural Disasters Renewal" },
                         { "about.version", "Version: {0}" },
                         { "about.updated", "Ultima actualizacion: {0}" },
-                        { "about.description", "Una renovacion unificada para desastres naturales, comportamiento de evacuacion y control de desastres en Cities: Skylines." },
+                        {
+                            "about.description",
+                            "Una renovacion unificada para desastres naturales, comportamiento de evacuacion y control de desastres en Cities: Skylines."
+                        },
                         { "about.donate_link", "Abrir pagina de donaciones" },
                         { "about.git_link", "Abrir pagina de GitHub" },
                         { "about.steam_link", "Abrir Pagina de Steam Workshop" }

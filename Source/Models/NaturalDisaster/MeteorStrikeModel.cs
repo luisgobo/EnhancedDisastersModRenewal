@@ -17,15 +17,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float SecondsPerMinute = 60f;
         private const float MaxRealTimeDeltaSeconds = 5f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
+        [XmlIgnore] private float lastRealTimeScheduleUpdateSeconds = -1f;
 
         [XmlIgnore] public MeteorEvent[] meteorEvents;
-        [XmlIgnore] public float realTimeDaysUntilNextMeteor = -1f;
-        [XmlIgnore] public float realTimeMinutesUntilNextMeteor = -1f;
         [XmlIgnore] public float realTimeCurrentPeriodMinutes = -1f;
-        [XmlIgnore] private float lastRealTimeScheduleUpdateSeconds = -1f;
+        [XmlIgnore] public float realTimeDaysUntilNextMeteor = -1f;
         private float realTimeFrequencyMultiplier = DefaultRealTimeFrequencyMultiplier;
-        private float realTimePeriodDays = DefaultRealTimePeriodDays;
         public RealTimeMeteorFrequencyPreset RealTimeMeteorFrequency = RealTimeMeteorFrequencyPreset.Occasional;
+        [XmlIgnore] public float realTimeMinutesUntilNextMeteor = -1f;
+        private float realTimePeriodDays = DefaultRealTimePeriodDays;
 
         public MeteorStrikeModel()
         {
@@ -70,7 +70,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlElement]
         public float RealTimeFrequencyMultiplier
         {
-            get { return realTimeFrequencyMultiplier; }
+            get => realTimeFrequencyMultiplier;
             set
             {
                 realTimeFrequencyMultiplier = Mathf.Max(1f, value);
@@ -81,7 +81,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlElement]
         public float RealTimePeriodDays
         {
-            get { return realTimePeriodDays; }
+            get => realTimePeriodDays;
             set
             {
                 realTimePeriodDays = Mathf.Max(1f, value);
@@ -227,11 +227,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (IsRealTimePatternActive())
                 return string.Format(
-                    "Progress: {0}{1}Real Time active: meteor periods are disabled.{1}Current interval: {2:0.##} minutes.{1}Time remaining: {3:0.##} minutes.",
+                    "Progress: {0}{1}Real Time active: meteor periods are disabled.{1}Current interval: {2}.{1}Time remaining: {3}.",
                     string.Format("{0:00.00}%", probabilityValue * 100),
                     CommonProperties.newLine,
-                    realTimeCurrentPeriodMinutes,
-                    realTimeMinutesUntilNextMeteor);
+                    DisasterSimulationUtils.FormatRealTimeMinutes(realTimeCurrentPeriodMinutes),
+                    DisasterSimulationUtils.FormatRealTimeMinutes(realTimeMinutesUntilNextMeteor));
 
             var probability =
                 string.Format("Probability: {0:00.00}% {1}", probabilityValue * 100, CommonProperties.newLine);
@@ -352,9 +352,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         private float GetRandomRealTimeIntervalMinutes()
         {
-            float minMinutes;
-            float maxMinutes;
-            GetRealTimeIntervalRange(out minMinutes, out maxMinutes);
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
 
             var randomValue = Services.Simulation.m_randomizer.Int32(0, 10000) / 10000f;
             return minMinutes + (maxMinutes - minMinutes) * randomValue;
@@ -372,12 +370,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     minMinutes = 10f;
                     maxMinutes = 30f;
                     break;
-                case RealTimeMeteorFrequencyPreset.Rare:
+                case RealTimeMeteorFrequencyPreset.Occasional:
+                default:
                     minMinutes = 30f;
                     maxMinutes = 60f;
                     break;
-                case RealTimeMeteorFrequencyPreset.Occasional:
-                default:
+                case RealTimeMeteorFrequencyPreset.Rare:
                     minMinutes = 60f;
                     maxMinutes = 180f;
                     break;
@@ -428,15 +426,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private static bool IsRealTimePatternActive()
         {
             return DisasterSimulationUtils.IsRealTimeModActive();
-        }
-
-        public struct MeteorPeriodStatus
-        {
-            public string Name;
-            public bool Enabled;
-            public float ProbabilityMultiplier;
-            public byte MaxIntensity;
-            public string Description;
         }
 
         public override float CalculateDestructionRadio(byte intensity)
@@ -516,6 +505,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 RealTimePeriodDays = d.RealTimePeriodDays;
                 RealTimeMeteorFrequency = d.RealTimeMeteorFrequency;
             }
+        }
+
+        public struct MeteorPeriodStatus
+        {
+            public string Name;
+            public bool Enabled;
+            public float ProbabilityMultiplier;
+            public byte MaxIntensity;
+            public string Description;
         }
 
         public struct MeteorEvent
