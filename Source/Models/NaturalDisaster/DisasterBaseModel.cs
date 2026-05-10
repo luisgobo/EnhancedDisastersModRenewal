@@ -156,7 +156,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var naturalDisasterSetup = Services.DisasterSetup;
             if (DisasterSimulationUtils.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
             {
-                if (result != "") result += CommonProperties.newLine;
+                if (result != "") result += CommonProperties.NewLine;
                 result += LocalizationService.Get("tooltip.low_population");
             }
 

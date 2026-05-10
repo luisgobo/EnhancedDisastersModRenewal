@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 using ColossalFramework;
@@ -16,7 +16,7 @@ namespace NaturalDisastersRenewal.Handlers
 {
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
-        private readonly Harmony harmony = new Harmony(CommonProperties.modNameForHarmony);
+        private readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
         public DisasterSetupModel container;
         private DisasterWrapper disasterWrapper;
         private InGameDisastersPanel dPanel;
@@ -147,7 +147,7 @@ namespace NaturalDisastersRenewal.Handlers
             foreach (var ed in container.AllDisasters)
                 if (ed.CheckDisasterAIType(disasterAI))
                 {
-                    ed.OnDisasterActivated(disasterInfo, disasterId, ref container.activeDisasters);
+                    ed.OnDisasterActivated(disasterInfo, disasterId, ref container.ActiveDisasters);
                     return;
                 }
         }
@@ -169,7 +169,7 @@ namespace NaturalDisastersRenewal.Handlers
                     {
                         DisasterInfo = disasterInfo,
                         DisasterId = disasterId
-                    }, ref container.activeDisasters);
+                    }, ref container.ActiveDisasters);
                     return;
                 }
             }
@@ -198,7 +198,7 @@ namespace NaturalDisastersRenewal.Handlers
                             DisasterId = disasterId
                         };
 
-                        disasterService.OnDisasterDetected(disasterInfoUnified, ref container.activeDisasters);
+                        disasterService.OnDisasterDetected(disasterInfoUnified, ref container.ActiveDisasters);
                         return;
                     }
             }
@@ -229,7 +229,7 @@ namespace NaturalDisastersRenewal.Handlers
                             DisasterId = disasterId
                         };
 
-                        disasterService.OnDisasterFinished(disasterInfoUnified, ref container.activeDisasters);
+                        disasterService.OnDisasterFinished(disasterInfoUnified, ref container.ActiveDisasters);
                         return;
                     }
             }
@@ -336,7 +336,7 @@ namespace NaturalDisastersRenewal.Handlers
             UpdateDisastersDPanel();
 
             if (keyHandlerRegistered) return;
-            
+
             UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
             keyHandlerRegistered = true;
         }
@@ -352,7 +352,7 @@ namespace NaturalDisastersRenewal.Handlers
         public void UpdateDisastersPanelToggleBtn()
         {
             if (toggleButton == null || container == null) return;
-            
+
             toggleButton.isVisible = container.ShowDisasterPanelButton;
             UpdateToggleButtonIcon();
 
@@ -363,7 +363,7 @@ namespace NaturalDisastersRenewal.Handlers
         public void UpdateDisastersDPanel()
         {
             if (dPanel == null || container == null) return;
-            
+
             if (container.DPanelPos.x > 10 && container.DPanelPos.y > 10)
                 dPanel.absolutePosition = container.DPanelPos;
         }
@@ -377,7 +377,7 @@ namespace NaturalDisastersRenewal.Handlers
             }
 
             if (dPanel == null) return;
-            
+
             dPanel.tooltip = LocalizationService.Get("panel.drag_panel.tooltip");
             dPanel.RebuildLocalizedContent();
         }
@@ -423,9 +423,9 @@ namespace NaturalDisastersRenewal.Handlers
         private void ToggleButton_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
         {
             if (!eventParam.buttons.IsFlagSet(UIMouseButton.Right)) return;
-            
+
             var ratio = UIView.GetAView().ratio;
-            
+
             toggleButton.position = SetUIItemPosition(toggleButton.position, eventParam.moveDelta.x,
                 eventParam.moveDelta.y, ratio);
             container.ToggleButtonPos = toggleButton.absolutePosition;

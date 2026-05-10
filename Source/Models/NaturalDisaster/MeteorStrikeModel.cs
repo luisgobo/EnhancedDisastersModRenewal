@@ -226,13 +226,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return string.Format(
                     "Progress: {0}{1}Real Time active: meteor periods are disabled.{1}{2}{1}Current interval: {3}.{1}Time remaining: {4}.",
                     string.Format("{0:00.00}%", probabilityValue * 100),
-                    CommonProperties.newLine,
+                    CommonProperties.NewLine,
                     LocalizationService.Format("tooltip.meteor.realtime_reference", GetRealTimeMeteorFrequencyName()),
                     DisasterSimulationUtils.FormatRealTimeMinutes(realTimeCurrentPeriodMinutes),
                     DisasterSimulationUtils.FormatRealTimeMinutes(realTimeMinutesUntilNextMeteor));
 
             var probability =
-                string.Format("Probability: {0:00.00}% {1}", probabilityValue * 100, CommonProperties.newLine);
+                string.Format("Probability: {0:00.00}% {1}", probabilityValue * 100, CommonProperties.NewLine);
 
             for (var i = 0; i < meteorEvents.Length; i++)
                 probability += meteorEvents[i].GetStateDescription() + Environment.NewLine;
@@ -247,7 +247,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public float GetMeteorPeriodProbabilityProgress()
         {
-            float progress = 0f;
+            var progress = 0f;
 
             for (var i = 0; i < meteorEvents.Length; i++)
                 progress = Mathf.Max(progress, meteorEvents[i].GetProbabilityMultiplier());

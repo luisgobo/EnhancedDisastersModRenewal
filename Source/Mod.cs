@@ -8,7 +8,7 @@ namespace NaturalDisastersRenewal
     {
         private readonly ModSettingsScreen _modSettings = new ModSettingsScreen();
 
-        public string Name => CommonProperties.modName;
+        public string Name => CommonProperties.ModName;
 
         public string Description => CommonProperties.GetModDescription();
 

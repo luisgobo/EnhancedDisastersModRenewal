@@ -1,46 +1,40 @@
-﻿using NaturalDisastersRenewal.Models.Disaster;
-using System;
+﻿using System;
 using System.IO;
 
 namespace NaturalDisastersRenewal.Common
 {
     public static class CommonProperties
     {
-        public const string modName = "Natural Disasters Renewal";
-        public const string modNameForHarmony = "NaturalDisastersRenewal";
-        public const string modVersion = "1.2.4";
-        public const string modLastVersionYear = "2023";
-        public const string modLastVersionMonth = "June";
-        public const string modSteamId = "2957578256";
-        public const string contentMainPath = "Colossal Order";
-        public const string contentSubPath = "Cities_Skylines";
-        public const string contentFolder = "NaturalDisastersRenewalMod";
-        public const string xmlFilename = "NaturalDisastersRenewalModOptions.xml";
-        public const string logFilename = "NaturalDisastersRenewalMod.log";
-        public const string dataId = "NaturalDisastersRenewalMod";
-        public const string disasterListFileName = "DisasterList.csv";
-        public const string logMsgPrefix = ">>> " + modName + ": ";
+        public const string ModName = "Natural Disasters Renewal";
+        public const string ModNameForHarmony = "NaturalDisastersRenewal";
+        private const string ModVersion = "1.3.0";
+        private const string ModLastVersionYear = "2026";
+        private const string ModLastVersionMonth = "May";
+        public const string ModSteamId = "2957578256";
+        private const string ContentMainPath = "Colossal Order";
+        private const string ContentSubPath = "Cities_Skylines";
+        private const string ContentFolder = "NaturalDisastersRenewalMod";
+        public const string XmlFilename = "NaturalDisastersRenewalModOptions.xml";
+        public const string LogFilename = "NaturalDisastersRenewalMod.log";
+        public const string DataId = "NaturalDisastersRenewalMod";
+        public const string DisasterListFileName = "DisasterList.csv";
+        public const string LogMessagePrefix = ">>> " + ModName + ": ";
 
-        public const string EarthquakeName = "Earthquake";
-        public const string forestFireName = "ForestFire";
-        public const string meteorStrikeName = "Meteor Strike";
-        public const string sinkholeName = "Sinkhole";
-        public const string thunderstormName = "Thunderstorm";
-        public const string tornadoName = "Tornado";
-        public const string tsunamiName = "Tsunami";
-
-        public static string newLine = $"{Environment.NewLine}";//Used in debug mode
+        public static readonly string NewLine = $"{Environment.NewLine}";
 
         public static string GetModDescription()
-            => string.Format($"It takes \"Natural Disaster Overhault\" and \"Ragnarok\" mods content to be unified in only one, including some other awesome stuffs." +
-                $"Version: {modVersion}. Last Update: {modLastVersionMonth},{modLastVersionYear}");
+        {
+            return string.Format(
+                "Bring your city to life with disasters that feel unpredictable, dramatic, and worth preparing for. Shape the challenge, react faster, and keep every storm, fire, quake, tsunami, tornado, sinkhole, and meteor strike under control" +
+                $"Version: {ModVersion}. Last Update: {ModLastVersionMonth},{ModLastVersionYear}");
+        }
 
         public static string GetOptionsFilePath(string filename)
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            path = Path.Combine(path, contentMainPath);
-            path = Path.Combine(path, contentSubPath);
-            path = Path.Combine(path, contentFolder);
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            path = Path.Combine(path, ContentMainPath);
+            path = Path.Combine(path, ContentSubPath);
+            path = Path.Combine(path, ContentFolder);
 
             CheckFolderExistence(path);
 
@@ -48,11 +42,10 @@ namespace NaturalDisastersRenewal.Common
             return path;
         }
 
-        static void CheckFolderExistence(string path)
+        private static void CheckFolderExistence(string path)
         {
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
         }
-
     }
 }

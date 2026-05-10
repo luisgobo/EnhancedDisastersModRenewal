@@ -1,28 +1,27 @@
-using ColossalFramework;
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class EarthquakeModel : DisasterBaseModel
     {
+        [XmlIgnore] public byte aftershockMaxIntensity;
+        [XmlIgnore] public byte aftershocksCount;
         public bool AftershocksEnabled = true;
         public EarthquakeCrackOptions EarthquakeCrackMode = EarthquakeCrackOptions.NoCracks;
+        [XmlIgnore] public float lastAngle;
+        [XmlIgnore] public Vector3 lastTargetPosition;
+        [XmlIgnore] public byte mainStrikeIntensity;
         public float MinimalIntensityForCracks = 12.0f;
 
-        [XmlIgnore] bool NoCracksInTheGroud = false;
-        [XmlIgnore] public byte aftershocksCount = 0;
-        [XmlIgnore] public byte aftershockMaxIntensity = 0;
-        [XmlIgnore] public byte mainStrikeIntensity = 0;
-        [XmlIgnore] public Vector3 lastTargetPosition = new Vector3();
-        [XmlIgnore] public float lastAngle = 0;
+        [XmlIgnore] private bool NoCracksInTheGroud;
 
         public EarthquakeModel()
         {
@@ -34,13 +33,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             WarmupYears = 3;
         }
 
-        [System.Xml.Serialization.XmlElement]
+        [XmlElement]
         public float WarmupYears
         {
-            get
-            {
-                return probabilityWarmupDays / 360f;
-            }
+            get => probabilityWarmupDays / 360f;
 
             set
             {
@@ -53,30 +49,27 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override string GetProbabilityTooltip(float value)
         {
             if (aftershocksCount > 0)
-            {
                 return LocalizationService.Format("tooltip.earthquake.aftershocks", aftershocksCount);
-            }
 
             return base.GetProbabilityTooltip(value);
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()
         {
-            if (aftershocksCount > 0)
-            {
-                return 12 * aftershocksCount;
-            }
+            if (aftershocksCount > 0) return 12 * aftershocksCount;
 
             return base.GetCurrentOccurrencePerYearLocal();
         }
 
-        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfo.type |= DisasterType.Earthquake;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
-        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Earthquake;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
@@ -84,7 +77,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
         }
 
-        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Earthquake;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
@@ -110,9 +104,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 mainStrikeIntensity = intensity;
                 aftershockMaxIntensity = (byte)(10 + (intensity - 10) * 3 / 4);
                 if (intensity > 20)
-                {
                     aftershocksCount = (byte)(1 + Services.Simulation.m_randomizer.Int32(1 + (uint)intensity / 20));
-                }
             }
             else
             {
@@ -126,7 +118,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 probabilityWarmupDaysLeft = 0;
                 intensityWarmupDaysLeft = 0;
 
-                Debug.Log(string.Format(CommonProperties.logMsgPrefix + "{0} aftershocks are still going to happen.", aftershocksCount));
+                Debug.Log(string.Format(
+                    CommonProperties.LogMessagePrefix + "{0} aftershocks are still going to happen.",
+                    aftershocksCount));
             }
             else
             {
@@ -138,29 +132,22 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (aftershocksCount == 0)
             {
-                bool result = base.FindTarget(disasterInfo, out targetPosition, out angle);
+                var result = base.FindTarget(disasterInfo, out targetPosition, out angle);
                 lastTargetPosition = targetPosition;
                 lastAngle = angle;
                 return result;
             }
-            else
-            {
-                targetPosition = lastTargetPosition;
-                angle = lastAngle;
-                return true;
-            }
+
+            targetPosition = lastTargetPosition;
+            angle = lastAngle;
+            return true;
         }
 
         protected override byte GetRandomIntensity(byte maxIntensity)
         {
-            if (aftershocksCount > 0)
-            {
-                return (byte)Services.Simulation.m_randomizer.Int32(10, aftershockMaxIntensity);
-            }
-            else
-            {
-                return base.GetRandomIntensity(maxIntensity);
-            }
+            if (aftershocksCount > 0) return (byte)Services.Simulation.m_randomizer.Int32(10, aftershockMaxIntensity);
+
+            return base.GetRandomIntensity(maxIntensity);
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
@@ -175,79 +162,90 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override float CalculateDestructionRadio(byte intensity)
         {
-            int unitSize = 8;
-            int unitsBase = 30; //24 Original, Distance Fix for proximity
+            var unitSize = 8;
+            var unitsBase = 30; //24 Original, Distance Fix for proximity
             float unitCalculation;
-            int intensityInt = intensity / 10;
-            int intensityDec = intensity % 10;
+            var intensityInt = intensity / 10;
+            var intensityDec = intensity % 10;
 
             switch (intensity)
             {
-                case byte n when (n < 25):
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + (((intensityDec) * 0.24f) + (intensityInt * 10.4f));
+                case byte n when n < 25:
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase +
+                                      (intensityDec * 0.24f + intensityInt * 10.4f);
                     break;
 
-                case byte n when (n >= 25 && n <= 50):
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 22f + (((intensityDec - 2f) * 11.6f) + ((intensityInt - 5f) * 0.36f));
+                case byte n when n >= 25 && n <= 50:
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase + 22f +
+                                      ((intensityDec - 2f) * 11.6f + (intensityInt - 5f) * 0.36f);
                     break;
 
-                case byte n when (n > 50 && n <= 75):
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 55f + ((intensityInt - 5f) * 8f);
+                case byte n when n > 50 && n <= 75:
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase + 55f +
+                                      (intensityInt - 5f) * 8f;
                     break;
 
-                case byte n when (n > 75 && n <= 100):
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 71f + +(((intensityInt - 7f) * 10.8f) + (((intensityDec - 5f) * 0.28f)));
+                case byte n when n > 75 && n <= 100:
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase + 71f +
+                                      +((intensityInt - 7f) * 10.8f + (intensityDec - 5f) * 0.28f);
                     break;
 
-                case byte n when (n > 100 && n <= 125):
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 102f + (((intensityInt - 10f) * 11.2f) + ((intensityDec * 0.32f)));
+                case byte n when n > 100 && n <= 125:
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase + 102f +
+                                      ((intensityInt - 10f) * 11.2f + intensityDec * 0.32f);
                     break;
 
-                case byte n when (n > 125 && n <= 150):
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 126f + ((intensityInt - 12f) * 8f);
+                case byte n when n > 125 && n <= 150:
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase + 126f +
+                                      (intensityInt - 12f) * 8f;
                     break;
 
-                case byte n when (n > 150 && n <= 175):
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 150 + (intensityDec * 0.2f) + ((intensityInt - 15f) * 10f);
+                case byte n when n > 150 && n <= 175:
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase + 150 +
+                                      intensityDec * 0.2f + (intensityInt - 15f) * 10f;
                     break;
 
-                case byte n when (n > 175 && n <= 200):
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 171 + ((intensityDec - 5) * 0.12f + ((intensityInt - 17) * 9.2f));
+                case byte n when n > 175 && n <= 200:
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase + 171 +
+                                      ((intensityDec - 5) * 0.12f + (intensityInt - 17) * 9.2f);
                     break;
 
-                case byte n when (n > 200 && n <= 250):
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 198 + ((intensityDec * 0.2f) + ((intensityInt - 20f) * 10f));
+                case byte n when n > 200 && n <= 250:
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase + 198 +
+                                      (intensityDec * 0.2f + (intensityInt - 20f) * 10f);
                     break;
 
                 default:
-                    unitCalculation = ((((intensityInt - 5f) * -10f) + intensityDec) * 0.4f) + unitsBase + 248;
+                    unitCalculation = ((intensityInt - 5f) * -10f + intensityDec) * 0.4f + unitsBase + 248;
                     break;
             }
 
-            return (float)Math.Sqrt((unitCalculation / 2) * unitSize);
+            return (float)Math.Sqrt(unitCalculation / 2 * unitSize);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel, ref List<DisasterInfoModel> activeDisasters)
+        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
+            ref List<DisasterInfoModel> activeDisasters)
         {
-            var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX, disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
+            var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX,
+                disasterInfoModel.DisasterInfo.targetY, disasterInfoModel.DisasterInfo.targetZ);
 
             //Get disaster Info
-            DisasterInfo disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
+            var disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
 
             if (disasterInfo == null)
                 return;
 
             //Identify Shelters
-            BuildingManager buildingManager = Services.Buildings;
-            FastList<ushort> serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
+            var buildingManager = Services.Buildings;
+            var serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
 
             if (serviceBuildings == null)
                 return;
 
             //Release all shelters but Potentyally destroyed
-            for (int i = 0; i < serviceBuildings.m_size; i++)
+            for (var i = 0; i < serviceBuildings.m_size; i++)
             {
-                ushort num = serviceBuildings.m_buffer[i];
+                var num = serviceBuildings.m_buffer[i];
                 if (num != 0)
                 {
                     //here we got all shelter buildings
@@ -255,15 +253,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     var shelterPosition = buildingInfo.m_position;
 
 
-                    if ((buildingInfo.Info.m_buildingAI as ShelterAI) != null)
+                    if (buildingInfo.Info.m_buildingAI as ShelterAI != null)
                     {
                         //Add Building/Shelter Data to disaster
                         disasterInfoModel.ShelterList.Add(num);
 
                         //Getting diaster core
-                        var disasterDestructionRadius = CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
-                        float shelterRadius = ((buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8) / 2;
-                        
+                        var disasterDestructionRadius =
+                            CalculateDestructionRadio(disasterInfoModel.DisasterInfo.intensity);
+                        float shelterRadius = (buildingInfo.Length < buildingInfo.Width
+                            ? buildingInfo.Width
+                            : buildingInfo.Length) * 8 / 2;
+
                         bool IgnoreDestructionZoneForEarthquake;
                         switch (EarthquakeCrackMode)
                         {
@@ -275,7 +276,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                                 IgnoreDestructionZoneForEarthquake = false;
                                 break;
 
-                            case EarthquakeCrackOptions eco when (eco == EarthquakeCrackOptions.CracksBasedOnIntensity && disasterInfoModel.DisasterInfo.intensity >= MinimalIntensityForCracks):
+                            case EarthquakeCrackOptions eco when eco == EarthquakeCrackOptions.CracksBasedOnIntensity &&
+                                                                 disasterInfoModel.DisasterInfo.intensity >=
+                                                                 MinimalIntensityForCracks:
                                 IgnoreDestructionZoneForEarthquake = false;
                                 break;
 
@@ -285,19 +288,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         }
 
                         //if Shelter will be destroyed, don't evacuate
-                        if (base.IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius, disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
-                            DebugLogger.Log($"Shelter is located in Destruction Zone. Won't be avacuated");
+                        if (IsShelterInDisasterZone(disasterTargetPosition, shelterPosition, shelterRadius,
+                                disasterDestructionRadius) && !IgnoreDestructionZoneForEarthquake)
+                            DebugLogger.Log("Shelter is located in Destruction Zone. Won't be avacuated");
                         else
-                            base.SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num, ref buildingManager.m_buildings.m_buffer[num], false);
+                            SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, num,
+                                ref buildingManager.m_buildings.m_buffer[num], false);
                     }
                 }
             }
 
             activeDisasters.Add(disasterInfoModel);
-
         }
 
-        void SetupCracksOnMap(byte intensity)
+        private void SetupCracksOnMap(byte intensity)
         {
             switch (EarthquakeCrackMode)
             {
@@ -309,7 +313,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     NoCracksInTheGroud = false;
                     break;
 
-                case EarthquakeCrackOptions ecp when (ecp == EarthquakeCrackOptions.CracksBasedOnIntensity && intensity >= MinimalIntensityForCracks * 10):
+                case EarthquakeCrackOptions ecp when ecp == EarthquakeCrackOptions.CracksBasedOnIntensity &&
+                                                     intensity >= MinimalIntensityForCracks * 10:
                     NoCracksInTheGroud = false;
                     break;
 
@@ -320,18 +325,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             UpdateDisasterProperties(true);
         }
+
         public void UpdateDisasterProperties(bool isSet)
         {
-            int prefabsCount = PrefabCollection<DisasterInfo>.PrefabCount();
+            var prefabsCount = PrefabCollection<DisasterInfo>.PrefabCount();
 
             for (uint i = 0; i < prefabsCount; i++)
             {
-                DisasterInfo disasterInfo = PrefabCollection<DisasterInfo>.GetPrefab(i);
-                if (disasterInfo == null) 
-                    continue;                
+                var disasterInfo = PrefabCollection<DisasterInfo>.GetPrefab(i);
+                if (disasterInfo == null)
+                    continue;
 
                 if (disasterInfo.m_disasterAI is EarthquakeAI earthquakeAI)
-                {                    
+                {
                     if (isSet && NoCracksInTheGroud)
                     {
                         earthquakeAI.m_crackLength = 0;
@@ -356,6 +362,5 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 WarmupYears = earthquake.WarmupYears;
             }
         }
-
     }
 }

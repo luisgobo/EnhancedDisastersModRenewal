@@ -176,7 +176,8 @@ namespace NaturalDisastersRenewal.UI
             yPosition += 22f;
             AddLabel(parentPanel, xPosition + 27f, yPosition, LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.disaster"));
-            var probabilityHeader = AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition, LabelTextScaleSmall,
+            var probabilityHeader = AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition,
+                LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.probability"));
             probabilityHeader.tooltip = LocalizationService.Get("panel.header.probability.tooltip");
             AddCenteredLabel(parentPanel, intensityBarCenterX, yPosition, LabelTextScaleSmall,
@@ -487,8 +488,8 @@ namespace NaturalDisastersRenewal.UI
                     | DisasterData.Flags.Finished;
             }
 
-            if (Services.DisasterHandler.container.activeDisasters != null)
-                Services.DisasterHandler.container.activeDisasters.Clear();
+            if (Services.DisasterHandler.container.ActiveDisasters != null)
+                Services.DisasterHandler.container.ActiveDisasters.Clear();
 
             Debug.Log(sb.ToString());
         }
