@@ -7,6 +7,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
     public sealed class ProgressBarHelper : UIPanel
     {
         private const float NarrowCharacterAdvanceFactor = 0.45f;
+        private const float LightTextProgressThreshold = 0.75f;
         private static readonly Color32 DisabledColor = UIStyleHelper.MutedColor;
         private static readonly Color32 DarkContrastTextColor = new Color32(28, 34, 40, 255);
         private static readonly Color32 LightContrastTextColor = UIStyleHelper.PrimaryTextColor;
@@ -102,6 +103,12 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
         private void UpdateValueLabelColors()
         {
+            if (_progressBar.value >= LightTextProgressThreshold)
+            {
+                SetValueLabelColors(LightContrastTextColor);
+                return;
+            }
+
             var filledWidth = _progressBar.width * _progressBar.value;
 
             for (var i = 0; i < _valueLabels.Count; i++)
