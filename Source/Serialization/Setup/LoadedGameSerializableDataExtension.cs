@@ -90,8 +90,6 @@ namespace NaturalDisastersRenewal.Serialization.Setup
                     DataSerializer.Deserialize<SerializableDataMeteorStrike>(stream, DataSerializer.Mode.Memory);
                 }
 
-                // Services.DisasterHandler.RefreshLocalizedUI();
-                // ModSettingsScreen.RebuildUISettingsOptions();
                 Debug.Log("Disaster setup data loaded for current game");
             }
             catch (Exception ex)

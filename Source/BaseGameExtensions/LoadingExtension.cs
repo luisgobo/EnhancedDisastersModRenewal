@@ -1,5 +1,6 @@
 using ICities;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.UI;
 using CommonServices = NaturalDisastersRenewal.Common.Services;
 
 namespace NaturalDisastersRenewal.BaseGameExtensions
@@ -12,6 +13,7 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             {
                 ModCompatibilityService.Refresh();
                 CommonServices.DisasterHandler.CreateExtendedDisasterPanel();
+                ModSettingsScreen.UpdateUISettingsOptions();
                 CommonServices.DisasterHandler.CheckUnlocks();
 
                 CommonServices.DisasterSetup.Earthquake.UpdateDisasterProperties(true);

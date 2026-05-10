@@ -224,9 +224,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (IsRealTimePatternActive())
                 return string.Format(
-                    "Progress: {0}{1}Real Time active: meteor periods are disabled.{1}Current interval: {2}.{1}Time remaining: {3}.",
+                    "Progress: {0}{1}Real Time active: meteor periods are disabled.{1}{2}{1}Current interval: {3}.{1}Time remaining: {4}.",
                     string.Format("{0:00.00}%", probabilityValue * 100),
                     CommonProperties.newLine,
+                    LocalizationService.Format("tooltip.meteor.realtime_reference", GetRealTimeMeteorFrequencyName()),
                     DisasterSimulationUtils.FormatRealTimeMinutes(realTimeCurrentPeriodMinutes),
                     DisasterSimulationUtils.FormatRealTimeMinutes(realTimeMinutesUntilNextMeteor));
 
@@ -410,6 +411,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             };
         }
 
+        public string GetRealTimeMeteorFrequencyTooltip()
+        {
+            return LocalizationService.Format(
+                "settings.meteor.realtime_frequency.tooltip.selected",
+                GetRealTimeMeteorFrequencyName());
+        }
+
+        private string GetRealTimeMeteorFrequencyName()
+        {
+            return RealTimeMeteorFrequency.ToString();
+        }
+
         public MeteorPeriodStatus[] GetMeteorPeriodStatuses()
         {
             var statuses = new MeteorPeriodStatus[meteorEvents.Length];
@@ -510,7 +523,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 MeteorShortPeriodEnabled = d.MeteorShortPeriodEnabled;
                 RealTimeFrequencyMultiplier = d.RealTimeFrequencyMultiplier;
                 RealTimePeriodDays = d.RealTimePeriodDays;
-                RealTimeMeteorFrequency = d.RealTimeMeteorFrequency;
+                SetRealTimeMeteorFrequency(d.RealTimeMeteorFrequency);
             }
         }
 

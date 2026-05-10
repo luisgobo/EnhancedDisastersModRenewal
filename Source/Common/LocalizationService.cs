@@ -228,6 +228,10 @@ namespace NaturalDisastersRenewal.Common
                             "settings.meteor.realtime_frequency.tooltip",
                             "Chooses the random real-time interval used between automatic meteor strikes while Real Time is active."
                         },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time interval used between automatic meteor strikes while Real Time is active.\nSelected reference period: {0}."
+                        },
                         { "settings.meteor.frequency.apocalypse", "Apocalypse: 4-10 minutes" },
                         { "settings.meteor.frequency.daily_threat", "Daily threat: 10-30 minutes" },
                         { "settings.meteor.frequency.occasional", "Occasional: 30-60 minutes" },
@@ -260,6 +264,7 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.thunderstorm.rain_increase", "Increased because of rain." },
                         { "tooltip.tornado.no_during_fog", "No {0} during fog." },
                         { "tooltip.earthquake.aftershocks", "Expect {0} more aftershocks" },
+                        { "tooltip.meteor.realtime_reference", "Reference period: {0}." },
                         { "disaster.earthquake", "Earthquake" },
                         { "disaster.forest_fire", "Forest Fire" },
                         { "disaster.meteor_strike", "Meteor Strike" },
@@ -507,6 +512,10 @@ namespace NaturalDisastersRenewal.Common
                             "settings.meteor.realtime_frequency.tooltip",
                             "Elige el intervalo aleatorio en tiempo real entre meteoritos automaticos mientras Real Time esta activo."
                         },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio en tiempo real entre meteoritos automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
                         { "settings.meteor.frequency.apocalypse", "Apocalipsis: 4-10 minutos" },
                         { "settings.meteor.frequency.daily_threat", "Amenaza diaria: 10-30 minutos" },
                         { "settings.meteor.frequency.occasional", "Ocasional: 30-60 minutos" },
@@ -536,6 +545,7 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.thunderstorm.rain_increase", "Aumentado por la lluvia." },
                         { "tooltip.tornado.no_during_fog", "No habra {0} durante la niebla." },
                         { "tooltip.earthquake.aftershocks", "Se esperan {0} replicas mas" },
+                        { "tooltip.meteor.realtime_reference", "Periodo de referencia: {0}." },
                         { "disaster.earthquake", "Terremoto" },
                         { "disaster.forest_fire", "Incendio forestal" },
                         { "disaster.meteor_strike", "Meteorito" },

@@ -212,6 +212,8 @@ namespace NaturalDisastersRenewal.UI
             UI_MeteorStrike_MaxProbability.value = disasterSetupModel.MeteorStrike.BaseOccurrencePerYear;
             UI_MeteorStrike_RealTimeFrequency.selectedIndex =
                 (int)disasterSetupModel.MeteorStrike.RealTimeMeteorFrequency;
+            UI_MeteorStrike_RealTimeFrequency.tooltip =
+                disasterSetupModel.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
             var meteorPeriodsEnabled = disasterSetupModel.MeteorStrike.AreMeteorPeriodsEnabled();
             UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked =
                 meteorPeriodsEnabled && disasterSetupModel.MeteorStrike.GetEnabled(0);
@@ -1186,11 +1188,15 @@ namespace NaturalDisastersRenewal.UI
                 delegate(int selection)
                 {
                     if (!freezeUI)
+                    {
                         disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(
                             (RealTimeMeteorFrequencyPreset)selection);
+                        UI_MeteorStrike_RealTimeFrequency.tooltip =
+                            disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
+                    }
                 });
             UI_MeteorStrike_RealTimeFrequency.tooltip =
-                LocalizationService.Get("settings.meteor.realtime_frequency.tooltip");
+                disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
             SetMeteorRealTimeControlsAvailability(!disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled());
 
             DropDownHelper.AddDropDown(
