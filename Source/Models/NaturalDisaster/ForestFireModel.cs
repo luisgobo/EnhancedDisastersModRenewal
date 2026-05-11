@@ -17,6 +17,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float GuaranteedOccurrencePerFrame = 1f;
         private const float SecondsPerMinute = 60f;
         private const float MaxRealTimeDeltaSeconds = 5f;
+        private const float DenseFogThreshold = 0.6f;
+        private const float LightFogDryProgressFactor = 0.5f;
+        private const float DenseFogDryProgressFactor = 0.25f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeForestFireFrequencyOptionValues =
         {
@@ -34,6 +37,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlIgnore] public float NoRainDays;
         [XmlIgnore] public float RealTimeCurrentDryPeriodMinutes = -1f;
         [XmlIgnore] public float RealTimeMinutesUntilNextForestFire = -1f;
+        public bool FogRetardsDryTime;
         public RealTimeDisasterFrequencyPreset RealTimeForestFireFrequency =
             RealTimeDisasterFrequencyPreset.Occasional;
 
@@ -66,9 +70,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             var wm = Services.Weather;
             if (wm.m_currentRain > 0)
+            {
                 NoRainDays = 0;
-            else
-                NoRainDays += DisasterSimulationUtils.DaysPerFrame;
+                return;
+            }
+
+            if (IsDryTimePausedByDenseFog())
+                return;
+
+            NoRainDays += DisasterSimulationUtils.DaysPerFrame * GetFogDryProgressFactor();
         }
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId,
@@ -173,14 +183,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 if (IsRealTimePatternActive())
                     return GetRealTimeProbabilityTooltip(tooltip, value);
 
+                if (IsDryTimePausedByDenseFog())
+                    return tooltip + LocalizationService.Get("tooltip.forest_fire.fog_paused");
+
                 if (NoRainDays <= 0)
                     return tooltip + LocalizationService.Format("tooltip.forest_fire.no_during_rain", GetName());
 
+                var fogLine = GetFogRetardantTooltipLine();
                 if (NoRainDays >= WarmupDays)
-                    return tooltip + LocalizationService.Format("tooltip.forest_fire.maximum_no_rain", WarmupDays);
+                    return tooltip + LocalizationService.Format("tooltip.forest_fire.maximum_no_rain", WarmupDays) +
+                           fogLine;
 
                 return tooltip + LocalizationService.Format("tooltip.forest_fire.increasing_no_rain",
-                    DisasterSimulationUtils.FormatTimeSpan(NoRainDays));
+                    DisasterSimulationUtils.FormatTimeSpan(NoRainDays)) + fogLine;
             }
 
             return base.GetProbabilityTooltip(value);
@@ -189,9 +204,17 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected override float GetCurrentOccurrencePerYearLocal()
         {
             if (IsRealTimePatternActive())
+            {
+                if (IsDryTimePausedByDenseFog())
+                    return 0f;
+
                 return IsRealTimeForestFireDue()
                     ? 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame
                     : 0f;
+            }
+
+            if (IsDryTimePausedByDenseFog())
+                return 0f;
 
             return base.GetCurrentOccurrencePerYearLocal() * Math.Min(1f, NoRainDays / WarmupDays);
         }
@@ -327,8 +350,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return prefix + LocalizationService.Format("tooltip.forest_fire.no_during_rain", GetName());
 
             EnsureRealTimeDrySchedule();
+            var fogLine = GetFogRetardantTooltipLine();
             return string.Format(
-                "{0}{1}: {2}{3}{4}{3}{5}{3}{6}",
+                "{0}{1}: {2}{3}{4}{3}{5}{3}{6}{7}",
                 prefix,
                 LocalizationService.Get("tooltip.progress"),
                 string.Format("{0:00.00}%", probabilityValue * 100),
@@ -341,7 +365,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 CommonProperties.NewLine +
                 LocalizationService.Format(
                     "tooltip.forest_fire.dry_time_remaining",
-                    DisasterSimulationUtils.FormatRealTimeMinutes(RealTimeMinutesUntilNextForestFire)));
+                    DisasterSimulationUtils.FormatRealTimeMinutes(RealTimeMinutesUntilNextForestFire)),
+                fogLine);
         }
 
         private void UpdateRealTimeDrySchedule()
@@ -355,9 +380,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             EnsureRealTimeDrySchedule();
             var elapsedMinutes = GetRealTimeElapsedMinutes();
+            if (IsDryTimePausedByDenseFog())
+            {
+                NoRainDays = WarmupDays * GetRealTimePatternProbabilityProgress();
+                return;
+            }
+
             RealTimeMinutesUntilNextForestFire = Mathf.Max(
                 0f,
-                RealTimeMinutesUntilNextForestFire - elapsedMinutes);
+                RealTimeMinutesUntilNextForestFire - elapsedMinutes * GetFogDryProgressFactor());
 
             NoRainDays = WarmupDays * GetRealTimePatternProbabilityProgress();
         }
@@ -365,6 +396,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private bool IsRealTimeForestFireDue()
         {
             if (IsRaining())
+                return false;
+
+            if (IsDryTimePausedByDenseFog())
                 return false;
 
             EnsureRealTimeDrySchedule();
@@ -503,6 +537,45 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return wm != null && wm.m_currentRain > 0;
         }
 
+        private static float GetCurrentFog()
+        {
+            var wm = Services.Weather;
+            return wm == null ? 0f : Mathf.Clamp01(wm.m_currentFog);
+        }
+
+        private bool IsDryTimePausedByDenseFog()
+        {
+            return FogRetardsDryTime && GetCurrentFog() >= DenseFogThreshold;
+        }
+
+        private float GetFogDryProgressFactor()
+        {
+            if (!FogRetardsDryTime)
+                return 1f;
+
+            var fog = GetCurrentFog();
+            if (fog <= 0f)
+                return 1f;
+
+            if (fog >= DenseFogThreshold)
+                return 0f;
+
+            return Mathf.Lerp(LightFogDryProgressFactor, DenseFogDryProgressFactor, fog / DenseFogThreshold);
+        }
+
+        private string GetFogRetardantTooltipLine()
+        {
+            if (!FogRetardsDryTime || GetCurrentFog() <= 0f)
+                return string.Empty;
+
+            if (IsDryTimePausedByDenseFog())
+                return CommonProperties.NewLine + LocalizationService.Get("tooltip.forest_fire.fog_paused");
+
+            return CommonProperties.NewLine + LocalizationService.Format(
+                "tooltip.forest_fire.fog_slowed",
+                string.Format("{0:0}", GetFogDryProgressFactor() * 100));
+        }
+
         public void SetRealTimeForestFireFrequency(RealTimeDisasterFrequencyPreset frequency)
         {
             if (RealTimeForestFireFrequency == frequency)
@@ -585,6 +658,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (!(disaster is ForestFireModel forestFireModel)) return;
             
             WarmupDays = forestFireModel.WarmupDays;
+            FogRetardsDryTime = forestFireModel.FogRetardsDryTime;
             RealTimeForestFireFrequency = forestFireModel.RealTimeForestFireFrequency;
         }
     }

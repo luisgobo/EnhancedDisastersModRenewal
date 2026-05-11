@@ -16,6 +16,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             dataSerializer.WriteInt32((int)forestFire.RealTimeForestFireFrequency);
             dataSerializer.WriteFloat(forestFire.RealTimeMinutesUntilNextForestFire);
             dataSerializer.WriteFloat(forestFire.RealTimeCurrentDryPeriodMinutes);
+            dataSerializer.WriteBool(forestFire.FogRetardsDryTime);
         }
 
         public void Deserialize(DataSerializer dataSeralizer)
@@ -40,6 +41,10 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 (RealTimeDisasterFrequencyPreset)dataSeralizer.ReadInt32();
             forestFire.RealTimeMinutesUntilNextForestFire = dataSeralizer.ReadFloat();
             forestFire.RealTimeCurrentDryPeriodMinutes = dataSeralizer.ReadFloat();
+
+            if (dataSeralizer.version < 11) return;
+
+            forestFire.FogRetardsDryTime = dataSeralizer.ReadBool();
         }
 
         private static void NormalizeForestFireEvacuationMode(ForestFireModel forestFire)

@@ -146,6 +146,14 @@ namespace NaturalDisastersRenewal.Common
                             "settings.forest_fire.realtime_frequency.tooltip.selected",
                             "Chooses the random dry-time interval used between automatic forest fires while Real Time is active.\nSelected reference period: {0}."
                         },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time",
+                            "Fog slows Forest Fire dry time"
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time.tooltip",
+                            "When enabled, fog advances dry time more slowly, and dense fog pauses dry time like light rain."
+                        },
                         { "settings.forest_fire.frequency.apocalypse", "Apocalypse: 10-30 dry minutes" },
                         { "settings.forest_fire.frequency.frequent", "Frequent: 30-90 dry minutes" },
                         { "settings.forest_fire.frequency.occasional", "Occasional: 1-3 dry hours" },
@@ -292,6 +300,8 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.forest_fire.realtime_reference", "Reference dry period: {0}." },
                         { "tooltip.forest_fire.current_dry_interval", "Current dry interval: {0}." },
                         { "tooltip.forest_fire.dry_time_remaining", "Dry time remaining: {0}." },
+                        { "tooltip.forest_fire.fog_paused", "Dry time paused by dense fog." },
+                        { "tooltip.forest_fire.fog_slowed", "Dry time slowed by fog: {0}% advance." },
                         { "tooltip.sinkhole.groundwater", "Ground water level {0}%" },
                         { "tooltip.thunderstorm.outside_area", "Not unlocked yet (occurs only outside of your area)." },
                         { "tooltip.thunderstorm.rain_increase", "Increased because of rain." },
@@ -460,6 +470,14 @@ namespace NaturalDisastersRenewal.Common
                             "settings.forest_fire.realtime_frequency.tooltip.selected",
                             "Elige el intervalo aleatorio de tiempo seco entre incendios forestales automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
                         },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time",
+                            "La niebla ralentiza el tiempo seco de incendios"
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time.tooltip",
+                            "Si esta activo, la niebla hace avanzar el tiempo seco mas lento, y la niebla densa pausa el tiempo seco como lluvia ligera."
+                        },
                         { "settings.forest_fire.frequency.apocalypse", "Apocalipsis: 10-30 minutos secos" },
                         { "settings.forest_fire.frequency.frequent", "Frecuente: 30-90 minutos secos" },
                         { "settings.forest_fire.frequency.occasional", "Ocasional: 1-3 horas secas" },
@@ -606,6 +624,8 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.forest_fire.realtime_reference", "Periodo seco de referencia: {0}." },
                         { "tooltip.forest_fire.current_dry_interval", "Intervalo seco actual: {0}." },
                         { "tooltip.forest_fire.dry_time_remaining", "Tiempo seco restante: {0}." },
+                        { "tooltip.forest_fire.fog_paused", "Tiempo seco pausado por niebla densa." },
+                        { "tooltip.forest_fire.fog_slowed", "Tiempo seco ralentizado por niebla: avance al {0}%." },
                         { "tooltip.sinkhole.groundwater", "Nivel de agua subterranea {0}%" },
                         { "tooltip.thunderstorm.outside_area", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
                         { "tooltip.thunderstorm.rain_increase", "Aumentado por la lluvia." },

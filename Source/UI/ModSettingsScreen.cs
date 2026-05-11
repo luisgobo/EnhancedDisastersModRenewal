@@ -46,6 +46,7 @@ namespace NaturalDisastersRenewal.UI
 
         private UISlider UI_ForestFireMaxProbability;
         private UISlider UI_ForestFire_WarmupDays;
+        private UICheckBox UI_ForestFire_FogRetardsDryTime;
         private UIDropDown UI_ForestFire_RealTimeFrequency;
         private UIDropDown UI_ForestFire_EvacuationMode;
 
@@ -176,6 +177,7 @@ namespace NaturalDisastersRenewal.UI
                 GetForestFireEvacuationModeSelectionIndex(disasterSetupModel.ForestFire.EvacuationMode);
             UI_ForestFireMaxProbability.value = disasterSetupModel.ForestFire.BaseOccurrencePerYear;
             UI_ForestFire_WarmupDays.value = disasterSetupModel.ForestFire.WarmupDays;
+            UI_ForestFire_FogRetardsDryTime.isChecked = disasterSetupModel.ForestFire.FogRetardsDryTime;
             UI_ForestFire_RealTimeFrequency.selectedIndex =
                 disasterSetupModel.ForestFire.GetRealTimeForestFireFrequencySelectionIndex();
             UI_ForestFire_RealTimeFrequency.tooltip =
@@ -606,6 +608,7 @@ namespace NaturalDisastersRenewal.UI
             UI_ForestFire_Enabled = null;
             UI_ForestFireMaxProbability = null;
             UI_ForestFire_WarmupDays = null;
+            UI_ForestFire_FogRetardsDryTime = null;
             UI_ForestFire_RealTimeFrequency = null;
             UI_ForestFire_EvacuationMode = null;
             UI_Thunderstorm_Enabled = null;
@@ -839,6 +842,18 @@ namespace NaturalDisastersRenewal.UI
                         disasterContainer.ForestFire.WarmupDays = (int)val;
                 }, LocalizationService.Get("settings.warmup_period.days"),
                 LocalizationService.Get("settings.forest_fire.warmup.tooltip"));
+
+            UI_ForestFire_FogRetardsDryTime = CheckboxHelper.AddCheckbox(
+                ref forestFireGroup,
+                LocalizationService.Get("settings.forest_fire.fog_retards_dry_time"),
+                disasterContainer.ForestFire.FogRetardsDryTime,
+                delegate(bool isChecked)
+                {
+                    if (!freezeUI)
+                        disasterContainer.ForestFire.FogRetardsDryTime = isChecked;
+                },
+                LocalizationService.Get("settings.forest_fire.fog_retards_dry_time.tooltip"),
+                nextCheckboxSpacing);
 
             DropDownHelper.AddDropDown(
                 ref UI_ForestFire_RealTimeFrequency,
