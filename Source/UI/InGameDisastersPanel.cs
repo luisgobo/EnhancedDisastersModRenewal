@@ -27,10 +27,8 @@ namespace NaturalDisastersRenewal.UI
         [FormerlySerializedAs("Counter")] public int counter;
         private DisasterRowHelper[] _disasterRows;
         private UILabel _populationLabel;
-        private UILabel _realTimeDayTimeFramesLabel;
-        private UILabel _realTimeDayTimeOffsetFramesLabel;
+        private UILabel _extendedInfoPanel2StatusLabel;
         private UILabel _realTimeStatusLabel;
-        private UILabel _realTimeTimeOffsetTicksLabel;
 
         public override void Awake()
         {
@@ -59,7 +57,7 @@ namespace NaturalDisastersRenewal.UI
             counter = 10;
 
             UpdatePopulationLabel();
-            UpdateRealTimeLabels();
+            UpdateDependencyLabels();
 
             if (_disasterRows == null) return;
 
@@ -220,12 +218,7 @@ namespace NaturalDisastersRenewal.UI
 
             _realTimeStatusLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
             yPosition += 20f;
-            _realTimeTimeOffsetTicksLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
-            yPosition += 20f;
-            _realTimeDayTimeFramesLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
-            yPosition += 20f;
-            _realTimeDayTimeOffsetFramesLabel =
-                AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
+            _extendedInfoPanel2StatusLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
             yPosition += 28f;
 
             // AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, LocalizationService.Get("panel.controls.title"));
@@ -297,26 +290,28 @@ namespace NaturalDisastersRenewal.UI
             _populationLabel.tooltip = LocalizationService.Get("panel.population_threshold");
         }
 
-        private void UpdateRealTimeLabels()
+        private void UpdateDependencyLabels()
         {
-            if (!_realTimeStatusLabel || !_realTimeTimeOffsetTicksLabel || !_realTimeDayTimeFramesLabel ||
-                !_realTimeDayTimeOffsetFramesLabel)
+            if (!_realTimeStatusLabel || !_extendedInfoPanel2StatusLabel)
                 return;
 
-            var isRealTimeActive = IsRealTimeModActive();
-            var status = LocalizationService.Get(isRealTimeActive
+            UpdateDependencyLabel(_realTimeStatusLabel, "Real Time", IsRealTimeModActive());
+            UpdateDependencyLabel(
+                _extendedInfoPanel2StatusLabel,
+                "Extended InfoPanel 2",
+                DisasterSimulationUtils.IsExtendedInfoPanel2Active());
+        }
+
+        private static void UpdateDependencyLabel(UILabel label, string dependencyName, bool isActive)
+        {
+            var status = LocalizationService.Get(isActive
                 ? "settings.dependency.active"
                 : "settings.dependency.inactive");
-            var simulationManager = Services.Simulation;
 
-            _realTimeStatusLabel.text = "Real Time: " + status;
-            _realTimeStatusLabel.textColor = isRealTimeActive
+            label.text = dependencyName + ": " + status;
+            label.textColor = isActive
                 ? new Color32(90, 200, 120, 255)
                 : new Color32(210, 120, 120, 255);
-            _realTimeTimeOffsetTicksLabel.text = "Time offset ticks: " + simulationManager.m_timeOffsetTicks;
-            _realTimeDayTimeFramesLabel.text = "Day-time frames: " + simulationManager.m_dayTimeFrame;
-            _realTimeDayTimeOffsetFramesLabel.text =
-                "Day-time offset frames: " + simulationManager.m_dayTimeOffsetFrames;
         }
 
         private static bool IsRealTimeModActive()
