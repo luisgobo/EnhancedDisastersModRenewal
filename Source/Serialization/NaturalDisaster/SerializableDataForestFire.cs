@@ -1,7 +1,6 @@
-using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 
 namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
@@ -10,27 +9,45 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
     {
         public void Serialize(DataSerializer dataSerializer)
         {
-            ForestFireModel forestFire = Services.DisasterSetup.ForestFire;
+            var forestFire = Services.DisasterSetup.ForestFire;
             SerializeCommonParameters(dataSerializer, forestFire);
             dataSerializer.WriteInt32(forestFire.WarmupDays);
-            dataSerializer.WriteFloat(forestFire.noRainDays);
+            dataSerializer.WriteFloat(forestFire.NoRainDays);
+            dataSerializer.WriteInt32((int)forestFire.RealTimeForestFireFrequency);
+            dataSerializer.WriteFloat(forestFire.RealTimeMinutesUntilNextForestFire);
+            dataSerializer.WriteFloat(forestFire.RealTimeCurrentDryPeriodMinutes);
         }
 
         public void Deserialize(DataSerializer dataSeralizer)
         {
-            ForestFireModel forestFire = Services.DisasterSetup.ForestFire;
-            // TODO: Forest Fire only exposes Manual/Focused evacuation in the UI; normalize the save/load mapping so FocusedAutoEvacuation is not multiplied into an invalid enum value.
-            DeserializeCommonParameters(dataSeralizer, forestFire, 2);
+            var forestFire = Services.DisasterSetup.ForestFire;
+            DeserializeCommonParameters(dataSeralizer, forestFire);
+            NormalizeForestFireEvacuationMode(forestFire);
             forestFire.WarmupDays = dataSeralizer.ReadInt32();
             if (dataSeralizer.version <= 2)
             {
                 float daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
-                forestFire.noRainDays = dataSeralizer.ReadInt32() * daysPerFrame;
+                forestFire.NoRainDays = dataSeralizer.ReadInt32() * daysPerFrame;
             }
             else
             {
-                forestFire.noRainDays = dataSeralizer.ReadFloat();
+                forestFire.NoRainDays = dataSeralizer.ReadFloat();
             }
+
+            if (dataSeralizer.version < 10) return;
+            
+            forestFire.RealTimeForestFireFrequency =
+                (RealTimeDisasterFrequencyPreset)dataSeralizer.ReadInt32();
+            forestFire.RealTimeMinutesUntilNextForestFire = dataSeralizer.ReadFloat();
+            forestFire.RealTimeCurrentDryPeriodMinutes = dataSeralizer.ReadFloat();
+        }
+
+        private static void NormalizeForestFireEvacuationMode(ForestFireModel forestFire)
+        {
+            if (forestFire.EvacuationMode == EvacuationOptions.ManualEvacuation)
+                return;
+
+            forestFire.EvacuationMode = EvacuationOptions.FocusedAutoEvacuation;
         }
 
         public void AfterDeserialize(DataSerializer dataSeralizer)

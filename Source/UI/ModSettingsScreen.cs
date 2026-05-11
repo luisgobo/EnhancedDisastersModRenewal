@@ -46,6 +46,7 @@ namespace NaturalDisastersRenewal.UI
 
         private UISlider UI_ForestFireMaxProbability;
         private UISlider UI_ForestFire_WarmupDays;
+        private UIDropDown UI_ForestFire_RealTimeFrequency;
         private UIDropDown UI_ForestFire_EvacuationMode;
 
         //Thunderstorm
@@ -171,9 +172,15 @@ namespace NaturalDisastersRenewal.UI
             RefreshHotkeyFieldText();
 
             UI_ForestFire_Enabled.isChecked = disasterSetupModel.ForestFire.Enabled;
-            UI_ForestFire_EvacuationMode.selectedIndex = (int)disasterSetupModel.ForestFire.EvacuationMode;
+            UI_ForestFire_EvacuationMode.selectedIndex =
+                GetForestFireEvacuationModeSelectionIndex(disasterSetupModel.ForestFire.EvacuationMode);
             UI_ForestFireMaxProbability.value = disasterSetupModel.ForestFire.BaseOccurrencePerYear;
             UI_ForestFire_WarmupDays.value = disasterSetupModel.ForestFire.WarmupDays;
+            UI_ForestFire_RealTimeFrequency.selectedIndex =
+                disasterSetupModel.ForestFire.GetRealTimeForestFireFrequencySelectionIndex();
+            UI_ForestFire_RealTimeFrequency.tooltip =
+                disasterSetupModel.ForestFire.GetRealTimeForestFireFrequencyTooltip();
+            SetForestFireRealTimeControlsAvailability(disasterSetupModel.ForestFire.IsRealTimePatternActive());
 
             UI_Thunderstorm_Enabled.isChecked = disasterSetupModel.Thunderstorm.Enabled;
             UI_Thunderstorm_EvacuationMode.selectedIndex = (int)disasterSetupModel.Thunderstorm.EvacuationMode;
@@ -599,6 +606,7 @@ namespace NaturalDisastersRenewal.UI
             UI_ForestFire_Enabled = null;
             UI_ForestFireMaxProbability = null;
             UI_ForestFire_WarmupDays = null;
+            UI_ForestFire_RealTimeFrequency = null;
             UI_ForestFire_EvacuationMode = null;
             UI_Thunderstorm_Enabled = null;
             UI_Thunderstorm_MaxProbability = null;
@@ -824,7 +832,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_ForestFire_WarmupDays = SliderHelper.AddSlider(
                 ref forestFireGroup,
-                LocalizationService.Get("settings.warmup_period"), 0, 360, 10, disasterContainer.ForestFire.WarmupDays,
+                LocalizationService.Get("settings.warmup_period"), 10, 360, 10, disasterContainer.ForestFire.WarmupDays,
                 delegate(float val)
                 {
                     if (!freezeUI)
@@ -833,19 +841,68 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.forest_fire.warmup.tooltip"));
 
             DropDownHelper.AddDropDown(
+                ref UI_ForestFire_RealTimeFrequency,
+                ref forestFireGroup,
+                LocalizationService.Get("settings.forest_fire.realtime_frequency"),
+                ForestFireModel.GetRealTimeForestFireFrequencyOptions(),
+                ref disasterContainer.ForestFire.RealTimeForestFireFrequency,
+                delegate(int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        disasterContainer.ForestFire.SetRealTimeForestFireFrequency(
+                            ForestFireModel.GetRealTimeForestFireFrequencyFromSelection(selection));
+                        UI_ForestFire_RealTimeFrequency.tooltip =
+                            disasterContainer.ForestFire.GetRealTimeForestFireFrequencyTooltip();
+                    }
+                });
+            UI_ForestFire_RealTimeFrequency.selectedIndex =
+                disasterContainer.ForestFire.GetRealTimeForestFireFrequencySelectionIndex();
+            UI_ForestFire_RealTimeFrequency.tooltip =
+                disasterContainer.ForestFire.GetRealTimeForestFireFrequencyTooltip();
+            SetForestFireRealTimeControlsAvailability(disasterContainer.ForestFire.IsRealTimePatternActive());
+
+            var forestFireEvacuationSelection =
+                GetForestFireEvacuationModeSelectionIndex(disasterContainer.ForestFire.EvacuationMode);
+            DropDownHelper.AddDropDown(
                 ref UI_ForestFire_EvacuationMode,
                 ref forestFireGroup,
                 EvacuationModeText,
                 DisasterSimulationUtils.GetManualAndFocusedEvacuationOptions(),
-                ref disasterContainer.ForestFire.EvacuationMode,
+                ref forestFireEvacuationSelection,
                 delegate(int selection)
                 {
                     if (!freezeUI)
-                        disasterContainer.ForestFire.EvacuationMode = (EvacuationOptions)(selection * 2);
+                        disasterContainer.ForestFire.EvacuationMode =
+                            GetForestFireEvacuationModeFromSelection(selection);
                 }
             );
 
             helper.AddSpacing(20);
+        }
+
+        private static int GetForestFireEvacuationModeSelectionIndex(EvacuationOptions evacuationMode)
+        {
+            return evacuationMode == EvacuationOptions.ManualEvacuation ? 0 : 1;
+        }
+
+        private static EvacuationOptions GetForestFireEvacuationModeFromSelection(int selection)
+        {
+            return selection <= 0
+                ? EvacuationOptions.ManualEvacuation
+                : EvacuationOptions.FocusedAutoEvacuation;
+        }
+
+        private void SetForestFireRealTimeControlsAvailability(bool realTimeActive)
+        {
+            if (UI_ForestFireMaxProbability != null)
+                UI_ForestFireMaxProbability.isEnabled = !realTimeActive;
+
+            if (UI_ForestFire_WarmupDays != null)
+                UI_ForestFire_WarmupDays.isEnabled = !realTimeActive;
+
+            if (UI_ForestFire_RealTimeFrequency != null)
+                UI_ForestFire_RealTimeFrequency.isEnabled = realTimeActive;
         }
 
         private void SetupThunderstorm(ref UIHelper helper, DisasterSetupModel disasterContainer)

@@ -132,12 +132,30 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.days", " days" },
                         {
                             "settings.forest_fire.max_probability.tooltip",
-                            "Occurrence (per year) in case of a long period without rain."
+                            "Occurrence (per year) in case of a long period without rain when Real Time is inactive."
                         },
                         {
                             "settings.forest_fire.warmup.tooltip",
-                            "No-rain period during which the probability of Forest Fire increases."
+                            "No-rain period during which the probability of Forest Fire increases when Real Time is inactive."
                         },
+                        {
+                            "settings.forest_fire.realtime_frequency",
+                            "Real Time forest fire frequency"
+                        },
+                        {
+                            "settings.forest_fire.realtime_frequency.tooltip.selected",
+                            "Chooses the random dry-time interval used between automatic forest fires while Real Time is active.\nSelected reference period: {0}."
+                        },
+                        { "settings.forest_fire.frequency.apocalypse", "Apocalypse: 10-30 dry minutes" },
+                        { "settings.forest_fire.frequency.frequent", "Frequent: 30-90 dry minutes" },
+                        { "settings.forest_fire.frequency.occasional", "Occasional: 1-3 dry hours" },
+                        { "settings.forest_fire.frequency.uncommon", "Uncommon: 3-6 dry hours" },
+                        { "settings.forest_fire.frequency.rare", "Rare: 6-12 dry hours" },
+                        { "settings.forest_fire.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.forest_fire.frequency_name.frequent", "Frequent" },
+                        { "settings.forest_fire.frequency_name.occasional", "Occasional" },
+                        { "settings.forest_fire.frequency_name.uncommon", "Uncommon" },
+                        { "settings.forest_fire.frequency_name.rare", "Rare" },
                         { "settings.season_peak.thunderstorm", "Thunderstorm season peak" },
                         {
                             "settings.thunderstorm.max_probability.tooltip",
@@ -254,6 +272,7 @@ namespace NaturalDisastersRenewal.Common
                         { "key.page_up", "Page Up" },
                         { "key.page_down", "Page Down" },
                         { "tooltip.probability", "Probability: {0}" },
+                        { "tooltip.progress", "Progress" },
                         { "tooltip.forest_fire.locked", "Not unlocked yet (occurs only outside of your area)." },
                         { "tooltip.not_unlocked", "Not unlocked yet" },
                         { "tooltip.no_disaster_for_another", "No {0} for another {1}" },
@@ -266,6 +285,13 @@ namespace NaturalDisastersRenewal.Common
                             "Maximum because there was no rain for more than {0} days."
                         },
                         { "tooltip.forest_fire.increasing_no_rain", "Increasing because there was no rain for {0}" },
+                        {
+                            "tooltip.forest_fire.realtime_active",
+                            "Real Time active: Forest Fire uses dry-time intervals."
+                        },
+                        { "tooltip.forest_fire.realtime_reference", "Reference dry period: {0}." },
+                        { "tooltip.forest_fire.current_dry_interval", "Current dry interval: {0}." },
+                        { "tooltip.forest_fire.dry_time_remaining", "Dry time remaining: {0}." },
                         { "tooltip.sinkhole.groundwater", "Ground water level {0}%" },
                         { "tooltip.thunderstorm.outside_area", "Not unlocked yet (occurs only outside of your area)." },
                         { "tooltip.thunderstorm.rain_increase", "Increased because of rain." },
@@ -420,12 +446,30 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.days", " dias" },
                         {
                             "settings.forest_fire.max_probability.tooltip",
-                            "Ocurrencia por ano en caso de un periodo largo sin lluvia."
+                            "Ocurrencia por ano en caso de un periodo largo sin lluvia cuando Real Time no esta activo."
                         },
                         {
                             "settings.forest_fire.warmup.tooltip",
-                            "Periodo sin lluvia durante el cual aumenta la probabilidad de incendio forestal."
+                            "Periodo sin lluvia durante el cual aumenta la probabilidad de incendio forestal cuando Real Time no esta activo."
                         },
+                        {
+                            "settings.forest_fire.realtime_frequency",
+                            "Frecuencia de incendios forestales con Real Time"
+                        },
+                        {
+                            "settings.forest_fire.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio de tiempo seco entre incendios forestales automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.forest_fire.frequency.apocalypse", "Apocalipsis: 10-30 minutos secos" },
+                        { "settings.forest_fire.frequency.frequent", "Frecuente: 30-90 minutos secos" },
+                        { "settings.forest_fire.frequency.occasional", "Ocasional: 1-3 horas secas" },
+                        { "settings.forest_fire.frequency.uncommon", "Poco frecuente: 3-6 horas secas" },
+                        { "settings.forest_fire.frequency.rare", "Raro: 6-12 horas secas" },
+                        { "settings.forest_fire.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.forest_fire.frequency_name.frequent", "Frecuente" },
+                        { "settings.forest_fire.frequency_name.occasional", "Ocasional" },
+                        { "settings.forest_fire.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.forest_fire.frequency_name.rare", "Raro" },
                         { "settings.season_peak.thunderstorm", "Pico de temporada de tormentas" },
                         {
                             "settings.thunderstorm.max_probability.tooltip",
@@ -545,6 +589,7 @@ namespace NaturalDisastersRenewal.Common
                         { "key.page_up", "Re Pag" },
                         { "key.page_down", "Av Pag" },
                         { "tooltip.probability", "Probabilidad: {0}" },
+                        { "tooltip.progress", "Progreso" },
                         { "tooltip.forest_fire.locked", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
                         { "tooltip.not_unlocked", "Aun no desbloqueado" },
                         { "tooltip.no_disaster_for_another", "No habra {0} por otros {1}" },
@@ -554,6 +599,13 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.forest_fire.no_during_rain", "No habra {0} durante la lluvia." },
                         { "tooltip.forest_fire.maximum_no_rain", "Maxima porque no ha llovido por mas de {0} dias." },
                         { "tooltip.forest_fire.increasing_no_rain", "Aumentando porque no ha llovido durante {0}" },
+                        {
+                            "tooltip.forest_fire.realtime_active",
+                            "Real Time activo: el incendio forestal usa intervalos de tiempo seco."
+                        },
+                        { "tooltip.forest_fire.realtime_reference", "Periodo seco de referencia: {0}." },
+                        { "tooltip.forest_fire.current_dry_interval", "Intervalo seco actual: {0}." },
+                        { "tooltip.forest_fire.dry_time_remaining", "Tiempo seco restante: {0}." },
                         { "tooltip.sinkhole.groundwater", "Nivel de agua subterranea {0}%" },
                         { "tooltip.thunderstorm.outside_area", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
                         { "tooltip.thunderstorm.rain_increase", "Aumentado por la lluvia." },
