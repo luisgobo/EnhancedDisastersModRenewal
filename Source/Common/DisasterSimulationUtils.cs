@@ -6,6 +6,23 @@ namespace NaturalDisastersRenewal.Common
     public static class DisasterSimulationUtils
     {
         public const float VanillaSimulationDaysPerFrame = 1f / 585f;
+        public static readonly string[] ForestFireBehaviorModKeys =
+        {
+            "treeFireControl",
+            "gameAnarchy",
+            "rainFirefighting",
+            "adjustableFire",
+            "noFires"
+        };
+
+        public static readonly string[] ForestFireBehaviorModNames =
+        {
+            "Tree Fire Control",
+            "Game Anarchy",
+            "Rain Firefighting",
+            "Adjustable Fire",
+            "No Fires"
+        };
 
         public static float FramesPerDay => 1.0f / DaysPerFrame;
 
@@ -66,6 +83,12 @@ namespace NaturalDisastersRenewal.Common
         public static bool IsExtendedInfoPanel2Active()
         {
             return ModCompatibilityService.IsActive("extendedInfoPanel2");
+        }
+
+        public static bool IsForestFireBehaviorModActive(int index)
+        {
+            return index >= 0 && index < ForestFireBehaviorModKeys.Length &&
+                   ModCompatibilityService.IsActive(ForestFireBehaviorModKeys[index]);
         }
 
         public static string FormatTimeSpan(float daysFloat)

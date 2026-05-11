@@ -106,6 +106,15 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.group.dependencies", "Dependencies" },
                         { "settings.dependency.active", "active" },
                         { "settings.dependency.inactive", "inactive" },
+                        { "settings.dependency.real_time_description", "Modifies game time" },
+                        {
+                            "settings.dependency.extended_info_panel_2_description",
+                            "Adds more game speed options"
+                        },
+                        {
+                            "settings.dependency.forest_fire_warning",
+                            "This mod can affect Forest Fire behavior"
+                        },
                         { "settings.hotkey.info", "Use up to 3 keys: up to 2 modifiers plus 1 regular key." },
                         { "settings.hotkey.field_label", "Shortcut" },
                         { "settings.hotkey.capture", "Press a key combination..." },
@@ -430,6 +439,15 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.group.dependencies", "Dependencias" },
                         { "settings.dependency.active", "activo" },
                         { "settings.dependency.inactive", "inactivo" },
+                        { "settings.dependency.real_time_description", "Modifica el tiempo del juego" },
+                        {
+                            "settings.dependency.extended_info_panel_2_description",
+                            "Agrega mas opciones de velocidad al juego"
+                        },
+                        {
+                            "settings.dependency.forest_fire_warning",
+                            "Este mod puede afectar el comportamiento de los Forest Fire"
+                        },
                         { "settings.hotkey.info", "Usa hasta 3 teclas: hasta 2 modificadoras y 1 tecla normal." },
                         { "settings.hotkey.field_label", "Atajo" },
                         { "settings.hotkey.capture", "Presiona una combinacion..." },

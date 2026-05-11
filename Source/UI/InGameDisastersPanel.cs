@@ -23,11 +23,15 @@ namespace NaturalDisastersRenewal.UI
         private const float PanelWidth = 430f;
         private const float PanelHeight = 335f;
         private const float ContentInset = 8f;
+        private static readonly Color32 ActiveDependencyColor = new Color32(90, 200, 120, 255);
+        private static readonly Color32 InactiveDependencyColor = new Color32(210, 120, 120, 255);
+        private static readonly Color32 WarningDependencyColor = new Color32(230, 185, 70, 255);
 
         [FormerlySerializedAs("Counter")] public int counter;
         private DisasterRowHelper[] _disasterRows;
         private UILabel _populationLabel;
         private UILabel _extendedInfoPanel2StatusLabel;
+        private UILabel[] _forestFireBehaviorModStatusLabels;
         private UILabel _realTimeStatusLabel;
 
         public override void Awake()
@@ -216,10 +220,21 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.group.dependencies"));
             yPosition += 28f;
 
-            _realTimeStatusLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
-            yPosition += 20f;
-            _extendedInfoPanel2StatusLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
+            _realTimeStatusLabel = AddWrappedLabel(parentPanel, 0f, yPosition, PanelWidth - ContentInset * 4f,
+                string.Empty);
+            yPosition += 42f;
+            _extendedInfoPanel2StatusLabel = AddWrappedLabel(parentPanel, 0f, yPosition, PanelWidth - ContentInset * 4f,
+                string.Empty);
             yPosition += 28f;
+
+            _forestFireBehaviorModStatusLabels =
+                new UILabel[DisasterSimulationUtils.ForestFireBehaviorModNames.Length];
+            for (var i = 0; i < DisasterSimulationUtils.ForestFireBehaviorModNames.Length; i++)
+            {
+                _forestFireBehaviorModStatusLabels[i] =
+                    AddWrappedLabel(parentPanel, 0f, yPosition, PanelWidth - ContentInset * 4f, string.Empty);
+                yPosition += 36f;
+            }
 
             // AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, LocalizationService.Get("panel.controls.title"));
             // yPosition += 28f;
@@ -295,23 +310,45 @@ namespace NaturalDisastersRenewal.UI
             if (!_realTimeStatusLabel || !_extendedInfoPanel2StatusLabel)
                 return;
 
-            UpdateDependencyLabel(_realTimeStatusLabel, "Real Time", IsRealTimeModActive());
+            UpdateDependencyLabel(
+                _realTimeStatusLabel,
+                "Real Time",
+                IsRealTimeModActive(),
+                LocalizationService.Get("settings.dependency.real_time_description"));
             UpdateDependencyLabel(
                 _extendedInfoPanel2StatusLabel,
                 "Extended InfoPanel 2",
-                DisasterSimulationUtils.IsExtendedInfoPanel2Active());
+                DisasterSimulationUtils.IsExtendedInfoPanel2Active(),
+                LocalizationService.Get("settings.dependency.extended_info_panel_2_description"));
+
+            if (_forestFireBehaviorModStatusLabels == null)
+                return;
+
+            for (var i = 0; i < _forestFireBehaviorModStatusLabels.Length; i++)
+                UpdateForestFireBehaviorDependencyLabel(
+                    _forestFireBehaviorModStatusLabels[i],
+                    DisasterSimulationUtils.ForestFireBehaviorModNames[i],
+                    DisasterSimulationUtils.IsForestFireBehaviorModActive(i));
         }
 
-        private static void UpdateDependencyLabel(UILabel label, string dependencyName, bool isActive)
+        private static void UpdateDependencyLabel(UILabel label, string dependencyName, bool isActive, string description)
         {
             var status = LocalizationService.Get(isActive
                 ? "settings.dependency.active"
                 : "settings.dependency.inactive");
 
-            label.text = dependencyName + ": " + status;
-            label.textColor = isActive
-                ? new Color32(90, 200, 120, 255)
-                : new Color32(210, 120, 120, 255);
+            label.text = dependencyName + ": " + status + CommonProperties.NewLine + description;
+            label.textColor = isActive ? ActiveDependencyColor : InactiveDependencyColor;
+        }
+
+        private static void UpdateForestFireBehaviorDependencyLabel(UILabel label, string dependencyName, bool isActive)
+        {
+            if (!label) return;
+
+            label.text = dependencyName + ": " + LocalizationService.Get(isActive
+                ? "settings.dependency.forest_fire_warning"
+                : "settings.dependency.inactive");
+            label.textColor = isActive ? WarningDependencyColor : InactiveDependencyColor;
         }
 
         private static bool IsRealTimeModActive()
@@ -525,6 +562,7 @@ namespace NaturalDisastersRenewal.UI
             label.autoSize = false;
             label.wordWrap = true;
             label.width = width;
+            label.height = 36f;
             label.textScale = LabelTextScaleNormal;
             label.text = text;
             return label;
