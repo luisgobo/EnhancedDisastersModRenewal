@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ColossalFramework.UI;
 using UnityEngine;
 
@@ -5,92 +6,136 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 {
     public sealed class ProgressBarHelper : UIPanel
     {
+        private const float NarrowCharacterAdvanceFactor = 0.45f;
+        private const float LightTextProgressThreshold = 0.75f;
         private static readonly Color32 DisabledColor = UIStyleHelper.MutedColor;
-        private static readonly Color32 UnfilledBarColor = UIStyleHelper.SurfaceColor;
         private static readonly Color32 DarkContrastTextColor = new Color32(28, 34, 40, 255);
         private static readonly Color32 LightContrastTextColor = UIStyleHelper.PrimaryTextColor;
+        private readonly List<UILabel> _valueLabels = new List<UILabel>();
+        private float _labelOffsetY;
+        private float _labelTextScale;
 
         private UIProgressBar _progressBar;
-        private UILabel _valueLabel;
-        private float _labelOffsetY;
 
         public void Initialize(float x, float y, float componentWidth, float labelOffsetY, float labelTextScale)
         {
             relativePosition = new Vector3(x, y);
             size = new Vector2(componentWidth, 18f);
             _labelOffsetY = labelOffsetY;
+            _labelTextScale = labelTextScale;
 
             _progressBar = AddUIComponent<UIProgressBar>();
             _progressBar.backgroundSprite = "LevelBarBackground";
             _progressBar.progressSprite = "LevelBarForeground";
-            _progressBar.progressColor = UIStyleHelper.AccentColor;
+            _progressBar.progressColor = GetProgressColor(0f);
             _progressBar.relativePosition = Vector3.zero;
             _progressBar.width = componentWidth;
             _progressBar.value = 0f;
 
-            _valueLabel = AddUIComponent<UILabel>();
-            _valueLabel.autoSize = true;
-            _valueLabel.textScale = labelTextScale;
-            _valueLabel.text = string.Empty;
         }
 
-        public void SetState(bool isEnabled, float value, string text, string tooltipText)
+        public void SetState(bool isEnabledState, float value, string text, string tooltipText)
         {
-            _valueLabel.text = text;
-            _valueLabel.tooltip = tooltipText;
             _progressBar.tooltip = tooltipText;
-            CenterValueLabel();
+            SetValueText(text, tooltipText);
 
-            if (!isEnabled)
+            if (!isEnabledState)
             {
                 _progressBar.value = 0f;
                 _progressBar.progressColor = DisabledColor;
-                _valueLabel.textColor = LightContrastTextColor;
+                SetValueLabelColors(LightContrastTextColor);
                 return;
             }
 
             _progressBar.value = Mathf.Clamp01(value);
-            _progressBar.progressColor = Color.Lerp(
-                UIStyleHelper.AccentColor,
-                UIStyleHelper.WarmAccentColor,
-                _progressBar.value);
-            _valueLabel.textColor = GetContrastTextColor();
+            _progressBar.progressColor = GetProgressColor(_progressBar.value);
+            UpdateValueLabelColors();
         }
 
-        private void CenterValueLabel()
+        private static Color GetProgressColor(float value)
         {
-            float centeredX = Mathf.Max(0f, (_progressBar.width - _valueLabel.width) * 0.5f);
-            _valueLabel.relativePosition = new Vector3(centeredX, _labelOffsetY + 4f);
+            var progress = Mathf.Clamp01(value);
+            return new Color(2f * progress, 2f * (1f - progress), 0f);
         }
 
-        private Color32 GetContrastTextColor()
+        private void SetValueText(string text, string tooltipText)
         {
-            float fillWidth = _progressBar.width * _progressBar.value;
-            float labelStartX = _valueLabel.relativePosition.x;
-            float labelEndX = labelStartX + _valueLabel.width;
-            float overlapWithFill = Mathf.Clamp(Mathf.Min(labelEndX, fillWidth) - labelStartX, 0f, _valueLabel.width);
-            float overlapWithUnfilled = Mathf.Max(0f, _valueLabel.width - overlapWithFill);
+            var safeText = text ?? string.Empty;
 
-            Color estimatedBackground = BlendBackground(overlapWithFill, overlapWithUnfilled);
-            return GetPerceivedLuminance(estimatedBackground) >= 0.45f
-                ? DarkContrastTextColor
-                : LightContrastTextColor;
+            while (_valueLabels.Count < safeText.Length)
+            {
+                var label = AddUIComponent<UILabel>();
+                label.autoSize = true;
+                label.textScale = _labelTextScale;
+                _valueLabels.Add(label);
+            }
+
+            for (var i = 0; i < _valueLabels.Count; i++)
+            {
+                var label = _valueLabels[i];
+                var isVisible = i < safeText.Length;
+                label.isVisible = isVisible;
+                label.tooltip = tooltipText;
+                if (!isVisible)
+                    continue;
+
+                label.text = safeText[i].ToString();
+                label.PerformLayout();
+            }
+
+            CenterValueLabels(safeText.Length);
         }
 
-        private Color BlendBackground(float fillWeight, float unfilledWeight)
+        private void CenterValueLabels(int visibleLabelCount)
         {
-            float totalWeight = Mathf.Max(0.0001f, fillWeight + unfilledWeight);
-            Color fillColor = _progressBar.progressColor;
+            var totalWidth = 0f;
+            for (var i = 0; i < visibleLabelCount; i++)
+                totalWidth += GetCharacterAdvance(_valueLabels[i]);
 
-            return new Color(
-                ((fillColor.r * fillWeight) + (UnfilledBarColor.r / 255f * unfilledWeight)) / totalWeight,
-                ((fillColor.g * fillWeight) + (UnfilledBarColor.g / 255f * unfilledWeight)) / totalWeight,
-                ((fillColor.b * fillWeight) + (UnfilledBarColor.b / 255f * unfilledWeight)) / totalWeight);
+            var xPosition = Mathf.Max(0f, (_progressBar.width - totalWidth) * 0.5f);
+            for (var i = 0; i < visibleLabelCount; i++)
+            {
+                var label = _valueLabels[i];
+                label.relativePosition = new Vector3(xPosition, _labelOffsetY + 4f);
+                xPosition += GetCharacterAdvance(label);
+            }
         }
 
-        private static float GetPerceivedLuminance(Color color)
+        private void UpdateValueLabelColors()
         {
-            return color.r * 0.299f + color.g * 0.587f + color.b * 0.114f;
+            if (_progressBar.value >= LightTextProgressThreshold)
+            {
+                SetValueLabelColors(LightContrastTextColor);
+                return;
+            }
+
+            var filledWidth = _progressBar.width * _progressBar.value;
+
+            for (var i = 0; i < _valueLabels.Count; i++)
+            {
+                var label = _valueLabels[i];
+                if (!label.isVisible)
+                    continue;
+
+                var labelCenterX = label.relativePosition.x + GetCharacterAdvance(label) * 0.5f;
+                label.textColor = labelCenterX <= filledWidth
+                    ? DarkContrastTextColor
+                    : LightContrastTextColor;
+            }
+        }
+
+        private static float GetCharacterAdvance(UILabel label)
+        {
+            if (label.text == "." || label.text == ",")
+                return label.width * NarrowCharacterAdvanceFactor;
+
+            return label.width;
+        }
+
+        private void SetValueLabelColors(Color32 color)
+        {
+            for (var i = 0; i < _valueLabels.Count; i++)
+                _valueLabels[i].textColor = color;
         }
     }
 }

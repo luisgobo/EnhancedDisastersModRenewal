@@ -11,8 +11,8 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 {
     public class LoadedGameSerializableDataExtension : ISerializableDataExtension
     {
-        public const string DataID = CommonProperties.dataId;
-        public const uint DataVersion = 5;
+        public const string DataID = CommonProperties.DataId;
+        public const uint DataVersion = 9;
         private ISerializableData serializableData;
 
         public void OnCreated(ISerializableData serializedData)
@@ -60,7 +60,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             }
             catch (Exception ex)
             {
-                Debug.Log(CommonProperties.logMsgPrefix + "(save error) " + ex.Message);
+                Debug.Log(CommonProperties.LogMessagePrefix + "(save error) " + ex.Message);
             }
         }
 
@@ -73,7 +73,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
                 if (data == null)
                 {
-                    Debug.Log(CommonProperties.logMsgPrefix + "No saved data");
+                    Debug.Log(CommonProperties.LogMessagePrefix + "No saved data");
                     return;
                 }
 
@@ -90,13 +90,11 @@ namespace NaturalDisastersRenewal.Serialization.Setup
                     DataSerializer.Deserialize<SerializableDataMeteorStrike>(stream, DataSerializer.Mode.Memory);
                 }
 
-                // Services.DisasterHandler.RefreshLocalizedUI();
-                // SettingsScreen.RebuildUISettingsOptions();
                 Debug.Log("Disaster setup data loaded for current game");
             }
             catch (Exception ex)
             {
-                Debug.Log(CommonProperties.logMsgPrefix + "(load error) " + ex.Message);
+                Debug.Log(CommonProperties.LogMessagePrefix + "(load error) " + ex.Message);
             }
         }
 

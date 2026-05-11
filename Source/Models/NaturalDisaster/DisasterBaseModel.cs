@@ -82,7 +82,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             OnSimulationFrameLocal();
 
-            var daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
+            var daysPerFrame = GetSimulationDaysPerFrame();
 
             if (calmDaysLeft > 0)
             {
@@ -156,7 +156,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var naturalDisasterSetup = Services.DisasterSetup;
             if (DisasterSimulationUtils.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
             {
-                if (result != "") result += CommonProperties.newLine;
+                if (result != "") result += CommonProperties.NewLine;
                 result += LocalizationService.Get("tooltip.low_population");
             }
 
@@ -263,6 +263,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
         }
 
+        protected virtual float GetSimulationDaysPerFrame()
+        {
+            return DisasterSimulationUtils.DaysPerFrame;
+        }
+
         public virtual void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId,
             ref List<DisasterInfoModel> activeDisaster)
         {
@@ -298,9 +303,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 if (!IsEvacuating())
                 {
-                    //Not evacuating. Clear list of active manual release disasters                    
+                    // Not evacuating globally. Manual evacuations no longer need to block automatic releases.
                     manualReleaseDisasters.Clear();
-                    return;
                 }
 
                 //Evaluate Disaster finishing                
@@ -310,7 +314,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 if (disasterFinishing != null && disasterInfoUnified.FinishOnDeactivate)
                 {
-                    activeDisasters.Remove(disasterFinishing);
+                    activeDisasters.RemoveAll(activeDisaster =>
+                        activeDisaster.DisasterId == disasterInfoUnified.DisasterId);
 
                     switch (disasterFinishing.EvacuationMode)
                     {
@@ -323,7 +328,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                             if (!manualReleaseDisasters.Any() && !activeDisasters.Any())
                             {
                                 //Auto releasing citizens
-                                Services.Disasters.EvacuateAll(true);
+                                ReleaseAllShelters();
                                 break;
                             }
 
@@ -333,21 +338,17 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                                 var pendingShelters = new List<ushort>();
                                 //If pending disaster then get all pending shelters that souldnt be released
                                 foreach (var disaster in activeDisasters)
-                                    //this is not being filled
-                                foreach (var shelterId in disaster.ShelterList)
-                                    if (!pendingShelters.Contains(shelterId))
-                                        pendingShelters.Add(shelterId);
+                                {
+                                    foreach (var shelterId in disaster.ShelterList)
+                                    {
+                                        if (!pendingShelters.Contains(shelterId))
+                                            pendingShelters.Add(shelterId);
+                                    }
+                                }
 
                                 var sheltersToBeReleased = disasterFinishing.ShelterList.Where(disFinishing =>
                                     pendingShelters.All(pendSh => pendSh != disFinishing)).ToList();
-                                var buildingManager = Services.Buildings;
-
-                                foreach (var shelterId in sheltersToBeReleased)
-                                {
-                                    var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
-                                    SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId,
-                                        ref buildingManager.m_buildings.m_buffer[shelterId], true);
-                                }
+                                ReleaseShelters(sheltersToBeReleased);
                             }
 
                             break;
@@ -532,7 +533,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
-            activeDisasters.Add(disasterInfoModel);
+            AddOrReplaceActiveDisaster(disasterInfoModel, ref activeDisasters);
         }
 
         private bool FindRandomTargetEverywhere(out Vector3 target, out float angle)
@@ -699,7 +700,45 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
             }
 
+            AddOrReplaceActiveDisaster(disasterInfoModel, ref activeDisasters);
+        }
+
+        protected void AddOrReplaceActiveDisaster(DisasterInfoModel disasterInfoModel,
+            ref List<DisasterInfoModel> activeDisasters)
+        {
+            activeDisasters.RemoveAll(activeDisaster => activeDisaster.DisasterId == disasterInfoModel.DisasterId);
             activeDisasters.Add(disasterInfoModel);
+        }
+
+        private void ReleaseAllShelters()
+        {
+            var buildingManager = Services.Buildings;
+            var serviceBuildings = buildingManager.GetServiceBuildings(ItemClass.Service.Disaster);
+
+            if (serviceBuildings == null)
+                return;
+
+            var shelterIds = new List<ushort>();
+            for (var i = 0; i < serviceBuildings.m_size; i++)
+            {
+                var shelterId = serviceBuildings.m_buffer[i];
+                if (shelterId != 0)
+                    shelterIds.Add(shelterId);
+            }
+
+            ReleaseShelters(shelterIds);
+        }
+
+        private void ReleaseShelters(IEnumerable<ushort> shelterIds)
+        {
+            var buildingManager = Services.Buildings;
+
+            foreach (var shelterId in shelterIds)
+            {
+                var buildingInfo = buildingManager.m_buildings.m_buffer[shelterId];
+                SetBuidingEvacuationStatus(buildingInfo.Info.m_buildingAI as ShelterAI, shelterId,
+                    ref buildingManager.m_buildings.m_buffer[shelterId], true);
+            }
         }
 
         protected void SetBuidingEvacuationStatus(ShelterAI shelterAI, ushort num, ref Building buildingData,

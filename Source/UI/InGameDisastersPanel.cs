@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ColossalFramework.Globalization;
-using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.Common;
@@ -16,23 +15,20 @@ using UnityEngine.Serialization;
 
 namespace NaturalDisastersRenewal.UI
 {
-    public class ExtendedDisastersPanel : UIPanel
+    public class InGameDisastersPanel : UIPanel
     {
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
         private const string HelpTutorialKey = "NDR_TUTORIAL_PANEL_HELP";
-        private const float PanelWidth = 420f;
-        private const float PanelHeight = 330f;
+        private const float PanelWidth = 430f;
+        private const float PanelHeight = 335f;
         private const float ContentInset = 8f;
-        private const float WrappedContentWidth = 364f;
 
         [FormerlySerializedAs("Counter")] public int counter;
         private DisasterRowHelper[] _disasterRows;
         private UILabel _populationLabel;
-        private UILabel _realTimeDayTimeFramesLabel;
-        private UILabel _realTimeDayTimeOffsetFramesLabel;
+        private UILabel _extendedInfoPanel2StatusLabel;
         private UILabel _realTimeStatusLabel;
-        private UILabel _realTimeTimeOffsetTicksLabel;
 
         public override void Awake()
         {
@@ -61,7 +57,7 @@ namespace NaturalDisastersRenewal.UI
             counter = 10;
 
             UpdatePopulationLabel();
-            UpdateRealTimeLabels();
+            UpdateDependencyLabels();
 
             if (_disasterRows == null) return;
 
@@ -132,7 +128,7 @@ namespace NaturalDisastersRenewal.UI
         {
             var tabContainer = AddUIComponent<UITabContainer>();
             tabContainer.relativePosition = new Vector3(ContentInset, 70f);
-            tabContainer.size = new Vector2(width - ContentInset * 2f, height - 70f - ContentInset);
+            tabContainer.size = new Vector2(width - ContentInset * 2f, height - 65f - ContentInset);
 
             var tabStrip = AddUIComponent<UITabstrip>();
             tabStrip.relativePosition = new Vector3(0f, 40f);
@@ -162,7 +158,7 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildStatisticsInfoTabContent(UIScrollablePanel parentPanel)
         {
-            const float itemSpacing = 22f;
+            const float itemSpacing = 4f;
             const float xPosition = 1f;
             var yPosition = 10f;
             const float probabilityBarStartX = xPosition + DisasterRowHelper.ProbabilityBarX;
@@ -176,17 +172,19 @@ namespace NaturalDisastersRenewal.UI
             UpdatePopulationLabel();
 
             yPosition += 22f;
-            AddLabel(parentPanel, xPosition + 32f, yPosition, LabelTextScaleSmall,
+            AddLabel(parentPanel, xPosition + 27f, yPosition, LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.disaster"));
-            AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition, LabelTextScaleSmall,
+            var probabilityHeader = AddCenteredLabel(parentPanel, probabilityBarCenterX - 3f, yPosition,
+                LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.probability"));
+            probabilityHeader.tooltip = LocalizationService.Get("panel.header.probability.tooltip");
             AddCenteredLabel(parentPanel, intensityBarCenterX, yPosition, LabelTextScaleSmall,
                 LocalizationService.Get("panel.header.max_intensity"));
 
             yPosition += 15f;
-            AddCenteredLabel(parentPanel, probabilityBarStartX + 2f, yPosition, LabelTextScaleSmall, "0.1");
-            AddCenteredLabel(parentPanel, probabilityBarCenterX, yPosition, LabelTextScaleSmall, "1");
-            AddCenteredLabel(parentPanel, probabilityBarEndX - 10f, yPosition, LabelTextScaleSmall, "10");
+            AddCenteredLabel(parentPanel, probabilityBarStartX + 2f, yPosition, LabelTextScaleSmall, "0");
+            AddCenteredLabel(parentPanel, probabilityBarCenterX, yPosition, LabelTextScaleSmall, "50");
+            AddCenteredLabel(parentPanel, probabilityBarEndX - 10f, yPosition, LabelTextScaleSmall, "100");
             AddCenteredLabel(parentPanel, intensityBarStartX + 10f, yPosition, LabelTextScaleSmall, "0.0");
             AddCenteredLabel(parentPanel, intensityBarEndX - 13f, yPosition, LabelTextScaleSmall, "25.5");
 
@@ -202,10 +200,10 @@ namespace NaturalDisastersRenewal.UI
                 disasterRow.Initialize(disaster, xPosition, yPosition, ToggleDisasterState);
                 disasterRow.Refresh();
                 _disasterRows[i] = disasterRow;
-                yPosition += itemSpacing;
+                yPosition += disasterRow.height + itemSpacing;
             }
 
-            yPosition += 10f;
+            yPosition += 0f;
             BuildActionButtons(parentPanel, xPosition, yPosition);
             parentPanel.autoLayout = false;
             parentPanel.autoSize = false;
@@ -220,65 +218,63 @@ namespace NaturalDisastersRenewal.UI
 
             _realTimeStatusLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
             yPosition += 20f;
-            _realTimeTimeOffsetTicksLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
-            yPosition += 20f;
-            _realTimeDayTimeFramesLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
-            yPosition += 20f;
-            _realTimeDayTimeOffsetFramesLabel =
-                AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
+            _extendedInfoPanel2StatusLabel = AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, string.Empty);
             yPosition += 28f;
 
-            AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, LocalizationService.Get("panel.controls.title"));
-            yPosition += 28f;
-            var toggleLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.toggle"));
-            yPosition += toggleLabel.height + 10f;
-            var stopLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.stop"));
-            yPosition += stopLabel.height + 10f;
-            var resetLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.reset"));
-            yPosition += resetLabel.height + 10f;
-            var dragLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.drag"));
-            yPosition += dragLabel.height + 10f;
-            AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
-                LocalizationService.Get("panel.controls.hotkey"));
+            // AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal, LocalizationService.Get("panel.controls.title"));
+            // yPosition += 28f;
+            // var toggleLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.toggle"));
+            // yPosition += toggleLabel.height + 10f;
+            // var stopLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.stop"));
+            // yPosition += stopLabel.height + 10f;
+            // var resetLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.reset"));
+            // yPosition += resetLabel.height + 10f;
+            // var dragLabel = AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.drag"));
+            // yPosition += dragLabel.height + 10f;
+            // AddWrappedLabel(parentPanel, 0f, yPosition, WrappedContentWidth,
+            //     LocalizationService.Get("panel.controls.hotkey"));
             parentPanel.autoLayout = false;
             parentPanel.autoSize = false;
 
-            UpdateRealTimeLabels();
+            // UpdateRealTimeLabels();
         }
 
         private static void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
         {
+            const float actionButtonSize = 22f;
+            var actionButtonPadding = new RectOffset(0, 0, 3, 0);
+
             ActionButtonHelper.CreateTextButton(
                 parentPanel,
                 "stopDisasterBtn",
                 "\u25A0",
-                new Vector3(xPosition, yPosition - 5f),
-                new Vector2(18f, 18f),
+                new Vector3(xPosition, yPosition),
+                new Vector2(actionButtonSize, actionButtonSize),
                 LocalizationService.Get("panel.stop_all"),
                 StopAllDisastersBtn_eventClick,
                 Color.red,
                 "ButtonMenu",
                 "ButtonMenuHovered",
                 "ButtonMenuHovered",
-                null);
+                actionButtonPadding);
 
             ActionButtonHelper.CreateTextButton(
                 parentPanel,
                 "resetDisasterBtn",
                 "\u21BA",
-                new Vector3(xPosition + 22f, yPosition - 5f),
-                new Vector2(18f, 18f),
+                new Vector3(xPosition + actionButtonSize + 4f, yPosition),
+                new Vector2(actionButtonSize, actionButtonSize),
                 LocalizationService.Get("panel.reset_all"),
                 ResetAllDisastersBtn_eventClick,
                 Color.yellow,
                 "ButtonMenu",
                 "ButtonMenuHovered",
                 "ButtonMenuHovered",
-                null);
+                actionButtonPadding);
         }
 
         private void UpdatePopulationLabel()
@@ -288,58 +284,39 @@ namespace NaturalDisastersRenewal.UI
             var numberFormatInfo = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
             numberFormatInfo.NumberGroupSeparator = ",";
             var formatted =
-                ((int)Services.DisasterHandler.container.MaxPopulationToTriggerHigherDisasters).ToString("#,0", numberFormatInfo);
+                ((int)Services.DisasterHandler.container.MaxPopulationToTriggerHigherDisasters).ToString("#,0",
+                    numberFormatInfo);
             _populationLabel.text = LocalizationService.Format("panel.population_threshold.value", formatted);
             _populationLabel.tooltip = LocalizationService.Get("panel.population_threshold");
         }
 
-        private void UpdateRealTimeLabels()
+        private void UpdateDependencyLabels()
         {
-            if (!_realTimeStatusLabel || !_realTimeTimeOffsetTicksLabel || !_realTimeDayTimeFramesLabel || !_realTimeDayTimeOffsetFramesLabel)
+            if (!_realTimeStatusLabel || !_extendedInfoPanel2StatusLabel)
                 return;
 
-            var isRealTimeActive = IsRealTimeModActive();
-            var status = LocalizationService.Get(isRealTimeActive
+            UpdateDependencyLabel(_realTimeStatusLabel, "Real Time", IsRealTimeModActive());
+            UpdateDependencyLabel(
+                _extendedInfoPanel2StatusLabel,
+                "Extended InfoPanel 2",
+                DisasterSimulationUtils.IsExtendedInfoPanel2Active());
+        }
+
+        private static void UpdateDependencyLabel(UILabel label, string dependencyName, bool isActive)
+        {
+            var status = LocalizationService.Get(isActive
                 ? "settings.dependency.active"
                 : "settings.dependency.inactive");
-            var simulationManager = Services.Simulation;
 
-            _realTimeStatusLabel.text = "Real Time: " + status;
-            _realTimeStatusLabel.textColor = isRealTimeActive
+            label.text = dependencyName + ": " + status;
+            label.textColor = isActive
                 ? new Color32(90, 200, 120, 255)
                 : new Color32(210, 120, 120, 255);
-            _realTimeTimeOffsetTicksLabel.text = "Time offset ticks: " + simulationManager.m_timeOffsetTicks;
-            _realTimeDayTimeFramesLabel.text = "Day-time frames: " + simulationManager.m_dayTimeFrame;
-            _realTimeDayTimeOffsetFramesLabel.text =
-                "Day-time offset frames: " + simulationManager.m_dayTimeOffsetFrames;
         }
 
         private static bool IsRealTimeModActive()
         {
-            return PluginManager.instance.GetPluginsInfo().Any(IsEnabledRealTimePlugin);
-        }
-
-        private static bool IsEnabledRealTimePlugin(PluginManager.PluginInfo plugin)
-        {
-            if (plugin?.userModInstance == null || !plugin.isEnabled) return false;
-
-            var userMod = plugin.userModInstance as IUserMod;
-            var publishedFileId = plugin.publishedFileID.AsUInt64;
-
-            return ContainsRealTimeName(userMod?.Name) ||
-                   ContainsRealTimeName(plugin.name) ||
-                   IsKnownRealTimeWorkshopId(publishedFileId);
-        }
-
-        private static bool ContainsRealTimeName(string name)
-        {
-            return !string.IsNullOrEmpty(name) &&
-                   name.IndexOf("Real Time", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        private static bool IsKnownRealTimeWorkshopId(ulong publishedFileId)
-        {
-            return publishedFileId == 1420955187UL || publishedFileId == 3059406297UL;
+            return DisasterSimulationUtils.IsRealTimeModActive();
         }
 
         private void ToggleDisasterState(DisasterBaseModel disaster)
@@ -370,20 +347,14 @@ namespace NaturalDisastersRenewal.UI
                     break;
             }
 
-            if (_disasterRows != null)
-            {
-                RefreshDisasterRow();
-            }
+            if (_disasterRows != null) RefreshDisasterRow();
 
-            SettingsScreen.UpdateUISettingsOptions();
+            ModSettingsScreen.UpdateUISettingsOptions();
         }
 
         private void RefreshDisasterRow()
         {
-            foreach (var disasterRow in _disasterRows)
-            {
-                disasterRow.Refresh();
-            }
+            foreach (var disasterRow in _disasterRows) disasterRow.Refresh();
         }
 
         private static void HelpBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -512,8 +483,8 @@ namespace NaturalDisastersRenewal.UI
                     | DisasterData.Flags.Finished;
             }
 
-            if (Services.DisasterHandler.container.activeDisasters != null)
-                Services.DisasterHandler.container.activeDisasters.Clear();
+            if (Services.DisasterHandler.container.ActiveDisasters != null)
+                Services.DisasterHandler.container.ActiveDisasters.Clear();
 
             Debug.Log(sb.ToString());
         }
@@ -560,4 +531,3 @@ namespace NaturalDisastersRenewal.UI
         }
     }
 }
-

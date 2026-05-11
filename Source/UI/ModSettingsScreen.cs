@@ -1,40 +1,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
 using NaturalDisastersRenewal.Models.Setup;
 using NaturalDisastersRenewal.UI.ComponentHelper;
 using NaturalDisastersRenewal.UI.Extensions;
+using NaturalDisastersRenewal.UI.SettingsSections;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 
 namespace NaturalDisastersRenewal.UI
 {
-    public class SettingsScreen
+    public class ModSettingsScreen
     {
-        private const string AboutImageResourceName = "NaturalDisastersRenewal.Resources.Images.logo_1.3.0_3.png";
-
-        private const string AboutCompatibilityImageResourceName =
-            "NaturalDisastersRenewal.Resources.Images.mod_compatibility.png";
-
-        private const string AboutGithubImageResourceName =
-            "NaturalDisastersRenewal.Resources.Images.github.png";
-
-        private const string AboutDonationImageResourceName =
-            "NaturalDisastersRenewal.Resources.Images.kofi_dark.png";
-
-        private const string AboutSteamImageResourceName =
-            "NaturalDisastersRenewal.Resources.Images.steam.png";
-
-        private const string AboutGitUrl = "https://github.com/luisgobo/EnhancedDisastersModRenewal";
-        private const string AboutDonationUrl = "https://ko-fi.com/luisgobo2986";
-        private const string AboutSteamModUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=2957578256";
-        private const string AboutLastUpdatedDate = "2026-04-09";
+        private readonly AboutSettingsSection aboutSection = new AboutSettingsSection();
+        private readonly DependenciesSettingsSection dependenciesSection = new DependenciesSettingsSection();
 
         private bool freezeUI;
         private UIComponent rootComponent;
@@ -112,6 +97,7 @@ namespace NaturalDisastersRenewal.UI
         private UICheckBox UI_MeteorStrike_Enabled;
 
         private UISlider UI_MeteorStrike_MaxProbability;
+        private UIDropDown UI_MeteorStrike_RealTimeFrequency;
         private UICheckBox UI_MeteorStrike_MeteorLongPeriodEnabled;
         private UICheckBox UI_MeteorStrike_MeteorMediumPeriodEnabled;
         private UICheckBox UI_MeteorStrike_MeteorShortPeriodEnabled;
@@ -224,9 +210,19 @@ namespace NaturalDisastersRenewal.UI
             UI_MeteorStrike_Enabled.isChecked = disasterSetupModel.MeteorStrike.Enabled;
             UI_MeteorStrike_EvacuationMode.selectedIndex = (int)disasterSetupModel.MeteorStrike.EvacuationMode;
             UI_MeteorStrike_MaxProbability.value = disasterSetupModel.MeteorStrike.BaseOccurrencePerYear;
-            UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(0);
-            UI_MeteorStrike_MeteorMediumPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(1);
-            UI_MeteorStrike_MeteorShortPeriodEnabled.isChecked = disasterSetupModel.MeteorStrike.GetEnabled(2);
+            UI_MeteorStrike_RealTimeFrequency.selectedIndex =
+                disasterSetupModel.MeteorStrike.GetRealTimeMeteorFrequencySelectionIndex();
+            UI_MeteorStrike_RealTimeFrequency.tooltip =
+                disasterSetupModel.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
+            var meteorPeriodsEnabled = disasterSetupModel.MeteorStrike.AreMeteorPeriodsEnabled();
+            UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked =
+                meteorPeriodsEnabled && disasterSetupModel.MeteorStrike.GetEnabled(0);
+            UI_MeteorStrike_MeteorMediumPeriodEnabled.isChecked =
+                meteorPeriodsEnabled && disasterSetupModel.MeteorStrike.GetEnabled(1);
+            UI_MeteorStrike_MeteorShortPeriodEnabled.isChecked =
+                meteorPeriodsEnabled && disasterSetupModel.MeteorStrike.GetEnabled(2);
+            SetMeteorPeriodControlsAvailability(meteorPeriodsEnabled);
+            SetMeteorRealTimeControlsAvailability(!meteorPeriodsEnabled);
 
             freezeUI = false;
         }
@@ -552,7 +548,7 @@ namespace NaturalDisastersRenewal.UI
                 return;
             }
 
-            if (keyCode == KeyCode.None || keyCode == KeyCode.Escape)
+            if (keyCode == KeyCode.None)
                 return;
 
             var normalizedModifiers = HotkeyHelper.GetSupportedHotkeyModifiers(modifiers);
@@ -633,6 +629,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Earthquake_EvacuationMode = null;
             UI_MeteorStrike_Enabled = null;
             UI_MeteorStrike_MaxProbability = null;
+            UI_MeteorStrike_RealTimeFrequency = null;
             UI_MeteorStrike_MeteorLongPeriodEnabled = null;
             UI_MeteorStrike_MeteorMediumPeriodEnabled = null;
             UI_MeteorStrike_MeteorShortPeriodEnabled = null;
@@ -1157,7 +1154,7 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.enable_long_meteor"), disasterContainer.MeteorStrike.GetEnabled(0),
                 delegate(bool isChecked)
                 {
-                    if (!freezeUI)
+                    if (!freezeUI && disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled())
                         disasterContainer.MeteorStrike.SetEnabled(0, isChecked);
                 },
                 spacing: nextCheckboxSpacing);
@@ -1167,7 +1164,7 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.enable_medium_meteor"), disasterContainer.MeteorStrike.GetEnabled(1),
                 delegate(bool isChecked)
                 {
-                    if (!freezeUI)
+                    if (!freezeUI && disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled())
                         disasterContainer.MeteorStrike.SetEnabled(1, isChecked);
                 }, spacing: nextCheckboxSpacing);
 
@@ -1176,9 +1173,33 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.enable_short_meteor"), disasterContainer.MeteorStrike.GetEnabled(2),
                 delegate(bool isChecked)
                 {
-                    if (!freezeUI)
+                    if (!freezeUI && disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled())
                         disasterContainer.MeteorStrike.SetEnabled(2, isChecked);
                 });
+
+            SetMeteorPeriodControlsAvailability(disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled());
+
+            DropDownHelper.AddDropDown(
+                ref UI_MeteorStrike_RealTimeFrequency,
+                ref meteorStrikeGroup,
+                LocalizationService.Get("settings.meteor.realtime_frequency"),
+                MeteorStrikeModel.GetRealTimeMeteorFrequencyOptions(),
+                ref disasterContainer.MeteorStrike.RealTimeMeteorFrequency,
+                delegate(int selection)
+                {
+                    if (!freezeUI)
+                    {
+                        disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(
+                            MeteorStrikeModel.GetRealTimeMeteorFrequencyFromSelection(selection));
+                        UI_MeteorStrike_RealTimeFrequency.tooltip =
+                            disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
+                    }
+                });
+            UI_MeteorStrike_RealTimeFrequency.selectedIndex =
+                disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencySelectionIndex();
+            UI_MeteorStrike_RealTimeFrequency.tooltip =
+                disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
+            SetMeteorRealTimeControlsAvailability(!disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled());
 
             DropDownHelper.AddDropDown(
                 ref UI_MeteorStrike_EvacuationMode,
@@ -1196,6 +1217,32 @@ namespace NaturalDisastersRenewal.UI
             helper.AddSpacing(20);
         }
 
+        private void SetMeteorPeriodControlsAvailability(bool enabled)
+        {
+            SetMeteorPeriodControlAvailability(UI_MeteorStrike_MeteorLongPeriodEnabled, enabled);
+            SetMeteorPeriodControlAvailability(UI_MeteorStrike_MeteorMediumPeriodEnabled, enabled);
+            SetMeteorPeriodControlAvailability(UI_MeteorStrike_MeteorShortPeriodEnabled, enabled);
+        }
+
+        private void SetMeteorRealTimeControlsAvailability(bool realTimeActive)
+        {
+            if (UI_MeteorStrike_MaxProbability != null)
+                UI_MeteorStrike_MaxProbability.isEnabled = !realTimeActive;
+
+            if (UI_MeteorStrike_RealTimeFrequency != null)
+                UI_MeteorStrike_RealTimeFrequency.isEnabled = realTimeActive;
+        }
+
+        private static void SetMeteorPeriodControlAvailability(UICheckBox checkbox, bool enabled)
+        {
+            if (checkbox == null)
+                return;
+
+            checkbox.isEnabled = enabled;
+            if (!enabled)
+                checkbox.isChecked = false;
+        }
+
         private void SetupHotkeySetup(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
             AddHotkeyContent(helper);
@@ -1203,94 +1250,12 @@ namespace NaturalDisastersRenewal.UI
 
         private void SetupDependenciesTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            var dependenciesGroup = helper.AddGroup(LocalizationService.Get("settings.group.dependencies"));
-            helper.AddSpacing();
-
-            if (!(dependenciesGroup is UIHelper dependenciesUiHelper) ||
-                !(dependenciesUiHelper.self is UIPanel dependenciesPanel))
-                return;
-
-            var realTimeLabel = dependenciesPanel.AddUIComponent<UILabel>();
-            var isRealTimeActive = IsRealTimeModActive();
-
-            realTimeLabel.text = "Real Time: " +
-                                 LocalizationService.Get(isRealTimeActive
-                                     ? "settings.dependency.active"
-                                     : "settings.dependency.inactive");
-            realTimeLabel.textScale = 1f;
-            realTimeLabel.textColor = isRealTimeActive
-                ? new Color32(90, 200, 120, 255)
-                : new Color32(210, 120, 120, 255);
-            realTimeLabel.autoSize = true;
+            dependenciesSection.Build(ref helper);
         }
 
         private void SetupAboutTab(ref UIHelper helper, DisasterSetupModel disasterContainer)
         {
-            var aboutGroup = helper.AddGroup(LocalizationService.Get("settings.about"));
-            helper.AddSpacing();
-
-            if (!(aboutGroup is UIHelper aboutUiHelper) || !(aboutUiHelper.self is UIPanel aboutPanel))
-                return;
-
-            var contentWidth = aboutPanel.width > 0f ? aboutPanel.width - 20f : 680f;
-            var image = CreateAboutImageSprite(
-                aboutPanel,
-                AboutImageResourceName,
-                Mathf.Min(contentWidth, 450f), //adjust this value
-                new Vector3(0f, 0f));
-            var imageBottom = image != null ? image.relativePosition.y + image.height : 0f;
-
-            var titleLabel = aboutPanel.AddUIComponent<UILabel>();
-            titleLabel.text = LocalizationService.Get("about.mod_name");
-            titleLabel.textScale = 1.1f;
-            titleLabel.textColor = UIStyleHelper.PrimaryTextColor;
-            titleLabel.relativePosition = new Vector3(0f, imageBottom + 12f);
-
-            var versionLabel = aboutPanel.AddUIComponent<UILabel>();
-            versionLabel.text = LocalizationService.Format("about.version", GetModVersion());
-            versionLabel.textScale = 0.9f;
-            versionLabel.textColor = UIStyleHelper.SecondaryTextColor;
-            versionLabel.relativePosition = new Vector3(0f, titleLabel.relativePosition.y + 28f);
-
-            var updatedLabel = aboutPanel.AddUIComponent<UILabel>();
-            updatedLabel.text = LocalizationService.Format("about.updated", AboutLastUpdatedDate);
-            updatedLabel.textScale = 0.9f;
-            updatedLabel.textColor = UIStyleHelper.SecondaryTextColor;
-            updatedLabel.relativePosition = new Vector3(0f, versionLabel.relativePosition.y + 22f);
-
-            var compatibilityImage = CreateAboutImageSprite(
-                aboutPanel,
-                AboutCompatibilityImageResourceName,
-                contentWidth,
-                new Vector3(0f, updatedLabel.relativePosition.y + 34f));
-
-            var compatibilityBottom = compatibilityImage != null
-                ? compatibilityImage.relativePosition.y + compatibilityImage.height
-                : updatedLabel.relativePosition.y + 34f;
-
-            CreateAboutLinkImage(
-                aboutPanel,
-                AboutGithubImageResourceName,
-                180f,
-                new Vector3(0f, compatibilityBottom + 18f),
-                AboutGitUrl,
-                LocalizationService.Get("about.git_link"));
-
-            CreateAboutLinkImage(
-                aboutPanel,
-                AboutSteamImageResourceName,
-                180f,
-                new Vector3(0f, compatibilityBottom + 62f),
-                AboutSteamModUrl,
-                LocalizationService.Get("about.steam_link"));
-
-            CreateAboutLinkImage(
-                aboutPanel,
-                AboutDonationImageResourceName,
-                220f,
-                new Vector3(0f, compatibilityBottom + 62f),
-                AboutDonationUrl,
-                LocalizationService.Get("about.donate_link"));
+            aboutSection.Build(ref helper);
         }
 
         private void AddHotkeyContent(UIHelperBase helper)
@@ -1326,101 +1291,6 @@ namespace NaturalDisastersRenewal.UI
 
             SetHotkeyCaptureState(false);
             RefreshHotkeyFieldText();
-        }
-
-        private static bool IsRealTimeModActive()
-        {
-            const string realTimeModName = "Real Time";
-            const ulong realTimeWorkshopId = 1420955187;
-            const ulong realTimeWorkshopId26 = 3059406297;
-
-            foreach (var plugin in PluginManager.instance.GetPluginsInfo())
-            {
-                if (plugin?.userModInstance == null || !plugin.isEnabled)
-                    continue;
-
-                var userMod = plugin.userModInstance as IUserMod;
-                var modName = userMod?.Name?.ToLowerInvariant() ?? string.Empty;
-                var pluginName = plugin.name?.ToLowerInvariant() ?? string.Empty;
-                var publishedFileId = plugin.publishedFileID.AsUInt64;
-
-                if (modName.Contains(realTimeModName.ToLowerInvariant()) ||
-                    pluginName.Contains(realTimeModName.ToLowerInvariant()) ||
-                    publishedFileId == realTimeWorkshopId ||
-                    publishedFileId == realTimeWorkshopId26)
-                    return true;
-            }
-
-            return false;
-        }
-
-        private static UITextureSprite CreateAboutImageSprite(
-            UIPanel parentPanel,
-            string resourceName,
-            float maxWidth,
-            Vector3 position)
-        {
-            var texture = LoadEmbeddedTexture(resourceName);
-            if (texture == null)
-                return null;
-
-            var sprite = parentPanel.AddUIComponent<UITextureSprite>();
-            sprite.texture = texture;
-            sprite.relativePosition = position;
-            sprite.color = Color.white;
-
-            var width = texture.width;
-            var height = texture.height;
-            var scale = width > maxWidth ? maxWidth / width : 1f;
-            sprite.size = new Vector2(width * scale, height * scale);
-            return sprite;
-        }
-
-        private static UITextureSprite CreateAboutLinkImage(
-            UIPanel parentPanel,
-            string resourceName,
-            float maxWidth,
-            Vector3 position,
-            string url,
-            string tooltip)
-        {
-            var sprite = CreateAboutImageSprite(parentPanel, resourceName, maxWidth, position);
-            if (sprite == null)
-                return null;
-
-            sprite.isInteractive = true;
-            sprite.tooltip = tooltip;
-            sprite.eventClick += delegate { Application.OpenURL(url); };
-            return sprite;
-        }
-
-        private static string GetModVersion()
-        {
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
-            if (version == null)
-                return "1.0.0";
-
-            return version.Build > 0
-                ? string.Format("{0}.{1}.{2}", version.Major, version.Minor, version.Build)
-                : string.Format("{0}.{1}", version.Major, version.Minor);
-        }
-
-        private static Texture2D LoadEmbeddedTexture(string resourceName)
-        {
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
-            {
-                if (stream == null)
-                    return null;
-
-                var buffer = new byte[stream.Length];
-                stream.Read(buffer, 0, buffer.Length);
-
-                var texture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
-                texture.filterMode = FilterMode.Bilinear;
-                texture.LoadImage(buffer);
-                texture.Apply();
-                return texture;
-            }
         }
 
         #endregion Options UI

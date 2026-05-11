@@ -8,7 +8,8 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 {
     public class SerializableDataDisasterBase
     {
-        public void SerializeCommonParameters(DataSerializer dataSeralizer, DisasterBaseModel disaster, int disasterIndex = 1)
+        public void SerializeCommonParameters(DataSerializer dataSeralizer, DisasterBaseModel disaster,
+            int disasterIndex = 1)
         {
             dataSeralizer.WriteBool(disaster.Enabled);
             dataSeralizer.WriteFloat(disaster.BaseOccurrencePerYear);
@@ -18,13 +19,14 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             dataSeralizer.WriteInt32((int)disaster.EvacuationMode * disasterIndex);
         }
 
-        public void DeserializeCommonParameters(DataSerializer dataSeralizer, DisasterBaseModel disaster, int disasterIndex = 1)
+        public void DeserializeCommonParameters(DataSerializer dataSeralizer, DisasterBaseModel disaster,
+            int disasterIndex = 1)
         {
             disaster.Enabled = dataSeralizer.ReadBool();
             disaster.BaseOccurrencePerYear = dataSeralizer.ReadFloat();
             if (dataSeralizer.version <= 2)
             {
-                float daysPerFrame = 1f / 585f;
+                var daysPerFrame = 1f / 585f;
                 disaster.calmDaysLeft = dataSeralizer.ReadInt32() * daysPerFrame;
                 disaster.probabilityWarmupDaysLeft = dataSeralizer.ReadInt32() * daysPerFrame;
                 disaster.intensityWarmupDaysLeft = dataSeralizer.ReadInt32() * daysPerFrame;
@@ -41,7 +43,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
         public void AfterDeserializeLog(string className)
         {
-            Debug.Log(CommonProperties.logMsgPrefix + className + " data loaded.");
+            Debug.Log(CommonProperties.LogMessagePrefix + className + " data loaded.");
         }
     }
 }

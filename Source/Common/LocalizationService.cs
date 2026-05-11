@@ -16,6 +16,9 @@ namespace NaturalDisastersRenewal.Common
                         { "language.spanish", "Spanish" },
                         { "time.and", "and" },
                         { "time.less_than_one_day", "Less than one day" },
+                        { "time.second", "second" },
+                        { "time.minute", "minute" },
+                        { "time.hour", "hour" },
                         { "time.day", "day" },
                         { "time.month", "month" },
                         { "time.year", "year" },
@@ -32,7 +35,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.title", "Disasters info" },
                         { "panel.population_threshold", "Max population to trigger higher disasters" },
                         { "panel.disaster_header", "Disaster - COY/Max Int" },
-                        { "panel.axis.probability", "Probability" },
+                        { "panel.axis.probability", "Annual rate" },
                         { "panel.axis.max_intensity", "Max intensity" },
                         { "panel.stop_all", "Emergency Button (stop all disasters)" },
                         { "panel.reset_all", "Reset disaster cooldowns and progress" },
@@ -40,7 +43,11 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.tab.statistics", "Statistics" },
                         { "panel.tab.controls", "Controls" },
                         { "panel.header.disaster", "Disaster" },
-                        { "panel.header.probability", "Probability" },
+                        { "panel.header.probability", "Annual rate" },
+                        {
+                            "panel.header.probability.tooltip",
+                            "Normalized from the current disaster occurrence per year."
+                        },
                         { "panel.header.max_intensity", "Max strength" },
                         { "panel.population_threshold.value", "Min. population for strongest disasters: {0}." },
                         { "panel.help.tooltip", "Open panel help" },
@@ -122,6 +129,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.evacuation_mode", "Evacuation Mode: " },
                         { "settings.max_probability", "Max probability" },
                         { "settings.times_per_year", " times per year" },
+                        { "settings.days", " days" },
                         {
                             "settings.forest_fire.max_probability.tooltip",
                             "Occurrence (per year) in case of a long period without rain."
@@ -194,8 +202,47 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.enable_short_meteor", "Enable short period (2 years) meteor" },
                         {
                             "settings.meteor.max_probability.tooltip",
-                            "Maximum occurrence of meteor strike per year per one meteor when it approaches the Earth."
+                            "Maximum meteor occurrence per year when Real Time is inactive.\nReal Time uses the dedicated meteor period setting below."
                         },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier",
+                            "Real Time frequency reduction"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier.tooltip",
+                            "Divides the configured meteor occurrence while Real Time is active. Higher values make automatic meteors less frequent."
+                        },
+                        {
+                            "settings.meteor.realtime_period_days",
+                            "Real Time meteor period"
+                        },
+                        {
+                            "settings.meteor.realtime_period_days.tooltip",
+                            "Number of vanilla-equivalent simulation days required to fill the meteor progress bar while Real Time is active."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency",
+                            "Real Time meteor frequency"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip",
+                            "Chooses the random real-time interval used between automatic meteor strikes while Real Time is active."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time interval used between automatic meteor strikes while Real Time is active.\nSelected reference period: {0}."
+                        },
+                        { "settings.meteor.frequency.apocalypse", "Apocalypse: 5-12 minutes" },
+                        { "settings.meteor.frequency.frequent", "Frequent: 15-45 minutes" },
+                        { "settings.meteor.frequency.daily_threat", "Frequent: 15-45 minutes" },
+                        { "settings.meteor.frequency.occasional", "Occasional: 45-90 minutes" },
+                        { "settings.meteor.frequency.uncommon", "Uncommon: 90 minutes-3 hours" },
+                        { "settings.meteor.frequency.rare", "Rare: 3-6 hours" },
+                        { "settings.meteor.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.meteor.frequency_name.frequent", "Frequent" },
+                        { "settings.meteor.frequency_name.occasional", "Occasional" },
+                        { "settings.meteor.frequency_name.uncommon", "Uncommon" },
+                        { "settings.meteor.frequency_name.rare", "Rare" },
                         { "key.ctrl", "Ctrl" },
                         { "key.alt", "Alt" },
                         { "key.shift", "Shift" },
@@ -224,6 +271,7 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.thunderstorm.rain_increase", "Increased because of rain." },
                         { "tooltip.tornado.no_during_fog", "No {0} during fog." },
                         { "tooltip.earthquake.aftershocks", "Expect {0} more aftershocks" },
+                        { "tooltip.meteor.realtime_reference", "Reference period: {0}." },
                         { "disaster.earthquake", "Earthquake" },
                         { "disaster.forest_fire", "Forest Fire" },
                         { "disaster.meteor_strike", "Meteor Strike" },
@@ -234,7 +282,10 @@ namespace NaturalDisastersRenewal.Common
                         { "about.mod_name", "Natural Disasters Renewal" },
                         { "about.version", "Version: {0}" },
                         { "about.updated", "Last updated: {0}" },
-                        { "about.description", "A unified overhaul for natural disasters, evacuation behavior, and disaster control in Cities: Skylines." },
+                        {
+                            "about.description",
+                            "A unified overhaul for natural disasters, evacuation behavior, and disaster control in Cities: Skylines."
+                        },
                         { "about.donate_link", "Open Donations Page" },
                         { "about.git_link", "Open GitHub Page" },
                         { "about.steam_link", "Open Steam Workshop Page" }
@@ -247,6 +298,9 @@ namespace NaturalDisastersRenewal.Common
                         { "language.spanish", "Español" },
                         { "time.and", "y" },
                         { "time.less_than_one_day", "Menos de un dia" },
+                        { "time.second", "segundo" },
+                        { "time.minute", "minuto" },
+                        { "time.hour", "hora" },
                         { "time.day", "dia" },
                         { "time.month", "mes" },
                         { "time.year", "ano" },
@@ -263,7 +317,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.title", "Informacion de desastres" },
                         { "panel.population_threshold", "Poblacion maxima para activar desastres mas fuertes" },
                         { "panel.disaster_header", "Desastre - FOA/Fuerza Max" },
-                        { "panel.axis.probability", "Probabilidad" },
+                        { "panel.axis.probability", "Tasa anual" },
                         { "panel.axis.max_intensity", "Fuerza maxima" },
                         { "panel.stop_all", "Boton de emergencia (detener todos los desastres)" },
                         { "panel.reset_all", "Reiniciar enfriamientos y progreso de desastres" },
@@ -271,7 +325,11 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.tab.statistics", "Estadisticas" },
                         { "panel.tab.controls", "Controles" },
                         { "panel.header.disaster", "Desastre" },
-                        { "panel.header.probability", "Probabilidad" },
+                        { "panel.header.probability", "Tasa anual" },
+                        {
+                            "panel.header.probability.tooltip",
+                            "Normalizada segun la ocurrencia anual actual del desastre."
+                        },
                         { "panel.header.max_intensity", "Fuerza max." },
                         { "panel.population_threshold.value", "Poblacion minima para los desastres mas fuertes: {0}." },
                         { "panel.help.tooltip", "Abrir ayuda del panel" },
@@ -359,6 +417,7 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.evacuation_mode", "Modo de evacuacion: " },
                         { "settings.max_probability", "Probabilidad maxima" },
                         { "settings.times_per_year", " veces por ano" },
+                        { "settings.days", " dias" },
                         {
                             "settings.forest_fire.max_probability.tooltip",
                             "Ocurrencia por ano en caso de un periodo largo sin lluvia."
@@ -434,8 +493,47 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.enable_short_meteor", "Activar meteorito de periodo corto (2 anos)" },
                         {
                             "settings.meteor.max_probability.tooltip",
-                            "Ocurrencia maxima por ano de impacto de meteorito por cada meteorito cuando se acerca a la Tierra."
+                            "Ocurrencia maxima de meteoritos por ano cuando Real Time no esta activo. Real Time usa el periodo dedicado de meteorito configurado abajo."
                         },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier",
+                            "Reduccion de frecuencia con Real Time"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier.tooltip",
+                            "Divide la ocurrencia configurada de meteoritos mientras Real Time esta activo. Valores mas altos reducen los meteoritos automaticos."
+                        },
+                        {
+                            "settings.meteor.realtime_period_days",
+                            "Periodo de meteorito con Real Time"
+                        },
+                        {
+                            "settings.meteor.realtime_period_days.tooltip",
+                            "Cantidad de dias de simulacion equivalentes a vanilla necesarios para llenar la barra de progreso del meteorito mientras Real Time esta activo."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency",
+                            "Frecuencia de meteoritos con Real Time"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip",
+                            "Elige el intervalo aleatorio en tiempo real entre meteoritos automaticos mientras Real Time esta activo."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio en tiempo real entre meteoritos automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.meteor.frequency.apocalypse", "Apocalipsis: 5-12 minutos" },
+                        { "settings.meteor.frequency.frequent", "Frecuente: 15-45 minutos" },
+                        { "settings.meteor.frequency.daily_threat", "Frecuente: 15-45 minutos" },
+                        { "settings.meteor.frequency.occasional", "Ocasional: 45-90 minutos" },
+                        { "settings.meteor.frequency.uncommon", "Poco frecuente: 90 minutos-3 horas" },
+                        { "settings.meteor.frequency.rare", "Raro: 3-6 horas" },
+                        { "settings.meteor.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.meteor.frequency_name.frequent", "Frecuente" },
+                        { "settings.meteor.frequency_name.occasional", "Ocasional" },
+                        { "settings.meteor.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.meteor.frequency_name.rare", "Raro" },
                         { "key.ctrl", "Ctrl" },
                         { "key.alt", "Alt" },
                         { "key.shift", "Shift" },
@@ -461,6 +559,7 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.thunderstorm.rain_increase", "Aumentado por la lluvia." },
                         { "tooltip.tornado.no_during_fog", "No habra {0} durante la niebla." },
                         { "tooltip.earthquake.aftershocks", "Se esperan {0} replicas mas" },
+                        { "tooltip.meteor.realtime_reference", "Periodo de referencia: {0}." },
                         { "disaster.earthquake", "Terremoto" },
                         { "disaster.forest_fire", "Incendio forestal" },
                         { "disaster.meteor_strike", "Meteorito" },
@@ -471,7 +570,10 @@ namespace NaturalDisastersRenewal.Common
                         { "about.mod_name", "Natural Disasters Renewal" },
                         { "about.version", "Version: {0}" },
                         { "about.updated", "Ultima actualizacion: {0}" },
-                        { "about.description", "Una renovacion unificada para desastres naturales, comportamiento de evacuacion y control de desastres en Cities: Skylines." },
+                        {
+                            "about.description",
+                            "Una renovacion unificada para desastres naturales, comportamiento de evacuacion y control de desastres en Cities: Skylines."
+                        },
                         { "about.donate_link", "Abrir pagina de donaciones" },
                         { "about.git_link", "Abrir pagina de GitHub" },
                         { "about.steam_link", "Abrir Pagina de Steam Workshop" }

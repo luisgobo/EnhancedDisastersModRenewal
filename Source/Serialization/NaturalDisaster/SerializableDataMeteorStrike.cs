@@ -1,6 +1,7 @@
 using ColossalFramework;
 using ColossalFramework.IO;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 
@@ -12,6 +13,12 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
         {
             MeteorStrikeModel meteorStrike = Services.DisasterSetup.MeteorStrike;
             SerializeCommonParameters(dataSerializer, meteorStrike);
+            dataSerializer.WriteFloat(meteorStrike.RealTimeFrequencyMultiplier);
+            dataSerializer.WriteFloat(meteorStrike.RealTimePeriodDays);
+            dataSerializer.WriteFloat(meteorStrike.realTimeDaysUntilNextMeteor);
+            dataSerializer.WriteInt32((int)meteorStrike.RealTimeMeteorFrequency);
+            dataSerializer.WriteFloat(meteorStrike.realTimeMinutesUntilNextMeteor);
+            dataSerializer.WriteFloat(meteorStrike.realTimeCurrentPeriodMinutes);
 
             for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
             {
@@ -28,9 +35,26 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             MeteorStrikeModel meteorStrike = Services.DisasterSetup.MeteorStrike;
             DeserializeCommonParameters(dataSerializer, meteorStrike);
 
+            if (dataSerializer.version >= 6)
+                meteorStrike.RealTimeFrequencyMultiplier = dataSerializer.ReadFloat();
+
+            if (dataSerializer.version >= 8)
+                meteorStrike.RealTimePeriodDays = dataSerializer.ReadFloat();
+
+            if (dataSerializer.version >= 7)
+                meteorStrike.realTimeDaysUntilNextMeteor = dataSerializer.ReadFloat();
+
+            if (dataSerializer.version >= 9)
+            {
+                meteorStrike.RealTimeMeteorFrequency =
+                    (RealTimeMeteorFrequencyPreset)dataSerializer.ReadInt32();
+                meteorStrike.realTimeMinutesUntilNextMeteor = dataSerializer.ReadFloat();
+                meteorStrike.realTimeCurrentPeriodMinutes = dataSerializer.ReadFloat();
+            }
+
             if (dataSerializer.version <= 2)
             {
-                float daysPerFrame = DisasterSimulationUtils.DaysPerFrame;
+                float daysPerFrame = DisasterSimulationUtils.VanillaSimulationDaysPerFrame;
                 for (int i = 0; i < meteorStrike.meteorEvents.Length; i++)
                 {
                     meteorStrike.meteorEvents[i].Enabled = dataSerializer.ReadBool();

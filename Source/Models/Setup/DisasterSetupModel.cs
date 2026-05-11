@@ -1,52 +1,50 @@
-using NaturalDisastersRenewal.Common;
-using NaturalDisastersRenewal.Common.enums;
-using NaturalDisastersRenewal.Models.Disaster;
-using NaturalDisastersRenewal.Models.NaturalDisaster;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.enums;
+using NaturalDisastersRenewal.Models.Disaster;
+using NaturalDisastersRenewal.Models.NaturalDisaster;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.Setup
 {
     public class DisasterSetupModel
     {
-        public ForestFireModel ForestFire;
-        public ThunderstormModel Thunderstorm;
-        public SinkholeModel Sinkhole;
-        public TsunamiModel Tsunami;
-        public TornadoModel Tornado;
-        public EarthquakeModel Earthquake;
-        public MeteorStrikeModel MeteorStrike;
-
-        //General options
-        public bool DisableDisasterFocus = true;
-
-        public bool PauseOnDisasterStarts = false;
-        public float PartialEvacuationRadius = 900f;
-        public float MaxPopulationToTriggerHigherDisasters = 200000;
-
-        public bool ScaleMaxIntensityWithPopulation = true;
-        public bool RecordDisasterEvents = false;
-        public bool ShowDisasterPanelButton = true;
-        public ModLanguage Language = ModLanguage.English;
-        [XmlIgnore] public KeyCode TogglePanelHotkey = KeyCode.D;
-        [XmlIgnore] public EventModifiers TogglePanelHotkeyModifiers = EventModifiers.Shift;
-        public Vector3 ToggleButtonPos = new Vector3(90, 62);
-        public Vector3 DPanelPos = new Vector3(90, 40);
+        [XmlIgnore] public readonly List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();
 
         //Disaster list
         //[XmlIgnore] //for now it's needed to read it when on load and save game
-        public List<DisasterInfoModel> activeDisasters = new List<DisasterInfoModel>();
+        public List<DisasterInfoModel> ActiveDisasters = new List<DisasterInfoModel>();
 
-        [XmlIgnore]
-        public List<DisasterBaseModel> AllDisasters = new List<DisasterBaseModel>();
+        //General options
+        public bool DisableDisasterFocus = true;
+        public Vector3 DPanelPos = new Vector3(90, 40);
+        public EarthquakeModel Earthquake;
+        public ForestFireModel ForestFire;
+        public ModLanguage Language = ModLanguage.English;
+        public float MaxPopulationToTriggerHigherDisasters = 200000;
+        public MeteorStrikeModel MeteorStrike;
+        public float PartialEvacuationRadius = 900f;
+
+        public bool PauseOnDisasterStarts = false;
+        public bool RecordDisasterEvents = false;
+
+        public bool ScaleMaxIntensityWithPopulation = false;
+        public bool ShowDisasterPanelButton = true;
+        public SinkholeModel Sinkhole;
+        public ThunderstormModel Thunderstorm;
+        public Vector3 ToggleButtonPos = new Vector3(90, 62);
+        [XmlIgnore] public KeyCode TogglePanelHotkey = KeyCode.D;
+        [XmlIgnore] public EventModifiers TogglePanelHotkeyModifiers = EventModifiers.Shift;
+        public TornadoModel Tornado;
+        public TsunamiModel Tsunami;
 
         [XmlElement("TogglePanelHotkey")]
         public string TogglePanelHotkeySerialized
         {
-            get { return TogglePanelHotkey.ToString(); }
+            get => TogglePanelHotkey.ToString();
             set
             {
                 if (string.IsNullOrEmpty(value) || value.Trim().Length == 0)
@@ -69,7 +67,7 @@ namespace NaturalDisastersRenewal.Models.Setup
         [XmlElement("TogglePanelHotkeyModifiers")]
         public string TogglePanelHotkeyModifiersSerialized
         {
-            get { return TogglePanelHotkeyModifiers.ToString(); }
+            get => TogglePanelHotkeyModifiers.ToString();
             set
             {
                 if (string.IsNullOrEmpty(value) || value.Trim().Length == 0)
@@ -92,8 +90,8 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         public void Save()
         {
-            XmlSerializer ser = new XmlSerializer(typeof(DisasterSetupModel));
-            TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath(CommonProperties.xmlFilename));
+            var ser = new XmlSerializer(typeof(DisasterSetupModel));
+            TextWriter writer = new StreamWriter(CommonProperties.GetOptionsFilePath(CommonProperties.XmlFilename));
             ser.Serialize(writer, this);
             writer.Close();
         }
@@ -120,15 +118,15 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         public static DisasterSetupModel CreateFromFile()
         {
-            string path = CommonProperties.GetOptionsFilePath(CommonProperties.xmlFilename);
+            var path = CommonProperties.GetOptionsFilePath(CommonProperties.XmlFilename);
 
             if (!File.Exists(path)) return null;
 
             try
             {
-                XmlSerializer ser = new XmlSerializer(typeof(DisasterSetupModel));
+                var ser = new XmlSerializer(typeof(DisasterSetupModel));
                 TextReader reader = new StreamReader(path);
-                DisasterSetupModel instance = (DisasterSetupModel)ser.Deserialize(reader);
+                var instance = (DisasterSetupModel)ser.Deserialize(reader);
                 reader.Close();
 
                 instance.CheckObjects();

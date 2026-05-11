@@ -1,5 +1,5 @@
-﻿using NaturalDisastersRenewal.Common;
-using System.IO;
+﻿using System.IO;
+using NaturalDisastersRenewal.Common;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.Disaster
@@ -12,16 +12,16 @@ namespace NaturalDisastersRenewal.Models.Disaster
         public static void Log(string msg)
         {
             if (IsDebug)
-            //if (IsDebug && System.Diagnostics.Debugger.IsAttached)
+                //if (IsDebug && System.Diagnostics.Debugger.IsAttached)
             {
-                File.AppendAllText(GeFilePath(), msg + CommonProperties.newLine);
+                File.AppendAllText(GeFilePath(), msg + CommonProperties.NewLine);
                 Debug.Log(msg);
             }
         }
 
-        static string GeFilePath()
+        private static string GeFilePath()
         {
-            return CommonProperties.GetOptionsFilePath(CommonProperties.logFilename);
+            return CommonProperties.GetOptionsFilePath(CommonProperties.LogFilename);
         }
     }
 }

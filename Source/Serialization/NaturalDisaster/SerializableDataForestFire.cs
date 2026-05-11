@@ -19,6 +19,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
         public void Deserialize(DataSerializer dataSeralizer)
         {
             ForestFireModel forestFire = Services.DisasterSetup.ForestFire;
+            // TODO: Forest Fire only exposes Manual/Focused evacuation in the UI; normalize the save/load mapping so FocusedAutoEvacuation is not multiplied into an invalid enum value.
             DeserializeCommonParameters(dataSeralizer, forestFire, 2);
             forestFire.WarmupDays = dataSeralizer.ReadInt32();
             if (dataSeralizer.version <= 2)
