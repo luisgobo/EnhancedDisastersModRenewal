@@ -26,7 +26,6 @@ namespace NaturalDisastersRenewal.UI.SettingsSections
         private const string AboutGitUrl = "https://github.com/luisgobo/EnhancedDisastersModRenewal";
         private const string AboutDonationUrl = "https://ko-fi.com/luisgobo2986";
         private const string AboutSteamModUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=2957578256";
-        private const string AboutLastUpdatedDate = "2026-04-09";
 
         public void Build(ref UIHelper helper)
         {
@@ -56,13 +55,13 @@ namespace NaturalDisastersRenewal.UI.SettingsSections
             titleLabel.relativePosition = new Vector3(0f, imageBottom + 12f);
 
             var versionLabel = aboutPanel.AddUIComponent<UILabel>();
-            versionLabel.text = LocalizationService.Format("about.version", GetModVersion());
+            versionLabel.text = LocalizationService.Format("about.version", CommonProperties.ModVersion);
             versionLabel.textScale = 0.9f;
             versionLabel.textColor = UIStyleHelper.SecondaryTextColor;
             versionLabel.relativePosition = new Vector3(0f, titleLabel.relativePosition.y + 28f);
 
             var updatedLabel = aboutPanel.AddUIComponent<UILabel>();
-            updatedLabel.text = LocalizationService.Format("about.updated", AboutLastUpdatedDate);
+            updatedLabel.text = LocalizationService.Format("about.updated", CommonProperties.ModLastUpdate);
             updatedLabel.textScale = 0.9f;
             updatedLabel.textColor = UIStyleHelper.SecondaryTextColor;
             updatedLabel.relativePosition = new Vector3(0f, versionLabel.relativePosition.y + 22f);
@@ -140,17 +139,6 @@ namespace NaturalDisastersRenewal.UI.SettingsSections
             sprite.tooltip = tooltip;
             sprite.eventClick += delegate { Application.OpenURL(url); };
             return sprite;
-        }
-
-        private static string GetModVersion()
-        {
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
-            if (version == null)
-                return "1.0.0";
-
-            return version.Build > 0
-                ? string.Format("{0}.{1}.{2}", version.Major, version.Minor, version.Build)
-                : string.Format("{0}.{1}", version.Major, version.Minor);
         }
 
         private static Texture2D LoadEmbeddedTexture(string resourceName)
