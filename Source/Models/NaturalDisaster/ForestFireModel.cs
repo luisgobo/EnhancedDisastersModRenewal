@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using ColossalFramework;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
+using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models.Disaster;
 using UnityEngine;
 
@@ -74,6 +76,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             disasterInfo.type |= DisasterType.ForestFire;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
+            DetectActiveForestFire(disasterId);
+        }
+
+        private void DetectActiveForestFire(ushort disasterId)
+        {
+            if (!Enabled || disasterId == 0)
+                return;
+
+            var dm = Services.Disasters;
+            var flags = dm.m_disasters.m_buffer[disasterId].m_flags;
+            if ((flags & (DisasterData.Flags.Active | DisasterData.Flags.Detected | DisasterData.Flags.UnDetected)) !=
+                DisasterData.Flags.Active)
+                return;
+
+            dm.DetectDisaster(disasterId, true);
+            DebugLogger.Log(GetDebugStr() + string.Format(
+                "Forest Fire detected after activation. Id: {0}, Flags: {1}",
+                disasterId,
+                dm.m_disasters.m_buffer[disasterId].m_flags));
         }
 
         public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified,
@@ -180,6 +201,110 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return IsRealTimePatternActive()
                 ? DisasterSimulationUtils.VanillaSimulationDaysPerFrame
                 : base.GetSimulationDaysPerFrame();
+        }
+
+        protected override bool FindTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
+        {
+            if (TryFindRandomTreeTarget(out targetPosition, out angle))
+            {
+                DebugLogger.Log(GetDebugStr() + string.Format(
+                    "Forest Fire target selected from living tree. Target: x:{0:#.##} y:{1:#.##} z:{2:#.##}",
+                    targetPosition.x,
+                    targetPosition.y,
+                    targetPosition.z));
+                return true;
+            }
+
+            LogDisasterStartFailure("Forest Fire target: no valid living tree found in the configured occurrence area");
+            return base.FindTarget(disasterInfo, out targetPosition, out angle);
+        }
+
+        private bool TryFindRandomTreeTarget(out Vector3 targetPosition, out float angle)
+        {
+            targetPosition = Vector3.zero;
+            angle = 0f;
+
+            var treeManager = Singleton<TreeManager>.instance;
+            var simulation = Services.Simulation;
+            if (treeManager == null || simulation == null)
+                return false;
+
+            var trees = treeManager.m_trees.m_buffer;
+            uint selectedTree = 0;
+            var validTreeCount = 0;
+
+            for (uint treeId = 1; treeId < trees.Length; treeId++)
+            {
+                var tree = trees[treeId];
+                if ((tree.m_flags & 0x43) != 1 || tree.GrowState == 0)
+                    continue;
+
+                if (!IsTreeTargetAllowed(tree.Position))
+                    continue;
+
+                validTreeCount++;
+                if (simulation.m_randomizer.Int32((uint)validTreeCount) == 0)
+                    selectedTree = treeId;
+            }
+
+            if (selectedTree == 0)
+                return false;
+
+            targetPosition = trees[selectedTree].Position;
+            angle = simulation.m_randomizer.Int32(0, 10000) * 0.0006283185f;
+            return true;
+        }
+
+        private bool IsTreeTargetAllowed(Vector3 position)
+        {
+            var area = unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock;
+
+            switch (area)
+            {
+                case OccurrenceAreas.Everywhere:
+                    return true;
+
+                case OccurrenceAreas.UnlockedAreas:
+                    return TryGetAreaCoordinates(position, out var unlockedX, out var unlockedZ) &&
+                           IsAreaUnlocked(unlockedX, unlockedZ);
+
+                case OccurrenceAreas.LockedAreas:
+                    return TryGetAreaCoordinates(position, out var lockedX, out var lockedZ) &&
+                           !IsAreaUnlocked(lockedX, lockedZ);
+
+                default:
+                    return false;
+            }
+        }
+
+        private static bool TryGetAreaCoordinates(Vector3 position, out int areaX, out int areaZ)
+        {
+            var gameArea = Services.GameArea;
+            for (var x = 0; x < 5; x++)
+            for (var z = 0; z < 5; z++)
+            {
+                float minX;
+                float minZ;
+                float maxX;
+                float maxZ;
+                gameArea.GetAreaBounds(x, z, out minX, out minZ, out maxX, out maxZ);
+                if (position.x >= minX && position.x <= maxX && position.z >= minZ && position.z <= maxZ)
+                {
+                    areaX = x;
+                    areaZ = z;
+                    return true;
+                }
+            }
+
+            areaX = 0;
+            areaZ = 0;
+            return false;
+        }
+
+        private static bool IsAreaUnlocked(int areaX, int areaZ)
+        {
+            return areaX >= 0 && areaZ >= 0 && areaX < 5 && areaZ < 5 &&
+                   Services.GameArea.m_areaGrid[areaZ * 5 + areaX] != 0;
         }
 
         public bool IsRealTimePatternActive()
