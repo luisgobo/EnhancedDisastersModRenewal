@@ -131,6 +131,20 @@ namespace NaturalDisastersRenewal.Common
                             "Hotkey to display/hide panel info: Shift + D (will be configurable soon)."
                         },
                         { "settings.enable_disasters", "Enable Disasters:" },
+                        { "settings.frequency_harmony", "Harmonize disaster frequency" },
+                        {
+                            "settings.frequency_harmony.tooltip",
+                            "Applies the selected Real Time frequency preset to every disaster with a frequency preset. Individual frequency dropdowns show a warning when they differ from this value."
+                        },
+                        {
+                            "settings.frequency_harmony.mismatch.tooltip",
+                            "Does not match the General frequency harmonizer."
+                        },
+                        { "settings.frequency.apocalypse", "Apocalypse" },
+                        { "settings.frequency.frequent", "Frequent" },
+                        { "settings.frequency.occasional", "Occasional" },
+                        { "settings.frequency.uncommon", "Uncommon" },
+                        { "settings.frequency.rare", "Rare" },
                         { "settings.save_options", "Save options" },
                         { "settings.save_default", "Save as default for new games" },
                         { "settings.reset_saved", "Reset to the last saved values" },
@@ -464,6 +478,20 @@ namespace NaturalDisastersRenewal.Common
                             "Atajo para mostrar/ocultar panel: Shift + D (sera configurable pronto)."
                         },
                         { "settings.enable_disasters", "Activar desastres:" },
+                        { "settings.frequency_harmony", "Armonizar frecuencia de desastres" },
+                        {
+                            "settings.frequency_harmony.tooltip",
+                            "Aplica el preset de frecuencia Real Time seleccionado a todos los desastres con preset de frecuencia. Los dropdowns individuales muestran una advertencia cuando son diferentes a este valor."
+                        },
+                        {
+                            "settings.frequency_harmony.mismatch.tooltip",
+                            "No coincide con el armonizador de frecuencia de General."
+                        },
+                        { "settings.frequency.apocalypse", "Apocalipsis" },
+                        { "settings.frequency.frequent", "Frecuente" },
+                        { "settings.frequency.occasional", "Ocasional" },
+                        { "settings.frequency.uncommon", "Poco frecuente" },
+                        { "settings.frequency.rare", "Raro" },
                         { "settings.save_options", "Opciones de guardado" },
                         { "settings.save_default", "Guardar como valor predeterminado para partidas nuevas" },
                         { "settings.reset_saved", "Restablecer a los ultimos valores guardados" },
