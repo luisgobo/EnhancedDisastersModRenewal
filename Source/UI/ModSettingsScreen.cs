@@ -82,6 +82,8 @@ namespace NaturalDisastersRenewal.UI
 
         private UISlider UI_Sinkhole_MaxProbability;
         private UISlider UI_Sinkhole_GroundwaterCapacity;
+        private UIDropDown UI_Sinkhole_RealTimeFrequency;
+        private UISprite UI_Sinkhole_RealTimeFrequencyWarning;
         private UIDropDown UI_Sinkhole_EvacuationMode;
 
         //Tornado
@@ -218,6 +220,11 @@ namespace NaturalDisastersRenewal.UI
             UI_Sinkhole_EvacuationMode.selectedIndex = (int)disasterSetupModel.Sinkhole.EvacuationMode;
             UI_Sinkhole_MaxProbability.value = disasterSetupModel.Sinkhole.BaseOccurrencePerYear;
             UI_Sinkhole_GroundwaterCapacity.value = disasterSetupModel.Sinkhole.GroundwaterCapacity;
+            UI_Sinkhole_RealTimeFrequency.selectedIndex =
+                disasterSetupModel.Sinkhole.GetRealTimeSinkholeFrequencySelectionIndex();
+            UI_Sinkhole_RealTimeFrequency.tooltip =
+                disasterSetupModel.Sinkhole.GetRealTimeSinkholeFrequencyTooltip();
+            SetSinkholeRealTimeControlsAvailability(disasterSetupModel.Sinkhole.IsRealTimePatternActive());
 
             UI_Tornado_Enabled.isChecked = disasterSetupModel.Tornado.Enabled;
             UI_Tornado_EvacuationMode.selectedIndex = (int)disasterSetupModel.Tornado.EvacuationMode;
@@ -647,6 +654,8 @@ namespace NaturalDisastersRenewal.UI
             UI_Sinkhole_Enabled = null;
             UI_Sinkhole_MaxProbability = null;
             UI_Sinkhole_GroundwaterCapacity = null;
+            UI_Sinkhole_RealTimeFrequency = null;
+            UI_Sinkhole_RealTimeFrequencyWarning = null;
             UI_Sinkhole_EvacuationMode = null;
             UI_Tornado_Enabled = null;
             UI_Tornado_MaxProbability = null;
@@ -912,6 +921,7 @@ namespace NaturalDisastersRenewal.UI
         {
             disasterContainer.RealTimeFrequencyHarmony = frequency;
             disasterContainer.ForestFire.SetRealTimeForestFireFrequency(frequency);
+            disasterContainer.Sinkhole.SetRealTimeSinkholeFrequency(frequency);
             disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(frequency);
         }
 
@@ -945,6 +955,14 @@ namespace NaturalDisastersRenewal.UI
                 disasterContainer.ForestFire.GetRealTimeForestFireFrequencySelectionIndex(),
                 disasterContainer.ForestFire.RealTimeForestFireFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.ForestFire.GetRealTimeForestFireFrequencyTooltip());
+
+            SetFrequencyDropdownWarning(
+                UI_Sinkhole_RealTimeFrequency,
+                UI_Sinkhole_RealTimeFrequencyWarning,
+                SinkholeModel.GetRealTimeSinkholeFrequencyOptions(),
+                disasterContainer.Sinkhole.GetRealTimeSinkholeFrequencySelectionIndex(),
+                disasterContainer.Sinkhole.RealTimeSinkholeFrequency != disasterContainer.RealTimeFrequencyHarmony,
+                disasterContainer.Sinkhole.GetRealTimeSinkholeFrequencyTooltip());
 
             SetFrequencyDropdownWarning(
                 UI_MeteorStrike_RealTimeFrequency,
@@ -1294,6 +1312,34 @@ namespace NaturalDisastersRenewal.UI
                         disasterContainer.Sinkhole.GroundwaterCapacity = val;
                 }, tooltip: LocalizationService.Get("settings.groundwater_capacity.tooltip"));
 
+            sinkholeGroup.AddSpacing(12);
+
+            DropDownHelper.AddDropDown(
+                ref UI_Sinkhole_RealTimeFrequency,
+                ref sinkholeGroup,
+                LocalizationService.Get("settings.sinkhole.realtime_frequency"),
+                SinkholeModel.GetRealTimeSinkholeFrequencyOptions(),
+                ref disasterContainer.Sinkhole.RealTimeSinkholeFrequency,
+                delegate(int selection)
+                {
+                    if (!_freezeUI)
+                    {
+                        disasterContainer.Sinkhole.SetRealTimeSinkholeFrequency(
+                            SinkholeModel.GetRealTimeSinkholeFrequencyFromSelection(selection));
+                        UI_Sinkhole_RealTimeFrequency.tooltip =
+                            disasterContainer.Sinkhole.GetRealTimeSinkholeFrequencyTooltip();
+                        RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+                    }
+                });
+            UI_Sinkhole_RealTimeFrequency.selectedIndex =
+                disasterContainer.Sinkhole.GetRealTimeSinkholeFrequencySelectionIndex();
+            UI_Sinkhole_RealTimeFrequency.tooltip =
+                disasterContainer.Sinkhole.GetRealTimeSinkholeFrequencyTooltip();
+            UI_Sinkhole_RealTimeFrequencyWarning =
+                CreateFrequencyWarningIcon(UI_Sinkhole_RealTimeFrequency);
+            SetSinkholeRealTimeControlsAvailability(disasterContainer.Sinkhole.IsRealTimePatternActive());
+            RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+
             DropDownHelper.AddDropDown(
                 ref UI_Sinkhole_EvacuationMode,
                 ref sinkholeGroup,
@@ -1307,6 +1353,15 @@ namespace NaturalDisastersRenewal.UI
                 });
 
             helper.AddSpacing(20);
+        }
+
+        private void SetSinkholeRealTimeControlsAvailability(bool realTimeActive)
+        {
+            if (UI_Sinkhole_MaxProbability != null)
+                UI_Sinkhole_MaxProbability.isEnabled = !realTimeActive;
+
+            if (UI_Sinkhole_RealTimeFrequency != null)
+                UI_Sinkhole_RealTimeFrequency.isEnabled = realTimeActive;
         }
 
         private void SetupTornado(ref UIHelper helper, DisasterSetupModel disasterContainer)

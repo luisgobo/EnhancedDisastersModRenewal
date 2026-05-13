@@ -204,13 +204,35 @@ namespace NaturalDisastersRenewal.Common
                         },
                         {
                             "settings.sinkhole.max_probability.tooltip",
-                            "Occurrence (per year) in case of a long period of rain."
+                            "Occurrence (per year) in case of a long period of rain when Real Time is inactive.\nReal Time uses the dedicated sinkhole frequency below."
                         },
                         { "settings.groundwater_capacity", "Groundwater capacity" },
                         {
                             "settings.groundwater_capacity.tooltip",
                             "Set how fast groundwater fills up during rain and causes a sinkhole to appear."
                         },
+                        {
+                            "settings.sinkhole.realtime_frequency",
+                            "Real Time sinkhole frequency"
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency.tooltip",
+                            "Chooses the random real-time wet interval used between automatic sinkholes while Real Time is active."
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time wet interval used between automatic sinkholes while Real Time is active.\nSelected reference period: {0}."
+                        },
+                        { "settings.sinkhole.frequency.apocalypse", "Apocalypse: 10-20 wet minutes" },
+                        { "settings.sinkhole.frequency.frequent", "Frequent: 20-60 wet minutes" },
+                        { "settings.sinkhole.frequency.occasional", "Occasional: 1-2 wet hours" },
+                        { "settings.sinkhole.frequency.uncommon", "Uncommon: 2-4 wet hours" },
+                        { "settings.sinkhole.frequency.rare", "Rare: 4-8 wet hours" },
+                        { "settings.sinkhole.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.sinkhole.frequency_name.frequent", "Frequent" },
+                        { "settings.sinkhole.frequency_name.occasional", "Occasional" },
+                        { "settings.sinkhole.frequency_name.uncommon", "Uncommon" },
+                        { "settings.sinkhole.frequency_name.rare", "Rare" },
                         { "settings.no_tornado_fog", "No Tornado during fog" },
                         { "settings.no_tornado_fog.tooltip", "Tornado does not occur during foggy weather" },
                         { "settings.tornado.max_probability.tooltip", "Occurrence (per year) in Tornado season." },
@@ -336,6 +358,13 @@ namespace NaturalDisastersRenewal.Common
                             "Forest Fire probability is reduced by fog right now: dry-time advances at {0}%."
                         },
                         { "tooltip.sinkhole.groundwater", "Ground water level {0}%" },
+                        {
+                            "tooltip.sinkhole.realtime_active",
+                            "Real Time active: sinkhole progress advances with groundwater saturation."
+                        },
+                        { "tooltip.sinkhole.realtime_reference", "Reference wet interval: {0}." },
+                        { "tooltip.sinkhole.current_wet_interval", "Current wet interval: {0}." },
+                        { "tooltip.sinkhole.wet_time_remaining", "Wet progress remaining: {0}." },
                         { "tooltip.thunderstorm.outside_area", "Not unlocked yet (occurs only outside of your area)." },
                         { "tooltip.thunderstorm.rain_increase", "Increased because of rain." },
                         { "tooltip.tornado.no_during_fog", "No {0} during fog." },
@@ -561,13 +590,35 @@ namespace NaturalDisastersRenewal.Common
                         },
                         {
                             "settings.sinkhole.max_probability.tooltip",
-                            "Ocurrencia por ano en caso de un periodo largo de lluvia."
+                            "Ocurrencia por ano en caso de un periodo largo de lluvia cuando Real Time no esta activo. Real Time usa la frecuencia dedicada de socavones configurada abajo."
                         },
                         { "settings.groundwater_capacity", "Capacidad del agua subterranea" },
                         {
                             "settings.groundwater_capacity.tooltip",
                             "Define que tan rapido se llena el agua subterranea durante la lluvia y provoca un socavon."
                         },
+                        {
+                            "settings.sinkhole.realtime_frequency",
+                            "Frecuencia de socavones con Real Time"
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency.tooltip",
+                            "Elige el intervalo humedo aleatorio en tiempo real entre socavones automaticos mientras Real Time esta activo."
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo humedo aleatorio en tiempo real entre socavones automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.sinkhole.frequency.apocalypse", "Apocalipsis: 10-20 minutos humedos" },
+                        { "settings.sinkhole.frequency.frequent", "Frecuente: 20-60 minutos humedos" },
+                        { "settings.sinkhole.frequency.occasional", "Ocasional: 1-2 horas humedas" },
+                        { "settings.sinkhole.frequency.uncommon", "Poco frecuente: 2-4 horas humedas" },
+                        { "settings.sinkhole.frequency.rare", "Raro: 4-8 horas humedas" },
+                        { "settings.sinkhole.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.sinkhole.frequency_name.frequent", "Frecuente" },
+                        { "settings.sinkhole.frequency_name.occasional", "Ocasional" },
+                        { "settings.sinkhole.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.sinkhole.frequency_name.rare", "Raro" },
                         { "settings.no_tornado_fog", "Sin tornados durante niebla" },
                         { "settings.no_tornado_fog.tooltip", "El tornado no ocurre durante clima con niebla" },
                         {
@@ -693,6 +744,13 @@ namespace NaturalDisastersRenewal.Common
                             "La probabilidad de incendio forestal esta reducida por la niebla en este momento: el tiempo seco avanza al {0}%."
                         },
                         { "tooltip.sinkhole.groundwater", "Nivel de agua subterranea {0}%" },
+                        {
+                            "tooltip.sinkhole.realtime_active",
+                            "Real Time activo: el progreso del socavon avanza con la saturacion del agua subterranea."
+                        },
+                        { "tooltip.sinkhole.realtime_reference", "Intervalo humedo de referencia: {0}." },
+                        { "tooltip.sinkhole.current_wet_interval", "Intervalo humedo actual: {0}." },
+                        { "tooltip.sinkhole.wet_time_remaining", "Progreso humedo restante: {0}." },
                         { "tooltip.thunderstorm.outside_area", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
                         { "tooltip.thunderstorm.rain_increase", "Aumentado por la lluvia." },
                         { "tooltip.tornado.no_during_fog", "No habra {0} durante la niebla." },
