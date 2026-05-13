@@ -6,7 +6,6 @@ using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Handlers;
-using NaturalDisastersRenewal.Logger;
 using NaturalDisastersRenewal.Models.Disaster;
 using UnityEngine;
 
@@ -168,6 +167,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (IsRealTimePatternActive())
                 ResetRealTimeDrySchedule();
+            else
+                NoRainDays = 0f;
 
             base.OnDisasterStarted(intensity);
         }
@@ -215,6 +216,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (IsDryTimePausedByDenseFog())
                 return 0f;
+
+            if (NoRainDays >= WarmupDays)
+                return 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame;
 
             return base.GetCurrentOccurrencePerYearLocal() * Math.Min(1f, NoRainDays / WarmupDays);
         }

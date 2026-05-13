@@ -85,6 +85,11 @@ namespace NaturalDisastersRenewal.Common
             return ModCompatibilityService.IsActive("extendedInfoPanel2");
         }
 
+        public static bool IsAcmeActive()
+        {
+            return ModCompatibilityService.IsActive("acme");
+        }
+
         public static bool IsForestFireBehaviorModActive(int index)
         {
             return index >= 0 && index < ForestFireBehaviorModKeys.Length &&

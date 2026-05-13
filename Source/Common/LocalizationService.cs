@@ -112,6 +112,10 @@ namespace NaturalDisastersRenewal.Common
                             "Adds more game speed options"
                         },
                         {
+                            "settings.dependency.automatic_go_to_disaster_warning",
+                            "This mod can affect {0}"
+                        },
+                        {
                             "settings.dependency.forest_fire_warning",
                             "This mod can affect Forest Fire behavior"
                         },
@@ -457,6 +461,10 @@ namespace NaturalDisastersRenewal.Common
                         {
                             "settings.dependency.extended_info_panel_2_description",
                             "Agrega mas opciones de velocidad al juego"
+                        },
+                        {
+                            "settings.dependency.automatic_go_to_disaster_warning",
+                            "Este mod puede afectar la opcion {0}"
                         },
                         {
                             "settings.dependency.forest_fire_warning",

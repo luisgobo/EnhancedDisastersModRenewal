@@ -49,6 +49,7 @@ namespace NaturalDisastersRenewal.UI
         private UIDropDown UI_General_Language;
         private UIDropDown UI_General_RealTimeFrequencyHarmony;
         private UICheckBox UI_General_DisableDisasterFocus;
+        private UISprite UI_General_DisableDisasterFocusWarning;
 
         private UICheckBox UI_General_PauseOnDisasterStarts;
         private UISlider UI_General_PartialEvacuationRadius;
@@ -184,6 +185,7 @@ namespace NaturalDisastersRenewal.UI
                 GetRealTimeFrequencyHarmonySelectionIndex(disasterSetupModel.RealTimeFrequencyHarmony);
             UI_General_RealTimeFrequencyHarmony.tooltip = GetRealTimeFrequencyHarmonyTooltip();
             UI_General_DisableDisasterFocus.isChecked = disasterSetupModel.DisableDisasterFocus;
+            RefreshDisableDisasterFocusAcmeWarning();
             UI_General_PauseOnDisasterStarts.isChecked = disasterSetupModel.PauseOnDisasterStarts;
             UI_General_PartialEvacuationRadius.value = disasterSetupModel.PartialEvacuationRadius;
             UI_General_MaxPopulationToTrigguerHigherDisasters.value =
@@ -622,6 +624,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_Language = null;
             UI_General_RealTimeFrequencyHarmony = null;
             UI_General_DisableDisasterFocus = null;
+            UI_General_DisableDisasterFocusWarning = null;
             UI_General_PauseOnDisasterStarts = null;
             UI_General_PartialEvacuationRadius = null;
             UI_General_MaxPopulationToTrigguerHigherDisasters = null;
@@ -703,6 +706,9 @@ namespace NaturalDisastersRenewal.UI
                         DisasterExtension.SetDisableDisasterFocus(disasterContainer.DisableDisasterFocus);
                     }
                 }, spacing: nextCheckboxSpacing);
+            UI_General_DisableDisasterFocusWarning =
+                CreateCheckboxWarningIcon(UI_General_DisableDisasterFocus, GetDisableDisasterFocusAcmeWarningTooltip());
+            RefreshDisableDisasterFocusAcmeWarning();
 
             UI_General_PauseOnDisasterStarts = CheckboxHelper.AddCheckbox(
                 ref generalGroup,
@@ -909,6 +915,24 @@ namespace NaturalDisastersRenewal.UI
             disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(frequency);
         }
 
+        private void RefreshDisableDisasterFocusAcmeWarning()
+        {
+            if (UI_General_DisableDisasterFocusWarning == null)
+                return;
+
+            PositionCheckboxWarningIcon(UI_General_DisableDisasterFocus, UI_General_DisableDisasterFocusWarning);
+            UI_General_DisableDisasterFocusWarning.isVisible = DisasterSimulationUtils.IsAcmeActive();
+            UI_General_DisableDisasterFocusWarning.tooltip = GetDisableDisasterFocusAcmeWarningTooltip();
+            UI_General_DisableDisasterFocusWarning.BringToFront();
+        }
+
+        private static string GetDisableDisasterFocusAcmeWarningTooltip()
+        {
+            return "ACME 1.0.1: " + LocalizationService.Format(
+                "settings.dependency.automatic_go_to_disaster_warning",
+                LocalizationService.Get("settings.disable_follow"));
+        }
+
         private void RefreshRealTimeFrequencyHarmonyWarnings(DisasterSetupModel disasterContainer)
         {
             var wasFrozen = _freezeUI;
@@ -978,12 +1002,40 @@ namespace NaturalDisastersRenewal.UI
             return warningIcon;
         }
 
+        private static UISprite CreateCheckboxWarningIcon(UICheckBox checkBox, string tooltip)
+        {
+            if (checkBox == null)
+                return null;
+
+            var warningIcon = checkBox.AddUIComponent<UISprite>();
+            warningIcon.atlas = GetFrequencyWarningAtlas();
+            warningIcon.spriteName = FrequencyWarningSpriteName;
+            warningIcon.size = new Vector2(14f, 14f);
+            warningIcon.isVisible = false;
+            warningIcon.tooltip = tooltip;
+
+            PositionCheckboxWarningIcon(checkBox, warningIcon);
+            warningIcon.BringToFront();
+            return warningIcon;
+        }
+
         private static void PositionFrequencyWarningIcon(UIDropDown dropDown, UISprite warningIcon)
         {
             if (dropDown == null || warningIcon == null)
                 return;
 
             warningIcon.relativePosition = new Vector3(dropDown.width + 8f, 4f);
+        }
+
+        private static void PositionCheckboxWarningIcon(UICheckBox checkBox, UISprite warningIcon)
+        {
+            if (checkBox == null || warningIcon == null)
+                return;
+
+            var label = checkBox.components.OfType<UILabel>().FirstOrDefault();
+            warningIcon.relativePosition = label != null
+                ? new Vector3(label.relativePosition.x + label.width + 6f, 2f)
+                : new Vector3(checkBox.width + 6f, 2f);
         }
 
         private static UITextureAtlas GetFrequencyWarningAtlas()

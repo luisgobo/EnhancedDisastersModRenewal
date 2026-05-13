@@ -20,6 +20,14 @@
       ]
     },
     {
+      "key": "acme",
+      "namePatterns": [
+        "ACME",
+        "Acme 1.0.1"
+      ],
+      "workshopIds": []
+    },
+    {
       "key": "treeFireControl",
       "namePatterns": [
         "Tree Fire Control"

@@ -35,6 +35,14 @@ namespace NaturalDisastersRenewal.UI.SettingsSections
                 DisasterSimulationUtils.IsExtendedInfoPanel2Active(),
                 LocalizationService.Get("settings.dependency.extended_info_panel_2_description"),
                 yPosition);
+            yPosition = AddWarningDependencyLabel(
+                dependenciesPanel,
+                "ACME 1.0.1",
+                DisasterSimulationUtils.IsAcmeActive(),
+                LocalizationService.Format(
+                    "settings.dependency.automatic_go_to_disaster_warning",
+                    LocalizationService.Get("settings.disable_follow")),
+                yPosition);
 
             yPosition += 8f;
             for (var i = 0; i < DisasterSimulationUtils.ForestFireBehaviorModNames.Length; i++)
@@ -78,11 +86,26 @@ namespace NaturalDisastersRenewal.UI.SettingsSections
             bool isActive,
             float y)
         {
+            return AddWarningDependencyLabel(
+                parentPanel,
+                dependencyName,
+                isActive,
+                LocalizationService.Get("settings.dependency.forest_fire_warning"),
+                y);
+        }
+
+        private static float AddWarningDependencyLabel(
+            UIPanel parentPanel,
+            string dependencyName,
+            bool isActive,
+            string warningText,
+            float y)
+        {
             var label = parentPanel.AddUIComponent<UILabel>();
             label.relativePosition = new Vector3(0f, y);
-            label.text = dependencyName + ": " + LocalizationService.Get(isActive
-                ? "settings.dependency.forest_fire_warning"
-                : "settings.dependency.inactive");
+            label.text = dependencyName + ": " + (isActive
+                ? warningText
+                : LocalizationService.Get("settings.dependency.inactive"));
             label.textScale = 1f;
             label.textColor = isActive ? WarningColor : InactiveColor;
             label.autoSize = true;

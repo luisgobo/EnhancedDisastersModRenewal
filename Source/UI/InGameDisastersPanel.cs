@@ -29,6 +29,7 @@ namespace NaturalDisastersRenewal.UI
 
         [FormerlySerializedAs("Counter")] public int counter;
         private DisasterRowHelper[] _disasterRows;
+        private UILabel _acmeStatusLabel;
         private UILabel _populationLabel;
         private UILabel _extendedInfoPanel2StatusLabel;
         private UILabel[] _forestFireBehaviorModStatusLabels;
@@ -225,7 +226,10 @@ namespace NaturalDisastersRenewal.UI
             yPosition += 42f;
             _extendedInfoPanel2StatusLabel = AddWrappedLabel(parentPanel, 0f, yPosition, PanelWidth - ContentInset * 4f,
                 string.Empty);
-            yPosition += 28f;
+            yPosition += 42f;
+            _acmeStatusLabel = AddWrappedLabel(parentPanel, 0f, yPosition, PanelWidth - ContentInset * 4f,
+                string.Empty);
+            yPosition += 36f;
 
             _forestFireBehaviorModStatusLabels =
                 new UILabel[DisasterSimulationUtils.ForestFireBehaviorModNames.Length];
@@ -320,6 +324,13 @@ namespace NaturalDisastersRenewal.UI
                 "Extended InfoPanel 2",
                 DisasterSimulationUtils.IsExtendedInfoPanel2Active(),
                 LocalizationService.Get("settings.dependency.extended_info_panel_2_description"));
+            UpdateWarningDependencyLabel(
+                _acmeStatusLabel,
+                "ACME 1.0.1",
+                DisasterSimulationUtils.IsAcmeActive(),
+                LocalizationService.Format(
+                    "settings.dependency.automatic_go_to_disaster_warning",
+                    LocalizationService.Get("settings.disable_follow")));
 
             if (_forestFireBehaviorModStatusLabels == null)
                 return;
@@ -343,11 +354,24 @@ namespace NaturalDisastersRenewal.UI
 
         private static void UpdateForestFireBehaviorDependencyLabel(UILabel label, string dependencyName, bool isActive)
         {
+            UpdateWarningDependencyLabel(
+                label,
+                dependencyName,
+                isActive,
+                LocalizationService.Get("settings.dependency.forest_fire_warning"));
+        }
+
+        private static void UpdateWarningDependencyLabel(
+            UILabel label,
+            string dependencyName,
+            bool isActive,
+            string warningText)
+        {
             if (!label) return;
 
-            label.text = dependencyName + ": " + LocalizationService.Get(isActive
-                ? "settings.dependency.forest_fire_warning"
-                : "settings.dependency.inactive");
+            label.text = dependencyName + ": " + (isActive
+                ? warningText
+                : LocalizationService.Get("settings.dependency.inactive"));
             label.textColor = isActive ? WarningDependencyColor : InactiveDependencyColor;
         }
 
