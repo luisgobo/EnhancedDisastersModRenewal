@@ -327,8 +327,14 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.forest_fire.realtime_reference", "Reference dry period: {0}." },
                         { "tooltip.forest_fire.current_dry_interval", "Current dry interval: {0}." },
                         { "tooltip.forest_fire.dry_time_remaining", "Dry time remaining: {0}." },
-                        { "tooltip.forest_fire.fog_paused", "Dry time paused by dense fog." },
-                        { "tooltip.forest_fire.fog_slowed", "Dry time slowed by fog: {0}% advance." },
+                        {
+                            "tooltip.forest_fire.fog_paused",
+                            "Forest Fire probability is paused by dense fog right now."
+                        },
+                        {
+                            "tooltip.forest_fire.fog_slowed",
+                            "Forest Fire probability is reduced by fog right now: dry-time advances at {0}%."
+                        },
                         { "tooltip.sinkhole.groundwater", "Ground water level {0}%" },
                         { "tooltip.thunderstorm.outside_area", "Not unlocked yet (occurs only outside of your area)." },
                         { "tooltip.thunderstorm.rain_increase", "Increased because of rain." },
@@ -678,8 +684,14 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.forest_fire.realtime_reference", "Periodo seco de referencia: {0}." },
                         { "tooltip.forest_fire.current_dry_interval", "Intervalo seco actual: {0}." },
                         { "tooltip.forest_fire.dry_time_remaining", "Tiempo seco restante: {0}." },
-                        { "tooltip.forest_fire.fog_paused", "Tiempo seco pausado por niebla densa." },
-                        { "tooltip.forest_fire.fog_slowed", "Tiempo seco ralentizado por niebla: avance al {0}%." },
+                        {
+                            "tooltip.forest_fire.fog_paused",
+                            "La probabilidad de incendio forestal esta pausada por niebla densa en este momento."
+                        },
+                        {
+                            "tooltip.forest_fire.fog_slowed",
+                            "La probabilidad de incendio forestal esta reducida por la niebla en este momento: el tiempo seco avanza al {0}%."
+                        },
                         { "tooltip.sinkhole.groundwater", "Nivel de agua subterranea {0}%" },
                         { "tooltip.thunderstorm.outside_area", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
                         { "tooltip.thunderstorm.rain_increase", "Aumentado por la lluvia." },
