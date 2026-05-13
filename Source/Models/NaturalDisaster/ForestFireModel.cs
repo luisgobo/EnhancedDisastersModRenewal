@@ -665,5 +665,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             FogRetardsDryTime = forestFireModel.FogRetardsDryTime;
             RealTimeForestFireFrequency = forestFireModel.RealTimeForestFireFrequency;
         }
+
+        // TODO: Evaluate a separate nuclear incident event instead of mixing it into normal forest fires.
+        // Requirements to consider:
+        // - Target only specific buildings, such as nuclear reactor/power plant prefabs.
+        // - Trigger fire on the selected building through BuildingAI.BurnBuilding.
+        // - Support triggers from nearby disasters, random failure, or configured annual frequency.
+        // - Expose tuning for incident duration, fire intensity, collapse/explosion chance, and evacuation radius.
+        // - Simulate ground contamination through NaturalResourceManager pollution resources.
+        // - Optionally simulate water contamination near the reactor through water/sewage pollution APIs.
+        // - Treat air/radiation as a custom temporary radius effect, since there is no clear native air pollution map.
+        // - Keep fallback behavior safe when no valid reactor building exists.
     }
 }
