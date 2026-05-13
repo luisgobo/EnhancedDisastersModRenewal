@@ -18,6 +18,49 @@
       "workshopIds": [
         2498761388
       ]
+    },
+    {
+      "key": "acme",
+      "namePatterns": [
+        "ACME",
+        "Acme 1.0.1"
+      ],
+      "workshopIds": []
+    },
+    {
+      "key": "treeFireControl",
+      "namePatterns": [
+        "Tree Fire Control"
+      ],
+      "workshopIds": []
+    },
+    {
+      "key": "gameAnarchy",
+      "namePatterns": [
+        "Game Anarchy"
+      ],
+      "workshopIds": []
+    },
+    {
+      "key": "rainFirefighting",
+      "namePatterns": [
+        "Rain Firefighting"
+      ],
+      "workshopIds": []
+    },
+    {
+      "key": "adjustableFire",
+      "namePatterns": [
+        "Adjustable Fire"
+      ],
+      "workshopIds": []
+    },
+    {
+      "key": "noFires",
+      "namePatterns": [
+        "No Fires"
+      ],
+      "workshopIds": []
     }
   ]
 }

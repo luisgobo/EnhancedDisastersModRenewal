@@ -89,8 +89,14 @@ namespace NaturalDisastersRenewal.BaseGameExtensions
             var disasterHandler = Services.DisasterHandler;
             if (!enabled)
             {
-                DebugLogger.Log("DDS: Deactivating disaster");
+                DebugLogger.Log(string.Format(
+                    "DDS: Deactivating disabled disaster. Id: {0}, Name: {1}, Type: {2}, Intensity: {3}",
+                    disasterId,
+                    disasterInfo.name,
+                    disasterInfo.type,
+                    disasterInfo.intensity));
                 disasterHandler.GetDisasterWrapper().EndDisaster(disasterId);
+                return true;
             }
 
             return false;

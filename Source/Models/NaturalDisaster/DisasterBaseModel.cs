@@ -23,6 +23,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected const byte indexReferenceDisasterValue = 10;
         private readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
         private readonly double secondsBeforePausing = 3;
+        private DateTime lastStartFailureLogUtc = DateTime.MinValue;
         public float BaseOccurrencePerYear = 1.0f;
 
         // Cooldown variables (Not stored into XML)
@@ -257,6 +258,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return DType + ", " + Services.Simulation.m_currentGameTime.ToShortDateString() + ", ";
         }
 
+        protected void LogDisasterStartFailure(string reason)
+        {
+            var now = DateTime.UtcNow;
+            if ((now - lastStartFailureLogUtc).TotalSeconds < 5)
+                return;
+
+            lastStartFailureLogUtc = now;
+            DebugLogger.Log(GetDebugStr() + reason);
+        }
+
         // Disaster events
 
         protected virtual void OnSimulationFrameLocal()
@@ -279,6 +290,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             DebugLogger.Log(msg);
 
             var naturalDisasterSetup = Services.DisasterSetup;
+            DebugLogger.Log(GetDebugStr() + string.Format("activation handling. Id: {0}, Enabled: {1}",
+                disasterId, Enabled));
             DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, secondsBeforePausing,
                 disasterId, disasterInfo, Enabled);
         }
@@ -425,17 +438,27 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             var disasterInfo = NaturalDisasterHandler.GetDisasterInfo(DType);
 
-            if (disasterInfo == null) return;
+            if (disasterInfo == null)
+            {
+                LogDisasterStartFailure("could not start disaster: disaster info not found");
+                return;
+            }
 
             var targetFound = FindTarget(disasterInfo, out var targetPosition, out var angle);
             if (!targetFound)
+            {
+                LogDisasterStartFailure("could not start disaster: target not found");
                 return;
+            }
 
             var dm = Services.Disasters;
 
             var disasterCreated = dm.CreateDisaster(out var disasterIndex, disasterInfo);
             if (!disasterCreated)
-                DebugLogger.Log(GetDebugStr() + "could not create disaster");
+            {
+                LogDisasterStartFailure("could not start disaster: CreateDisaster returned false");
+                return;
+            }
 
             DisasterLogger.StartedByMod = true;
 
@@ -449,8 +472,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             expr_98_cp_0[expr_98_cp_1].m_flags = expr_98_cp_0[expr_98_cp_1].m_flags | DisasterData.Flags.SelfTrigger;
             disasterInfo.m_disasterAI.StartNow(disasterIndex, ref dm.m_disasters.m_buffer[disasterIndex]);
 
-            DebugLogger.Log(GetDebugStr() + string.Format("disaster intensity: {0}, area: {1}", intensity,
-                unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock));
+            DebugLogger.Log(GetDebugStr() + string.Format(
+                "StartNow called. Id: {0}, Flags: {1}, Intensity: {2}, Area: {3}, Target: x:{4:#.##} y:{5:#.##} z:{6:#.##}",
+                disasterIndex,
+                dm.m_disasters.m_buffer[disasterIndex].m_flags,
+                intensity,
+                unlocked ? OccurrenceAreaAfterUnlock : OccurrenceAreaBeforeUnlock,
+                targetPosition.x,
+                targetPosition.y,
+                targetPosition.z));
         }
 
         protected virtual bool FindTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)

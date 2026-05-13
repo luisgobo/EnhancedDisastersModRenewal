@@ -17,24 +17,24 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float SecondsPerMinute = 60f;
         private const float MaxRealTimeDeltaSeconds = 5f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
-        private static readonly RealTimeMeteorFrequencyPreset[] RealTimeMeteorFrequencyOptionValues =
+        private static readonly RealTimeDisasterFrequencyPreset[] RealTimeMeteorFrequencyOptionValues =
         {
-            RealTimeMeteorFrequencyPreset.Apocalypse,
-            RealTimeMeteorFrequencyPreset.Frequent,
-            RealTimeMeteorFrequencyPreset.Occasional,
-            RealTimeMeteorFrequencyPreset.Uncommon,
-            RealTimeMeteorFrequencyPreset.Rare
+            RealTimeDisasterFrequencyPreset.Apocalypse,
+            RealTimeDisasterFrequencyPreset.Frequent,
+            RealTimeDisasterFrequencyPreset.Occasional,
+            RealTimeDisasterFrequencyPreset.Uncommon,
+            RealTimeDisasterFrequencyPreset.Rare
         };
 
-        [XmlIgnore] private float lastRealTimeScheduleUpdateSeconds = -1f;
+        [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
 
-        [XmlIgnore] public MeteorEvent[] meteorEvents;
-        [XmlIgnore] public float realTimeCurrentPeriodMinutes = -1f;
-        [XmlIgnore] public float realTimeDaysUntilNextMeteor = -1f;
-        private float realTimeFrequencyMultiplier = DefaultRealTimeFrequencyMultiplier;
-        public RealTimeMeteorFrequencyPreset RealTimeMeteorFrequency = RealTimeMeteorFrequencyPreset.Occasional;
-        [XmlIgnore] public float realTimeMinutesUntilNextMeteor = -1f;
-        private float realTimePeriodDays = DefaultRealTimePeriodDays;
+        [XmlIgnore] public readonly MeteorEvent[] MeteorEvents;
+        [XmlIgnore] public float RealTimeCurrentPeriodMinutes = -1f;
+        [XmlIgnore] public float RealTimeDaysUntilNextMeteor = -1f;
+        private float _realTimeFrequencyMultiplier = DefaultRealTimeFrequencyMultiplier;
+        public RealTimeDisasterFrequencyPreset RealTimeMeteorFrequency = RealTimeDisasterFrequencyPreset.Occasional;
+        [XmlIgnore] public float RealTimeMinutesUntilNextMeteor = -1f;
+        private float _realTimePeriodDays = DefaultRealTimePeriodDays;
 
         public MeteorStrikeModel()
         {
@@ -44,7 +44,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
             //Change
-            meteorEvents = new[]
+            MeteorEvents = new[]
             {
                 MeteorEvent.Init("Long period meteor", 9, 200),
                 MeteorEvent.Init("Medium period meteor", 5, 120),
@@ -79,10 +79,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlElement]
         public float RealTimeFrequencyMultiplier
         {
-            get => realTimeFrequencyMultiplier;
+            get => _realTimeFrequencyMultiplier;
             set
             {
-                realTimeFrequencyMultiplier = Mathf.Max(1f, value);
+                _realTimeFrequencyMultiplier = Mathf.Max(1f, value);
                 RealTimePeriodDays = GetPeriodDaysFromFrequencyMultiplier();
             }
         }
@@ -90,23 +90,23 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlElement]
         public float RealTimePeriodDays
         {
-            get => realTimePeriodDays;
+            get => _realTimePeriodDays;
             set
             {
-                realTimePeriodDays = Mathf.Max(1f, value);
-                if (realTimeDaysUntilNextMeteor > realTimePeriodDays)
-                    realTimeDaysUntilNextMeteor = realTimePeriodDays;
+                _realTimePeriodDays = Mathf.Max(1f, value);
+                if (RealTimeDaysUntilNextMeteor > _realTimePeriodDays)
+                    RealTimeDaysUntilNextMeteor = _realTimePeriodDays;
             }
         }
 
         public bool GetEnabled(int index)
         {
-            return meteorEvents[index].Enabled;
+            return MeteorEvents[index].Enabled;
         }
 
         public void SetEnabled(int index, bool value)
         {
-            meteorEvents[index].Enabled = value;
+            MeteorEvents[index].Enabled = value;
         }
 
         protected override void OnSimulationFrameLocal()
@@ -114,15 +114,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
             {
                 EnsureRealTimeSchedule();
-                realTimeMinutesUntilNextMeteor = Mathf.Max(
+                RealTimeMinutesUntilNextMeteor = Mathf.Max(
                     0f,
-                    realTimeMinutesUntilNextMeteor - GetRealTimeElapsedMinutes());
+                    RealTimeMinutesUntilNextMeteor - GetRealTimeElapsedMinutes());
                 return;
             }
 
             var daysPerFrame = DisasterSimulationUtils.VanillaSimulationDaysPerFrame;
 
-            for (var i = 0; i < meteorEvents.Length; i++) meteorEvents[i].OnSimulationFrame(daysPerFrame);
+            for (var i = 0; i < MeteorEvents.Length; i++) MeteorEvents[i].OnSimulationFrame(daysPerFrame);
         }
 
         public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId,
@@ -163,20 +163,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var meteorIndex = -1;
             float maxProbability = 0;
 
-            for (var i = 0; i < meteorEvents.Length; i++)
+            for (var i = 0; i < MeteorEvents.Length; i++)
             {
-                var prob = meteorEvents[i].GetProbabilityMultiplier();
-                if (prob > maxProbability)
-                {
-                    maxProbability = prob;
-                    meteorIndex = i;
-                }
+                var prob = MeteorEvents[i].GetProbabilityMultiplier();
+                
+                if (!(prob > maxProbability)) continue;
+                
+                maxProbability = prob;
+                meteorIndex = i;
             }
 
             // Should not happen
             if (meteorIndex == -1) meteorIndex = 2;
 
-            meteorEvents[meteorIndex].OnMeteorFallen();
+            MeteorEvents[meteorIndex].OnMeteorFallen();
 
             base.OnDisasterStarted(intensity);
         }
@@ -188,8 +188,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     ? 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame
                     : 0f;
 
-            for (var i = 0; i < meteorEvents.Length; i++)
-                if (meteorEvents[i].IsDue())
+            for (var i = 0; i < MeteorEvents.Length; i++)
+                if (MeteorEvents[i].IsDue())
                     return 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame;
 
             return 0f;
@@ -209,8 +209,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             var intensity = baseIntensity;
 
-            for (var i = 0; i < meteorEvents.Length; i++)
-                intensity = Math.Max(intensity, meteorEvents[i].GetActualMaxIntensity());
+            for (var i = 0; i < MeteorEvents.Length; i++)
+                intensity = Math.Max(intensity, MeteorEvents[i].GetActualMaxIntensity());
 
             intensity = ScaleIntensityByPopulation(intensity);
 
@@ -237,14 +237,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     string.Format("{0:00.00}%", probabilityValue * 100),
                     CommonProperties.NewLine,
                     LocalizationService.Format("tooltip.meteor.realtime_reference", GetRealTimeMeteorFrequencyName()),
-                    DisasterSimulationUtils.FormatRealTimeMinutes(realTimeCurrentPeriodMinutes),
-                    DisasterSimulationUtils.FormatRealTimeMinutes(realTimeMinutesUntilNextMeteor));
+                    DisasterSimulationUtils.FormatRealTimeMinutes(RealTimeCurrentPeriodMinutes),
+                    DisasterSimulationUtils.FormatRealTimeMinutes(RealTimeMinutesUntilNextMeteor));
 
             var probability =
                 string.Format("Probability: {0:00.00}% {1}", probabilityValue * 100, CommonProperties.NewLine);
 
-            for (var i = 0; i < meteorEvents.Length; i++)
-                probability += meteorEvents[i].GetStateDescription() + Environment.NewLine;
+            for (var i = 0; i < MeteorEvents.Length; i++)
+                probability += MeteorEvents[i].GetStateDescription() + Environment.NewLine;
 
             return probability;
         }
@@ -258,8 +258,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             var progress = 0f;
 
-            for (var i = 0; i < meteorEvents.Length; i++)
-                progress = Mathf.Max(progress, meteorEvents[i].GetProbabilityMultiplier());
+            for (var i = 0; i < MeteorEvents.Length; i++)
+                progress = Mathf.Max(progress, MeteorEvents[i].GetProbabilityMultiplier());
 
             return progress;
         }
@@ -267,22 +267,22 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public float GetRealTimePatternProbabilityProgress()
         {
             EnsureRealTimeSchedule();
-            return Mathf.Clamp01(1f - realTimeMinutesUntilNextMeteor / realTimeCurrentPeriodMinutes);
+            return Mathf.Clamp01(1f - RealTimeMinutesUntilNextMeteor / RealTimeCurrentPeriodMinutes);
         }
 
         private bool IsRealTimeMeteorDue()
         {
             EnsureRealTimeSchedule();
-            return realTimeMinutesUntilNextMeteor <= 0f;
+            return RealTimeMinutesUntilNextMeteor <= 0f;
         }
 
         private void EnsureRealTimeSchedule()
         {
-            if (realTimeCurrentPeriodMinutes <= 0f || realTimeMinutesUntilNextMeteor < 0f)
+            if (RealTimeCurrentPeriodMinutes <= 0f || RealTimeMinutesUntilNextMeteor < 0f)
                 ScheduleNextRealTimeMeteor();
 
-            if (realTimeMinutesUntilNextMeteor > realTimeCurrentPeriodMinutes)
-                realTimeMinutesUntilNextMeteor = realTimeCurrentPeriodMinutes;
+            if (RealTimeMinutesUntilNextMeteor > RealTimeCurrentPeriodMinutes)
+                RealTimeMinutesUntilNextMeteor = RealTimeCurrentPeriodMinutes;
         }
 
         private void ResetRealTimeSchedule()
@@ -304,26 +304,26 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private void ScheduleNextRealTimeMeteor(float progressToKeep)
         {
             var progress = Mathf.Clamp01(progressToKeep);
-            realTimeCurrentPeriodMinutes = GetRandomRealTimeIntervalMinutes();
-            realTimeMinutesUntilNextMeteor = realTimeCurrentPeriodMinutes * (1f - progress);
-            lastRealTimeScheduleUpdateSeconds = Time.realtimeSinceStartup;
+            RealTimeCurrentPeriodMinutes = GetRandomRealTimeIntervalMinutes();
+            RealTimeMinutesUntilNextMeteor = RealTimeCurrentPeriodMinutes * (1f - progress);
+            _lastRealTimeScheduleUpdateSeconds = Time.realtimeSinceStartup;
         }
 
         private float GetRealTimeElapsedMinutes()
         {
             var currentSeconds = Time.realtimeSinceStartup;
 
-            if (lastRealTimeScheduleUpdateSeconds < 0f)
+            if (_lastRealTimeScheduleUpdateSeconds < 0f)
             {
-                lastRealTimeScheduleUpdateSeconds = currentSeconds;
+                _lastRealTimeScheduleUpdateSeconds = currentSeconds;
                 return 0f;
             }
 
             var elapsedSeconds = Mathf.Clamp(
-                currentSeconds - lastRealTimeScheduleUpdateSeconds,
+                currentSeconds - _lastRealTimeScheduleUpdateSeconds,
                 0f,
                 MaxRealTimeDeltaSeconds);
-            lastRealTimeScheduleUpdateSeconds = currentSeconds;
+            _lastRealTimeScheduleUpdateSeconds = currentSeconds;
             return elapsedSeconds / SecondsPerMinute * GetRealTimeSpeedFactor();
         }
 
@@ -345,10 +345,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (speed <= 1)
                 return 1f;
 
-            if (speed == 2)
-                return 1.5f;
-
-            return 2f;
+            return speed == 2 ? 1.5f : 2f;
         }
 
         private static float GetExtendedInfoPanelSpeedFactor(int speed)
@@ -379,31 +376,31 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             switch (RealTimeMeteorFrequency)
             {
-                case RealTimeMeteorFrequencyPreset.Apocalypse:
+                case RealTimeDisasterFrequencyPreset.Apocalypse:
                     minMinutes = 5f;
                     maxMinutes = 12f;
                     break;
-                case RealTimeMeteorFrequencyPreset.Frequent:
+                case RealTimeDisasterFrequencyPreset.Frequent:
                     minMinutes = 15f;
                     maxMinutes = 45f;
                     break;
-                case RealTimeMeteorFrequencyPreset.Occasional:
+                case RealTimeDisasterFrequencyPreset.Occasional:
                 default:
                     minMinutes = 45f;
                     maxMinutes = 90f;
                     break;
-                case RealTimeMeteorFrequencyPreset.Uncommon:
+                case RealTimeDisasterFrequencyPreset.Uncommon:
                     minMinutes = 90f;
                     maxMinutes = 180f;
                     break;
-                case RealTimeMeteorFrequencyPreset.Rare:
+                case RealTimeDisasterFrequencyPreset.Rare:
                     minMinutes = 180f;
                     maxMinutes = 360f;
                     break;
             }
         }
 
-        public void SetRealTimeMeteorFrequency(RealTimeMeteorFrequencyPreset frequency)
+        public void SetRealTimeMeteorFrequency(RealTimeDisasterFrequencyPreset frequency)
         {
             if (RealTimeMeteorFrequency == frequency)
                 return;
@@ -434,10 +431,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return 3;
         }
 
-        public static RealTimeMeteorFrequencyPreset GetRealTimeMeteorFrequencyFromSelection(int selection)
+        public static RealTimeDisasterFrequencyPreset GetRealTimeMeteorFrequencyFromSelection(int selection)
         {
             if (selection < 0 || selection >= RealTimeMeteorFrequencyOptionValues.Length)
-                return RealTimeMeteorFrequencyPreset.Uncommon;
+                return RealTimeDisasterFrequencyPreset.Uncommon;
 
             return RealTimeMeteorFrequencyOptionValues[selection];
         }
@@ -453,15 +450,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             switch (RealTimeMeteorFrequency)
             {
-                case RealTimeMeteorFrequencyPreset.Apocalypse:
+                case RealTimeDisasterFrequencyPreset.Apocalypse:
                     return LocalizationService.Get("settings.meteor.frequency_name.apocalypse");
-                case RealTimeMeteorFrequencyPreset.Frequent:
+                case RealTimeDisasterFrequencyPreset.Frequent:
                     return LocalizationService.Get("settings.meteor.frequency_name.frequent");
-                case RealTimeMeteorFrequencyPreset.Occasional:
+                case RealTimeDisasterFrequencyPreset.Occasional:
                     return LocalizationService.Get("settings.meteor.frequency_name.occasional");
-                case RealTimeMeteorFrequencyPreset.Uncommon:
+                case RealTimeDisasterFrequencyPreset.Uncommon:
                     return LocalizationService.Get("settings.meteor.frequency_name.uncommon");
-                case RealTimeMeteorFrequencyPreset.Rare:
+                case RealTimeDisasterFrequencyPreset.Rare:
                     return LocalizationService.Get("settings.meteor.frequency_name.rare");
                 default:
                     return RealTimeMeteorFrequency.ToString();
@@ -470,18 +467,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public MeteorPeriodStatus[] GetMeteorPeriodStatuses()
         {
-            var statuses = new MeteorPeriodStatus[meteorEvents.Length];
+            var statuses = new MeteorPeriodStatus[MeteorEvents.Length];
             var periodsEnabled = AreMeteorPeriodsEnabled();
 
-            for (var i = 0; i < meteorEvents.Length; i++)
+            for (var i = 0; i < MeteorEvents.Length; i++)
                 statuses[i] = new MeteorPeriodStatus
                 {
-                    Name = meteorEvents[i].Name,
-                    Enabled = periodsEnabled && meteorEvents[i].Enabled,
-                    ProbabilityMultiplier = periodsEnabled ? meteorEvents[i].GetProbabilityMultiplier() : 0f,
-                    MaxIntensity = meteorEvents[i].MaxIntensity,
+                    Name = MeteorEvents[i].Name,
+                    Enabled = periodsEnabled && MeteorEvents[i].Enabled,
+                    ProbabilityMultiplier = periodsEnabled ? MeteorEvents[i].GetProbabilityMultiplier() : 0f,
+                    MaxIntensity = MeteorEvents[i].MaxIntensity,
                     Description = periodsEnabled
-                        ? meteorEvents[i].GetStateDescription()
+                        ? MeteorEvents[i].GetStateDescription()
                         : "Disabled while Real Time is active."
                 };
 

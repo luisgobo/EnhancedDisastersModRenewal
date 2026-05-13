@@ -11,13 +11,13 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 {
     public class LoadedGameSerializableDataExtension : ISerializableDataExtension
     {
-        public const string DataID = CommonProperties.DataId;
-        public const uint DataVersion = 9;
-        private ISerializableData serializableData;
+        private const string DataID = CommonProperties.DataId;
+        private const uint DataVersion = 12;
+        private ISerializableData _serializableData;
 
         public void OnCreated(ISerializableData serializedData)
         {
-            serializableData = serializedData;
+            _serializableData = serializedData;
         }
 
         public void OnSaveData()
@@ -50,12 +50,12 @@ namespace NaturalDisastersRenewal.Serialization.Setup
                 }
 
                 //Remove Current Data
-                serializableData.EraseData(DataID);
-                if (serializableData.LoadData(DataID) != null)
+                _serializableData.EraseData(DataID);
+                if (_serializableData.LoadData(DataID) != null)
                     throw new Exception("There was an issue cleaning disaster in-game setup. Try saving again");
 
                 //Save new etup
-                serializableData.SaveData(DataID, data);
+                _serializableData.SaveData(DataID, data);
                 Debug.Log("Disaster setup saved for current game");
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             try
             {
                 Debug.Log("Loading disaster setup for current game");
-                var data = serializableData.LoadData(DataID);
+                var data = _serializableData.LoadData(DataID);
 
                 if (data == null)
                 {
@@ -100,7 +100,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
         public void OnReleased()
         {
-            serializableData = null;
+            _serializableData = null;
         }
     }
 }

@@ -30,6 +30,7 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         public bool PauseOnDisasterStarts = false;
         public bool RecordDisasterEvents = false;
+        public RealTimeDisasterFrequencyPreset RealTimeFrequencyHarmony = RealTimeDisasterFrequencyPreset.Occasional;
 
         public bool ScaleMaxIntensityWithPopulation = false;
         public bool ShowDisasterPanelButton = true;

@@ -69,7 +69,7 @@
         <Compile Include="Common\enums\EarthquakeCrackOptions.cs"/>
         <Compile Include="Common\enums\EvacuationOptions.cs"/>
         <Compile Include="Common\enums\ModLanguage.cs"/>
-        <Compile Include="Common\enums\RealTimeMeteorFrequencyPreset.cs"/>
+        <Compile Include="Common\enums\RealTimeDisasterFrequencyPreset.cs"/>
         <Compile Include="Common\Types\Triplet.cs"/>
         <Compile Include="Logger\DebugLogger.cs"/>
         <Compile Include="Serialization\NaturalDisaster\SerializableDataDisasterBase.cs"/>
@@ -149,6 +149,9 @@
         <EmbeddedResource Include="Resources\Images\github.png"/>
         <EmbeddedResource Include="Resources\Images\kofi_dark.png"/>
         <EmbeddedResource Include="Resources\Images\steam.png" />
+        <EmbeddedResource Include="Resources\Images\icons\Warning-Conflict.svg" />
+        <EmbeddedResource Include="Resources\Images\icons\Warning.svg" />
+        <EmbeddedResource Include="Resources\Images\icons\Warning2.svg" />
         <Content Include="Versions\Changelog.txt"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

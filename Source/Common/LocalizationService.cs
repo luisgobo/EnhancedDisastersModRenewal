@@ -106,6 +106,19 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.group.dependencies", "Dependencies" },
                         { "settings.dependency.active", "active" },
                         { "settings.dependency.inactive", "inactive" },
+                        { "settings.dependency.real_time_description", "Modifies game time" },
+                        {
+                            "settings.dependency.extended_info_panel_2_description",
+                            "Adds more game speed options"
+                        },
+                        {
+                            "settings.dependency.automatic_go_to_disaster_warning",
+                            "This mod can affect {0}"
+                        },
+                        {
+                            "settings.dependency.forest_fire_warning",
+                            "This mod can affect Forest Fire behavior"
+                        },
                         { "settings.hotkey.info", "Use up to 3 keys: up to 2 modifiers plus 1 regular key." },
                         { "settings.hotkey.field_label", "Shortcut" },
                         { "settings.hotkey.capture", "Press a key combination..." },
@@ -122,6 +135,20 @@ namespace NaturalDisastersRenewal.Common
                             "Hotkey to display/hide panel info: Shift + D (will be configurable soon)."
                         },
                         { "settings.enable_disasters", "Enable Disasters:" },
+                        { "settings.frequency_harmony", "Harmonize disaster frequency" },
+                        {
+                            "settings.frequency_harmony.tooltip",
+                            "Applies the selected Real Time frequency preset to every disaster with a frequency preset. Individual frequency dropdowns show a warning when they differ from this value."
+                        },
+                        {
+                            "settings.frequency_harmony.mismatch.tooltip",
+                            "Does not match the General frequency harmonizer."
+                        },
+                        { "settings.frequency.apocalypse", "Apocalypse" },
+                        { "settings.frequency.frequent", "Frequent" },
+                        { "settings.frequency.occasional", "Occasional" },
+                        { "settings.frequency.uncommon", "Uncommon" },
+                        { "settings.frequency.rare", "Rare" },
                         { "settings.save_options", "Save options" },
                         { "settings.save_default", "Save as default for new games" },
                         { "settings.reset_saved", "Reset to the last saved values" },
@@ -132,12 +159,38 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.days", " days" },
                         {
                             "settings.forest_fire.max_probability.tooltip",
-                            "Occurrence (per year) in case of a long period without rain."
+                            "Occurrence (per year) in case of a long period without rain when Real Time is inactive."
                         },
                         {
                             "settings.forest_fire.warmup.tooltip",
-                            "No-rain period during which the probability of Forest Fire increases."
+                            "No-rain period during which the probability of Forest Fire increases when Real Time is inactive."
                         },
+                        {
+                            "settings.forest_fire.realtime_frequency",
+                            "Real Time forest fire frequency"
+                        },
+                        {
+                            "settings.forest_fire.realtime_frequency.tooltip.selected",
+                            "Chooses the random dry-time interval used between automatic forest fires while Real Time is active.\nSelected reference period: {0}."
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time",
+                            "Fog slows Forest Fire dry time"
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time.tooltip",
+                            "When enabled, fog advances dry time more slowly, and dense fog pauses dry time like light rain."
+                        },
+                        { "settings.forest_fire.frequency.apocalypse", "Apocalypse: 10-30 dry minutes" },
+                        { "settings.forest_fire.frequency.frequent", "Frequent: 30-90 dry minutes" },
+                        { "settings.forest_fire.frequency.occasional", "Occasional: 1-3 dry hours" },
+                        { "settings.forest_fire.frequency.uncommon", "Uncommon: 3-6 dry hours" },
+                        { "settings.forest_fire.frequency.rare", "Rare: 6-12 dry hours" },
+                        { "settings.forest_fire.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.forest_fire.frequency_name.frequent", "Frequent" },
+                        { "settings.forest_fire.frequency_name.occasional", "Occasional" },
+                        { "settings.forest_fire.frequency_name.uncommon", "Uncommon" },
+                        { "settings.forest_fire.frequency_name.rare", "Rare" },
                         { "settings.season_peak.thunderstorm", "Thunderstorm season peak" },
                         {
                             "settings.thunderstorm.max_probability.tooltip",
@@ -254,6 +307,7 @@ namespace NaturalDisastersRenewal.Common
                         { "key.page_up", "Page Up" },
                         { "key.page_down", "Page Down" },
                         { "tooltip.probability", "Probability: {0}" },
+                        { "tooltip.progress", "Progress" },
                         { "tooltip.forest_fire.locked", "Not unlocked yet (occurs only outside of your area)." },
                         { "tooltip.not_unlocked", "Not unlocked yet" },
                         { "tooltip.no_disaster_for_another", "No {0} for another {1}" },
@@ -266,6 +320,21 @@ namespace NaturalDisastersRenewal.Common
                             "Maximum because there was no rain for more than {0} days."
                         },
                         { "tooltip.forest_fire.increasing_no_rain", "Increasing because there was no rain for {0}" },
+                        {
+                            "tooltip.forest_fire.realtime_active",
+                            "Real Time active: Forest Fire uses dry-time intervals."
+                        },
+                        { "tooltip.forest_fire.realtime_reference", "Reference dry period: {0}." },
+                        { "tooltip.forest_fire.current_dry_interval", "Current dry interval: {0}." },
+                        { "tooltip.forest_fire.dry_time_remaining", "Dry time remaining: {0}." },
+                        {
+                            "tooltip.forest_fire.fog_paused",
+                            "Forest Fire probability is paused by dense fog right now."
+                        },
+                        {
+                            "tooltip.forest_fire.fog_slowed",
+                            "Forest Fire probability is reduced by fog right now: dry-time advances at {0}%."
+                        },
                         { "tooltip.sinkhole.groundwater", "Ground water level {0}%" },
                         { "tooltip.thunderstorm.outside_area", "Not unlocked yet (occurs only outside of your area)." },
                         { "tooltip.thunderstorm.rain_increase", "Increased because of rain." },
@@ -394,6 +463,19 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.group.dependencies", "Dependencias" },
                         { "settings.dependency.active", "activo" },
                         { "settings.dependency.inactive", "inactivo" },
+                        { "settings.dependency.real_time_description", "Modifica el tiempo del juego" },
+                        {
+                            "settings.dependency.extended_info_panel_2_description",
+                            "Agrega mas opciones de velocidad al juego"
+                        },
+                        {
+                            "settings.dependency.automatic_go_to_disaster_warning",
+                            "Este mod puede afectar la opcion {0}"
+                        },
+                        {
+                            "settings.dependency.forest_fire_warning",
+                            "Este mod puede afectar el comportamiento de los Forest Fire"
+                        },
                         { "settings.hotkey.info", "Usa hasta 3 teclas: hasta 2 modificadoras y 1 tecla normal." },
                         { "settings.hotkey.field_label", "Atajo" },
                         { "settings.hotkey.capture", "Presiona una combinacion..." },
@@ -410,6 +492,20 @@ namespace NaturalDisastersRenewal.Common
                             "Atajo para mostrar/ocultar panel: Shift + D (sera configurable pronto)."
                         },
                         { "settings.enable_disasters", "Activar desastres:" },
+                        { "settings.frequency_harmony", "Armonizar frecuencia de desastres" },
+                        {
+                            "settings.frequency_harmony.tooltip",
+                            "Aplica el preset de frecuencia Real Time seleccionado a todos los desastres con preset de frecuencia. Los dropdowns individuales muestran una advertencia cuando son diferentes a este valor."
+                        },
+                        {
+                            "settings.frequency_harmony.mismatch.tooltip",
+                            "No coincide con el armonizador de frecuencia de General."
+                        },
+                        { "settings.frequency.apocalypse", "Apocalipsis" },
+                        { "settings.frequency.frequent", "Frecuente" },
+                        { "settings.frequency.occasional", "Ocasional" },
+                        { "settings.frequency.uncommon", "Poco frecuente" },
+                        { "settings.frequency.rare", "Raro" },
                         { "settings.save_options", "Opciones de guardado" },
                         { "settings.save_default", "Guardar como valor predeterminado para partidas nuevas" },
                         { "settings.reset_saved", "Restablecer a los ultimos valores guardados" },
@@ -420,12 +516,38 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.days", " dias" },
                         {
                             "settings.forest_fire.max_probability.tooltip",
-                            "Ocurrencia por ano en caso de un periodo largo sin lluvia."
+                            "Ocurrencia por ano en caso de un periodo largo sin lluvia cuando Real Time no esta activo."
                         },
                         {
                             "settings.forest_fire.warmup.tooltip",
-                            "Periodo sin lluvia durante el cual aumenta la probabilidad de incendio forestal."
+                            "Periodo sin lluvia durante el cual aumenta la probabilidad de incendio forestal cuando Real Time no esta activo."
                         },
+                        {
+                            "settings.forest_fire.realtime_frequency",
+                            "Frecuencia de incendios forestales con Real Time"
+                        },
+                        {
+                            "settings.forest_fire.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio de tiempo seco entre incendios forestales automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time",
+                            "La niebla ralentiza el tiempo seco de incendios"
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time.tooltip",
+                            "Si esta activo, la niebla hace avanzar el tiempo seco mas lento, y la niebla densa pausa el tiempo seco como lluvia ligera."
+                        },
+                        { "settings.forest_fire.frequency.apocalypse", "Apocalipsis: 10-30 minutos secos" },
+                        { "settings.forest_fire.frequency.frequent", "Frecuente: 30-90 minutos secos" },
+                        { "settings.forest_fire.frequency.occasional", "Ocasional: 1-3 horas secas" },
+                        { "settings.forest_fire.frequency.uncommon", "Poco frecuente: 3-6 horas secas" },
+                        { "settings.forest_fire.frequency.rare", "Raro: 6-12 horas secas" },
+                        { "settings.forest_fire.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.forest_fire.frequency_name.frequent", "Frecuente" },
+                        { "settings.forest_fire.frequency_name.occasional", "Ocasional" },
+                        { "settings.forest_fire.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.forest_fire.frequency_name.rare", "Raro" },
                         { "settings.season_peak.thunderstorm", "Pico de temporada de tormentas" },
                         {
                             "settings.thunderstorm.max_probability.tooltip",
@@ -545,6 +667,7 @@ namespace NaturalDisastersRenewal.Common
                         { "key.page_up", "Re Pag" },
                         { "key.page_down", "Av Pag" },
                         { "tooltip.probability", "Probabilidad: {0}" },
+                        { "tooltip.progress", "Progreso" },
                         { "tooltip.forest_fire.locked", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
                         { "tooltip.not_unlocked", "Aun no desbloqueado" },
                         { "tooltip.no_disaster_for_another", "No habra {0} por otros {1}" },
@@ -554,6 +677,21 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.forest_fire.no_during_rain", "No habra {0} durante la lluvia." },
                         { "tooltip.forest_fire.maximum_no_rain", "Maxima porque no ha llovido por mas de {0} dias." },
                         { "tooltip.forest_fire.increasing_no_rain", "Aumentando porque no ha llovido durante {0}" },
+                        {
+                            "tooltip.forest_fire.realtime_active",
+                            "Real Time activo: el incendio forestal usa intervalos de tiempo seco."
+                        },
+                        { "tooltip.forest_fire.realtime_reference", "Periodo seco de referencia: {0}." },
+                        { "tooltip.forest_fire.current_dry_interval", "Intervalo seco actual: {0}." },
+                        { "tooltip.forest_fire.dry_time_remaining", "Tiempo seco restante: {0}." },
+                        {
+                            "tooltip.forest_fire.fog_paused",
+                            "La probabilidad de incendio forestal esta pausada por niebla densa en este momento."
+                        },
+                        {
+                            "tooltip.forest_fire.fog_slowed",
+                            "La probabilidad de incendio forestal esta reducida por la niebla en este momento: el tiempo seco avanza al {0}%."
+                        },
                         { "tooltip.sinkhole.groundwater", "Nivel de agua subterranea {0}%" },
                         { "tooltip.thunderstorm.outside_area", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
                         { "tooltip.thunderstorm.rain_increase", "Aumentado por la lluvia." },

@@ -32,6 +32,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
 
             dataSerializer.WriteInt32((int)disasterSetupmodel.TogglePanelHotkey);
             dataSerializer.WriteInt32((int)disasterSetupmodel.TogglePanelHotkeyModifiers);
+            dataSerializer.WriteInt32((int)disasterSetupmodel.RealTimeFrequencyHarmony);
         }
 
         public void Deserialize(DataSerializer dataSerializer)
@@ -68,6 +69,10 @@ namespace NaturalDisastersRenewal.Serialization.Setup
                 disasterSetupmodel.TogglePanelHotkeyModifiers = HotkeyHelper.GetSupportedHotkeyModifiers(
                     (EventModifiers)dataSerializer.ReadInt32());
             }
+
+            if (dataSerializer.version >= 12)
+                disasterSetupmodel.RealTimeFrequencyHarmony =
+                    (RealTimeDisasterFrequencyPreset)dataSerializer.ReadInt32();
         }
 
         public void AfterDeserialize(DataSerializer dataSerializer)

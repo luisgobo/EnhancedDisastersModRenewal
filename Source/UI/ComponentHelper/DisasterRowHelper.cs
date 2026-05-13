@@ -60,48 +60,52 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
         public void Refresh()
         {
-            bool isEnabled = Disaster.Enabled;
-            float occurrencePerYear = Disaster.GetCurrentOccurrencePerYear();
-            byte maxIntensityCalculated = Disaster.GetMaximumIntensity();
+            var isDisasterEnabled = Disaster.Enabled;
+            var occurrencePerYear = Disaster.GetCurrentOccurrencePerYear();
+            var maxIntensityCalculated = Disaster.GetMaximumIntensity();
 
-            _statusIcon.spriteName = isEnabled ? PauseSprite : PlaySprite;
-            _nameLabel.text = isEnabled
+            _statusIcon.spriteName = isDisasterEnabled ? PauseSprite : PlaySprite;
+            _nameLabel.text = isDisasterEnabled
                 ? Disaster.GetName()
                 : Disaster.GetName() + " - " + LocalizationService.Get("panel.disabled");
             _nameLabel.textScale = LabelTextScaleNormal;
             LabelHelper.ResizeLabel(_nameLabel, ProbabilityBarX - NameLabelX - NameLabelBarPadding, 0.68f);
 
-            float probabilityProgressValue = GetProbabilityProgressValue(occurrencePerYear);
+            var probabilityProgressValue = GetProbabilityProgressValue(occurrencePerYear);
             _probabilityBar.SetState(
-                isEnabled,
+                isDisasterEnabled,
                 probabilityProgressValue,
-                isEnabled ? FormatPercentage(probabilityProgressValue) : string.Empty,
-                isEnabled ? Disaster.GetProbabilityTooltip(probabilityProgressValue) : string.Empty);
+                isDisasterEnabled ? FormatPercentage(probabilityProgressValue) : string.Empty,
+                isDisasterEnabled ? Disaster.GetProbabilityTooltip(probabilityProgressValue) : string.Empty);
 
-            float normalizedIntensity = maxIntensityCalculated / MaxIntensity;
+            var normalizedIntensity = maxIntensityCalculated / MaxIntensity;
             _intensityBar.SetState(
-                isEnabled,
+                isDisasterEnabled,
                 normalizedIntensity,
-                isEnabled ? string.Format("{0:0.0}", maxIntensityCalculated / 10f) : string.Empty,
-                isEnabled ? Disaster.GetIntensityTooltip(normalizedIntensity) : string.Empty);
+                isDisasterEnabled ? string.Format("{0:0.0}", maxIntensityCalculated / 10f) : string.Empty,
+                isDisasterEnabled ? Disaster.GetIntensityTooltip(normalizedIntensity) : string.Empty);
 
-            RefreshMeteorPeriodBars(isEnabled);
+            RefreshMeteorPeriodBars(isDisasterEnabled);
         }
 
         private float GetProbabilityProgressValue(float occurrencePerYear)
         {
-            var meteorStrike = Disaster as MeteorStrikeModel;
-            if (meteorStrike != null)
-                return meteorStrike.AreMeteorPeriodsEnabled()
-                    ? meteorStrike.GetMeteorPeriodProbabilityProgress()
-                    : meteorStrike.GetRealTimePatternProbabilityProgress();
-
-            return GetProbabilityProgressValueLog(occurrencePerYear);
+            switch (Disaster)
+            {
+                case MeteorStrikeModel meteorStrike:
+                    return meteorStrike.AreMeteorPeriodsEnabled()
+                        ? meteorStrike.GetMeteorPeriodProbabilityProgress()
+                        : meteorStrike.GetRealTimePatternProbabilityProgress();
+                case ForestFireModel forestFire when forestFire.IsRealTimePatternActive():
+                    return forestFire.GetRealTimePatternProbabilityProgress();
+                default:
+                    return GetProbabilityProgressValueLog(occurrencePerYear);
+            }
         }
 
         private void BuildStatusButton()
         {
-            UIButton statusButton = AddUIComponent<UIButton>();
+            var statusButton = AddUIComponent<UIButton>();
             statusButton.name = "disasterState" + Disaster.GetDisasterType() + "Btn";
             statusButton.relativePosition = new Vector3(0f, -4f);
             statusButton.size = new Vector2(18f, 18f);
