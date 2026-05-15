@@ -560,6 +560,7 @@ namespace NaturalDisastersRenewal.UI
         private void ClosePanelBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             Hide();
+            Services.DisasterHandler.UpdateDisastersPanelToggleBtn();
         }
 
         private static UILabel AddLabel(UIComponent parentPanel, float x, float y, float textScale, string text)

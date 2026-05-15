@@ -490,6 +490,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return DisasterSimulationUtils.IsRealTimeModActive();
         }
 
+        // TODO: Evaluate a configurable meteor targeting mode that prefers populated areas.
+        // Requirements:
+        // - Keep the current vanilla/random targeting as the default behavior.
+        // - Add an optional "near populated areas" mode that selects a populated building or dense area.
+        // - Prefer an offset around the populated target instead of always hitting the building directly.
+        // - Use a safe fallback to vanilla/random when no valid populated target is found.
+        // - Apply the same target selection regardless of Real Time being active; Real Time only changes when meteors occur.
+        // - Consider a future setting for direct-hit risk or offset radius before implementing.
+
         public override float CalculateDestructionRadio(byte intensity)
         {
             var unitSize = 8;

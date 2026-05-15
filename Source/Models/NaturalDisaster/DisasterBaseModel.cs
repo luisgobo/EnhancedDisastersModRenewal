@@ -75,6 +75,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return intensity;
         }
 
+        public byte GetMaximumGeneratedIntensity()
+        {
+            return GetMaximumGeneratedIntensity(GetMaximumIntensity());
+        }
+
         public void OnSimulationFrame()
         {
             if (!Enabled) return;
@@ -155,13 +160,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 result = LocalizationService.Format("tooltip.recently_occurred", GetName());
 
             var naturalDisasterSetup = Services.DisasterSetup;
-            if (DisasterSimulationUtils.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
+            if (naturalDisasterSetup.ScaleMaxIntensityWithPopulation &&
+                DisasterSimulationUtils.GetPopulation() < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
             {
                 if (result != "") result += CommonProperties.NewLine;
                 result += LocalizationService.Get("tooltip.low_population");
             }
 
             return result;
+        }
+
+        public virtual string GetGeneratedIntensityTooltip(byte maxGeneratedIntensity)
+        {
+            return GetIntensityTooltip(maxGeneratedIntensity / 255f);
         }
 
         public virtual void CopySettings(DisasterBaseModel disaster)
@@ -209,6 +220,26 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             return intensity;
         }
+
+        protected byte GetMaximumGeneratedIntensity(byte maxIntensity)
+        {
+            if (maxIntensity >= 100)
+                return 100;
+
+            return (byte)(10 + (100 - 10) * maxIntensity / 100);
+        }
+
+        // TODO: Evaluate an advanced extreme-intensity system instead of changing all disasters globally.
+        // Current automatic generation effectively caps most disasters at 10.0, even though the game can store
+        // intensity up to 25.5 (byte.MaxValue / 10). Candidate design:
+        // - Add a global advanced toggle such as "Allow extreme intensities up to 25.5".
+        // - Add per-disaster maximum generated intensity so each disaster can opt into a different cap.
+        // - Strong candidates: Meteor Strike, Earthquake, Tsunami.
+        // - Optional/advanced candidates: Tornado and Sinkhole, with rarity controls and warnings.
+        // - Lower-priority candidates: Thunderstorm and Forest Fire, where frequency/spread/secondary effects
+        //   probably model severity better than raw 25.5 intensity.
+        // - Keep default behavior conservative and preserve current 10.0 cap unless explicitly enabled.
+        // - Review UI labels/tooltips so "max strength" reflects the real generated cap, not only byte storage.
 
         protected byte ScaleIntensityByWarmup(byte intensity)
         {
