@@ -19,11 +19,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const int LocalizedWetnessGridResolution = 25;
         private const int LocalizedWetnessGridCellCount =
             LocalizedWetnessGridResolution * LocalizedWetnessGridResolution;
-        private const int LocalizedWetnessTargetAttempts = 12;
+        private const int LocalizedWetnessTargetAttempts = 24;
         private const float LocalizedWetnessRainFillFactor = 1.25f;
         private const float LocalizedWetnessDrainFactor = 1f;
         private const float LocalizedWetnessMinimumTargetWeight = 0.02f;
         private const float LocalizedWetnessMaxWaterDepth = 8f;
+        private const float LocalizedWetnessMaxTargetWaterDepth = 0.35f;
+        private const float LocalizedWetnessActiveCityMaxFactor = 5f;
+        private const float LocalizedWetnessActiveBuildingFactorStep = 0.2f;
+        private const float LocalizedWetnessNeighborBuildingFactorStep = 0.05f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeSinkholeFrequencyOptionValues =
         {
@@ -35,6 +39,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         };
 
         [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
+        [XmlIgnore] private readonly float[] _localizedWetnessCityFactors = new float[LocalizedWetnessGridCellCount];
         [XmlIgnore] private readonly float[] _localizedWetnessGrid = new float[LocalizedWetnessGridCellCount];
         [XmlIgnore] private readonly float[] _localizedWetnessTerrainFactors = new float[LocalizedWetnessGridCellCount];
         [XmlIgnore] private bool _localizedWetnessGridInitialized;
@@ -496,6 +501,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private bool TryFindLocalizedWetnessTarget(out Vector3 targetPosition, out float angle)
         {
             EnsureLocalizedWetnessGrid();
+            RefreshLocalizedWetnessCityFactors();
 
             for (var attempt = 0; attempt < LocalizedWetnessTargetAttempts; attempt++)
                 if (TrySelectWetnessCell(out var cellIndex))
@@ -504,7 +510,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     if (!IsTargetPositionAllowed(targetPosition) || HasExcessiveWaterDepth(targetPosition))
                         continue;
 
-                    targetPosition.y = Services.Terrain.SampleRawHeightSmoothWithWater(targetPosition, false, 0f);
+                    targetPosition.y = Services.Terrain.SampleRawHeightSmooth(targetPosition);
                     angle = Services.Simulation.m_randomizer.Int32(0, 10000) * 0.0006283185f;
                     return true;
                 }
@@ -526,7 +532,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 if (wetness <= 0f)
                     continue;
 
-                totalWeight += wetness * wetness * _localizedWetnessTerrainFactors[i];
+                totalWeight += wetness * wetness * _localizedWetnessTerrainFactors[i] *
+                               _localizedWetnessCityFactors[i];
             }
 
             if (totalWeight < LocalizedWetnessMinimumTargetWeight)
@@ -546,7 +553,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 if (wetness <= 0f)
                     continue;
 
-                accumulatedWeight += wetness * wetness * _localizedWetnessTerrainFactors[i];
+                accumulatedWeight += wetness * wetness * _localizedWetnessTerrainFactors[i] *
+                                     _localizedWetnessCityFactors[i];
                 if (randomValue <= accumulatedWeight)
                 {
                     cellIndex = i;
@@ -599,8 +607,75 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             for (var i = 0; i < _localizedWetnessTerrainFactors.Length; i++)
                 _localizedWetnessTerrainFactors[i] = CalculateWetnessTerrainFactor(GetWetnessCellCenter(i));
 
+            for (var i = 0; i < _localizedWetnessCityFactors.Length; i++)
+                _localizedWetnessCityFactors[i] = 1f;
+
             SeedLocalizedWetnessFromGroundwater();
             _localizedWetnessGridInitialized = true;
+        }
+
+        private void RefreshLocalizedWetnessCityFactors()
+        {
+            for (var i = 0; i < _localizedWetnessCityFactors.Length; i++)
+                _localizedWetnessCityFactors[i] = 1f;
+
+            var buildingManager = Services.Buildings;
+            if (buildingManager == null)
+                return;
+
+            var buildings = buildingManager.m_buildings.m_buffer;
+            for (ushort buildingId = 1; buildingId < buildings.Length; buildingId++)
+            {
+                var flags = buildings[buildingId].m_flags;
+                if (!IsActiveCityBuilding(flags))
+                    continue;
+
+                var position = buildings[buildingId].m_position;
+                if (!IsTargetPositionAllowed(position) || !TryGetWetnessCellIndex(position, out var cellIndex))
+                    continue;
+
+                AddCityFactor(cellIndex, LocalizedWetnessActiveBuildingFactorStep);
+                AddNeighborCityFactors(cellIndex);
+            }
+        }
+
+        private static bool IsActiveCityBuilding(Building.Flags flags)
+        {
+            var requiredFlags = Building.Flags.Created | Building.Flags.Completed;
+            var excludedFlags = Building.Flags.Deleted | Building.Flags.Collapsed |
+                                Building.Flags.BurnedDown | Building.Flags.Demolishing;
+            return (flags & requiredFlags) == requiredFlags && (flags & excludedFlags) == 0;
+        }
+
+        private void AddNeighborCityFactors(int cellIndex)
+        {
+            var cellX = cellIndex % LocalizedWetnessGridResolution;
+            var cellZ = cellIndex / LocalizedWetnessGridResolution;
+
+            for (var dx = -1; dx <= 1; dx++)
+            for (var dz = -1; dz <= 1; dz++)
+            {
+                if (dx == 0 && dz == 0)
+                    continue;
+
+                var neighborX = cellX + dx;
+                var neighborZ = cellZ + dz;
+                if (neighborX < 0 || neighborZ < 0 ||
+                    neighborX >= LocalizedWetnessGridResolution ||
+                    neighborZ >= LocalizedWetnessGridResolution)
+                    continue;
+
+                AddCityFactor(
+                    neighborZ * LocalizedWetnessGridResolution + neighborX,
+                    LocalizedWetnessNeighborBuildingFactorStep);
+            }
+        }
+
+        private void AddCityFactor(int cellIndex, float value)
+        {
+            _localizedWetnessCityFactors[cellIndex] = Mathf.Min(
+                LocalizedWetnessActiveCityMaxFactor,
+                _localizedWetnessCityFactors[cellIndex] + value);
         }
 
         private void SeedLocalizedWetnessFromGroundwater()
@@ -649,6 +724,30 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 _localizedWetnessMinZ + (cellZ + 0.5f) * cellDepth);
             position.y = Services.Terrain.SampleRawHeightSmooth(position);
             return position;
+        }
+
+        private bool TryGetWetnessCellIndex(Vector3 position, out int cellIndex)
+        {
+            if (position.x < _localizedWetnessMinX || position.x > _localizedWetnessMaxX ||
+                position.z < _localizedWetnessMinZ || position.z > _localizedWetnessMaxZ)
+            {
+                cellIndex = -1;
+                return false;
+            }
+
+            var normalizedX = Mathf.Clamp01(
+                (position.x - _localizedWetnessMinX) / (_localizedWetnessMaxX - _localizedWetnessMinX));
+            var normalizedZ = Mathf.Clamp01(
+                (position.z - _localizedWetnessMinZ) / (_localizedWetnessMaxZ - _localizedWetnessMinZ));
+            var cellX = Mathf.Min(
+                LocalizedWetnessGridResolution - 1,
+                Mathf.FloorToInt(normalizedX * LocalizedWetnessGridResolution));
+            var cellZ = Mathf.Min(
+                LocalizedWetnessGridResolution - 1,
+                Mathf.FloorToInt(normalizedZ * LocalizedWetnessGridResolution));
+
+            cellIndex = cellZ * LocalizedWetnessGridResolution + cellX;
+            return true;
         }
 
         private Vector3 GetRandomPointInWetnessCell(int cellIndex)
@@ -708,7 +807,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var terrain = Services.Terrain;
             var terrainHeight = terrain.SampleRawHeightSmooth(position);
             var waterSurfaceHeight = terrain.SampleRawHeightSmoothWithWater(position, false, 0f);
-            return waterSurfaceHeight - terrainHeight > LocalizedWetnessMaxWaterDepth;
+            return waterSurfaceHeight - terrainHeight > LocalizedWetnessMaxTargetWaterDepth;
         }
 
         private static bool TryGetAreaCoordinates(Vector3 position, out int areaX, out int areaZ)

@@ -62,7 +62,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         {
             var isDisasterEnabled = Disaster.Enabled;
             var occurrencePerYear = Disaster.GetCurrentOccurrencePerYear();
-            var maxIntensityCalculated = Disaster.GetMaximumIntensity();
+            var maxIntensityCalculated = Disaster.GetMaximumGeneratedIntensity();
 
             _statusIcon.spriteName = isDisasterEnabled ? PauseSprite : PlaySprite;
             _nameLabel.text = isDisasterEnabled
@@ -83,7 +83,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                 isDisasterEnabled,
                 normalizedIntensity,
                 isDisasterEnabled ? string.Format("{0:0.0}", maxIntensityCalculated / 10f) : string.Empty,
-                isDisasterEnabled ? Disaster.GetIntensityTooltip(normalizedIntensity) : string.Empty);
+                isDisasterEnabled ? Disaster.GetGeneratedIntensityTooltip(maxIntensityCalculated) : string.Empty);
 
             RefreshMeteorPeriodBars(isDisasterEnabled);
         }
