@@ -94,6 +94,8 @@ namespace NaturalDisastersRenewal.UI
         private UISlider UI_Tornado_MaxProbability;
         private UIDropDown UI_Tornado_MaxProbabilityMonth;
         private UICheckBox UI_Tornado_NoDuringFog;
+        private UIDropDown UI_Tornado_RealTimeFrequency;
+        private UISprite UI_Tornado_RealTimeFrequencyWarning;
         private UIDropDown UI_Tornado_EvacuationMode;
         private UICheckBox UI_Tornado_EnableDestruction;
         private UISlider UI_Tornado_IntensityDestructionStart;
@@ -238,6 +240,11 @@ namespace NaturalDisastersRenewal.UI
             UI_Tornado_MaxProbability.value = disasterSetupModel.Tornado.BaseOccurrencePerYear;
             UI_Tornado_MaxProbabilityMonth.selectedIndex = disasterSetupModel.Tornado.MaxProbabilityMonth - 1;
             UI_Tornado_NoDuringFog.isChecked = disasterSetupModel.Tornado.NoTornadoDuringFog;
+            UI_Tornado_RealTimeFrequency.selectedIndex =
+                disasterSetupModel.Tornado.GetRealTimeTornadoFrequencySelectionIndex();
+            UI_Tornado_RealTimeFrequency.tooltip =
+                disasterSetupModel.Tornado.GetRealTimeTornadoFrequencyTooltip();
+            SetTornadoRealTimeControlsAvailability(disasterSetupModel.Tornado.IsRealTimePatternActive());
             UI_Tornado_EnableDestruction.isChecked = disasterSetupModel.Tornado.EnableTornadoDestruction;
             UI_Tornado_IntensityDestructionStart.value = disasterSetupModel.Tornado.MinimalIntensityForDestruction;
 
@@ -932,6 +939,7 @@ namespace NaturalDisastersRenewal.UI
             disasterContainer.ForestFire.SetRealTimeForestFireFrequency(frequency);
             disasterContainer.Thunderstorm.SetRealTimeThunderstormFrequency(frequency);
             disasterContainer.Sinkhole.SetRealTimeSinkholeFrequency(frequency);
+            disasterContainer.Tornado.SetRealTimeTornadoFrequency(frequency);
             disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(frequency);
         }
 
@@ -981,6 +989,14 @@ namespace NaturalDisastersRenewal.UI
                 disasterContainer.Sinkhole.GetRealTimeSinkholeFrequencySelectionIndex(),
                 disasterContainer.Sinkhole.RealTimeSinkholeFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.Sinkhole.GetRealTimeSinkholeFrequencyTooltip());
+
+            SetFrequencyDropdownWarning(
+                UI_Tornado_RealTimeFrequency,
+                UI_Tornado_RealTimeFrequencyWarning,
+                TornadoModel.GetRealTimeTornadoFrequencyOptions(),
+                disasterContainer.Tornado.GetRealTimeTornadoFrequencySelectionIndex(),
+                disasterContainer.Tornado.RealTimeTornadoFrequency != disasterContainer.RealTimeFrequencyHarmony,
+                disasterContainer.Tornado.GetRealTimeTornadoFrequencyTooltip());
 
             SetFrequencyDropdownWarning(
                 UI_MeteorStrike_RealTimeFrequency,
@@ -1337,6 +1353,9 @@ namespace NaturalDisastersRenewal.UI
             if (UI_Thunderstorm_MaxProbability != null)
                 UI_Thunderstorm_MaxProbability.isEnabled = !realTimeActive;
 
+            if (UI_Thunderstorm_MaxProbabilityMonth != null)
+                UI_Thunderstorm_MaxProbabilityMonth.isEnabled = !realTimeActive;
+
             if (UI_Thunderstorm_RealTimeFrequency != null)
                 UI_Thunderstorm_RealTimeFrequency.isEnabled = realTimeActive;
         }
@@ -1456,6 +1475,34 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.no_tornado_fog.tooltip"),
                 nextCheckboxSpacing);
 
+            tornadoGroup.AddSpacing(12);
+
+            DropDownHelper.AddDropDown(
+                ref UI_Tornado_RealTimeFrequency,
+                ref tornadoGroup,
+                LocalizationService.Get("settings.tornado.realtime_frequency"),
+                TornadoModel.GetRealTimeTornadoFrequencyOptions(),
+                ref disasterContainer.Tornado.RealTimeTornadoFrequency,
+                delegate(int selection)
+                {
+                    if (!_freezeUI)
+                    {
+                        disasterContainer.Tornado.SetRealTimeTornadoFrequency(
+                            TornadoModel.GetRealTimeTornadoFrequencyFromSelection(selection));
+                        UI_Tornado_RealTimeFrequency.tooltip =
+                            disasterContainer.Tornado.GetRealTimeTornadoFrequencyTooltip();
+                        RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+                    }
+                });
+            UI_Tornado_RealTimeFrequency.selectedIndex =
+                disasterContainer.Tornado.GetRealTimeTornadoFrequencySelectionIndex();
+            UI_Tornado_RealTimeFrequency.tooltip =
+                disasterContainer.Tornado.GetRealTimeTornadoFrequencyTooltip();
+            UI_Tornado_RealTimeFrequencyWarning =
+                CreateFrequencyWarningIcon(UI_Tornado_RealTimeFrequency);
+            SetTornadoRealTimeControlsAvailability(disasterContainer.Tornado.IsRealTimePatternActive());
+            RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+
             UI_Tornado_EnableDestruction = CheckboxHelper.AddCheckbox(
                 ref tornadoGroup,
                 LocalizationService.Get("settings.enable_tornado_destruction"),
@@ -1491,6 +1538,18 @@ namespace NaturalDisastersRenewal.UI
             );
 
             helper.AddSpacing(20);
+        }
+
+        private void SetTornadoRealTimeControlsAvailability(bool realTimeActive)
+        {
+            if (UI_Tornado_MaxProbability != null)
+                UI_Tornado_MaxProbability.isEnabled = !realTimeActive;
+
+            if (UI_Tornado_MaxProbabilityMonth != null)
+                UI_Tornado_MaxProbabilityMonth.isEnabled = !realTimeActive;
+
+            if (UI_Tornado_RealTimeFrequency != null)
+                UI_Tornado_RealTimeFrequency.isEnabled = realTimeActive;
         }
 
         private void SetupTsunami(ref UIHelper helper, DisasterSetupModel disasterContainer)

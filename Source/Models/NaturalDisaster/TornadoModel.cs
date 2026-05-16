@@ -6,15 +6,38 @@ using NaturalDisastersRenewal.DisasterServices.HarmonyPatches;
 using NaturalDisastersRenewal.Models.Disaster;
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
 {
     public class TornadoModel : DisasterBaseModel
     {
+        private const float GuaranteedOccurrencePerFrame = 1f;
+        private const float SecondsPerMinute = 60f;
+        private const float MaxRealTimeDeltaSeconds = 5f;
+        private const float LightFogProgressFactor = 0.35f;
+        private const float DenseFogProgressFactor = 0.1f;
+        private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
+        private static readonly RealTimeDisasterFrequencyPreset[] RealTimeTornadoFrequencyOptionValues =
+        {
+            RealTimeDisasterFrequencyPreset.Apocalypse,
+            RealTimeDisasterFrequencyPreset.Frequent,
+            RealTimeDisasterFrequencyPreset.Occasional,
+            RealTimeDisasterFrequencyPreset.Uncommon,
+            RealTimeDisasterFrequencyPreset.Rare
+        };
+
+        [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
+
         public int MaxProbabilityMonth = 5;
         public bool NoTornadoDuringFog = true;
         public bool EnableTornadoDestruction = true;
         public byte MinimalIntensityForDestruction = 10;
+        [XmlIgnore] public float RealTimeCurrentTornadoPeriodMinutes = -1f;
+        [XmlIgnore] public float RealTimeMinutesUntilNextTornado = -1f;
+        public RealTimeDisasterFrequencyPreset RealTimeTornadoFrequency =
+            RealTimeDisasterFrequencyPreset.Occasional;
 
         public TornadoModel()
         {
@@ -28,27 +51,45 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             intensityWarmupDays = 180;
         }
 
+        protected override void OnSimulationFrameLocal()
+        {
+            if (IsRealTimePatternActive())
+            {
+                ClearRealTimeCooldownState();
+                UpdateRealTimeTornadoSchedule();
+            }
+        }
+
         protected override float GetCurrentOccurrencePerYearLocal()
         {
-            if (NoTornadoDuringFog && Services.Weather.m_currentFog > 0)
+            if (!IsRealTimePatternActive() && NoTornadoDuringFog && GetCurrentFog() > 0f)
             {
                 return 0;
             }
 
-            DateTime dt = Services.Simulation.m_currentGameTime;
-            int delta_month = Math.Abs(dt.Month - MaxProbabilityMonth);
-            if (delta_month > 6) delta_month = 12 - delta_month;
+            if (IsRealTimePatternActive())
+                return IsRealTimeTornadoDue()
+                    ? 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame
+                    : 0f;
 
-            float occurrence = base.GetCurrentOccurrencePerYearLocal() * (1f - delta_month / 6f);
+            return base.GetCurrentOccurrencePerYearLocal() * GetSeasonFactor();
+        }
 
-            return occurrence;
+        protected override float GetSimulationDaysPerFrame()
+        {
+            return IsRealTimePatternActive()
+                ? DisasterSimulationUtils.VanillaSimulationDaysPerFrame
+                : base.GetSimulationDaysPerFrame();
         }
 
         public override string GetProbabilityTooltip(float value)
         {
+            if (IsRealTimePatternActive())
+                return GetRealTimeProbabilityTooltip(value);
+
             if (calmDaysLeft <= 0)
             {
-                if (NoTornadoDuringFog && Services.Weather.m_currentFog > 0)
+                if (!IsRealTimePatternActive() && NoTornadoDuringFog && GetCurrentFog() > 0f)
                 {
                     return LocalizationService.Format("tooltip.tornado.no_during_fog", GetName());
                 }
@@ -93,6 +134,357 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override string GetName()
         {
             return LocalizationService.GetDisasterName(DType);
+        }
+
+        protected override bool FindTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
+        {
+            if (base.FindTarget(disasterInfo, out targetPosition, out angle))
+                return true;
+
+            if (TryFindRandomUnlockedAreaTarget(out targetPosition, out angle))
+            {
+                DebugLogger.Log(GetDebugStr() + string.Format(
+                    "Tornado fallback target selected. Target: x:{0:#.##} y:{1:#.##} z:{2:#.##}",
+                    targetPosition.x,
+                    targetPosition.y,
+                    targetPosition.z));
+                return true;
+            }
+
+            return false;
+        }
+
+        public override void OnDisasterStarted(byte intensity)
+        {
+            if (IsRealTimePatternActive())
+            {
+                ResetRealTimeSchedule();
+                ClearRealTimeCooldownState();
+                intensityWarmupDaysLeft = intensityWarmupDays;
+                return;
+            }
+
+            base.OnDisasterStarted(intensity);
+        }
+
+        public bool IsRealTimePatternActive()
+        {
+            return DisasterSimulationUtils.IsRealTimeModActive();
+        }
+
+        public float GetRealTimePatternProbabilityProgress()
+        {
+            EnsureRealTimeSchedule();
+            return Mathf.Clamp01(1f - RealTimeMinutesUntilNextTornado / RealTimeCurrentTornadoPeriodMinutes);
+        }
+
+        private string GetRealTimeProbabilityTooltip(float probabilityValue)
+        {
+            EnsureRealTimeSchedule();
+            var fogLine = GetFogProgressTooltipLine();
+            return string.Format(
+                "{0}: {1}{2}{3}{2}{4}{2}{5}{2}{6}{7}",
+                LocalizationService.Get("tooltip.progress"),
+                string.Format("{0:00.00}%", probabilityValue * 100),
+                CommonProperties.NewLine,
+                LocalizationService.Get("tooltip.tornado.realtime_active"),
+                LocalizationService.Format("tooltip.tornado.realtime_reference", GetRealTimeTornadoFrequencyName()),
+                LocalizationService.Format(
+                    "tooltip.tornado.current_tornado_interval",
+                    DisasterSimulationUtils.FormatRealTimeMinutes(RealTimeCurrentTornadoPeriodMinutes)),
+                LocalizationService.Format(
+                    "tooltip.tornado.tornado_time_remaining",
+                    DisasterSimulationUtils.FormatRealTimeMinutes(RealTimeMinutesUntilNextTornado)),
+                fogLine);
+        }
+
+        private void UpdateRealTimeTornadoSchedule()
+        {
+            EnsureRealTimeSchedule();
+
+            var elapsedMinutes = GetRealTimeElapsedMinutes();
+            RealTimeMinutesUntilNextTornado = Mathf.Max(
+                0f,
+                RealTimeMinutesUntilNextTornado - elapsedMinutes * GetFogProgressFactor());
+        }
+
+        private bool IsRealTimeTornadoDue()
+        {
+            EnsureRealTimeSchedule();
+            return RealTimeMinutesUntilNextTornado <= 0f;
+        }
+
+        private static float GetCurrentFog()
+        {
+            var wm = Services.Weather;
+            return wm == null ? 0f : Mathf.Clamp01(wm.m_currentFog);
+        }
+
+        private void ClearRealTimeCooldownState()
+        {
+            calmDaysLeft = 0f;
+            probabilityWarmupDaysLeft = 0f;
+        }
+
+        private float GetFogProgressFactor()
+        {
+            if (!NoTornadoDuringFog)
+                return 1f;
+
+            var fog = GetCurrentFog();
+            if (fog <= 0f)
+                return 1f;
+
+            return Mathf.Lerp(LightFogProgressFactor, DenseFogProgressFactor, fog);
+        }
+
+        private string GetFogProgressTooltipLine()
+        {
+            if (!NoTornadoDuringFog || GetCurrentFog() <= 0f)
+                return string.Empty;
+
+            return CommonProperties.NewLine + LocalizationService.Format(
+                "tooltip.tornado.fog_slowed",
+                string.Format("{0:0}", GetFogProgressFactor() * 100));
+        }
+
+        private static bool TryFindRandomUnlockedAreaTarget(out Vector3 targetPosition, out float angle)
+        {
+            targetPosition = Vector3.zero;
+            angle = 0f;
+
+            var gameArea = Services.GameArea;
+            var simulation = Services.Simulation;
+            var terrain = Services.Terrain;
+            if (gameArea == null || simulation == null || terrain == null)
+                return false;
+
+            var unlockedAreaCount = 0;
+            var selectedX = -1;
+            var selectedZ = -1;
+
+            for (var z = 0; z < 5; z++)
+            for (var x = 0; x < 5; x++)
+            {
+                if (gameArea.m_areaGrid[z * 5 + x] == 0)
+                    continue;
+
+                unlockedAreaCount++;
+                if (simulation.m_randomizer.Int32((uint)unlockedAreaCount) == 0)
+                {
+                    selectedX = x;
+                    selectedZ = z;
+                }
+            }
+
+            if (selectedX < 0 || selectedZ < 0)
+                return false;
+
+            float minX;
+            float minZ;
+            float maxX;
+            float maxZ;
+            gameArea.GetAreaBounds(selectedX, selectedZ, out minX, out minZ, out maxX, out maxZ);
+
+            var randX = simulation.m_randomizer.Int32(0, 10000) * 0.0001f;
+            var randZ = simulation.m_randomizer.Int32(0, 10000) * 0.0001f;
+            targetPosition.x = minX + (maxX - minX) * randX;
+            targetPosition.z = minZ + (maxZ - minZ) * randZ;
+            targetPosition.y = terrain.SampleRawHeightSmoothWithWater(targetPosition, false, 0f);
+            angle = simulation.m_randomizer.Int32(0, 10000) * 0.0006283185f;
+            return true;
+        }
+
+        private void EnsureRealTimeSchedule()
+        {
+            if (RealTimeCurrentTornadoPeriodMinutes <= 0f || RealTimeMinutesUntilNextTornado < 0f)
+                ScheduleNextRealTimeTornado();
+
+            if (RealTimeMinutesUntilNextTornado > RealTimeCurrentTornadoPeriodMinutes)
+                RealTimeMinutesUntilNextTornado = RealTimeCurrentTornadoPeriodMinutes;
+        }
+
+        private void ResetRealTimeSchedule()
+        {
+            ScheduleNextRealTimeTornado();
+        }
+
+        private void ScheduleNextRealTimeTornado()
+        {
+            ScheduleNextRealTimeTornado(0f);
+        }
+
+        private void ScheduleNextRealTimeTornado(float progressToKeep)
+        {
+            var progress = Mathf.Clamp01(progressToKeep);
+            RealTimeCurrentTornadoPeriodMinutes = GetRandomRealTimeIntervalMinutes();
+            RealTimeMinutesUntilNextTornado = RealTimeCurrentTornadoPeriodMinutes * (1f - progress);
+            _lastRealTimeScheduleUpdateSeconds = Time.realtimeSinceStartup;
+        }
+
+        private float GetRealTimeElapsedMinutes()
+        {
+            var currentSeconds = Time.realtimeSinceStartup;
+
+            if (_lastRealTimeScheduleUpdateSeconds < 0f)
+            {
+                _lastRealTimeScheduleUpdateSeconds = currentSeconds;
+                return 0f;
+            }
+
+            var elapsedSeconds = Mathf.Clamp(
+                currentSeconds - _lastRealTimeScheduleUpdateSeconds,
+                0f,
+                MaxRealTimeDeltaSeconds);
+            _lastRealTimeScheduleUpdateSeconds = currentSeconds;
+            return elapsedSeconds / SecondsPerMinute * GetRealTimeSpeedFactor();
+        }
+
+        private static float GetRealTimeSpeedFactor()
+        {
+            var simulation = Services.Simulation;
+            if (simulation == null || simulation.SimulationPaused)
+                return 0f;
+
+            var speed = Mathf.Max(1, simulation.FinalSimulationSpeed);
+            if (ModCompatibilityService.IsActive(ExtendedInfoPanel2ModKey))
+                return GetExtendedInfoPanelSpeedFactor(speed);
+
+            return GetVanillaSpeedFactor(speed);
+        }
+
+        private static float GetVanillaSpeedFactor(int speed)
+        {
+            if (speed <= 1)
+                return 1f;
+
+            return speed == 2 ? 1.5f : 2f;
+        }
+
+        private static float GetExtendedInfoPanelSpeedFactor(int speed)
+        {
+            if (speed <= 3)
+                return GetVanillaSpeedFactor(speed);
+
+            switch (speed)
+            {
+                case 4:
+                    return 2.5f;
+                case 5:
+                    return 3f;
+                default:
+                    return 3.5f;
+            }
+        }
+
+        private float GetRandomRealTimeIntervalMinutes()
+        {
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
+
+            var randomValue = Services.Simulation.m_randomizer.Int32(0, 10000) / 10000f;
+            return minMinutes + (maxMinutes - minMinutes) * randomValue;
+        }
+
+        private void GetRealTimeIntervalRange(out float minMinutes, out float maxMinutes)
+        {
+            switch (RealTimeTornadoFrequency)
+            {
+                case RealTimeDisasterFrequencyPreset.Apocalypse:
+                    minMinutes = 15f;
+                    maxMinutes = 30f;
+                    break;
+                case RealTimeDisasterFrequencyPreset.Frequent:
+                    minMinutes = 30f;
+                    maxMinutes = 90f;
+                    break;
+                case RealTimeDisasterFrequencyPreset.Occasional:
+                    minMinutes = 120f;
+                    maxMinutes = 240f;
+                    break;
+                case RealTimeDisasterFrequencyPreset.Uncommon:
+                default:
+                    minMinutes = 240f;
+                    maxMinutes = 480f;
+                    break;
+                case RealTimeDisasterFrequencyPreset.Rare:
+                    minMinutes = 480f;
+                    maxMinutes = 960f;
+                    break;
+            }
+        }
+
+        private float GetSeasonFactor()
+        {
+            DateTime dt = Services.Simulation.m_currentGameTime;
+            int deltaMonth = Math.Abs(dt.Month - MaxProbabilityMonth);
+            if (deltaMonth > 6) deltaMonth = 12 - deltaMonth;
+
+            return Mathf.Clamp01(1f - deltaMonth / 6f);
+        }
+
+        public void SetRealTimeTornadoFrequency(RealTimeDisasterFrequencyPreset frequency)
+        {
+            if (RealTimeTornadoFrequency == frequency)
+                return;
+
+            var currentProgress = GetRealTimePatternProbabilityProgress();
+            RealTimeTornadoFrequency = frequency;
+            ScheduleNextRealTimeTornado(currentProgress);
+        }
+
+        public static string[] GetRealTimeTornadoFrequencyOptions()
+        {
+            return new[]
+            {
+                LocalizationService.Get("settings.tornado.frequency.apocalypse"),
+                LocalizationService.Get("settings.tornado.frequency.frequent"),
+                LocalizationService.Get("settings.tornado.frequency.occasional"),
+                LocalizationService.Get("settings.tornado.frequency.uncommon"),
+                LocalizationService.Get("settings.tornado.frequency.rare")
+            };
+        }
+
+        public int GetRealTimeTornadoFrequencySelectionIndex()
+        {
+            for (var i = 0; i < RealTimeTornadoFrequencyOptionValues.Length; i++)
+                if (RealTimeTornadoFrequencyOptionValues[i] == RealTimeTornadoFrequency)
+                    return i;
+
+            return 2;
+        }
+
+        public static RealTimeDisasterFrequencyPreset GetRealTimeTornadoFrequencyFromSelection(int selection)
+        {
+            if (selection < 0 || selection >= RealTimeTornadoFrequencyOptionValues.Length)
+                return RealTimeDisasterFrequencyPreset.Occasional;
+
+            return RealTimeTornadoFrequencyOptionValues[selection];
+        }
+
+        public string GetRealTimeTornadoFrequencyTooltip()
+        {
+            return LocalizationService.Format(
+                "settings.tornado.realtime_frequency.tooltip.selected",
+                GetRealTimeTornadoFrequencyName());
+        }
+
+        private string GetRealTimeTornadoFrequencyName()
+        {
+            switch (RealTimeTornadoFrequency)
+            {
+                case RealTimeDisasterFrequencyPreset.Apocalypse:
+                    return LocalizationService.Get("settings.tornado.frequency_name.apocalypse");
+                case RealTimeDisasterFrequencyPreset.Frequent:
+                    return LocalizationService.Get("settings.tornado.frequency_name.frequent");
+                case RealTimeDisasterFrequencyPreset.Occasional:
+                    return LocalizationService.Get("settings.tornado.frequency_name.occasional");
+                case RealTimeDisasterFrequencyPreset.Uncommon:
+                    return LocalizationService.Get("settings.tornado.frequency_name.uncommon");
+                case RealTimeDisasterFrequencyPreset.Rare:
+                    return LocalizationService.Get("settings.tornado.frequency_name.rare");
+                default:
+                    return RealTimeTornadoFrequency.ToString();
+            }
         }
 
         public override float CalculateDestructionRadio(byte intensity)
@@ -163,6 +555,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 NoTornadoDuringFog = tornado.NoTornadoDuringFog;
                 EnableTornadoDestruction = tornado.EnableTornadoDestruction;
                 MinimalIntensityForDestruction = tornado.MinimalIntensityForDestruction;
+                SetRealTimeTornadoFrequency(tornado.RealTimeTornadoFrequency);
             }
         }
     }
