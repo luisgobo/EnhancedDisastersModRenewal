@@ -75,6 +75,8 @@ namespace NaturalDisastersRenewal.UI
         private UISlider UI_Thunderstorm_MaxProbability;
         private UIDropDown UI_Thunderstorm_MaxProbabilityMonth;
         private UISlider UI_Thunderstorm_RainFactor;
+        private UIDropDown UI_Thunderstorm_RealTimeFrequency;
+        private UISprite UI_Thunderstorm_RealTimeFrequencyWarning;
         private UIDropDown UI_Thunderstorm_EvacuationMode;
 
         //Sunkhole
@@ -215,6 +217,11 @@ namespace NaturalDisastersRenewal.UI
             UI_Thunderstorm_MaxProbability.value = disasterSetupModel.Thunderstorm.BaseOccurrencePerYear;
             UI_Thunderstorm_MaxProbabilityMonth.selectedIndex = disasterSetupModel.Thunderstorm.MaxProbabilityMonth - 1;
             UI_Thunderstorm_RainFactor.value = disasterSetupModel.Thunderstorm.RainFactor;
+            UI_Thunderstorm_RealTimeFrequency.selectedIndex =
+                disasterSetupModel.Thunderstorm.GetRealTimeThunderstormFrequencySelectionIndex();
+            UI_Thunderstorm_RealTimeFrequency.tooltip =
+                disasterSetupModel.Thunderstorm.GetRealTimeThunderstormFrequencyTooltip();
+            SetThunderstormRealTimeControlsAvailability(disasterSetupModel.Thunderstorm.IsRealTimePatternActive());
 
             UI_Sinkhole_Enabled.isChecked = disasterSetupModel.Sinkhole.Enabled;
             UI_Sinkhole_EvacuationMode.selectedIndex = (int)disasterSetupModel.Sinkhole.EvacuationMode;
@@ -650,6 +657,8 @@ namespace NaturalDisastersRenewal.UI
             UI_Thunderstorm_MaxProbability = null;
             UI_Thunderstorm_MaxProbabilityMonth = null;
             UI_Thunderstorm_RainFactor = null;
+            UI_Thunderstorm_RealTimeFrequency = null;
+            UI_Thunderstorm_RealTimeFrequencyWarning = null;
             UI_Thunderstorm_EvacuationMode = null;
             UI_Sinkhole_Enabled = null;
             UI_Sinkhole_MaxProbability = null;
@@ -921,6 +930,7 @@ namespace NaturalDisastersRenewal.UI
         {
             disasterContainer.RealTimeFrequencyHarmony = frequency;
             disasterContainer.ForestFire.SetRealTimeForestFireFrequency(frequency);
+            disasterContainer.Thunderstorm.SetRealTimeThunderstormFrequency(frequency);
             disasterContainer.Sinkhole.SetRealTimeSinkholeFrequency(frequency);
             disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(frequency);
         }
@@ -955,6 +965,14 @@ namespace NaturalDisastersRenewal.UI
                 disasterContainer.ForestFire.GetRealTimeForestFireFrequencySelectionIndex(),
                 disasterContainer.ForestFire.RealTimeForestFireFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.ForestFire.GetRealTimeForestFireFrequencyTooltip());
+
+            SetFrequencyDropdownWarning(
+                UI_Thunderstorm_RealTimeFrequency,
+                UI_Thunderstorm_RealTimeFrequencyWarning,
+                ThunderstormModel.GetRealTimeThunderstormFrequencyOptions(),
+                disasterContainer.Thunderstorm.GetRealTimeThunderstormFrequencySelectionIndex(),
+                disasterContainer.Thunderstorm.RealTimeThunderstormFrequency != disasterContainer.RealTimeFrequencyHarmony,
+                disasterContainer.Thunderstorm.GetRealTimeThunderstormFrequencyTooltip());
 
             SetFrequencyDropdownWarning(
                 UI_Sinkhole_RealTimeFrequency,
@@ -1270,6 +1288,34 @@ namespace NaturalDisastersRenewal.UI
                         disasterContainer.Thunderstorm.RainFactor = val;
                 }, tooltip: LocalizationService.Get("settings.rain_factor.tooltip"));
 
+            thunderstormGroup.AddSpacing(12);
+
+            DropDownHelper.AddDropDown(
+                ref UI_Thunderstorm_RealTimeFrequency,
+                ref thunderstormGroup,
+                LocalizationService.Get("settings.thunderstorm.realtime_frequency"),
+                ThunderstormModel.GetRealTimeThunderstormFrequencyOptions(),
+                ref disasterContainer.Thunderstorm.RealTimeThunderstormFrequency,
+                delegate(int selection)
+                {
+                    if (!_freezeUI)
+                    {
+                        disasterContainer.Thunderstorm.SetRealTimeThunderstormFrequency(
+                            ThunderstormModel.GetRealTimeThunderstormFrequencyFromSelection(selection));
+                        UI_Thunderstorm_RealTimeFrequency.tooltip =
+                            disasterContainer.Thunderstorm.GetRealTimeThunderstormFrequencyTooltip();
+                        RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+                    }
+                });
+            UI_Thunderstorm_RealTimeFrequency.selectedIndex =
+                disasterContainer.Thunderstorm.GetRealTimeThunderstormFrequencySelectionIndex();
+            UI_Thunderstorm_RealTimeFrequency.tooltip =
+                disasterContainer.Thunderstorm.GetRealTimeThunderstormFrequencyTooltip();
+            UI_Thunderstorm_RealTimeFrequencyWarning =
+                CreateFrequencyWarningIcon(UI_Thunderstorm_RealTimeFrequency);
+            SetThunderstormRealTimeControlsAvailability(disasterContainer.Thunderstorm.IsRealTimePatternActive());
+            RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+
             DropDownHelper.AddDropDown(
                 ref UI_Thunderstorm_EvacuationMode,
                 ref thunderstormGroup,
@@ -1284,6 +1330,15 @@ namespace NaturalDisastersRenewal.UI
             );
 
             helper.AddSpacing(20);
+        }
+
+        private void SetThunderstormRealTimeControlsAvailability(bool realTimeActive)
+        {
+            if (UI_Thunderstorm_MaxProbability != null)
+                UI_Thunderstorm_MaxProbability.isEnabled = !realTimeActive;
+
+            if (UI_Thunderstorm_RealTimeFrequency != null)
+                UI_Thunderstorm_RealTimeFrequency.isEnabled = realTimeActive;
         }
 
         private void SetupSinkhole(ref UIHelper helper, DisasterSetupModel disasterContainer)

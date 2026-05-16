@@ -98,6 +98,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                         : meteorStrike.GetRealTimePatternProbabilityProgress();
                 case SinkholeModel sinkhole when sinkhole.IsRealTimePatternActive():
                     return sinkhole.GetRealTimePatternProbabilityProgress();
+                case ThunderstormModel thunderstorm when thunderstorm.IsRealTimePatternActive():
+                    return thunderstorm.GetRealTimePatternProbabilityProgress();
                 case ForestFireModel forestFire when forestFire.IsRealTimePatternActive():
                     return forestFire.GetRealTimePatternProbabilityProgress();
                 default:

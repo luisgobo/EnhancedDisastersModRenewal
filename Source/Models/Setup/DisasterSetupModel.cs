@@ -42,6 +42,16 @@ namespace NaturalDisastersRenewal.Models.Setup
         public TornadoModel Tornado;
         public TsunamiModel Tsunami;
 
+        // TODO: Harmonize disaster recurrence proportions across all disaster types.
+        // Requirements:
+        // - Rebalance default annual occurrences and Real Time presets using realistic relative rarity as a guide.
+        // - Keep thunderstorms and non-destructive/common events frequent enough for visible gameplay.
+        // - Make highly destructive/rare events, especially meteor strikes and damaging tsunamis, proportionally rarer.
+        // - Account for map context where possible: coastline for tsunamis, forest/dry periods for forest fires,
+        //   rain/groundwater for sinkholes, and season/rain for thunderstorms.
+        // - Preserve gameplay pacing with configurable presets rather than strict real-world rates.
+        // - Migrate or clamp existing saved settings so older saves do not suddenly become too quiet or too chaotic.
+
         [XmlElement("TogglePanelHotkey")]
         public string TogglePanelHotkeySerialized
         {
