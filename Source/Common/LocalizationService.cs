@@ -194,8 +194,26 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.season_peak.thunderstorm", "Thunderstorm season peak" },
                         {
                             "settings.thunderstorm.max_probability.tooltip",
-                            "Occurrence (per year) in thunderstorm season."
+                            "Occurrence (per year) in thunderstorm season when Real Time is inactive.\nReal Time uses the dedicated thunderstorm frequency below."
                         },
+                        {
+                            "settings.thunderstorm.realtime_frequency",
+                            "Real Time thunderstorm frequency"
+                        },
+                        {
+                            "settings.thunderstorm.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time interval used between automatic thunderstorms while Real Time is active.\nRain makes progress advance faster.\nSelected reference period: {0}."
+                        },
+                        { "settings.thunderstorm.frequency.apocalypse", "Apocalypse: 10-20 minutes" },
+                        { "settings.thunderstorm.frequency.frequent", "Frequent: 20-60 minutes" },
+                        { "settings.thunderstorm.frequency.occasional", "Occasional: 1-2 hours" },
+                        { "settings.thunderstorm.frequency.uncommon", "Uncommon: 2-4 hours" },
+                        { "settings.thunderstorm.frequency.rare", "Rare: 4-8 hours" },
+                        { "settings.thunderstorm.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.thunderstorm.frequency_name.frequent", "Frequent" },
+                        { "settings.thunderstorm.frequency_name.occasional", "Occasional" },
+                        { "settings.thunderstorm.frequency_name.uncommon", "Uncommon" },
+                        { "settings.thunderstorm.frequency_name.rare", "Rare" },
                         { "settings.season_peak.tornado", "Tornado season peak" },
                         { "settings.rain_factor", "Rain factor" },
                         {
@@ -367,6 +385,13 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.sinkhole.wet_time_remaining", "Wet progress remaining: {0}." },
                         { "tooltip.thunderstorm.outside_area", "Not unlocked yet (occurs only outside of your area)." },
                         { "tooltip.thunderstorm.rain_increase", "Increased because of rain." },
+                        {
+                            "tooltip.thunderstorm.realtime_active",
+                            "Real Time active: thunderstorm progress advances with real time, and rain speeds it up."
+                        },
+                        { "tooltip.thunderstorm.realtime_reference", "Reference storm interval: {0}." },
+                        { "tooltip.thunderstorm.current_storm_interval", "Current storm interval: {0}." },
+                        { "tooltip.thunderstorm.storm_time_remaining", "Storm progress remaining: {0}." },
                         { "tooltip.tornado.no_during_fog", "No {0} during fog." },
                         { "tooltip.earthquake.aftershocks", "Expect {0} more aftershocks" },
                         { "tooltip.meteor.realtime_reference", "Reference period: {0}." },
@@ -580,8 +605,26 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.season_peak.thunderstorm", "Pico de temporada de tormentas" },
                         {
                             "settings.thunderstorm.max_probability.tooltip",
-                            "Ocurrencia por ano durante la temporada de tormentas."
+                            "Ocurrencia por ano durante la temporada de tormentas cuando Real Time no esta activo.\nReal Time usa la frecuencia dedicada de tormentas configurada abajo."
                         },
+                        {
+                            "settings.thunderstorm.realtime_frequency",
+                            "Frecuencia de tormentas con Real Time"
+                        },
+                        {
+                            "settings.thunderstorm.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio de tiempo real entre tormentas automaticas mientras Real Time esta activo.\nLa lluvia hace que el progreso avance mas rapido.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.thunderstorm.frequency.apocalypse", "Apocalipsis: 10-20 minutos" },
+                        { "settings.thunderstorm.frequency.frequent", "Frecuente: 20-60 minutos" },
+                        { "settings.thunderstorm.frequency.occasional", "Ocasional: 1-2 horas" },
+                        { "settings.thunderstorm.frequency.uncommon", "Poco frecuente: 2-4 horas" },
+                        { "settings.thunderstorm.frequency.rare", "Raro: 4-8 horas" },
+                        { "settings.thunderstorm.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.thunderstorm.frequency_name.frequent", "Frecuente" },
+                        { "settings.thunderstorm.frequency_name.occasional", "Ocasional" },
+                        { "settings.thunderstorm.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.thunderstorm.frequency_name.rare", "Raro" },
                         { "settings.season_peak.tornado", "Pico de temporada de tornados" },
                         { "settings.rain_factor", "Factor de lluvia" },
                         {
@@ -753,6 +796,13 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.sinkhole.wet_time_remaining", "Progreso humedo restante: {0}." },
                         { "tooltip.thunderstorm.outside_area", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
                         { "tooltip.thunderstorm.rain_increase", "Aumentado por la lluvia." },
+                        {
+                            "tooltip.thunderstorm.realtime_active",
+                            "Real Time activo: el progreso de tormenta avanza con tiempo real, y la lluvia lo acelera."
+                        },
+                        { "tooltip.thunderstorm.realtime_reference", "Intervalo de tormenta de referencia: {0}." },
+                        { "tooltip.thunderstorm.current_storm_interval", "Intervalo de tormenta actual: {0}." },
+                        { "tooltip.thunderstorm.storm_time_remaining", "Progreso de tormenta restante: {0}." },
                         { "tooltip.tornado.no_during_fog", "No habra {0} durante la niebla." },
                         { "tooltip.earthquake.aftershocks", "Se esperan {0} replicas mas" },
                         { "tooltip.meteor.realtime_reference", "Periodo de referencia: {0}." },

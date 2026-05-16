@@ -400,6 +400,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
+        // TODO: Review meteor timing presets and period defaults.
+        // Requirements:
+        // - Increase meteor intervals so automatic strikes feel less frequent across Real Time presets.
+        // - Revisit vanilla meteor stream periods if the non-Real-Time cadence still feels too compressed.
+        // - Keep Apocalypse/Frequent settings clearly faster than normal gameplay, but less spammy than current values.
+        // - Preserve existing saved games by migrating or clamping old shorter intervals safely.
+
         public void SetRealTimeMeteorFrequency(RealTimeDisasterFrequencyPreset frequency)
         {
             if (RealTimeMeteorFrequency == frequency)
@@ -498,6 +505,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         // - Use a safe fallback to vanilla/random when no valid populated target is found.
         // - Apply the same target selection regardless of Real Time being active; Real Time only changes when meteors occur.
         // - Consider a future setting for direct-hit risk or offset radius before implementing.
+
+        // TODO: Evaluate coastal shelter evacuation for meteor strikes that target water.
+        // Requirements:
+        // - Detect water impacts by comparing terrain height against terrain-with-water height at the meteor target.
+        // - Add an optional setting, disabled by default, to activate coastal shelters when a detected meteor will hit water.
+        // - Infer coastal shelters by water proximity/elevation because the game does not expose a dedicated coastal shelter type.
+        // - Limit activation by distance from the impact and/or unlocked areas so inland shelters are not evacuated unnecessarily.
+        // - Keep normal focused evacuation behavior unchanged for land impacts.
 
         public override float CalculateDestructionRadio(byte intensity)
         {
