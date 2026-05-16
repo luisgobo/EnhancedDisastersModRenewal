@@ -254,6 +254,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return !IsRealTimePatternActive();
         }
 
+        public override void OnEnabledChanged(bool enabled)
+        {
+            _lastRealTimeScheduleUpdateSeconds = Time.realtimeSinceStartup;
+        }
+
         public float GetMeteorPeriodProbabilityProgress()
         {
             var progress = 0f;

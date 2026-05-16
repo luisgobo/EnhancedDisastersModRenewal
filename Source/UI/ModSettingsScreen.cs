@@ -810,7 +810,7 @@ namespace NaturalDisastersRenewal.UI
                 disasterContainer.ForestFire.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
-                        disasterContainer.ForestFire.Enabled = isChecked;
+                        disasterContainer.ForestFire.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_Thunderstorm_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
@@ -818,28 +818,28 @@ namespace NaturalDisastersRenewal.UI
                 disasterContainer.Thunderstorm.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
-                        disasterContainer.Thunderstorm.Enabled = isChecked;
+                        disasterContainer.Thunderstorm.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_Sinkhole_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup, disasterContainer.Sinkhole.GetName(),
                 disasterContainer.Sinkhole.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
-                        disasterContainer.Sinkhole.Enabled = isChecked;
+                        disasterContainer.Sinkhole.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_Tornado_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup, disasterContainer.Tornado.GetName(),
                 disasterContainer.Tornado.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
-                        disasterContainer.Tornado.Enabled = isChecked;
+                        disasterContainer.Tornado.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_Tsunami_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup, disasterContainer.Tsunami.GetName(),
                 disasterContainer.Tsunami.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
-                        disasterContainer.Tsunami.Enabled = isChecked;
+                        disasterContainer.Tsunami.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_Earthquake_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
@@ -847,7 +847,7 @@ namespace NaturalDisastersRenewal.UI
                 disasterContainer.Earthquake.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
-                        disasterContainer.Earthquake.Enabled = isChecked;
+                        disasterContainer.Earthquake.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_MeteorStrike_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
@@ -855,7 +855,7 @@ namespace NaturalDisastersRenewal.UI
                 disasterContainer.MeteorStrike.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
-                        disasterContainer.MeteorStrike.Enabled = isChecked;
+                        disasterContainer.MeteorStrike.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             disastersGroup.AddSpacing(12);

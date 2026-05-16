@@ -154,6 +154,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return DisasterSimulationUtils.IsRealTimeModActive();
         }
 
+        public override void OnEnabledChanged(bool enabled)
+        {
+            _lastRealTimeScheduleUpdateSeconds = Time.realtimeSinceStartup;
+        }
+
         public float GetRealTimePatternProbabilityProgress()
         {
             EnsureRealTimeSchedule();
