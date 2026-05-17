@@ -382,29 +382,29 @@ namespace NaturalDisastersRenewal.UI
 
         private void ToggleDisasterState(DisasterBaseModel disaster)
         {
-            disaster.Enabled = !disaster.Enabled;
+            disaster.SetEnabled(!disaster.Enabled);
             switch (disaster.GetDisasterType())
             {
                 case DisasterType.Earthquake:
-                    Services.DisasterSetup.Earthquake.Enabled = disaster.Enabled;
+                    Services.DisasterSetup.Earthquake.SetEnabled(disaster.Enabled);
                     break;
                 case DisasterType.ForestFire:
-                    Services.DisasterSetup.ForestFire.Enabled = disaster.Enabled;
+                    Services.DisasterSetup.ForestFire.SetEnabled(disaster.Enabled);
                     break;
                 case DisasterType.MeteorStrike:
-                    Services.DisasterSetup.MeteorStrike.Enabled = disaster.Enabled;
+                    Services.DisasterSetup.MeteorStrike.SetEnabled(disaster.Enabled);
                     break;
                 case DisasterType.Sinkhole:
-                    Services.DisasterSetup.Sinkhole.Enabled = disaster.Enabled;
+                    Services.DisasterSetup.Sinkhole.SetEnabled(disaster.Enabled);
                     break;
                 case DisasterType.ThunderStorm:
-                    Services.DisasterSetup.Thunderstorm.Enabled = disaster.Enabled;
+                    Services.DisasterSetup.Thunderstorm.SetEnabled(disaster.Enabled);
                     break;
                 case DisasterType.Tornado:
-                    Services.DisasterSetup.Tornado.Enabled = disaster.Enabled;
+                    Services.DisasterSetup.Tornado.SetEnabled(disaster.Enabled);
                     break;
                 case DisasterType.Tsunami:
-                    Services.DisasterSetup.Tsunami.Enabled = disaster.Enabled;
+                    Services.DisasterSetup.Tsunami.SetEnabled(disaster.Enabled);
                     break;
             }
 

@@ -253,7 +253,28 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.sinkhole.frequency_name.rare", "Rare" },
                         { "settings.no_tornado_fog", "No Tornado during fog" },
                         { "settings.no_tornado_fog.tooltip", "Tornado does not occur during foggy weather" },
-                        { "settings.tornado.max_probability.tooltip", "Occurrence (per year) in Tornado season." },
+                        {
+                            "settings.tornado.max_probability.tooltip",
+                            "Occurrence (per year) in Tornado season when Real Time is inactive.\nReal Time uses the dedicated tornado frequency below."
+                        },
+                        {
+                            "settings.tornado.realtime_frequency",
+                            "Real Time tornado frequency"
+                        },
+                        {
+                            "settings.tornado.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time interval used between automatic tornadoes while Real Time is active.\nFog slows progress when No Tornado during fog is enabled.\nSelected reference period: {0}."
+                        },
+                        { "settings.tornado.frequency.apocalypse", "Apocalypse: 15-30 minutes" },
+                        { "settings.tornado.frequency.frequent", "Frequent: 30-90 minutes" },
+                        { "settings.tornado.frequency.occasional", "Occasional: 2-4 hours" },
+                        { "settings.tornado.frequency.uncommon", "Uncommon: 4-8 hours" },
+                        { "settings.tornado.frequency.rare", "Rare: 8-16 hours" },
+                        { "settings.tornado.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.tornado.frequency_name.frequent", "Frequent" },
+                        { "settings.tornado.frequency_name.occasional", "Occasional" },
+                        { "settings.tornado.frequency_name.uncommon", "Uncommon" },
+                        { "settings.tornado.frequency_name.rare", "Rare" },
                         { "settings.enable_tornado_destruction", "Enable tornado destruction" },
                         { "settings.min_tornado_destruction", "Minimal intensity for tornado destruction:" },
                         { "settings.min_tornado_destruction.suffix", " Intensity to start destruction" },
@@ -393,6 +414,21 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.thunderstorm.current_storm_interval", "Current storm interval: {0}." },
                         { "tooltip.thunderstorm.storm_time_remaining", "Storm progress remaining: {0}." },
                         { "tooltip.tornado.no_during_fog", "No {0} during fog." },
+                        {
+                            "tooltip.tornado.realtime_active",
+                            "Real Time active: tornado progress advances with real time, and fog can slow it down."
+                        },
+                        { "tooltip.tornado.realtime_reference", "Reference tornado interval: {0}." },
+                        { "tooltip.tornado.current_tornado_interval", "Current tornado interval: {0}." },
+                        { "tooltip.tornado.tornado_time_remaining", "Tornado progress remaining: {0}." },
+                        {
+                            "tooltip.tornado.fog_slowed",
+                            "Tornado progress is reduced by fog right now: progress advances at {0}%."
+                        },
+                        {
+                            "tooltip.tornado.rain_increased",
+                            "Tornado progress is increased by rain right now: progress advances at {0}%."
+                        },
                         { "tooltip.earthquake.aftershocks", "Expect {0} more aftershocks" },
                         { "tooltip.meteor.realtime_reference", "Reference period: {0}." },
                         { "disaster.earthquake", "Earthquake" },
@@ -666,8 +702,26 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.no_tornado_fog.tooltip", "El tornado no ocurre durante clima con niebla" },
                         {
                             "settings.tornado.max_probability.tooltip",
-                            "Ocurrencia por ano durante la temporada de tornados."
+                            "Ocurrencia por ano durante la temporada de tornados cuando Real Time no esta activo.\nReal Time usa la frecuencia dedicada de tornados configurada abajo."
                         },
+                        {
+                            "settings.tornado.realtime_frequency",
+                            "Frecuencia de tornados con Real Time"
+                        },
+                        {
+                            "settings.tornado.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio en tiempo real entre tornados automaticos mientras Real Time esta activo.\nLa niebla ralentiza el progreso cuando Sin tornados durante niebla esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.tornado.frequency.apocalypse", "Apocalipsis: 15-30 minutos" },
+                        { "settings.tornado.frequency.frequent", "Frecuente: 30-90 minutos" },
+                        { "settings.tornado.frequency.occasional", "Ocasional: 2-4 horas" },
+                        { "settings.tornado.frequency.uncommon", "Poco frecuente: 4-8 horas" },
+                        { "settings.tornado.frequency.rare", "Raro: 8-16 horas" },
+                        { "settings.tornado.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.tornado.frequency_name.frequent", "Frecuente" },
+                        { "settings.tornado.frequency_name.occasional", "Ocasional" },
+                        { "settings.tornado.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.tornado.frequency_name.rare", "Raro" },
                         { "settings.enable_tornado_destruction", "Activar destruccion por tornado" },
                         { "settings.min_tornado_destruction", "Intensidad minima para destruccion por tornado:" },
                         { "settings.min_tornado_destruction.suffix", " Intensidad para iniciar destruccion" },
@@ -804,6 +858,21 @@ namespace NaturalDisastersRenewal.Common
                         { "tooltip.thunderstorm.current_storm_interval", "Intervalo de tormenta actual: {0}." },
                         { "tooltip.thunderstorm.storm_time_remaining", "Progreso de tormenta restante: {0}." },
                         { "tooltip.tornado.no_during_fog", "No habra {0} durante la niebla." },
+                        {
+                            "tooltip.tornado.realtime_active",
+                            "Real Time activo: el progreso de tornado avanza con tiempo real, y la niebla puede ralentizarlo."
+                        },
+                        { "tooltip.tornado.realtime_reference", "Intervalo de tornado de referencia: {0}." },
+                        { "tooltip.tornado.current_tornado_interval", "Intervalo de tornado actual: {0}." },
+                        { "tooltip.tornado.tornado_time_remaining", "Progreso de tornado restante: {0}." },
+                        {
+                            "tooltip.tornado.fog_slowed",
+                            "La niebla reduce el progreso de tornado ahora: el progreso avanza al {0}%."
+                        },
+                        {
+                            "tooltip.tornado.rain_increased",
+                            "La lluvia aumenta el progreso de tornado ahora: el progreso avanza al {0}%."
+                        },
                         { "tooltip.earthquake.aftershocks", "Se esperan {0} replicas mas" },
                         { "tooltip.meteor.realtime_reference", "Periodo de referencia: {0}." },
                         { "disaster.earthquake", "Terremoto" },

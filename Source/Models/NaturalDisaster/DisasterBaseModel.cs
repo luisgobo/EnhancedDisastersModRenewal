@@ -182,6 +182,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             EvacuationMode = disaster.EvacuationMode;
         }
 
+        public void SetEnabled(bool enabled)
+        {
+            if (Enabled == enabled)
+                return;
+
+            Enabled = enabled;
+            OnEnabledChanged(enabled);
+        }
+
+        public virtual void OnEnabledChanged(bool enabled)
+        {
+        }
+
         public DisasterType GetDisasterType()
         {
             return DType;
