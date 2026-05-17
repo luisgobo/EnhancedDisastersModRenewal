@@ -144,6 +144,17 @@ namespace NaturalDisastersRenewal.Common
                             "settings.frequency_harmony.mismatch.tooltip",
                             "Does not match the General frequency harmonizer."
                         },
+                        { "settings.debug.progress.group", "Debug disaster progress" },
+                        { "settings.debug.progress.disaster", "Disaster" },
+                        {
+                            "settings.debug.progress.disaster.tooltip",
+                            "DEBUG only. Selects which disaster receives the test progress value."
+                        },
+                        { "settings.debug.progress.percent", "Set progress" },
+                        {
+                            "settings.debug.progress.percent.tooltip",
+                            "DEBUG only. Sets the selected disaster progress for testing. 100% forces the next occurrence attempt."
+                        },
                         { "settings.frequency.apocalypse", "Apocalypse" },
                         { "settings.frequency.frequent", "Frequent" },
                         { "settings.frequency.occasional", "Occasional" },
@@ -621,6 +632,17 @@ namespace NaturalDisastersRenewal.Common
                         {
                             "settings.frequency_harmony.mismatch.tooltip",
                             "No coincide con el armonizador de frecuencia de General."
+                        },
+                        { "settings.debug.progress.group", "Progreso de desastres para debug" },
+                        { "settings.debug.progress.disaster", "Desastre" },
+                        {
+                            "settings.debug.progress.disaster.tooltip",
+                            "Solo DEBUG. Selecciona que desastre recibe el valor de progreso de prueba."
+                        },
+                        { "settings.debug.progress.percent", "Definir progreso" },
+                        {
+                            "settings.debug.progress.percent.tooltip",
+                            "Solo DEBUG. Define el progreso del desastre seleccionado para pruebas. 100% fuerza el proximo intento de ocurrencia."
                         },
                         { "settings.frequency.apocalypse", "Apocalipsis" },
                         { "settings.frequency.frequent", "Frecuente" },

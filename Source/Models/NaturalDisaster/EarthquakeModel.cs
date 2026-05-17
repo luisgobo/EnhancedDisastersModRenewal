@@ -545,6 +545,22 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return probabilityWarmupDays <= 0 || probabilityWarmupDaysLeft <= 0f;
         }
 
+        public override void SetDebugProbabilityProgress(float progress)
+        {
+            base.SetDebugProbabilityProgress(progress);
+
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeEarthquake(progress);
+                InvalidateRealTimeAftershockSchedule();
+                aftershocksCount = 0;
+                ClearRealTimeCooldownState();
+                return;
+            }
+
+            aftershocksCount = 0;
+        }
+
         private string GetRealTimeProbabilityTooltip(float probabilityValue)
         {
             if (!unlocked) return LocalizationService.Get("tooltip.not_unlocked");

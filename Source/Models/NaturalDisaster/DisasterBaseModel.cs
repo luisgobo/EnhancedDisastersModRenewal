@@ -23,6 +23,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected const byte indexReferenceDisasterValue = 10;
         private readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
         private readonly double secondsBeforePausing = 3;
+        private bool debugForceOccurrence;
         private DateTime lastStartFailureLogUtc = DateTime.MinValue;
         public float BaseOccurrencePerYear = 1.0f;
 
@@ -63,6 +64,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public float GetCurrentOccurrencePerYear()
         {
             if (calmDaysLeft > 0) return 0f;
+
+            if (debugForceOccurrence)
+                return 365f / GetSimulationDaysPerFrame() * 2f;
 
             return ScaleProbabilityByWarmup(GetCurrentOccurrencePerYearLocal());
         }
@@ -193,6 +197,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual void OnEnabledChanged(bool enabled)
         {
+        }
+
+        public virtual void SetDebugProbabilityProgress(float progress)
+        {
+            var clampedProgress = Mathf.Clamp01(progress);
+            debugForceOccurrence = clampedProgress >= 0.999f;
+            calmDaysLeft = 0f;
+
+            if (probabilityWarmupDays > 0)
+                probabilityWarmupDaysLeft = probabilityWarmupDays * (1f - clampedProgress);
+
+            if (intensityWarmupDays > 0)
+                intensityWarmupDaysLeft = intensityWarmupDays * (1f - clampedProgress);
         }
 
         public DisasterType GetDisasterType()
@@ -520,6 +537,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             expr_98_cp_0[expr_98_cp_1].m_flags = expr_98_cp_0[expr_98_cp_1].m_flags | DisasterData.Flags.SelfTrigger;
             disasterInfo.m_disasterAI.StartNow(disasterIndex, ref dm.m_disasters.m_buffer[disasterIndex]);
             AfterStartDisaster(disasterIndex);
+            debugForceOccurrence = false;
 
             DebugLogger.Log(GetDebugStr() + string.Format(
                 "StartNow called. Id: {0}, Flags: {1}, Intensity: {2}, Area: {3}, Target: x:{4:#.##} y:{5:#.##} z:{6:#.##}",

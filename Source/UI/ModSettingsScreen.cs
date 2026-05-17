@@ -58,6 +58,11 @@ namespace NaturalDisastersRenewal.UI
         private UICheckBox UI_General_RecordDisasterEventsChkBox;
         private UICheckBox UI_General_ShowDisasterPanelButton;
         private UITextField UI_General_TogglePanelHotkeyField;
+#if DEBUG
+        private UIDropDown UI_Debug_DisasterProgressTarget;
+        private UISlider UI_Debug_DisasterProgress;
+        private int debugDisasterProgressTargetIndex;
+#endif
 
         //Forest Fire
         private UICheckBox UI_ForestFire_Enabled;
@@ -660,6 +665,11 @@ namespace NaturalDisastersRenewal.UI
             UI_General_RecordDisasterEventsChkBox = null;
             UI_General_ShowDisasterPanelButton = null;
             UI_General_TogglePanelHotkeyField = null;
+#if DEBUG
+            UI_Debug_DisasterProgressTarget = null;
+            UI_Debug_DisasterProgress = null;
+            debugDisasterProgressTargetIndex = 0;
+#endif
             UI_ForestFire_Enabled = null;
             UI_ForestFireMaxProbability = null;
             UI_ForestFire_WarmupDays = null;
@@ -889,6 +899,10 @@ namespace NaturalDisastersRenewal.UI
                 GetRealTimeFrequencyHarmonySelectionIndex(disasterContainer.RealTimeFrequencyHarmony);
             UI_General_RealTimeFrequencyHarmony.tooltip = GetRealTimeFrequencyHarmonyTooltip();
 
+#if DEBUG
+            AddDebugDisasterProgressControls(ref generalGroup, disasterContainer);
+#endif
+
             generalGroup.AddSpacing();
 
             var elementPositionsGroup = generalGroup.AddGroup(LocalizationService.Get("settings.positions"));
@@ -905,6 +919,65 @@ namespace NaturalDisastersRenewal.UI
                 UpdateSetupContentUI();
             });
         }
+
+#if DEBUG
+        private void AddDebugDisasterProgressControls(ref UIHelperBase generalGroup, DisasterSetupModel disasterContainer)
+        {
+            var debugGroup = generalGroup.AddGroup(LocalizationService.Get("settings.debug.progress.group"));
+            var disasterNames = GetDebugDisasterProgressTargetOptions(disasterContainer);
+
+            UI_Debug_DisasterProgressTarget = (UIDropDown)debugGroup.AddDropdown(
+                LocalizationService.Get("settings.debug.progress.disaster"),
+                disasterNames,
+                debugDisasterProgressTargetIndex,
+                delegate(int selection)
+                {
+                    if (_freezeUI)
+                        return;
+
+                    debugDisasterProgressTargetIndex = Mathf.Clamp(selection, 0, disasterContainer.AllDisasters.Count - 1);
+                });
+            UI_Debug_DisasterProgressTarget.tooltip = LocalizationService.Get("settings.debug.progress.disaster.tooltip");
+            UIStyleHelper.ApplyDropDownStyle(UI_Debug_DisasterProgressTarget);
+
+            UI_Debug_DisasterProgress = SliderHelper.AddSlider(
+                ref debugGroup,
+                LocalizationService.Get("settings.debug.progress.percent"),
+                0f,
+                100f,
+                1f,
+                0f,
+                delegate(float value)
+                {
+                    if (_freezeUI)
+                        return;
+
+                    ApplyDebugDisasterProgress(disasterContainer, debugDisasterProgressTargetIndex, value / 100f);
+                },
+                "%",
+                LocalizationService.Get("settings.debug.progress.percent.tooltip"));
+        }
+
+        private static string[] GetDebugDisasterProgressTargetOptions(DisasterSetupModel disasterContainer)
+        {
+            var names = new string[disasterContainer.AllDisasters.Count];
+            for (var i = 0; i < disasterContainer.AllDisasters.Count; i++)
+                names[i] = disasterContainer.AllDisasters[i].GetName();
+
+            return names;
+        }
+
+        private static void ApplyDebugDisasterProgress(
+            DisasterSetupModel disasterContainer,
+            int disasterIndex,
+            float progress)
+        {
+            if (disasterIndex < 0 || disasterIndex >= disasterContainer.AllDisasters.Count)
+                return;
+
+            disasterContainer.AllDisasters[disasterIndex].SetDebugProbabilityProgress(progress);
+        }
+#endif
 
         private static string[] GetRealTimeFrequencyHarmonyOptions()
         {
