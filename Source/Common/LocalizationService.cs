@@ -297,8 +297,30 @@ namespace NaturalDisastersRenewal.Common
                         },
                         {
                             "settings.tsunami.warmup.tooltip",
-                            "The probability of tsunami increases to the maximum during this period."
+                            "The probability of tsunami increases to the maximum during this period when Real Time is inactive."
                         },
+                        {
+                            "settings.tsunami.realtime_frequency",
+                            "Real Time tsunami frequency"
+                        },
+                        {
+                            "settings.tsunami.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time ocean interval used between automatic tsunamis while Real Time is active.\nSelected reference period: {0}."
+                        },
+                        { "settings.tsunami.frequency.apocalypse", "Apocalypse: 2-4 hours" },
+                        { "settings.tsunami.frequency.frequent", "Frequent: 4-8 hours" },
+                        { "settings.tsunami.frequency.occasional", "Occasional: 8-16 hours" },
+                        { "settings.tsunami.frequency.uncommon", "Uncommon: 16-32 hours" },
+                        { "settings.tsunami.frequency.rare", "Rare: 32-64 hours" },
+                        { "settings.tsunami.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.tsunami.frequency_name.frequent", "Frequent" },
+                        { "settings.tsunami.frequency_name.occasional", "Occasional" },
+                        { "settings.tsunami.frequency_name.uncommon", "Uncommon" },
+                        { "settings.tsunami.frequency_name.rare", "Rare" },
+                        { "tooltip.tsunami.realtime_active", "Real Time active: tsunami charge period uses real-time intervals." },
+                        { "tooltip.tsunami.realtime_reference", "Selected reference period: {0}" },
+                        { "tooltip.tsunami.current_tsunami_interval", "Current ocean interval: {0}" },
+                        { "tooltip.tsunami.tsunami_time_remaining", "Time remaining: {0}" },
                         { "settings.warmup_period", "Warmup period" },
                         { "settings.warmup_period.days", " days" },
                         {
@@ -786,8 +808,30 @@ namespace NaturalDisastersRenewal.Common
                         },
                         {
                             "settings.tsunami.warmup.tooltip",
-                            "La probabilidad del tsunami aumenta al maximo durante este periodo."
+                            "La probabilidad del tsunami aumenta al maximo durante este periodo cuando Real Time no esta activo."
                         },
+                        {
+                            "settings.tsunami.realtime_frequency",
+                            "Frecuencia de tsunamis con Real Time"
+                        },
+                        {
+                            "settings.tsunami.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo oceanico aleatorio en tiempo real entre tsunamis automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.tsunami.frequency.apocalypse", "Apocalipsis: 2-4 horas" },
+                        { "settings.tsunami.frequency.frequent", "Frecuente: 4-8 horas" },
+                        { "settings.tsunami.frequency.occasional", "Ocasional: 8-16 horas" },
+                        { "settings.tsunami.frequency.uncommon", "Poco frecuente: 16-32 horas" },
+                        { "settings.tsunami.frequency.rare", "Raro: 32-64 horas" },
+                        { "settings.tsunami.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.tsunami.frequency_name.frequent", "Frecuente" },
+                        { "settings.tsunami.frequency_name.occasional", "Ocasional" },
+                        { "settings.tsunami.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.tsunami.frequency_name.rare", "Raro" },
+                        { "tooltip.tsunami.realtime_active", "Real Time activo: el periodo de carga de tsunamis usa intervalos en tiempo real." },
+                        { "tooltip.tsunami.realtime_reference", "Periodo de referencia seleccionado: {0}" },
+                        { "tooltip.tsunami.current_tsunami_interval", "Intervalo oceanico actual: {0}" },
+                        { "tooltip.tsunami.tsunami_time_remaining", "Tiempo restante: {0}" },
                         { "settings.warmup_period", "Periodo de calentamiento" },
                         { "settings.warmup_period.days", " dias" },
                         {
