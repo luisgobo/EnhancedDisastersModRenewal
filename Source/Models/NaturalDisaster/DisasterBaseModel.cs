@@ -24,6 +24,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
         private readonly double secondsBeforePausing = 3;
         private bool debugForceOccurrence;
+        private float debugProbabilityProgressOverride = -1f;
         private DateTime lastStartFailureLogUtc = DateTime.MinValue;
         public float BaseOccurrencePerYear = 1.0f;
 
@@ -202,6 +203,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public virtual void SetDebugProbabilityProgress(float progress)
         {
             var clampedProgress = Mathf.Clamp01(progress);
+            debugProbabilityProgressOverride = clampedProgress;
             debugForceOccurrence = clampedProgress >= 0.999f;
             calmDaysLeft = 0f;
 
@@ -210,6 +212,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (intensityWarmupDays > 0)
                 intensityWarmupDaysLeft = intensityWarmupDays * (1f - clampedProgress);
+        }
+
+        public bool TryGetDebugProbabilityProgress(out float progress)
+        {
+            progress = debugProbabilityProgressOverride;
+            return debugProbabilityProgressOverride >= 0f;
         }
 
         public DisasterType GetDisasterType()
@@ -538,6 +546,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             disasterInfo.m_disasterAI.StartNow(disasterIndex, ref dm.m_disasters.m_buffer[disasterIndex]);
             AfterStartDisaster(disasterIndex);
             debugForceOccurrence = false;
+            debugProbabilityProgressOverride = -1f;
 
             DebugLogger.Log(GetDebugStr() + string.Format(
                 "StartNow called. Id: {0}, Flags: {1}, Intensity: {2}, Area: {3}, Target: x:{4:#.##} y:{5:#.##} z:{6:#.##}",

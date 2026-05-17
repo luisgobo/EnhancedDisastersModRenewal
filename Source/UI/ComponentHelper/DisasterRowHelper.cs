@@ -90,6 +90,9 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
         private float GetProbabilityProgressValue(float occurrencePerYear)
         {
+            if (Disaster.TryGetDebugProbabilityProgress(out var debugProgress))
+                return debugProgress;
+
             switch (Disaster)
             {
                 case MeteorStrikeModel meteorStrike:
