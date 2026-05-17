@@ -144,6 +144,17 @@ namespace NaturalDisastersRenewal.Common
                             "settings.frequency_harmony.mismatch.tooltip",
                             "Does not match the General frequency harmonizer."
                         },
+                        { "settings.debug.progress.group", "Debug disaster progress" },
+                        { "settings.debug.progress.disaster", "Disaster" },
+                        {
+                            "settings.debug.progress.disaster.tooltip",
+                            "DEBUG only. Selects which disaster receives the test progress value."
+                        },
+                        { "settings.debug.progress.percent", "Set progress" },
+                        {
+                            "settings.debug.progress.percent.tooltip",
+                            "DEBUG only. Sets the selected disaster progress for testing. 100% forces the next occurrence attempt."
+                        },
                         { "settings.frequency.apocalypse", "Apocalypse" },
                         { "settings.frequency.frequent", "Frequent" },
                         { "settings.frequency.occasional", "Occasional" },
@@ -292,16 +303,34 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.warmup_period.days", " days" },
                         {
                             "settings.earthquake.max_probability.tooltip",
-                            "Maximum occurrence (per year) after a long period without earthquakes."
+                            "Maximum occurrence per year after a long period without earthquakes when Real Time is inactive."
                         },
                         {
                             "settings.earthquake.warmup.tooltip",
-                            "The probability of earthquake increases to the maximum during this period."
+                            "The probability and maximum intensity of earthquakes increase during this period when Real Time is inactive."
                         },
+                        {
+                            "settings.earthquake.realtime_frequency",
+                            "Real Time earthquake frequency"
+                        },
+                        {
+                            "settings.earthquake.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time seismic interval used between automatic earthquakes while Real Time is active.\nAftershocks use shorter intervals and nearby epicenters.\nSelected reference period: {0}."
+                        },
+                        { "settings.earthquake.frequency.apocalypse", "Apocalypse: 30-60 minutes" },
+                        { "settings.earthquake.frequency.frequent", "Frequent: 90 minutes-3 hours" },
+                        { "settings.earthquake.frequency.occasional", "Occasional: 4-8 hours" },
+                        { "settings.earthquake.frequency.uncommon", "Uncommon: 8-16 hours" },
+                        { "settings.earthquake.frequency.rare", "Rare: 16-32 hours" },
+                        { "settings.earthquake.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.earthquake.frequency_name.frequent", "Frequent" },
+                        { "settings.earthquake.frequency_name.occasional", "Occasional" },
+                        { "settings.earthquake.frequency_name.uncommon", "Uncommon" },
+                        { "settings.earthquake.frequency_name.rare", "Rare" },
                         { "settings.enable_aftershocks", "Enable aftershocks" },
                         {
                             "settings.enable_aftershocks.tooltip",
-                            "Several aftershocks may occur after a big earthquake. Aftershocks strike the same place."
+                            "Several aftershocks may occur after a big earthquake. Aftershocks strike near the main epicenter."
                         },
                         { "settings.ground_cracks", "Cracks in the ground:" },
                         {
@@ -430,6 +459,19 @@ namespace NaturalDisastersRenewal.Common
                             "Tornado progress is increased by rain right now: progress advances at {0}%."
                         },
                         { "tooltip.earthquake.aftershocks", "Expect {0} more aftershocks" },
+                        {
+                            "tooltip.earthquake.realtime_active",
+                            "Real Time active: earthquakes use seismic intervals."
+                        },
+                        { "tooltip.earthquake.realtime_reference", "Reference seismic interval: {0}." },
+                        { "tooltip.earthquake.current_seismic_interval", "Current seismic interval: {0}." },
+                        { "tooltip.earthquake.seismic_time_remaining", "Seismic progress remaining: {0}." },
+                        {
+                            "tooltip.earthquake.realtime_aftershocks_active",
+                            "Real Time active: aftershocks use short intervals and nearby epicenters."
+                        },
+                        { "tooltip.earthquake.current_aftershock_interval", "Current aftershock interval: {0}." },
+                        { "tooltip.earthquake.aftershock_time_remaining", "Aftershock progress remaining: {0}." },
                         { "tooltip.meteor.realtime_reference", "Reference period: {0}." },
                         { "disaster.earthquake", "Earthquake" },
                         { "disaster.forest_fire", "Forest Fire" },
@@ -591,6 +633,17 @@ namespace NaturalDisastersRenewal.Common
                             "settings.frequency_harmony.mismatch.tooltip",
                             "No coincide con el armonizador de frecuencia de General."
                         },
+                        { "settings.debug.progress.group", "Progreso de desastres para debug" },
+                        { "settings.debug.progress.disaster", "Desastre" },
+                        {
+                            "settings.debug.progress.disaster.tooltip",
+                            "Solo DEBUG. Selecciona que desastre recibe el valor de progreso de prueba."
+                        },
+                        { "settings.debug.progress.percent", "Definir progreso" },
+                        {
+                            "settings.debug.progress.percent.tooltip",
+                            "Solo DEBUG. Define el progreso del desastre seleccionado para pruebas. 100% fuerza el proximo intento de ocurrencia."
+                        },
                         { "settings.frequency.apocalypse", "Apocalipsis" },
                         { "settings.frequency.frequent", "Frecuente" },
                         { "settings.frequency.occasional", "Ocasional" },
@@ -739,16 +792,34 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.warmup_period.days", " dias" },
                         {
                             "settings.earthquake.max_probability.tooltip",
-                            "Ocurrencia maxima por ano despues de un largo periodo sin terremotos."
+                            "Ocurrencia maxima por ano despues de un largo periodo sin terremotos cuando Real Time no esta activo."
                         },
                         {
                             "settings.earthquake.warmup.tooltip",
-                            "La probabilidad del terremoto aumenta al maximo durante este periodo."
+                            "La probabilidad y la intensidad maxima de terremotos aumentan durante este periodo cuando Real Time no esta activo."
                         },
+                        {
+                            "settings.earthquake.realtime_frequency",
+                            "Frecuencia de terremotos con Real Time"
+                        },
+                        {
+                            "settings.earthquake.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo sismico aleatorio en tiempo real entre terremotos automaticos mientras Real Time esta activo.\nLas replicas usan intervalos mas cortos y epicentros cercanos.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.earthquake.frequency.apocalypse", "Apocalipsis: 30-60 minutos" },
+                        { "settings.earthquake.frequency.frequent", "Frecuente: 90 minutos-3 horas" },
+                        { "settings.earthquake.frequency.occasional", "Ocasional: 4-8 horas" },
+                        { "settings.earthquake.frequency.uncommon", "Poco frecuente: 8-16 horas" },
+                        { "settings.earthquake.frequency.rare", "Raro: 16-32 horas" },
+                        { "settings.earthquake.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.earthquake.frequency_name.frequent", "Frecuente" },
+                        { "settings.earthquake.frequency_name.occasional", "Ocasional" },
+                        { "settings.earthquake.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.earthquake.frequency_name.rare", "Raro" },
                         { "settings.enable_aftershocks", "Activar replicas" },
                         {
                             "settings.enable_aftershocks.tooltip",
-                            "Pueden ocurrir varias replicas despues de un gran terremoto. Las replicas golpean la misma zona."
+                            "Pueden ocurrir varias replicas despues de un gran terremoto. Las replicas golpean cerca del epicentro principal."
                         },
                         { "settings.ground_cracks", "Grietas en el suelo:" },
                         {
@@ -874,6 +945,19 @@ namespace NaturalDisastersRenewal.Common
                             "La lluvia aumenta el progreso de tornado ahora: el progreso avanza al {0}%."
                         },
                         { "tooltip.earthquake.aftershocks", "Se esperan {0} replicas mas" },
+                        {
+                            "tooltip.earthquake.realtime_active",
+                            "Real Time activo: los terremotos usan intervalos sismicos."
+                        },
+                        { "tooltip.earthquake.realtime_reference", "Intervalo sismico de referencia: {0}." },
+                        { "tooltip.earthquake.current_seismic_interval", "Intervalo sismico actual: {0}." },
+                        { "tooltip.earthquake.seismic_time_remaining", "Progreso sismico restante: {0}." },
+                        {
+                            "tooltip.earthquake.realtime_aftershocks_active",
+                            "Real Time activo: las replicas usan intervalos cortos y epicentros cercanos."
+                        },
+                        { "tooltip.earthquake.current_aftershock_interval", "Intervalo de replica actual: {0}." },
+                        { "tooltip.earthquake.aftershock_time_remaining", "Progreso de replica restante: {0}." },
                         { "tooltip.meteor.realtime_reference", "Periodo de referencia: {0}." },
                         { "disaster.earthquake", "Terremoto" },
                         { "disaster.forest_fire", "Incendio forestal" },

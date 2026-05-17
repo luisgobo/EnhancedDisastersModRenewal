@@ -595,6 +595,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             ScheduleNextRealTimeForestFire(currentProgress);
         }
 
+        public override void SetDebugProbabilityProgress(float progress)
+        {
+            base.SetDebugProbabilityProgress(progress);
+
+            var clampedProgress = Mathf.Clamp01(progress);
+            calmDaysLeft = 0f;
+            probabilityWarmupDaysLeft = 0f;
+            intensityWarmupDaysLeft = 0f;
+
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeForestFire(clampedProgress);
+                NoRainDays = WarmupDays * clampedProgress;
+                return;
+            }
+
+            NoRainDays = WarmupDays * clampedProgress;
+        }
+
         public static string[] GetRealTimeForestFireFrequencyOptions()
         {
             return new[]

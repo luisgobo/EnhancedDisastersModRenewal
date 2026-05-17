@@ -90,6 +90,9 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
 
         private float GetProbabilityProgressValue(float occurrencePerYear)
         {
+            if (Disaster.TryGetDebugProbabilityProgress(out var debugProgress))
+                return debugProgress;
+
             switch (Disaster)
             {
                 case MeteorStrikeModel meteorStrike:
@@ -104,6 +107,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                     return forestFire.GetRealTimePatternProbabilityProgress();
                 case TornadoModel tornado when tornado.IsRealTimePatternActive():
                     return tornado.GetRealTimePatternProbabilityProgress();
+                case EarthquakeModel earthquake:
+                    return earthquake.GetProbabilityProgress();
                 default:
                     return GetProbabilityProgressValueLog(occurrencePerYear);
             }
