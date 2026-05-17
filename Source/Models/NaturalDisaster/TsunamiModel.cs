@@ -18,6 +18,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float CurrentWaveBandLength = 3000f;
         private const float MinFutureEvacuationDistance = 6000f;
         private const float MaxFutureEvacuationDistance = 16000f;
+        private const float MinCoastalWaterSearchRadius = 768f;
+        private const float MaxCoastalWaterSearchRadius = 1920f;
+        private const float MaxCoastalElevationAboveWater = 80f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
 
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeTsunamiFrequencyOptionValues =
@@ -243,7 +246,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (CanAffectAt(disasterId, ref disasterData, shelterPosition, disasterTargetPosition, out priority))
                 return true;
 
-            return CanTsunamiReachShelterLater(ref disasterData, shelterPosition, disasterTargetPosition, out priority);
+            if (CanTsunamiReachShelterLater(ref disasterData, shelterPosition, disasterTargetPosition, out priority))
+                return true;
+
+            return IsCoastalShelterAtRisk(shelterPosition, disasterData.m_intensity, out priority);
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
@@ -323,6 +329,41 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 MinFutureEvacuationDistance,
                 MaxFutureEvacuationDistance,
                 Mathf.Clamp01(intensity / 255f));
+        }
+
+        private static bool IsCoastalShelterAtRisk(Vector3 shelterPosition, byte intensity, out float priority)
+        {
+            priority = 0f;
+
+            var terrain = Services.Terrain;
+            if (terrain == null)
+                return false;
+
+            var terrainHeight = terrain.SampleRawHeightSmooth(shelterPosition);
+            var waterSurfaceHeight = terrain.SampleRawHeightSmoothWithWater(shelterPosition, false, 0f);
+            var waterDepthAtShelter = waterSurfaceHeight - terrainHeight;
+            if (waterDepthAtShelter > 0f)
+            {
+                priority = 1f;
+                return true;
+            }
+
+            var searchRadius = Mathf.Lerp(
+                MinCoastalWaterSearchRadius,
+                MaxCoastalWaterSearchRadius,
+                Mathf.Clamp01(intensity / 255f));
+            var waterDistance = terrain.CalculateWaterProximity(shelterPosition, searchRadius, out waterSurfaceHeight);
+            if (waterDistance >= searchRadius)
+                return false;
+
+            var elevationAboveWater = terrainHeight - waterSurfaceHeight;
+            if (elevationAboveWater > MaxCoastalElevationAboveWater)
+                return false;
+
+            var distanceFactor = Mathf.Clamp01(1f - waterDistance / searchRadius);
+            var elevationFactor = Mathf.Clamp01(1f - Mathf.Max(0f, elevationAboveWater) / MaxCoastalElevationAboveWater);
+            priority = Mathf.Clamp01(Mathf.Max(0.25f, distanceFactor * elevationFactor));
+            return true;
         }
 
         public bool IsRealTimePatternActive()
