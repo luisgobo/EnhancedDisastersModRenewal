@@ -119,7 +119,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     ? 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame
                     : 0f;
 
-            return base.GetCurrentOccurrencePerYearLocal();
+            return IsEarthquakeCharged()
+                ? 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame
+                : 0f;
         }
 
         protected override float GetSimulationDaysPerFrame()
@@ -516,6 +518,31 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             EnsureRealTimeEarthquakeSchedule();
             return Mathf.Clamp01(1f - RealTimeMinutesUntilNextEarthquake / RealTimeCurrentSeismicPeriodMinutes);
+        }
+
+        public float GetProbabilityProgress()
+        {
+            if (!unlocked)
+                return 0f;
+
+            if (IsRealTimePatternActive())
+                return GetRealTimePatternProbabilityProgress();
+
+            if (aftershocksCount > 0)
+                return 1f;
+
+            if (calmDaysLeft > 0)
+                return 0f;
+
+            if (probabilityWarmupDays <= 0 || probabilityWarmupDaysLeft <= 0f)
+                return 1f;
+
+            return Mathf.Clamp01(1f - probabilityWarmupDaysLeft / probabilityWarmupDays);
+        }
+
+        private bool IsEarthquakeCharged()
+        {
+            return probabilityWarmupDays <= 0 || probabilityWarmupDaysLeft <= 0f;
         }
 
         private string GetRealTimeProbabilityTooltip(float probabilityValue)
