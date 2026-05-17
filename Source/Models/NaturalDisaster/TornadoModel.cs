@@ -17,6 +17,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float MaxRealTimeDeltaSeconds = 5f;
         private const float LightFogProgressFactor = 0.35f;
         private const float DenseFogProgressFactor = 0.1f;
+        private const float MaxRainProgressBonus = 0.5f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
 
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeTornadoFrequencyOptionValues =
@@ -40,7 +41,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public RealTimeDisasterFrequencyPreset RealTimeTornadoFrequency =
             RealTimeDisasterFrequencyPreset.Occasional;
 
-        public TornadoModel()                             
+        public TornadoModel()
         {
             DType = DisasterType.Tornado;
             BaseOccurrencePerYear = 1.5f;
@@ -184,8 +185,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             EnsureRealTimeSchedule();
             var fogLine = GetFogProgressTooltipLine();
+            var rainLine = GetRainProgressTooltipLine();
             return string.Format(
-                "{0}: {1}{2}{3}{2}{4}{2}{5}{2}{6}{7}",
+                "{0}: {1}{2}{3}{2}{4}{2}{5}{2}{6}{7}{8}",
                 LocalizationService.Get("tooltip.progress"),
                 string.Format("{0:00.00}%", probabilityValue * 100),
                 CommonProperties.NewLine,
@@ -197,7 +199,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 LocalizationService.Format(
                     "tooltip.tornado.tornado_time_remaining",
                     DisasterSimulationUtils.FormatRealTimeMinutes(RealTimeMinutesUntilNextTornado)),
-                fogLine);
+                fogLine,
+                rainLine);
         }
 
         private void UpdateRealTimeTornadoSchedule()
@@ -207,7 +210,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var elapsedMinutes = GetRealTimeElapsedMinutes();
             RealTimeMinutesUntilNextTornado = Mathf.Max(
                 0f,
-                RealTimeMinutesUntilNextTornado - elapsedMinutes * GetFogProgressFactor());
+                RealTimeMinutesUntilNextTornado - elapsedMinutes * GetWeatherProgressFactor());
         }
 
         private bool IsRealTimeTornadoDue()
@@ -220,6 +223,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             var wm = Services.Weather;
             return wm == null ? 0f : Mathf.Clamp01(wm.m_currentFog);
+        }
+
+        private static float GetCurrentRain()
+        {
+            var wm = Services.Weather;
+            return wm == null ? 0f : Mathf.Clamp01(wm.m_currentRain);
         }
 
         private void ClearRealTimeCooldownState()
@@ -240,6 +249,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return Mathf.Lerp(LightFogProgressFactor, DenseFogProgressFactor, fog);
         }
 
+        private float GetRainProgressFactor()
+        {
+            var rain = GetCurrentRain();
+            if (rain <= 0f)
+                return 1f;
+
+            return 1f + rain * MaxRainProgressBonus;
+        }
+
+        private float GetWeatherProgressFactor()
+        {
+            return GetFogProgressFactor() * GetRainProgressFactor();
+        }
+
         private string GetFogProgressTooltipLine()
         {
             if (!NoTornadoDuringFog || GetCurrentFog() <= 0f)
@@ -248,6 +271,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return CommonProperties.NewLine + LocalizationService.Format(
                 "tooltip.tornado.fog_slowed",
                 string.Format("{0:0}", GetFogProgressFactor() * 100));
+        }
+
+        private string GetRainProgressTooltipLine()
+        {
+            if (GetCurrentRain() <= 0f)
+                return string.Empty;
+
+            return CommonProperties.NewLine + LocalizationService.Format(
+                "tooltip.tornado.rain_increased",
+                string.Format("{0:0}", GetRainProgressFactor() * 100));
         }
 
         private static bool TryFindRandomUnlockedAreaTarget(out Vector3 targetPosition, out float angle)

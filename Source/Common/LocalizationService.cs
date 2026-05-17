@@ -425,6 +425,10 @@ namespace NaturalDisastersRenewal.Common
                             "tooltip.tornado.fog_slowed",
                             "Tornado progress is reduced by fog right now: progress advances at {0}%."
                         },
+                        {
+                            "tooltip.tornado.rain_increased",
+                            "Tornado progress is increased by rain right now: progress advances at {0}%."
+                        },
                         { "tooltip.earthquake.aftershocks", "Expect {0} more aftershocks" },
                         { "tooltip.meteor.realtime_reference", "Reference period: {0}." },
                         { "disaster.earthquake", "Earthquake" },
@@ -864,6 +868,10 @@ namespace NaturalDisastersRenewal.Common
                         {
                             "tooltip.tornado.fog_slowed",
                             "La niebla reduce el progreso de tornado ahora: el progreso avanza al {0}%."
+                        },
+                        {
+                            "tooltip.tornado.rain_increased",
+                            "La lluvia aumenta el progreso de tornado ahora: el progreso avanza al {0}%."
                         },
                         { "tooltip.earthquake.aftershocks", "Se esperan {0} replicas mas" },
                         { "tooltip.meteor.realtime_reference", "Periodo de referencia: {0}." },

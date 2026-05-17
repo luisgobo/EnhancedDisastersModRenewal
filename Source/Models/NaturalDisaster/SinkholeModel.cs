@@ -108,6 +108,24 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             disasterInfo.type |= DisasterType.Sinkhole;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
+            DetectActiveSinkhole(disasterId);
+        }
+
+        private void DetectActiveSinkhole(ushort disasterId)
+        {
+            if (!Enabled || disasterId == 0)
+                return;
+
+            var dm = Services.Disasters;
+            var flags = dm.m_disasters.m_buffer[disasterId].m_flags;
+            if ((flags & DisasterData.Flags.Active) == 0 || (flags & DisasterData.Flags.Detected) != 0)
+                return;
+
+            dm.DetectDisaster(disasterId, true);
+            DebugLogger.Log(GetDebugStr() + string.Format(
+                "Sinkhole detected after activation. Id: {0}, Flags: {1}",
+                disasterId,
+                dm.m_disasters.m_buffer[disasterId].m_flags));
         }
 
         public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified,
