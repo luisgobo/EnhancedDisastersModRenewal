@@ -104,6 +104,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                     return forestFire.GetRealTimePatternProbabilityProgress();
                 case TornadoModel tornado when tornado.IsRealTimePatternActive():
                     return tornado.GetRealTimePatternProbabilityProgress();
+                case EarthquakeModel earthquake when earthquake.IsRealTimePatternActive():
+                    return earthquake.GetRealTimePatternProbabilityProgress();
                 default:
                     return GetProbabilityProgressValueLog(occurrencePerYear);
             }

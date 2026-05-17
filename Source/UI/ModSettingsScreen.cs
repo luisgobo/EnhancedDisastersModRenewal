@@ -114,6 +114,8 @@ namespace NaturalDisastersRenewal.UI
         private UISlider UI_Earthquake_MaxProbability;
         private UISlider UI_Earthquake_WarmupYears;
         private UICheckBox UI_Earthquake_AftershocksEnabled;
+        private UIDropDown UI_Earthquake_RealTimeFrequency;
+        private UISprite UI_Earthquake_RealTimeFrequencyWarning;
 
         //UICheckBox UI_Earthquake_NoCrack;
         private UIDropDown UI_Earthquake_CrackMode;
@@ -259,6 +261,11 @@ namespace NaturalDisastersRenewal.UI
             UI_Earthquake_MaxProbability.value = disasterSetupModel.Earthquake.BaseOccurrencePerYear;
             UI_Earthquake_WarmupYears.value = disasterSetupModel.Earthquake.WarmupYears;
             UI_Earthquake_AftershocksEnabled.isChecked = disasterSetupModel.Earthquake.AftershocksEnabled;
+            UI_Earthquake_RealTimeFrequency.selectedIndex =
+                disasterSetupModel.Earthquake.GetRealTimeEarthquakeFrequencySelectionIndex();
+            UI_Earthquake_RealTimeFrequency.tooltip =
+                disasterSetupModel.Earthquake.GetRealTimeEarthquakeFrequencyTooltip();
+            SetEarthquakeRealTimeControlsAvailability(disasterSetupModel.Earthquake.IsRealTimePatternActive());
             UI_Earthquake_CrackMode.selectedIndex = (int)disasterSetupModel.Earthquake.EarthquakeCrackMode;
 
             UI_MeteorStrike_Enabled.isChecked = disasterSetupModel.MeteorStrike.Enabled;
@@ -689,6 +696,8 @@ namespace NaturalDisastersRenewal.UI
             UI_Earthquake_MaxProbability = null;
             UI_Earthquake_WarmupYears = null;
             UI_Earthquake_AftershocksEnabled = null;
+            UI_Earthquake_RealTimeFrequency = null;
+            UI_Earthquake_RealTimeFrequencyWarning = null;
             UI_Earthquake_CrackMode = null;
             UI_Earthquake_EvacuationMode = null;
             UI_MeteorStrike_Enabled = null;
@@ -940,6 +949,7 @@ namespace NaturalDisastersRenewal.UI
             disasterContainer.Thunderstorm.SetRealTimeThunderstormFrequency(frequency);
             disasterContainer.Sinkhole.SetRealTimeSinkholeFrequency(frequency);
             disasterContainer.Tornado.SetRealTimeTornadoFrequency(frequency);
+            disasterContainer.Earthquake.SetRealTimeEarthquakeFrequency(frequency);
             disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(frequency);
         }
 
@@ -997,6 +1007,14 @@ namespace NaturalDisastersRenewal.UI
                 disasterContainer.Tornado.GetRealTimeTornadoFrequencySelectionIndex(),
                 disasterContainer.Tornado.RealTimeTornadoFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.Tornado.GetRealTimeTornadoFrequencyTooltip());
+
+            SetFrequencyDropdownWarning(
+                UI_Earthquake_RealTimeFrequency,
+                UI_Earthquake_RealTimeFrequencyWarning,
+                EarthquakeModel.GetRealTimeEarthquakeFrequencyOptions(),
+                disasterContainer.Earthquake.GetRealTimeEarthquakeFrequencySelectionIndex(),
+                disasterContainer.Earthquake.RealTimeEarthquakeFrequency != disasterContainer.RealTimeFrequencyHarmony,
+                disasterContainer.Earthquake.GetRealTimeEarthquakeFrequencyTooltip());
 
             SetFrequencyDropdownWarning(
                 UI_MeteorStrike_RealTimeFrequency,
@@ -1627,6 +1645,32 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.enable_aftershocks.tooltip"));
 
             DropDownHelper.AddDropDown(
+                ref UI_Earthquake_RealTimeFrequency,
+                ref earthquakeGroup,
+                LocalizationService.Get("settings.earthquake.realtime_frequency"),
+                EarthquakeModel.GetRealTimeEarthquakeFrequencyOptions(),
+                ref disasterContainer.Earthquake.RealTimeEarthquakeFrequency,
+                delegate(int selection)
+                {
+                    if (!_freezeUI)
+                    {
+                        disasterContainer.Earthquake.SetRealTimeEarthquakeFrequency(
+                            EarthquakeModel.GetRealTimeEarthquakeFrequencyFromSelection(selection));
+                        UI_Earthquake_RealTimeFrequency.tooltip =
+                            disasterContainer.Earthquake.GetRealTimeEarthquakeFrequencyTooltip();
+                        RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+                    }
+                });
+            UI_Earthquake_RealTimeFrequency.selectedIndex =
+                disasterContainer.Earthquake.GetRealTimeEarthquakeFrequencySelectionIndex();
+            UI_Earthquake_RealTimeFrequency.tooltip =
+                disasterContainer.Earthquake.GetRealTimeEarthquakeFrequencyTooltip();
+            UI_Earthquake_RealTimeFrequencyWarning =
+                CreateFrequencyWarningIcon(UI_Earthquake_RealTimeFrequency);
+            SetEarthquakeRealTimeControlsAvailability(disasterContainer.Earthquake.IsRealTimePatternActive());
+            RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+
+            DropDownHelper.AddDropDown(
                 ref UI_Earthquake_CrackMode,
                 ref earthquakeGroup,
                 LocalizationService.Get("settings.ground_cracks"),
@@ -1666,6 +1710,18 @@ namespace NaturalDisastersRenewal.UI
             );
 
             helper.AddSpacing(20);
+        }
+
+        private void SetEarthquakeRealTimeControlsAvailability(bool realTimeActive)
+        {
+            if (UI_Earthquake_MaxProbability != null)
+                UI_Earthquake_MaxProbability.isEnabled = !realTimeActive;
+
+            if (UI_Earthquake_WarmupYears != null)
+                UI_Earthquake_WarmupYears.isEnabled = !realTimeActive;
+
+            if (UI_Earthquake_RealTimeFrequency != null)
+                UI_Earthquake_RealTimeFrequency.isEnabled = realTimeActive;
         }
 
         private void SetupMeteorStrike(ref UIHelper helper, DisasterSetupModel disasterContainer)

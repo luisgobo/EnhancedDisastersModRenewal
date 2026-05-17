@@ -476,6 +476,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
         }
 
+        protected virtual void AfterStartDisaster(ushort disasterId)
+        {
+        }
+
         public abstract bool CheckDisasterAIType(object disasterAI);
 
         protected void StartDisaster(byte intensity)
@@ -515,6 +519,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var expr_98_cp_1 = disasterIndex;
             expr_98_cp_0[expr_98_cp_1].m_flags = expr_98_cp_0[expr_98_cp_1].m_flags | DisasterData.Flags.SelfTrigger;
             disasterInfo.m_disasterAI.StartNow(disasterIndex, ref dm.m_disasters.m_buffer[disasterIndex]);
+            AfterStartDisaster(disasterIndex);
 
             DebugLogger.Log(GetDebugStr() + string.Format(
                 "StartNow called. Id: {0}, Flags: {1}, Intensity: {2}, Area: {3}, Target: x:{4:#.##} y:{5:#.##} z:{6:#.##}",

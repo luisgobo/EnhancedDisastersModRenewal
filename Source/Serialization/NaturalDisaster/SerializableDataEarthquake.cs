@@ -27,6 +27,12 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             dataSerializer.WriteFloat(earthquake.lastTargetPosition.y);
             dataSerializer.WriteFloat(earthquake.lastTargetPosition.z);
             dataSerializer.WriteFloat(earthquake.lastAngle);
+
+            dataSerializer.WriteInt32((int)earthquake.RealTimeEarthquakeFrequency);
+            dataSerializer.WriteFloat(earthquake.RealTimeCurrentSeismicPeriodMinutes);
+            dataSerializer.WriteFloat(earthquake.RealTimeMinutesUntilNextEarthquake);
+            dataSerializer.WriteFloat(earthquake.RealTimeCurrentAftershockPeriodMinutes);
+            dataSerializer.WriteFloat(earthquake.RealTimeMinutesUntilNextAftershock);
         }
 
         public void Deserialize(DataSerializer dataSerializer)
@@ -50,6 +56,16 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
 
             earthquake.lastTargetPosition = new Vector3(dataSerializer.ReadFloat(), dataSerializer.ReadFloat(), dataSerializer.ReadFloat());
             earthquake.lastAngle = dataSerializer.ReadFloat();
+
+            if (dataSerializer.version >= 16)
+            {
+                earthquake.RealTimeEarthquakeFrequency =
+                    (RealTimeDisasterFrequencyPreset)dataSerializer.ReadInt32();
+                earthquake.RealTimeCurrentSeismicPeriodMinutes = dataSerializer.ReadFloat();
+                earthquake.RealTimeMinutesUntilNextEarthquake = dataSerializer.ReadFloat();
+                earthquake.RealTimeCurrentAftershockPeriodMinutes = dataSerializer.ReadFloat();
+                earthquake.RealTimeMinutesUntilNextAftershock = dataSerializer.ReadFloat();
+            }
         }
 
         public void AfterDeserialize(DataSerializer s)
