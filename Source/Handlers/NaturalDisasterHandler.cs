@@ -21,6 +21,7 @@ namespace NaturalDisastersRenewal.Handlers
         private DisasterWrapper disasterWrapper;
         private InGameDisastersPanel dPanel;
         private bool keyHandlerRegistered;
+        private ShelterHoverDebugOverlay shelterHoverDebugOverlay;
         private UIButton toggleButton;
 
         private NaturalDisasterHandler()
@@ -306,7 +307,10 @@ namespace NaturalDisastersRenewal.Handlers
         public void CreateExtendedDisasterPanel()
         {
             if (dPanel != null)
+            {
+                EnsureShelterHoverDebugOverlay();
                 return;
+            }
 
             var v = UIView.GetAView();
 
@@ -314,6 +318,8 @@ namespace NaturalDisastersRenewal.Handlers
             obj.transform.parent = v.cachedTransform;
             dPanel = obj.AddComponent<InGameDisastersPanel>();
             dPanel.absolutePosition = new Vector3(90, 100);
+
+            EnsureShelterHoverDebugOverlay();
 
             var toggleButtonObject = new GameObject("ExtendedDisastersPanelButton");
             toggleButtonObject.transform.parent = v.transform;
@@ -339,6 +345,21 @@ namespace NaturalDisastersRenewal.Handlers
 
             UIInput.eventProcessKeyEvent += UIInput_eventProcessKeyEvent;
             keyHandlerRegistered = true;
+        }
+
+        private void EnsureShelterHoverDebugOverlay()
+        {
+            if (shelterHoverDebugOverlay != null)
+                return;
+
+            var view = UIView.GetAView();
+            if (view == null)
+                return;
+
+            var overlayObject = new GameObject("ShelterHoverDebugOverlay");
+            overlayObject.transform.parent = view.transform;
+            overlayObject.transform.localPosition = Vector3.zero;
+            shelterHoverDebugOverlay = overlayObject.AddComponent<ShelterHoverDebugOverlay>();
         }
 
         private void ToggleDisasterPanel()

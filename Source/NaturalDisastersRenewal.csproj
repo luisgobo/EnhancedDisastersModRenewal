@@ -110,6 +110,7 @@
         <Compile Include="UI\ComponentHelper\UIStyleHelper.cs"/>
         <Compile Include="UI\ComponentHelper\TabHelper.cs"/>
         <Compile Include="UI\InGameDisastersPanel.cs" />
+        <Compile Include="UI\ShelterHoverDebugOverlay.cs" />
         <Compile Include="Common\DisasterSimulationUtils.cs"/>
         <Compile Include="BaseGameExtensions\LoadingExtension.cs"/>
         <Compile Include="Common\enums\OccurrenceAreas.cs"/>
