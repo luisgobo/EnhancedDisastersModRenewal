@@ -531,8 +531,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         // - Prefer an offset around the populated target instead of always hitting the building directly.
         // - Use a safe fallback to vanilla/random when no valid populated target is found.
         // - Apply the same target selection regardless of Real Time being active; Real Time only changes when meteors occur.
-        // - Consider a future setting for direct-hit risk or offset radius before implementing.
-
+        // - Consider a future setting for direct-hit risk or offset radius before implementing.    
         // TODO: Evaluate coastal shelter evacuation for meteor strikes that target water.
         // Requirements:
         // - Detect water impacts by comparing terrain height against terrain-with-water height at the meteor target.
