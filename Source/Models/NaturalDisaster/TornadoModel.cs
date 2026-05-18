@@ -111,6 +111,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified,
             ref List<DisasterInfoModel> activeDisasters)
         {
+            // TODO: Investigate tornado auto evacuate/release retaining citizens after the tornado ends.
+            // Reported behavior: auto evacuate/release starts evacuation correctly, but shelters remain active
+            // and citizens are not released. Verify whether the tornado deactivation/finished event is the
+            // correct release point, whether ActiveDisasters still contains the tornado id, and whether
+            // DisasterBaseModel release is blocked by manualReleaseDisasters or pending active disasters.
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Tornado;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.IgnoreDestructionZone = true;

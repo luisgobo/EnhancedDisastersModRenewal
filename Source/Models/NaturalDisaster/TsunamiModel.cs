@@ -124,6 +124,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override void OnDisasterFinished(DisasterInfoModel disasterInfoUnified,
             ref List<DisasterInfoModel> activeDisasters)
         {
+            // TODO: Split tsunami evacuation behavior into two explicit modes.
+            // Current tsunami automatic evacuation behaves like "auto evacuate/release": it starts evacuation
+            // on detection and releases shelters when the tsunami finishes. Preserve this functional flow as
+            // the future auto-evacuate/release option, then add a separate auto-evacuate-only option that
+            // starts the selected shelters but leaves citizen release under manual/player control.
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Tsunami;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.FinishOnDeactivate = true;
@@ -155,6 +160,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
             ref List<DisasterInfoModel> activeDisasters)
         {
+            // TODO: When tsunami gets separate auto-evacuate and auto-evacuate/release options, keep the
+            // existing SetupTsunamiEvacuation path for auto-evacuate/release and route the new auto-evacuate-only
+            // option through the same shelter selection without automatic release on finish.
             SetupTsunamiEvacuation(disasterInfoModel, null, ref activeDisasters);
         }
 
