@@ -110,6 +110,8 @@ namespace NaturalDisastersRenewal.UI
 
         private UISlider UI_Tsunami_MaxProbability;
         private UISlider UI_Tsunami_WarmupYears;
+        private UIDropDown UI_Tsunami_RealTimeFrequency;
+        private UISprite UI_Tsunami_RealTimeFrequencyWarning;
         private UIDropDown UI_Tsunami_EvacuationMode;
 
         //Earthquake
@@ -259,6 +261,11 @@ namespace NaturalDisastersRenewal.UI
             UI_Tsunami_EvacuationMode.selectedIndex = (int)disasterSetupModel.Tsunami.EvacuationMode;
             UI_Tsunami_MaxProbability.value = disasterSetupModel.Tsunami.BaseOccurrencePerYear;
             UI_Tsunami_WarmupYears.value = disasterSetupModel.Tsunami.WarmupYears;
+            UI_Tsunami_RealTimeFrequency.selectedIndex =
+                disasterSetupModel.Tsunami.GetRealTimeTsunamiFrequencySelectionIndex();
+            UI_Tsunami_RealTimeFrequency.tooltip =
+                disasterSetupModel.Tsunami.GetRealTimeTsunamiFrequencyTooltip();
+            SetTsunamiRealTimeControlsAvailability(disasterSetupModel.Tsunami.IsRealTimePatternActive());
 
             UI_Earthquake_Enabled.isChecked = disasterSetupModel.Earthquake.Enabled;
             UI_Earthquake_EvacuationMode.selectedIndex = (int)disasterSetupModel.Earthquake.EvacuationMode;
@@ -700,6 +707,8 @@ namespace NaturalDisastersRenewal.UI
             UI_Tsunami_Enabled = null;
             UI_Tsunami_MaxProbability = null;
             UI_Tsunami_WarmupYears = null;
+            UI_Tsunami_RealTimeFrequency = null;
+            UI_Tsunami_RealTimeFrequencyWarning = null;
             UI_Tsunami_EvacuationMode = null;
             UI_Earthquake_Enabled = null;
             UI_Earthquake_MinIntensityToCrack = null;
@@ -1022,6 +1031,7 @@ namespace NaturalDisastersRenewal.UI
             disasterContainer.Thunderstorm.SetRealTimeThunderstormFrequency(frequency);
             disasterContainer.Sinkhole.SetRealTimeSinkholeFrequency(frequency);
             disasterContainer.Tornado.SetRealTimeTornadoFrequency(frequency);
+            disasterContainer.Tsunami.SetRealTimeTsunamiFrequency(frequency);
             disasterContainer.Earthquake.SetRealTimeEarthquakeFrequency(frequency);
             disasterContainer.MeteorStrike.SetRealTimeMeteorFrequency(frequency);
         }
@@ -1080,6 +1090,14 @@ namespace NaturalDisastersRenewal.UI
                 disasterContainer.Tornado.GetRealTimeTornadoFrequencySelectionIndex(),
                 disasterContainer.Tornado.RealTimeTornadoFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.Tornado.GetRealTimeTornadoFrequencyTooltip());
+
+            SetFrequencyDropdownWarning(
+                UI_Tsunami_RealTimeFrequency,
+                UI_Tsunami_RealTimeFrequencyWarning,
+                TsunamiModel.GetRealTimeTsunamiFrequencyOptions(),
+                disasterContainer.Tsunami.GetRealTimeTsunamiFrequencySelectionIndex(),
+                disasterContainer.Tsunami.RealTimeTsunamiFrequency != disasterContainer.RealTimeFrequencyHarmony,
+                disasterContainer.Tsunami.GetRealTimeTsunamiFrequencyTooltip());
 
             SetFrequencyDropdownWarning(
                 UI_Earthquake_RealTimeFrequency,
@@ -1668,6 +1686,32 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.tsunami.warmup.tooltip"));
 
             DropDownHelper.AddDropDown(
+                ref UI_Tsunami_RealTimeFrequency,
+                ref tsunamiGroup,
+                LocalizationService.Get("settings.tsunami.realtime_frequency"),
+                TsunamiModel.GetRealTimeTsunamiFrequencyOptions(),
+                ref disasterContainer.Tsunami.RealTimeTsunamiFrequency,
+                delegate(int selection)
+                {
+                    if (!_freezeUI)
+                    {
+                        disasterContainer.Tsunami.SetRealTimeTsunamiFrequency(
+                            TsunamiModel.GetRealTimeTsunamiFrequencyFromSelection(selection));
+                        UI_Tsunami_RealTimeFrequency.tooltip =
+                            disasterContainer.Tsunami.GetRealTimeTsunamiFrequencyTooltip();
+                        RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+                    }
+                });
+            UI_Tsunami_RealTimeFrequency.selectedIndex =
+                disasterContainer.Tsunami.GetRealTimeTsunamiFrequencySelectionIndex();
+            UI_Tsunami_RealTimeFrequency.tooltip =
+                disasterContainer.Tsunami.GetRealTimeTsunamiFrequencyTooltip();
+            UI_Tsunami_RealTimeFrequencyWarning =
+                CreateFrequencyWarningIcon(UI_Tsunami_RealTimeFrequency);
+            SetTsunamiRealTimeControlsAvailability(disasterContainer.Tsunami.IsRealTimePatternActive());
+            RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+
+            DropDownHelper.AddDropDown(
                 ref UI_Tsunami_EvacuationMode,
                 ref tsunamiGroup,
                 EvacuationModeText,
@@ -1680,6 +1724,18 @@ namespace NaturalDisastersRenewal.UI
             );
 
             helper.AddSpacing(20);
+        }
+
+        private void SetTsunamiRealTimeControlsAvailability(bool realTimeActive)
+        {
+            if (UI_Tsunami_MaxProbability != null)
+                UI_Tsunami_MaxProbability.isEnabled = !realTimeActive;
+
+            if (UI_Tsunami_WarmupYears != null)
+                UI_Tsunami_WarmupYears.isEnabled = !realTimeActive;
+
+            if (UI_Tsunami_RealTimeFrequency != null)
+                UI_Tsunami_RealTimeFrequency.isEnabled = realTimeActive;
         }
 
         private void SetupEarthquake(ref UIHelper helper, DisasterSetupModel disasterContainer)

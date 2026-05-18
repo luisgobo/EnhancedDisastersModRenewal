@@ -741,7 +741,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             manualReleaseDisasters.Add(disasterId);
         }
 
-        private void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius,
+        protected virtual void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius,
             ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX,
