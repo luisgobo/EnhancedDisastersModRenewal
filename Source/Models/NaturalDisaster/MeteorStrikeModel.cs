@@ -25,6 +25,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             RealTimeDisasterFrequencyPreset.Uncommon,
             RealTimeDisasterFrequencyPreset.Rare
         };
+        private static readonly Dictionary<ushort, uint> MeteorActivationFramesByDisaster =
+            new Dictionary<ushort, uint>();
+        private static readonly Dictionary<ushort, uint> WaterImpactFramesByDisaster =
+            new Dictionary<ushort, uint>();
 
         [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
 
@@ -130,6 +134,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             disasterInfo.type |= DisasterType.MeteorStrike;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
+        }
+
+        public static bool TryGetMeteorActivationFrame(ushort disasterId, out uint activationFrame)
+        {
+            return MeteorActivationFramesByDisaster.TryGetValue(disasterId, out activationFrame);
+        }
+
+        public static bool TryGetWaterImpactFrame(ushort disasterId, out uint impactFrame)
+        {
+            return WaterImpactFramesByDisaster.TryGetValue(disasterId, out impactFrame);
         }
 
         public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified,

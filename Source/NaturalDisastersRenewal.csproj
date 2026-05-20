@@ -10,6 +10,7 @@
         <RootNamespace>NaturalDisastersRenewal</RootNamespace>
         <AssemblyName>NaturalDisastersRenewal</AssemblyName>
         <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <RuntimeIdentifiers>win</RuntimeIdentifiers>
         <FileAlignment>512</FileAlignment>
         <TargetFrameworkProfile/>
     </PropertyGroup>
@@ -110,6 +111,7 @@
         <Compile Include="UI\ComponentHelper\UIStyleHelper.cs"/>
         <Compile Include="UI\ComponentHelper\TabHelper.cs"/>
         <Compile Include="UI\InGameDisastersPanel.cs" />
+        <Compile Include="UI\ShelterHoverDebugOverlay.cs" />
         <Compile Include="Common\DisasterSimulationUtils.cs"/>
         <Compile Include="BaseGameExtensions\LoadingExtension.cs"/>
         <Compile Include="Common\enums\OccurrenceAreas.cs"/>
@@ -126,6 +128,9 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="packages.config"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net35" Version="1.0.3" PrivateAssets="All"/>
     </ItemGroup>
     <ItemGroup>
         <WCFMetadata Include="Connected Services\"/>
