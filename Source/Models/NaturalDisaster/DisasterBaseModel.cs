@@ -214,6 +214,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 intensityWarmupDaysLeft = intensityWarmupDays * (1f - clampedProgress);
         }
 
+        public void ClearDebugProbabilityProgress()
+        {
+            debugProbabilityProgressOverride = -1f;
+            debugForceOccurrence = false;
+        }
+
         public bool TryGetDebugProbabilityProgress(out float progress)
         {
             progress = debugProbabilityProgressOverride;
