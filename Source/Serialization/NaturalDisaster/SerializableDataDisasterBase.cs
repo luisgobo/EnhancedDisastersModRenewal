@@ -17,6 +17,7 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             dataSeralizer.WriteFloat(disaster.probabilityWarmupDaysLeft);
             dataSeralizer.WriteFloat(disaster.intensityWarmupDaysLeft);
             dataSeralizer.WriteInt32((int)disaster.EvacuationMode * disasterIndex);
+            dataSeralizer.WriteFloat(disaster.MaxGeneratedIntensity);
         }
 
         public void DeserializeCommonParameters(DataSerializer dataSeralizer, DisasterBaseModel disaster,
@@ -39,6 +40,11 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 disaster.intensityWarmupDaysLeft = dataSeralizer.ReadFloat();
                 disaster.EvacuationMode = (EvacuationOptions)(dataSeralizer.ReadInt32() * disasterIndex);
             }
+
+            if (dataSeralizer.version >= 18)
+                disaster.MaxGeneratedIntensity = dataSeralizer.ReadFloat();
+
+            disaster.NormalizeGeneratedIntensitySettings();
         }
 
         public void AfterDeserializeLog(string className)

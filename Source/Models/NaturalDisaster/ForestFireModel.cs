@@ -723,7 +723,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             NormalizeRealisticRecurrenceSettings();
         }
 
-        // TODO: Evaluate a separate nuclear incident event instead of mixing it into normal forest fires.
+        // TODO: Evaluate a separate nuclear incident event instead of mixing it into normal forest fires.(Version 2.0)
         // Requirements to consider:
         // - Target only specific buildings, such as nuclear reactor/power plant prefabs.
         // - Trigger fire on the selected building through BuildingAI.BurnBuilding.

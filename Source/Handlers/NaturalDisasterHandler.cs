@@ -83,6 +83,7 @@ namespace NaturalDisastersRenewal.Handlers
                 container.MaxPopulationToTriggerHigherDisasters = fromContainer.MaxPopulationToTriggerHigherDisasters;
 
                 container.ScaleMaxIntensityWithPopulation = fromContainer.ScaleMaxIntensityWithPopulation;
+                container.AllowExtremeIntensities = fromContainer.AllowExtremeIntensities;
                 container.RecordDisasterEvents = fromContainer.RecordDisasterEvents;
                 container.ShowDisasterPanelButton = fromContainer.ShowDisasterPanelButton;
                 container.Language = fromContainer.Language;

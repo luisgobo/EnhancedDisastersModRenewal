@@ -73,7 +73,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.help.title", "Help - Natural Disasters Renewal" },
                         {
                             "panel.help.content",
-                            "STATISTICS:\n\n• Probability bars show current disaster chance.\n• Intensity bars show the current maximum intensity.\n\nCONTROLS:\n• Play/Pause toggles each disaster.\n• Square stops active disasters.\n• Reset clears current disaster cooldowns."
+                            "STATISTICS:\n\n• Probability bars show current disaster chance.\n• Intensity bars show the current maximum generated strength.\n\nCONTROLS:\n• Play/Pause toggles each disaster.\n• Square stops active disasters.\n• Reset clears current disaster cooldowns."
                         },
                         { "panel.toggle_button.tooltip", "Extended Disasters (drag by right-click)" },
                         { "panel.drag_panel.tooltip", "Drag by right-click to set the panel position." },
@@ -94,6 +94,17 @@ namespace NaturalDisastersRenewal.Common
                         {
                             "settings.scale_intensity.tooltip",
                             "Maximum intensity for all disasters is set to the minimum at the beginning of the game and gradually increases as the city grows."
+                        },
+                        { "settings.allow_extreme_intensities", "Allow extreme intensities up to 25.5" },
+                        {
+                            "settings.allow_extreme_intensities.tooltip",
+                            "Advanced. Keeps the default 10.0 generated cap when disabled. When enabled, each disaster uses its own maximum generated strength slider."
+                        },
+                        { "settings.max_generated_intensity", "Max generated strength" },
+                        { "settings.max_generated_intensity.suffix", " strength" },
+                        {
+                            "settings.max_generated_intensity.tooltip",
+                            "Advanced. Highest automatic strength this disaster can generate. Values above 10.0 only apply when extreme intensities are enabled in General."
                         },
                         { "settings.record_events", "Record disaster events" },
                         {
@@ -583,7 +594,7 @@ namespace NaturalDisastersRenewal.Common
                         { "panel.help.title", "Ayuda - Natural Disasters Renewal" },
                         {
                             "panel.help.content",
-                            "ESTADÍSTICAS:\n\n• Las barras de probabilidad muestran la posibilidad actual del desastre.\n• Las barras de intensidad muestran la intensidad maxima actual.\n\nCONTROLES:\n• Play/Pausa activa o desactiva cada desastre.\n• El cuadrado detiene desastres activos.\n• Reiniciar limpia enfriamientos actuales."
+                            "ESTADÍSTICAS:\n\n• Las barras de probabilidad muestran la posibilidad actual del desastre.\n• Las barras de intensidad muestran la fuerza maxima generada actual.\n\nCONTROLES:\n• Play/Pausa activa o desactiva cada desastre.\n• El cuadrado detiene desastres activos.\n• Reiniciar limpia enfriamientos actuales."
                         },
                         { "panel.toggle_button.tooltip", "Desastres extendidos (arrastra con clic derecho)" },
                         { "panel.drag_panel.tooltip", "Arrastra con clic derecho para cambiar la posicion del panel." },
@@ -610,6 +621,17 @@ namespace NaturalDisastersRenewal.Common
                         {
                             "settings.scale_intensity.tooltip",
                             "La intensidad maxima de todos los desastres se fija al minimo al inicio y aumenta a medida que crece la ciudad."
+                        },
+                        { "settings.allow_extreme_intensities", "Permitir intensidades extremas hasta 25.5" },
+                        {
+                            "settings.allow_extreme_intensities.tooltip",
+                            "Avanzado. Mantiene el limite generado por defecto en 10.0 cuando esta desactivado. Al activarlo, cada desastre usa su propio slider de fuerza maxima generada."
+                        },
+                        { "settings.max_generated_intensity", "Fuerza maxima generada" },
+                        { "settings.max_generated_intensity.suffix", " fuerza" },
+                        {
+                            "settings.max_generated_intensity.tooltip",
+                            "Avanzado. Fuerza automatica maxima que puede generar este desastre. Los valores sobre 10.0 solo aplican cuando las intensidades extremas estan activas en General."
                         },
                         { "settings.record_events", "Registrar eventos de desastre" },
                         {

@@ -225,17 +225,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override byte GetMaximumIntensity()
         {
-            if (IsRealTimePatternActive())
-                return ScaleIntensityByPopulation(baseIntensity);
-
-            var intensity = baseIntensity;
-
-            for (var i = 0; i < MeteorEvents.Length; i++)
-                intensity = Math.Max(intensity, MeteorEvents[i].GetActualMaxIntensity());
-
-            intensity = ScaleIntensityByPopulation(intensity);
-
-            return intensity;
+            return ScaleIntensityByPopulation(GetConfiguredMaximumGeneratedIntensity());
         }
 
         public override bool CheckDisasterAIType(object disasterAI)

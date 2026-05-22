@@ -15,6 +15,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             DisasterSetupModel disasterSetupmodel = Services.DisasterSetup;
 
             dataSerializer.WriteBool(disasterSetupmodel.ScaleMaxIntensityWithPopulation);
+            dataSerializer.WriteBool(disasterSetupmodel.AllowExtremeIntensities);
             dataSerializer.WriteBool(disasterSetupmodel.RecordDisasterEvents);
             dataSerializer.WriteBool(disasterSetupmodel.ShowDisasterPanelButton);
 
@@ -40,6 +41,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
             DisasterSetupModel disasterSetupmodel = Services.DisasterSetup;
 
             disasterSetupmodel.ScaleMaxIntensityWithPopulation = dataSerializer.ReadBool();
+            disasterSetupmodel.AllowExtremeIntensities = dataSerializer.version >= 18 && dataSerializer.ReadBool();
             disasterSetupmodel.RecordDisasterEvents = dataSerializer.ReadBool();
             disasterSetupmodel.ShowDisasterPanelButton = dataSerializer.ReadBool();
 

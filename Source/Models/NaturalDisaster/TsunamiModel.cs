@@ -89,7 +89,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override byte GetMaximumIntensity()
         {
             return IsRealTimePatternActive()
-                ? ScaleIntensityByPopulation(baseIntensity)
+                ? ScaleIntensityByPopulation(GetConfiguredMaximumGeneratedIntensity())
                 : base.GetMaximumIntensity();
         }
 

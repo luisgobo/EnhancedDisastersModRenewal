@@ -32,6 +32,7 @@ namespace NaturalDisastersRenewal.Models.Setup
         public bool RecordDisasterEvents = false;
         public RealTimeDisasterFrequencyPreset RealTimeFrequencyHarmony = RealTimeDisasterFrequencyPreset.Occasional;
 
+        public bool AllowExtremeIntensities = false;
         public bool ScaleMaxIntensityWithPopulation = false;
         public bool ShowDisasterPanelButton = true;
         public SinkholeModel Sinkhole;
@@ -114,6 +115,14 @@ namespace NaturalDisastersRenewal.Models.Setup
             Tsunami.NormalizeRealisticRecurrenceSettings();
             Earthquake.NormalizeRealisticRecurrenceSettings();
             MeteorStrike.NormalizeRealisticRecurrenceSettings();
+
+            ForestFire.NormalizeGeneratedIntensitySettings();
+            Thunderstorm.NormalizeGeneratedIntensitySettings();
+            Sinkhole.NormalizeGeneratedIntensitySettings();
+            Tornado.NormalizeGeneratedIntensitySettings();
+            Tsunami.NormalizeGeneratedIntensitySettings();
+            Earthquake.NormalizeGeneratedIntensitySettings();
+            MeteorStrike.NormalizeGeneratedIntensitySettings();
 
             AllDisasters.Clear();
             AllDisasters.Add(Thunderstorm);

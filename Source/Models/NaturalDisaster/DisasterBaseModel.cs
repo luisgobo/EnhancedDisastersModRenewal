@@ -19,8 +19,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
     {
         // Constants
         protected const uint randomizerRange = 67108864u;
-        protected const byte baseIntensity = 255; //Base intensity is 100 for all Disasters
         protected const byte indexReferenceDisasterValue = 10;
+        public const float ConservativeGeneratedIntensityLimit = 10f;
+        public const float ExtremeGeneratedIntensityLimit = 25.5f;
         private readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
         private readonly double secondsBeforePausing = 3;
         private bool debugForceOccurrence;
@@ -38,6 +39,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         // Disaster public properties (to be saved in xml)
         public bool Enabled = true;
+        public float MaxGeneratedIntensity = ConservativeGeneratedIntensityLimit;
 
         // Disaster services
         private FieldInfo evacuatingField;
@@ -74,7 +76,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual byte GetMaximumIntensity()
         {
-            var intensity = baseIntensity;
+            var intensity = GetConfiguredMaximumGeneratedIntensity();
             intensity = ScaleIntensityByWarmup(intensity);
             intensity = ScaleIntensityByPopulation(intensity);
             return intensity;
@@ -185,6 +187,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             Enabled = disaster.Enabled;
             BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
             EvacuationMode = disaster.EvacuationMode;
+            MaxGeneratedIntensity = disaster.MaxGeneratedIntensity;
+            NormalizeGeneratedIntensitySettings();
         }
 
         public void SetEnabled(bool enabled)
@@ -268,7 +272,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 intensity = (byte)Services.Simulation.m_randomizer.Int32(10, 100);
             }
 
-            if (maxIntensity < 100) intensity = (byte)(10 + (intensity - 10) * maxIntensity / 100);
+            if (maxIntensity < 100)
+                intensity = (byte)(10 + (intensity - 10) * maxIntensity / 100);
+            else if (maxIntensity > 100)
+                intensity = (byte)(10 + (intensity - 10) * (maxIntensity - 10) / 90);
 
             return intensity;
         }
@@ -276,22 +283,31 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected byte GetMaximumGeneratedIntensity(byte maxIntensity)
         {
             if (maxIntensity >= 100)
-                return 100;
+                return maxIntensity;
 
             return (byte)(10 + (100 - 10) * maxIntensity / 100);
         }
 
-        // TODO: Evaluate an advanced extreme-intensity system instead of changing all disasters globally.
-        // Current automatic generation effectively caps most disasters at 10.0, even though the game can store
-        // intensity up to 25.5 (byte.MaxValue / 10). Candidate design:
-        // - Add a global advanced toggle such as "Allow extreme intensities up to 25.5".
-        // - Add per-disaster maximum generated intensity so each disaster can opt into a different cap.
-        // - Strong candidates: Meteor Strike, Earthquake, Tsunami.
-        // - Optional/advanced candidates: Tornado and Sinkhole, with rarity controls and warnings.
-        // - Lower-priority candidates: Thunderstorm and Forest Fire, where frequency/spread/secondary effects
-        //   probably model severity better than raw 25.5 intensity.
-        // - Keep default behavior conservative and preserve current 10.0 cap unless explicitly enabled.
-        // - Review UI labels/tooltips so "max strength" reflects the real generated cap, not only byte storage.
+        public void NormalizeGeneratedIntensitySettings()
+        {
+            MaxGeneratedIntensity = Mathf.Clamp(
+                MaxGeneratedIntensity,
+                ConservativeGeneratedIntensityLimit,
+                ExtremeGeneratedIntensityLimit);
+        }
+
+        protected byte GetConfiguredMaximumGeneratedIntensity()
+        {
+            var setup = Services.DisasterSetup;
+            var maxIntensity = setup != null && setup.AllowExtremeIntensities
+                ? MaxGeneratedIntensity
+                : ConservativeGeneratedIntensityLimit;
+
+            return (byte)Mathf.RoundToInt(Mathf.Clamp(
+                maxIntensity,
+                1f,
+                ExtremeGeneratedIntensityLimit) * 10f);
+        }
 
         protected byte ScaleIntensityByWarmup(byte intensity)
         {
