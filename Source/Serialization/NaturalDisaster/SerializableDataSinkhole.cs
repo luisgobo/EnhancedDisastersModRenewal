@@ -27,12 +27,17 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             sinkhole.GroundwaterCapacity = dataSerializer.ReadFloat();
             sinkhole.groundwaterAmount = dataSerializer.ReadFloat();
 
-            if (dataSerializer.version < 13) return;
+            if (dataSerializer.version < 13)
+            {
+                sinkhole.NormalizeRealisticRecurrenceSettings();
+                return;
+            }
 
             sinkhole.RealTimeSinkholeFrequency =
                 (RealTimeDisasterFrequencyPreset)dataSerializer.ReadInt32();
             sinkhole.RealTimeMinutesUntilNextSinkhole = dataSerializer.ReadFloat();
             sinkhole.RealTimeCurrentWetPeriodMinutes = dataSerializer.ReadFloat();
+            sinkhole.NormalizeRealisticRecurrenceSettings();
         }
 
         public void AfterDeserialize(DataSerializer dataSerializer)

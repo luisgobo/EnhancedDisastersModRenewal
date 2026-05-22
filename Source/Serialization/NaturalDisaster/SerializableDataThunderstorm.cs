@@ -27,12 +27,17 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             thunderstorm.MaxProbabilityMonth = dataSerializer.ReadInt32();
             thunderstorm.RainFactor = dataSerializer.ReadFloat();
 
-            if (dataSerializer.version < 14) return;
+            if (dataSerializer.version < 14)
+            {
+                thunderstorm.NormalizeRealisticRecurrenceSettings();
+                return;
+            }
 
             thunderstorm.RealTimeThunderstormFrequency =
                 (RealTimeDisasterFrequencyPreset)dataSerializer.ReadInt32();
             thunderstorm.RealTimeMinutesUntilNextThunderstorm = dataSerializer.ReadFloat();
             thunderstorm.RealTimeCurrentStormPeriodMinutes = dataSerializer.ReadFloat();
+            thunderstorm.NormalizeRealisticRecurrenceSettings();
         }
 
         public void AfterDeserialize(DataSerializer dataSerializer)

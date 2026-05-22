@@ -28,6 +28,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float LocalizedWetnessActiveCityMaxFactor = 5f;
         private const float LocalizedWetnessActiveBuildingFactorStep = 0.2f;
         private const float LocalizedWetnessNeighborBuildingFactorStep = 0.05f;
+        private const float DefaultGroundwaterCapacity = 90f;
+        private const float MaxBaseOccurrencePerYear = 0.5f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeSinkholeFrequencyOptionValues =
         {
@@ -51,7 +53,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlIgnore] public float groundwaterAmount; // groundwaterAmount=1 means rain of intensity 1 during 1 day
         [XmlIgnore] public float RealTimeCurrentWetPeriodMinutes = -1f;
         [XmlIgnore] public float RealTimeMinutesUntilNextSinkhole = -1f;
-        public float GroundwaterCapacity = 50;
+        public float GroundwaterCapacity = DefaultGroundwaterCapacity;
         public RealTimeDisasterFrequencyPreset RealTimeSinkholeFrequency =
             RealTimeDisasterFrequencyPreset.Occasional;
 
@@ -59,10 +61,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             DType = DisasterType.Sinkhole;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
-            BaseOccurrencePerYear = 1.5f; // When groundwater is full
+            BaseOccurrencePerYear = MaxBaseOccurrencePerYear; // When groundwater is full
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
-            calmDays = 30;
+            calmDays = 180;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
         }
@@ -271,6 +273,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 GroundwaterCapacity = d.GroundwaterCapacity;
                 SetRealTimeSinkholeFrequency(d.RealTimeSinkholeFrequency);
+                NormalizeRealisticRecurrenceSettings();
             }
         }
 
@@ -334,6 +337,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (RealTimeCurrentWetPeriodMinutes <= 0f || RealTimeMinutesUntilNextSinkhole < 0f)
                 ScheduleNextRealTimeSinkhole();
+
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
+            RealTimeDisasterTiming.ClampScheduleToRange(
+                minMinutes,
+                maxMinutes,
+                ref RealTimeCurrentWetPeriodMinutes,
+                ref RealTimeMinutesUntilNextSinkhole);
 
             if (RealTimeMinutesUntilNextSinkhole > RealTimeCurrentWetPeriodMinutes)
                 RealTimeMinutesUntilNextSinkhole = RealTimeCurrentWetPeriodMinutes;
@@ -441,25 +451,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (RealTimeSinkholeFrequency)
             {
                 case RealTimeDisasterFrequencyPreset.Apocalypse:
-                    minMinutes = 10f;
-                    maxMinutes = 20f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Frequent:
-                    minMinutes = 20f;
-                    maxMinutes = 60f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Occasional:
-                default:
                     minMinutes = 60f;
                     maxMinutes = 120f;
                     break;
-                case RealTimeDisasterFrequencyPreset.Uncommon:
+                case RealTimeDisasterFrequencyPreset.Frequent:
                     minMinutes = 120f;
                     maxMinutes = 240f;
                     break;
+                case RealTimeDisasterFrequencyPreset.Occasional:
+                default:
+                    minMinutes = 360f;
+                    maxMinutes = 720f;
+                    break;
+                case RealTimeDisasterFrequencyPreset.Uncommon:
+                    minMinutes = 720f;
+                    maxMinutes = 1440f;
+                    break;
                 case RealTimeDisasterFrequencyPreset.Rare:
-                    minMinutes = 240f;
-                    maxMinutes = 480f;
+                    minMinutes = 1440f;
+                    maxMinutes = 2880f;
                     break;
             }
         }
@@ -871,6 +881,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var currentProgress = GetRealTimePatternProbabilityProgress();
             RealTimeSinkholeFrequency = frequency;
             ScheduleNextRealTimeSinkhole(currentProgress);
+        }
+
+        public void NormalizeRealisticRecurrenceSettings()
+        {
+            BaseOccurrencePerYear = DisasterRecurrenceTuning.ClampOccurrencePerYear(
+                BaseOccurrencePerYear,
+                0.02f,
+                MaxBaseOccurrencePerYear);
+            GroundwaterCapacity = Mathf.Max(DefaultGroundwaterCapacity, GroundwaterCapacity);
         }
 
         public override void SetDebugProbabilityProgress(float progress)

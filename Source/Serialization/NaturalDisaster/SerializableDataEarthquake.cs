@@ -66,6 +66,8 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 earthquake.RealTimeCurrentAftershockPeriodMinutes = dataSerializer.ReadFloat();
                 earthquake.RealTimeMinutesUntilNextAftershock = dataSerializer.ReadFloat();
             }
+
+            earthquake.NormalizeRealisticRecurrenceSettings();
         }
 
         public void AfterDeserialize(DataSerializer s)

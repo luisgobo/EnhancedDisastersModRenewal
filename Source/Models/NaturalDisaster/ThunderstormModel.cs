@@ -14,6 +14,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float GuaranteedOccurrencePerFrame = 1f;
         private const float SecondsPerMinute = 60f;
         private const float MaxRealTimeDeltaSeconds = 5f;
+        private const float MaxBaseOccurrencePerYear = 6f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeThunderstormFrequencyOptionValues =
         {
@@ -38,11 +39,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             DType = DisasterType.ThunderStorm;
             OccurrenceAreaBeforeUnlock = OccurrenceAreas.LockedAreas;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.Everywhere;
-            BaseOccurrencePerYear = 2.0f;
+            BaseOccurrencePerYear = 3.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            calmDays = 60;
-            probabilityWarmupDays = 30;
+            calmDays = 30;
+            probabilityWarmupDays = 45;
             intensityWarmupDays = 60;
             EvacuationMode = EvacuationOptions.ManualEvacuation;
         }
@@ -146,6 +147,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 RainFactor = d.RainFactor;
                 MaxProbabilityMonth = d.MaxProbabilityMonth;
                 SetRealTimeThunderstormFrequency(d.RealTimeThunderstormFrequency);
+                NormalizeRealisticRecurrenceSettings();
             }
         }
 
@@ -205,6 +207,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (RealTimeCurrentStormPeriodMinutes <= 0f || RealTimeMinutesUntilNextThunderstorm < 0f)
                 ScheduleNextRealTimeThunderstorm();
+
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
+            RealTimeDisasterTiming.ClampScheduleToRange(
+                minMinutes,
+                maxMinutes,
+                ref RealTimeCurrentStormPeriodMinutes,
+                ref RealTimeMinutesUntilNextThunderstorm);
 
             if (RealTimeMinutesUntilNextThunderstorm > RealTimeCurrentStormPeriodMinutes)
                 RealTimeMinutesUntilNextThunderstorm = RealTimeCurrentStormPeriodMinutes;
@@ -296,25 +305,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (RealTimeThunderstormFrequency)
             {
                 case RealTimeDisasterFrequencyPreset.Apocalypse:
-                    minMinutes = 10f;
-                    maxMinutes = 20f;
+                    minMinutes = 20f;
+                    maxMinutes = 40f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Frequent:
-                    minMinutes = 20f;
-                    maxMinutes = 60f;
+                    minMinutes = 45f;
+                    maxMinutes = 90f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Occasional:
                 default:
-                    minMinutes = 60f;
-                    maxMinutes = 120f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Uncommon:
                     minMinutes = 120f;
                     maxMinutes = 240f;
                     break;
-                case RealTimeDisasterFrequencyPreset.Rare:
+                case RealTimeDisasterFrequencyPreset.Uncommon:
                     minMinutes = 240f;
                     maxMinutes = 480f;
+                    break;
+                case RealTimeDisasterFrequencyPreset.Rare:
+                    minMinutes = 480f;
+                    maxMinutes = 960f;
                     break;
             }
         }
@@ -349,6 +358,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var currentProgress = GetRealTimePatternProbabilityProgress();
             RealTimeThunderstormFrequency = frequency;
             ScheduleNextRealTimeThunderstorm(currentProgress);
+        }
+
+        public void NormalizeRealisticRecurrenceSettings()
+        {
+            BaseOccurrencePerYear = DisasterRecurrenceTuning.ClampOccurrencePerYear(
+                BaseOccurrencePerYear,
+                0.1f,
+                MaxBaseOccurrencePerYear);
         }
 
         public override void SetDebugProbabilityProgress(float progress)

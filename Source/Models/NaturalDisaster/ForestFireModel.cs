@@ -19,6 +19,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float DenseFogThreshold = 0.6f;
         private const float LightFogDryProgressFactor = 0.5f;
         private const float DenseFogDryProgressFactor = 0.25f;
+        private const int DefaultWarmupDays = 240;
+        private const float MaxBaseOccurrencePerYear = 4f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeForestFireFrequencyOptionValues =
         {
@@ -29,7 +31,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             RealTimeDisasterFrequencyPreset.Rare
         };
 
-        private int _warmupDays = 180;
+        private int _warmupDays = DefaultWarmupDays;
 
         [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
 
@@ -51,10 +53,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             DType = DisasterType.ForestFire;
             OccurrenceAreaBeforeUnlock = OccurrenceAreas.LockedAreas;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.Everywhere;
-            BaseOccurrencePerYear = 10.0f; // In case of dry weather
+            BaseOccurrencePerYear = MaxBaseOccurrencePerYear; // In case of dry weather
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
-            calmDays = 7;
+            calmDays = 30;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
         }
@@ -419,6 +421,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (RealTimeCurrentDryPeriodMinutes <= 0f || RealTimeMinutesUntilNextForestFire < 0f)
                 ScheduleNextRealTimeForestFire();
 
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
+            RealTimeDisasterTiming.ClampScheduleToRange(
+                minMinutes,
+                maxMinutes,
+                ref RealTimeCurrentDryPeriodMinutes,
+                ref RealTimeMinutesUntilNextForestFire);
+
             if (RealTimeMinutesUntilNextForestFire > RealTimeCurrentDryPeriodMinutes)
                 RealTimeMinutesUntilNextForestFire = RealTimeCurrentDryPeriodMinutes;
         }
@@ -517,25 +526,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (RealTimeForestFireFrequency)
             {
                 case RealTimeDisasterFrequencyPreset.Apocalypse:
-                    minMinutes = 10f;
-                    maxMinutes = 30f;
+                    minMinutes = 30f;
+                    maxMinutes = 60f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Frequent:
-                    minMinutes = 30f;
-                    maxMinutes = 90f;
+                    minMinutes = 60f;
+                    maxMinutes = 120f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Occasional:
                 default:
-                    minMinutes = 60f;
-                    maxMinutes = 180f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Uncommon:
                     minMinutes = 180f;
                     maxMinutes = 360f;
                     break;
-                case RealTimeDisasterFrequencyPreset.Rare:
+                case RealTimeDisasterFrequencyPreset.Uncommon:
                     minMinutes = 360f;
                     maxMinutes = 720f;
+                    break;
+                case RealTimeDisasterFrequencyPreset.Rare:
+                    minMinutes = 720f;
+                    maxMinutes = 1440f;
                     break;
             }
         }
@@ -593,6 +602,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var currentProgress = GetRealTimePatternProbabilityProgress();
             RealTimeForestFireFrequency = frequency;
             ScheduleNextRealTimeForestFire(currentProgress);
+        }
+
+        public void NormalizeRealisticRecurrenceSettings()
+        {
+            BaseOccurrencePerYear = DisasterRecurrenceTuning.ClampOccurrencePerYear(
+                BaseOccurrencePerYear,
+                0.1f,
+                MaxBaseOccurrencePerYear);
+            WarmupDays = Math.Max(WarmupDays, DefaultWarmupDays);
         }
 
         public override void SetDebugProbabilityProgress(float progress)
@@ -688,6 +706,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             WarmupDays = forestFireModel.WarmupDays;
             FogRetardsDryTime = forestFireModel.FogRetardsDryTime;
             RealTimeForestFireFrequency = forestFireModel.RealTimeForestFireFrequency;
+            NormalizeRealisticRecurrenceSettings();
         }
 
         // TODO: Evaluate a separate nuclear incident event instead of mixing it into normal forest fires.

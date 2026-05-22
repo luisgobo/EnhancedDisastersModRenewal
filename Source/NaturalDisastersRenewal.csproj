@@ -63,9 +63,11 @@
     <ItemGroup>
         <Compile Include="Common\BuildInfo.cs"/>
         <Compile Include="Common\CommonProperties.cs"/>
+        <Compile Include="Common\DisasterRecurrenceTuning.cs"/>
         <Compile Include="Common\HotkeyHelper.cs"/>
         <Compile Include="Common\LocalizationService.cs"/>
         <Compile Include="Common\ModCompatibilityService.cs"/>
+        <Compile Include="Common\RealTimeDisasterTiming.cs"/>
         <Compile Include="Common\Services.cs"/>
         <Compile Include="Common\enums\EarthquakeCrackOptions.cs"/>
         <Compile Include="Common\enums\EvacuationOptions.cs"/>

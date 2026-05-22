@@ -21,6 +21,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float MinCoastalWaterSearchRadius = 768f;
         private const float MaxCoastalWaterSearchRadius = 1920f;
         private const float MaxCoastalElevationAboveWater = 80f;
+        private const float DefaultWarmupYears = 10f;
+        private const float MaxBaseOccurrencePerYear = 0.08f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
 
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeTsunamiFrequencyOptionValues =
@@ -42,9 +44,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public TsunamiModel()
         {
             DType = DisasterType.Tsunami;
-            BaseOccurrencePerYear = 1.0f;
+            BaseOccurrencePerYear = MaxBaseOccurrencePerYear;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
-            WarmupYears = 4;
+            WarmupYears = DefaultWarmupYears;
         }
 
         public float WarmupYears
@@ -279,6 +281,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 WarmupYears = tsunami.WarmupYears;
                 SetRealTimeTsunamiFrequency(tsunami.RealTimeTsunamiFrequency);
+                NormalizeRealisticRecurrenceSettings();
             }
         }
 
@@ -451,6 +454,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (RealTimeCurrentTsunamiPeriodMinutes <= 0f || RealTimeMinutesUntilNextTsunami < 0f)
                 ScheduleNextRealTimeTsunami();
 
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
+            RealTimeDisasterTiming.ClampScheduleToRange(
+                minMinutes,
+                maxMinutes,
+                ref RealTimeCurrentTsunamiPeriodMinutes,
+                ref RealTimeMinutesUntilNextTsunami);
+
             if (RealTimeMinutesUntilNextTsunami > RealTimeCurrentTsunamiPeriodMinutes)
                 RealTimeMinutesUntilNextTsunami = RealTimeCurrentTsunamiPeriodMinutes;
         }
@@ -548,25 +558,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (RealTimeTsunamiFrequency)
             {
                 case RealTimeDisasterFrequencyPreset.Apocalypse:
-                    minMinutes = 120f;
-                    maxMinutes = 240f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Frequent:
                     minMinutes = 240f;
                     maxMinutes = 480f;
                     break;
-                case RealTimeDisasterFrequencyPreset.Occasional:
-                default:
+                case RealTimeDisasterFrequencyPreset.Frequent:
                     minMinutes = 480f;
                     maxMinutes = 960f;
                     break;
+                case RealTimeDisasterFrequencyPreset.Occasional:
+                default:
+                    minMinutes = 1440f;
+                    maxMinutes = 2880f;
+                    break;
                 case RealTimeDisasterFrequencyPreset.Uncommon:
-                    minMinutes = 960f;
-                    maxMinutes = 1920f;
+                    minMinutes = 2880f;
+                    maxMinutes = 5760f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Rare:
-                    minMinutes = 1920f;
-                    maxMinutes = 3840f;
+                    minMinutes = 5760f;
+                    maxMinutes = 11520f;
                     break;
             }
         }
@@ -579,6 +589,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var currentProgress = GetRealTimePatternProbabilityProgress();
             RealTimeTsunamiFrequency = frequency;
             ScheduleNextRealTimeTsunami(currentProgress);
+        }
+
+        public void NormalizeRealisticRecurrenceSettings()
+        {
+            BaseOccurrencePerYear = DisasterRecurrenceTuning.ClampOccurrencePerYear(
+                BaseOccurrencePerYear,
+                0.005f,
+                MaxBaseOccurrencePerYear);
+            WarmupYears = Mathf.Max(WarmupYears, DefaultWarmupYears);
         }
 
         public override void SetDebugProbabilityProgress(float progress)

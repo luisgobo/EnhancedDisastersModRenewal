@@ -34,6 +34,8 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 tsunami.RealTimeCurrentTsunamiPeriodMinutes = dataSerializer.ReadFloat();
                 tsunami.RealTimeMinutesUntilNextTsunami = dataSerializer.ReadFloat();
             }
+
+            tsunami.NormalizeRealisticRecurrenceSettings();
         }
 
         public void AfterDeserialize(DataSerializer dataSerializer)

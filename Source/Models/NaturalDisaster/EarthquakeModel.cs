@@ -19,6 +19,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float MinimumAftershockRadius = 128f;
         private const float MaximumAftershockRadius = 960f;
         private const float AftershockRadiusPerIntensityPoint = 10f;
+        private const float DefaultWarmupYears = 6f;
+        private const float MaxBaseOccurrencePerYear = 0.2f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeEarthquakeFrequencyOptionValues =
         {
@@ -52,10 +54,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             DType = DisasterType.Earthquake;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
-            BaseOccurrencePerYear = 1.0f;
+            BaseOccurrencePerYear = MaxBaseOccurrencePerYear;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            WarmupYears = 3;
+            WarmupYears = DefaultWarmupYears;
         }
 
         [XmlElement]
@@ -634,6 +636,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (RealTimeCurrentSeismicPeriodMinutes <= 0f || RealTimeMinutesUntilNextEarthquake < 0f)
                 ScheduleNextRealTimeEarthquake();
 
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
+            RealTimeDisasterTiming.ClampScheduleToRange(
+                minMinutes,
+                maxMinutes,
+                ref RealTimeCurrentSeismicPeriodMinutes,
+                ref RealTimeMinutesUntilNextEarthquake);
+
             if (RealTimeMinutesUntilNextEarthquake > RealTimeCurrentSeismicPeriodMinutes)
                 RealTimeMinutesUntilNextEarthquake = RealTimeCurrentSeismicPeriodMinutes;
         }
@@ -753,25 +762,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (RealTimeEarthquakeFrequency)
             {
                 case RealTimeDisasterFrequencyPreset.Apocalypse:
-                    minMinutes = 30f;
-                    maxMinutes = 60f;
+                    minMinutes = 180f;
+                    maxMinutes = 360f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Frequent:
-                    minMinutes = 90f;
-                    maxMinutes = 180f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Occasional:
-                default:
-                    minMinutes = 240f;
-                    maxMinutes = 480f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Uncommon:
                     minMinutes = 480f;
                     maxMinutes = 960f;
                     break;
+                case RealTimeDisasterFrequencyPreset.Occasional:
+                default:
+                    minMinutes = 1440f;
+                    maxMinutes = 2880f;
+                    break;
+                case RealTimeDisasterFrequencyPreset.Uncommon:
+                    minMinutes = 2880f;
+                    maxMinutes = 5760f;
+                    break;
                 case RealTimeDisasterFrequencyPreset.Rare:
-                    minMinutes = 960f;
-                    maxMinutes = 1920f;
+                    minMinutes = 5760f;
+                    maxMinutes = 11520f;
                     break;
             }
         }
@@ -779,7 +788,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private float GetRandomRealTimeAftershockIntervalMinutes()
         {
             var randomValue = Services.Simulation.m_randomizer.Int32(0, 10000) / 10000f;
-            return 5f + 25f * randomValue;
+            return 10f + 35f * randomValue;
         }
 
         private bool TryFindNearbyAftershockTarget(out Vector3 targetPosition, out float angle)
@@ -941,6 +950,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             ScheduleNextRealTimeEarthquake(currentProgress);
         }
 
+        public void NormalizeRealisticRecurrenceSettings()
+        {
+            BaseOccurrencePerYear = DisasterRecurrenceTuning.ClampOccurrencePerYear(
+                BaseOccurrencePerYear,
+                0.01f,
+                MaxBaseOccurrencePerYear);
+            WarmupYears = Mathf.Max(WarmupYears, DefaultWarmupYears);
+        }
+
         public static string[] GetRealTimeEarthquakeFrequencyOptions()
         {
             return new[]
@@ -1031,6 +1049,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 AftershocksEnabled = earthquake.AftershocksEnabled;
                 WarmupYears = earthquake.WarmupYears;
                 SetRealTimeEarthquakeFrequency(earthquake.RealTimeEarthquakeFrequency);
+                NormalizeRealisticRecurrenceSettings();
             }
         }
     }
