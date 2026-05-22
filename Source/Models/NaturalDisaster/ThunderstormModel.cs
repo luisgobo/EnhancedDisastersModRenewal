@@ -382,6 +382,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
+        public override void ResetProbabilityProgress()
+        {
+            base.ResetProbabilityProgress();
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeThunderstorm();
+                calmDaysLeft = 0f;
+                probabilityWarmupDaysLeft = 0f;
+                intensityWarmupDaysLeft = 0f;
+            }
+        }
+
         public static string[] GetRealTimeThunderstormFrequencyOptions()
         {
             return new[]

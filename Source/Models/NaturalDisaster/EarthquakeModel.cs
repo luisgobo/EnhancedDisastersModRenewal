@@ -563,6 +563,19 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             aftershocksCount = 0;
         }
 
+        public override void ResetProbabilityProgress()
+        {
+            base.ResetProbabilityProgress();
+            aftershocksCount = 0;
+            InvalidateRealTimeAftershockSchedule();
+
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeEarthquake();
+                ClearRealTimeCooldownState();
+            }
+        }
+
         private string GetRealTimeProbabilityTooltip(float probabilityValue)
         {
             if (!unlocked) return LocalizationService.Get("tooltip.not_unlocked");

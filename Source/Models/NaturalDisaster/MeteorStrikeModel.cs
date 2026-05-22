@@ -312,6 +312,26 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
+        public override void ResetProbabilityProgress()
+        {
+            base.ResetProbabilityProgress();
+            calmDaysLeft = 0f;
+            probabilityWarmupDaysLeft = 0f;
+            intensityWarmupDaysLeft = 0f;
+
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeMeteor();
+                return;
+            }
+
+            for (var i = 0; i < MeteorEvents.Length; i++)
+            {
+                MeteorEvents[i].MeteorsFallen = 0;
+                MeteorEvents[i].DaysUntilNextEvent = MeteorEvents[i].PeriodDays;
+            }
+        }
+
         public float GetRealTimePatternProbabilityProgress()
         {
             EnsureRealTimeSchedule();

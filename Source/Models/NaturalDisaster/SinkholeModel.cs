@@ -906,6 +906,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 ScheduleNextRealTimeSinkhole(clampedProgress);
         }
 
+        public override void ResetProbabilityProgress()
+        {
+            base.ResetProbabilityProgress();
+            groundwaterAmount = 0f;
+
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeSinkhole();
+                calmDaysLeft = 0f;
+                probabilityWarmupDaysLeft = 0f;
+                intensityWarmupDaysLeft = 0f;
+            }
+        }
+
         public static string[] GetRealTimeSinkholeFrequencyOptions()
         {
             return new[]

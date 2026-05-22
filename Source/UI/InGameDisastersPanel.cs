@@ -262,7 +262,7 @@ namespace NaturalDisastersRenewal.UI
             // UpdateRealTimeLabels();
         }
 
-        private static void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
+        private void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
         {
             const float actionButtonSize = 22f;
             var actionButtonPadding = new RectOffset(0, 0, 3, 0);
@@ -493,22 +493,23 @@ namespace NaturalDisastersRenewal.UI
             return localeField.GetValue(LocaleManager.instance) as Locale;
         }
 
-        private static void StopAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void StopAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             StopAllDisasters();
+            RefreshDisasterRow();
         }
 
-        private static void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             StopAllDisasters();
 
             for (var i = 0; i < Services.DisasterHandler.container.AllDisasters.Count; i++)
             {
                 var disaster = Services.DisasterHandler.container.AllDisasters[i];
-                disaster.calmDaysLeft = 0f;
-                disaster.probabilityWarmupDaysLeft = 0f;
-                disaster.intensityWarmupDaysLeft = 0f;
+                disaster.ResetProbabilityProgress();
             }
+
+            RefreshDisasterRow();
         }
 
         private static void StopAllDisasters()
@@ -529,18 +530,31 @@ namespace NaturalDisastersRenewal.UI
                     Services.Terrain.WaterSimulation.ReleaseWaterWave((ushort)i);
 
             var dm = Services.Disasters;
-            for (ushort i = 0; i < dm.m_disasterCount; i++)
+            var disasterWrapper = Services.DisasterHandler.GetDisasterWrapper();
+            for (var i = 0; i < dm.m_disasters.m_buffer.Length; i++)
             {
-                sb.AppendLine(dm.m_disasters.m_buffer[i].Info.name + " flags: " + dm.m_disasters.m_buffer[i].m_flags);
-                if ((dm.m_disasters.m_buffer[i].m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active |
-                                                           DisasterData.Flags.Clearing)) == DisasterData.Flags.None)
-                    continue;
-                if (!IsStoppableDisaster(dm.m_disasters.m_buffer[i].Info.m_disasterAI))
+                var flags = dm.m_disasters.m_buffer[i].m_flags;
+                if ((flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) ==
+                    DisasterData.Flags.None)
                     continue;
 
-                dm.m_disasters.m_buffer[i].m_flags =
-                    (dm.m_disasters.m_buffer[i].m_flags & ~(DisasterData.Flags.Emerging | DisasterData.Flags.Active |
-                                                            DisasterData.Flags.Clearing))
+                var disasterInfo = dm.m_disasters.m_buffer[i].Info;
+                if (disasterInfo == null)
+                    continue;
+
+                sb.AppendLine(disasterInfo.name + " flags: " + flags);
+                if (!IsStoppableDisaster(disasterInfo.m_disasterAI))
+                    continue;
+
+                var disasterId = (ushort)i;
+                if (disasterWrapper != null)
+                {
+                    disasterWrapper.EndDisaster(disasterId);
+                    continue;
+                }
+
+                dm.m_disasters.m_buffer[disasterId].m_flags =
+                    (flags & ~(DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing))
                     | DisasterData.Flags.Finished;
             }
 

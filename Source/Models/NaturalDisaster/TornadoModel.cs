@@ -499,6 +499,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
+        public override void ResetProbabilityProgress()
+        {
+            base.ResetProbabilityProgress();
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeTornado();
+                ClearRealTimeCooldownState();
+            }
+        }
+
         public static string[] GetRealTimeTornadoFrequencyOptions()
         {
             return new[]

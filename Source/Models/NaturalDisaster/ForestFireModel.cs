@@ -632,6 +632,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             NoRainDays = WarmupDays * clampedProgress;
         }
 
+        public override void ResetProbabilityProgress()
+        {
+            base.ResetProbabilityProgress();
+            NoRainDays = 0f;
+
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeForestFire();
+                calmDaysLeft = 0f;
+                probabilityWarmupDaysLeft = 0f;
+                intensityWarmupDaysLeft = 0f;
+            }
+        }
+
         public static string[] GetRealTimeForestFireFrequencyOptions()
         {
             return new[]

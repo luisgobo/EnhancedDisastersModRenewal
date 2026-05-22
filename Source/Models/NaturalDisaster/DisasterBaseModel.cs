@@ -220,6 +220,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             debugForceOccurrence = false;
         }
 
+        public virtual void ResetProbabilityProgress()
+        {
+            ClearDebugProbabilityProgress();
+            calmDaysLeft = 0f;
+            probabilityWarmupDaysLeft = probabilityWarmupDays;
+            intensityWarmupDaysLeft = intensityWarmupDays;
+        }
+
         public bool TryGetDebugProbabilityProgress(out float progress)
         {
             progress = debugProbabilityProgressOverride;
