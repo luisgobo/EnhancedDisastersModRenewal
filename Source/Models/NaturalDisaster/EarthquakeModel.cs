@@ -260,6 +260,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 else
                 {
                     calmDays = 15;
+                    calmDaysLeft = calmDays;
                     probabilityWarmupDaysLeft = 0;
                     intensityWarmupDaysLeft = 0;
                 }
@@ -530,11 +531,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
                 return GetRealTimePatternProbabilityProgress();
 
-            if (aftershocksCount > 0)
-                return 1f;
-
             if (calmDaysLeft > 0)
                 return 0f;
+
+            if (aftershocksCount > 0)
+                return 1f;
 
             if (probabilityWarmupDays <= 0 || probabilityWarmupDaysLeft <= 0f)
                 return 1f;
