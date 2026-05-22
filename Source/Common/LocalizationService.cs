@@ -154,11 +154,11 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.debug.progress.force_enabled", "Force Selected progress" },
                         {
                             "settings.debug.progress.force_enabled.tooltip",
-                            "DEBUG only. When enabled, the selected disaster keeps the configured progress value. Disable it to return to normal progression."
+                            "DEBUG only. Enables applying a test progress value to the selected disaster. After applying it, normal progression continues."
                         },
                         {
                             "settings.debug.progress.percent.tooltip",
-                            "DEBUG only. Progress value to apply while force selected progress is enabled. 100% forces the next occurrence attempt."
+                            "DEBUG only. Progress value to apply while force selected progress is enabled. Moving the slider applies a new value; 100% forces the next occurrence attempt."
                         },
                         { "settings.frequency.apocalypse", "Apocalypse" },
                         { "settings.frequency.frequent", "Frequent" },
@@ -670,11 +670,11 @@ namespace NaturalDisastersRenewal.Common
                         { "settings.debug.progress.force_enabled", "Forzar progreso seleccionado" },
                         {
                             "settings.debug.progress.force_enabled.tooltip",
-                            "Solo DEBUG. Cuando esta activo, el desastre seleccionado mantiene el valor de progreso configurado. Desactivalo para volver a la progresion normal."
+                            "Solo DEBUG. Habilita aplicar un valor de progreso de prueba al desastre seleccionado. Luego de aplicarlo, la progresion normal continua."
                         },
                         {
                             "settings.debug.progress.percent.tooltip",
-                            "Solo DEBUG. Valor de progreso que se aplica mientras Forzar progreso seleccionado esta activo. 100% fuerza el proximo intento de ocurrencia."
+                            "Solo DEBUG. Valor de progreso que se aplica mientras Forzar progreso seleccionado esta activo. Mover el slider aplica un nuevo valor; 100% fuerza el proximo intento de ocurrencia."
                         },
                         { "settings.frequency.apocalypse", "Apocalipsis" },
                         { "settings.frequency.frequent", "Frecuente" },

@@ -203,7 +203,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public virtual void SetDebugProbabilityProgress(float progress)
         {
             var clampedProgress = Mathf.Clamp01(progress);
-            debugProbabilityProgressOverride = clampedProgress;
+            debugProbabilityProgressOverride = -1f;
             debugForceOccurrence = clampedProgress >= 0.999f;
             calmDaysLeft = 0f;
 
