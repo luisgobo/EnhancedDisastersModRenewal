@@ -385,11 +385,11 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.general"), disasterContainer, SetupGeneralTab, sectionButtons,
                 sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
-                LocalizationService.GetDisasterName(disasterContainer.ForestFire.GetDisasterType()), disasterContainer,
-                SetupForestFire, sectionButtons, sectionPages);
-            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.Thunderstorm.GetDisasterType()),
                 disasterContainer, SetupThunderstorm, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.ForestFire.GetDisasterType()), disasterContainer,
+                SetupForestFire, sectionButtons, sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.Sinkhole.GetDisasterType()), disasterContainer,
                 SetupSinkhole, sectionButtons, sectionPages);
@@ -397,11 +397,11 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.GetDisasterName(disasterContainer.Tornado.GetDisasterType()), disasterContainer,
                 SetupTornado, sectionButtons, sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
-                LocalizationService.GetDisasterName(disasterContainer.Tsunami.GetDisasterType()), disasterContainer,
-                SetupTsunami, sectionButtons, sectionPages);
-            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.Earthquake.GetDisasterType()), disasterContainer,
                 SetupEarthquake, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.Tsunami.GetDisasterType()), disasterContainer,
+                SetupTsunami, sectionButtons, sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.MeteorStrike.GetDisasterType()),
                 disasterContainer, SetupMeteorStrike, sectionButtons, sectionPages);
@@ -838,20 +838,20 @@ namespace NaturalDisastersRenewal.UI
 
             var disastersGroup = generalGroup.AddGroup(LocalizationService.Get("settings.enable_disasters"));
 
-            UI_ForestFire_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
-                disasterContainer.ForestFire.GetName(),
-                disasterContainer.ForestFire.Enabled, delegate(bool isChecked)
-                {
-                    if (!_freezeUI)
-                        disasterContainer.ForestFire.SetEnabled(isChecked);
-                }, spacing: nextCheckboxSpacing);
-
             UI_Thunderstorm_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
                 disasterContainer.Thunderstorm.GetName(),
                 disasterContainer.Thunderstorm.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
                         disasterContainer.Thunderstorm.SetEnabled(isChecked);
+                }, spacing: nextCheckboxSpacing);
+
+            UI_ForestFire_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
+                disasterContainer.ForestFire.GetName(),
+                disasterContainer.ForestFire.Enabled, delegate(bool isChecked)
+                {
+                    if (!_freezeUI)
+                        disasterContainer.ForestFire.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_Sinkhole_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup, disasterContainer.Sinkhole.GetName(),
@@ -868,19 +868,19 @@ namespace NaturalDisastersRenewal.UI
                         disasterContainer.Tornado.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
-            UI_Tsunami_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup, disasterContainer.Tsunami.GetName(),
-                disasterContainer.Tsunami.Enabled, delegate(bool isChecked)
-                {
-                    if (!_freezeUI)
-                        disasterContainer.Tsunami.SetEnabled(isChecked);
-                }, spacing: nextCheckboxSpacing);
-
             UI_Earthquake_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
                 disasterContainer.Earthquake.GetName(),
                 disasterContainer.Earthquake.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
                         disasterContainer.Earthquake.SetEnabled(isChecked);
+                }, spacing: nextCheckboxSpacing);
+
+            UI_Tsunami_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup, disasterContainer.Tsunami.GetName(),
+                disasterContainer.Tsunami.Enabled, delegate(bool isChecked)
+                {
+                    if (!_freezeUI)
+                        disasterContainer.Tsunami.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_MeteorStrike_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,

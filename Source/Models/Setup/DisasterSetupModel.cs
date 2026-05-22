@@ -116,12 +116,12 @@ namespace NaturalDisastersRenewal.Models.Setup
             MeteorStrike.NormalizeRealisticRecurrenceSettings();
 
             AllDisasters.Clear();
-            AllDisasters.Add(ForestFire);
             AllDisasters.Add(Thunderstorm);
+            AllDisasters.Add(ForestFire);
             AllDisasters.Add(Sinkhole);
-            AllDisasters.Add(Tsunami);
             AllDisasters.Add(Tornado);
             AllDisasters.Add(Earthquake);
+            AllDisasters.Add(Tsunami);
             AllDisasters.Add(MeteorStrike);
         }
 
