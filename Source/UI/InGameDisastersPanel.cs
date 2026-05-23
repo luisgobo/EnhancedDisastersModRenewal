@@ -20,7 +20,7 @@ namespace NaturalDisastersRenewal.UI
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
         private const string HelpTutorialKey = "NDR_TUTORIAL_PANEL_HELP";
-        private const float PanelWidth = 470f;
+        private const float PanelWidth = 442f;
         private const float PanelHeight = 365f;
         private const float ContentInset = 8f;
         private static readonly Color32 ActiveDependencyColor = new Color32(90, 200, 120, 255);
@@ -216,13 +216,14 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildControlsTabContent(UIScrollablePanel parentPanel)
         {
-            // TODO: Add a reconstruction helper panel for collapsed/damaged city service buildings. (Version 2.0)
+            // TODO: Add a reconstruction helper panel for collapsed/damaged city service buildings and damaged roads. (Version 2.0)
             // Requirements:
             // - Scan buildings that the base game allows to reconstruct after disasters, such as museums,
             //   schools, hospitals, and other supported public/service buildings.
             // - List rebuildable buildings in a dedicated menu with building name/type and district/position context.
             // - Add a button to move the camera to the selected building so the player does not need to search the map.
             // - If the game API allows it safely, add a quick rebuild button for each listed building.
+            // - Detect disaster-damaged road segments and, if the game API allows it safely, repair them in one click.
             // - Keep the list updated after disasters, manual rebuilds, demolitions, and map reloads.
             // - Avoid touching buildings that are not in a valid reconstructable state.
             var yPosition = 10f;
@@ -283,7 +284,7 @@ namespace NaturalDisastersRenewal.UI
             ActionButtonHelper.CreateSvgIconButton(
                 parentPanel,
                 "stopDisasterBtn",
-                "NaturalDisastersRenewal.Resources.Images.icons.Stop.svg",
+                "NaturalDisastersRenewal.Resources.Images.icons.Stop2.svg",
                 "NaturalDisastersRenewal.ActionButton.Stop.Atlas",
                 "NaturalDisastersRenewal.ActionButton.Stop",
                 new Vector3(centeredXPosition, yPosition),

@@ -15,6 +15,18 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         private const int SvgIconSupersampling = 3;
         private static readonly Dictionary<string, UITextureAtlas> SvgIconAtlases = new Dictionary<string, UITextureAtlas>();
 
+        private sealed class SvgPathShape
+        {
+            public readonly List<List<Vector2>> SubPaths;
+            public readonly Color FillColor;
+
+            public SvgPathShape(List<List<Vector2>> subPaths, Color fillColor)
+            {
+                SubPaths = subPaths;
+                FillColor = fillColor;
+            }
+        }
+
         public static void CreateTextButton(UIComponent parent, string name, string text, Vector3 position,
             Vector2 size, string tooltip, MouseEventHandler clickHandler, Color? textColor,
             string normalBgSprite, string hoveredBgSprite, string pressedBgSprite, RectOffset textPadding)
@@ -131,9 +143,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
         private static Texture2D RasterizeSvgIcon(string svg, string resourceName)
         {
             var viewBox = ParseViewBox(svg);
-            var fillColor = ParseFillColor(svg);
-            var subPaths = ParseSvgPaths(svg);
-            if (subPaths.Count == 0)
+            var shapes = ParseSvgShapes(svg);
+            if (shapes.Count == 0)
             {
                 Debug.LogError("No SVG paths found for action button icon: " + resourceName);
                 return null;
@@ -147,8 +158,11 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             {
                 for (var x = 0; x < SvgIconTextureSize; x++)
                 {
-                    var coveredSamples = 0;
                     var totalSamples = SvgIconSupersampling * SvgIconSupersampling;
+                    var red = 0f;
+                    var green = 0f;
+                    var blue = 0f;
+                    var alpha = 0f;
 
                     for (var sampleY = 0; sampleY < SvgIconSupersampling; sampleY++)
                     {
@@ -160,19 +174,31 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                             var svgY = viewBox.y + (SvgIconTextureSize - y - sampleOffsetY) /
                                 SvgIconTextureSize * viewBox.height;
 
-                            if (IsPointInsideEvenOdd(subPaths, new Vector2(svgX, svgY)))
-                                coveredSamples++;
+                            var sampleColor = Color.clear;
+                            var samplePoint = new Vector2(svgX, svgY);
+                            for (var shapeIndex = 0; shapeIndex < shapes.Count; shapeIndex++)
+                            {
+                                var shape = shapes[shapeIndex];
+                                if (IsPointInsideEvenOdd(shape.SubPaths, samplePoint))
+                                    sampleColor = shape.FillColor;
+                            }
+
+                            red += sampleColor.r;
+                            green += sampleColor.g;
+                            blue += sampleColor.b;
+                            alpha += sampleColor.a;
                         }
                     }
 
-                    if (coveredSamples == 0)
+                    if (alpha <= 0f)
                     {
                         texture.SetPixel(x, y, Color.clear);
                         continue;
                     }
 
-                    var alpha = (float)coveredSamples / totalSamples;
-                    texture.SetPixel(x, y, new Color(fillColor.r, fillColor.g, fillColor.b, alpha));
+                    texture.SetPixel(x, y,
+                        new Color(red / totalSamples, green / totalSamples, blue / totalSamples,
+                            alpha / totalSamples));
                 }
             }
 
@@ -222,19 +248,106 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                 1f);
         }
 
-        private static List<List<Vector2>> ParseSvgPaths(string svg)
+        private static List<SvgPathShape> ParseSvgShapes(string svg)
         {
-            var result = new List<List<Vector2>>();
-            var pathMatches = Regex.Matches(svg, "<path[^>]*\\sd\\s*=\\s*\"([^\"]+)\"", RegexOptions.IgnoreCase);
+            var result = new List<SvgPathShape>();
+            var classFillColors = ParseClassFillColors(svg);
+            var fallbackColor = ParseFillColor(svg);
+            var pathMatches = Regex.Matches(svg, "<path\\b[^>]*>", RegexOptions.IgnoreCase);
+
             foreach (Match pathMatch in pathMatches)
-                ParseSvgPathData(pathMatch.Groups[1].Value, result);
+            {
+                var pathTag = pathMatch.Value;
+                var dataMatch = Regex.Match(pathTag, "\\sd\\s*=\\s*\"([^\"]+)\"", RegexOptions.IgnoreCase);
+                if (!dataMatch.Success)
+                    continue;
+
+                var subPaths = ParseSvgPathData(dataMatch.Groups[1].Value);
+                if (subPaths.Count == 0)
+                    continue;
+
+                result.Add(new SvgPathShape(subPaths, ResolvePathFillColor(pathTag, classFillColors, fallbackColor)));
+            }
 
             return result;
         }
 
-        private static void ParseSvgPathData(string pathData, List<List<Vector2>> subPaths)
+        private static Dictionary<string, Color> ParseClassFillColors(string svg)
         {
-            var tokens = Regex.Matches(pathData, "[MmLlCcZz]|-?\\d+(?:\\.\\d+)?");
+            var result = new Dictionary<string, Color>();
+            var styleMatches = Regex.Matches(svg, "\\.([A-Za-z0-9_-]+)\\s*\\{[^}]*fill\\s*:\\s*([^;\\s}]+)",
+                RegexOptions.IgnoreCase);
+
+            foreach (Match styleMatch in styleMatches)
+            {
+                Color color;
+                if (TryParseColor(styleMatch.Groups[2].Value, out color))
+                    result[styleMatch.Groups[1].Value] = color;
+            }
+
+            return result;
+        }
+
+        private static Color ResolvePathFillColor(string pathTag, Dictionary<string, Color> classFillColors,
+            Color fallbackColor)
+        {
+            var fillMatch = Regex.Match(pathTag, "\\sfill\\s*=\\s*\"([^\"]+)\"", RegexOptions.IgnoreCase);
+            if (fillMatch.Success)
+            {
+                Color color;
+                if (TryParseColor(fillMatch.Groups[1].Value, out color))
+                    return color;
+            }
+
+            var classMatch = Regex.Match(pathTag, "\\sclass\\s*=\\s*\"([^\"]+)\"", RegexOptions.IgnoreCase);
+            if (classMatch.Success)
+            {
+                var classes = classMatch.Groups[1].Value.Split(new[] { ' ', '\t', '\r', '\n' },
+                    StringSplitOptions.RemoveEmptyEntries);
+                for (var i = 0; i < classes.Length; i++)
+                {
+                    Color color;
+                    if (classFillColors.TryGetValue(classes[i], out color))
+                        return color;
+                }
+            }
+
+            return fallbackColor;
+        }
+
+        private static bool TryParseColor(string value, out Color color)
+        {
+            var rgbMatch = Regex.Match(value, "rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)", RegexOptions.IgnoreCase);
+            if (rgbMatch.Success)
+            {
+                color = new Color(
+                    ParseByte(rgbMatch.Groups[1].Value) / 255f,
+                    ParseByte(rgbMatch.Groups[2].Value) / 255f,
+                    ParseByte(rgbMatch.Groups[3].Value) / 255f,
+                    1f);
+                return true;
+            }
+
+            var hexMatch = Regex.Match(value, "#([0-9a-f]{6})", RegexOptions.IgnoreCase);
+            if (hexMatch.Success)
+            {
+                var hex = hexMatch.Groups[1].Value;
+                color = new Color(
+                    Convert.ToInt32(hex.Substring(0, 2), 16) / 255f,
+                    Convert.ToInt32(hex.Substring(2, 2), 16) / 255f,
+                    Convert.ToInt32(hex.Substring(4, 2), 16) / 255f,
+                    1f);
+                return true;
+            }
+
+            color = Color.white;
+            return false;
+        }
+
+        private static List<List<Vector2>> ParseSvgPathData(string pathData)
+        {
+            var result = new List<List<Vector2>>();
+            var tokens = Regex.Matches(pathData, "[MmLlHhVvCcZz]|-?\\d+(?:\\.\\d+)?");
             var index = 0;
             var command = '\0';
             var current = Vector2.zero;
@@ -254,7 +367,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                 {
                     case 'M':
                     case 'm':
-                        CloseOpenSubPath(currentSubPath, subPaths);
+                        CloseOpenSubPath(currentSubPath, result);
                         current = ReadPoint(tokens, ref index, current, command == 'm');
                         subPathStart = current;
                         currentSubPath = new List<Vector2> { current };
@@ -263,6 +376,18 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                     case 'L':
                     case 'l':
                         current = ReadPoint(tokens, ref index, current, command == 'l');
+                        if (currentSubPath != null)
+                            currentSubPath.Add(current);
+                        break;
+                    case 'H':
+                    case 'h':
+                        current = ReadHorizontalPoint(tokens, ref index, current, command == 'h');
+                        if (currentSubPath != null)
+                            currentSubPath.Add(current);
+                        break;
+                    case 'V':
+                    case 'v':
+                        current = ReadVerticalPoint(tokens, ref index, current, command == 'v');
                         if (currentSubPath != null)
                             currentSubPath.Add(current);
                         break;
@@ -278,7 +403,7 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                     case 'z':
                         if (currentSubPath != null && currentSubPath.Count > 0)
                             currentSubPath.Add(subPathStart);
-                        CloseOpenSubPath(currentSubPath, subPaths);
+                        CloseOpenSubPath(currentSubPath, result);
                         currentSubPath = null;
                         current = subPathStart;
                         command = '\0';
@@ -289,7 +414,8 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
                 }
             }
 
-            CloseOpenSubPath(currentSubPath, subPaths);
+            CloseOpenSubPath(currentSubPath, result);
+            return result;
         }
 
         private static Vector2 ReadPoint(MatchCollection tokens, ref int index, Vector2 current, bool relative)
@@ -297,6 +423,22 @@ namespace NaturalDisastersRenewal.UI.ComponentHelper
             var point = new Vector2(ParseFloat(tokens[index].Value), ParseFloat(tokens[index + 1].Value));
             index += 2;
             return relative ? current + point : point;
+        }
+
+        private static Vector2 ReadHorizontalPoint(MatchCollection tokens, ref int index, Vector2 current,
+            bool relative)
+        {
+            var x = ParseFloat(tokens[index].Value);
+            index++;
+            return new Vector2(relative ? current.x + x : x, current.y);
+        }
+
+        private static Vector2 ReadVerticalPoint(MatchCollection tokens, ref int index, Vector2 current,
+            bool relative)
+        {
+            var y = ParseFloat(tokens[index].Value);
+            index++;
+            return new Vector2(current.x, relative ? current.y + y : y);
         }
 
         private static void AddCubicBezier(List<Vector2> subPath, Vector2 start, Vector2 control1,

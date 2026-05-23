@@ -161,6 +161,7 @@
         <EmbeddedResource Include="Resources\Images\icons\Warning2.svg" />
         <EmbeddedResource Include="Resources\Images\icons\Restart.svg" />
         <EmbeddedResource Include="Resources\Images\icons\Stop.svg" />
+        <EmbeddedResource Include="Resources\Images\icons\Stop2.svg" />
         <Content Include="Versions\Changelog.txt"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
