@@ -20,8 +20,8 @@ namespace NaturalDisastersRenewal.UI
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
         private const string HelpTutorialKey = "NDR_TUTORIAL_PANEL_HELP";
-        private const float PanelWidth = 430f;
-        private const float PanelHeight = 335f;
+        private const float PanelWidth = 470f;
+        private const float PanelHeight = 365f;
         private const float ContentInset = 8f;
         private static readonly Color32 ActiveDependencyColor = new Color32(90, 200, 120, 255);
         private static readonly Color32 InactiveDependencyColor = new Color32(210, 120, 120, 255);
@@ -208,7 +208,7 @@ namespace NaturalDisastersRenewal.UI
                 yPosition += disasterRow.height + itemSpacing;
             }
 
-            yPosition += 0f;
+            yPosition += 10f;
             BuildActionButtons(parentPanel, xPosition, yPosition);
             parentPanel.autoLayout = false;
             parentPanel.autoSize = false;
@@ -273,36 +273,34 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
         {
-            const float actionButtonSize = 22f;
-            var actionButtonPadding = new RectOffset(0, 0, 3, 0);
+            const float actionButtonWidth = 64f;
+            const float actionButtonHeight = 32f;
+            const float actionButtonSpacing = 8f;
+            var actionButtonSize = new Vector2(actionButtonWidth, actionButtonHeight);
+            var totalActionButtonWidth = actionButtonWidth * 2f + actionButtonSpacing;
+            var centeredXPosition = Mathf.Max(xPosition, (parentPanel.width - totalActionButtonWidth) * 0.5f);
 
-            ActionButtonHelper.CreateTextButton(
+            ActionButtonHelper.CreateSvgIconButton(
                 parentPanel,
                 "stopDisasterBtn",
-                "\u25A0",
-                new Vector3(xPosition, yPosition),
-                new Vector2(actionButtonSize, actionButtonSize),
+                "NaturalDisastersRenewal.Resources.Images.icons.Stop.svg",
+                "NaturalDisastersRenewal.ActionButton.Stop.Atlas",
+                "NaturalDisastersRenewal.ActionButton.Stop",
+                new Vector3(centeredXPosition, yPosition),
+                actionButtonSize,
                 LocalizationService.Get("panel.stop_all"),
-                StopAllDisastersBtn_eventClick,
-                Color.red,
-                "ButtonMenu",
-                "ButtonMenuHovered",
-                "ButtonMenuHovered",
-                actionButtonPadding);
+                StopAllDisastersBtn_eventClick);
 
-            ActionButtonHelper.CreateTextButton(
+            ActionButtonHelper.CreateSvgIconButton(
                 parentPanel,
                 "resetDisasterBtn",
-                "\u21BA",
-                new Vector3(xPosition + actionButtonSize + 4f, yPosition),
-                new Vector2(actionButtonSize, actionButtonSize),
+                "NaturalDisastersRenewal.Resources.Images.icons.Restart.svg",
+                "NaturalDisastersRenewal.ActionButton.Restart.Atlas",
+                "NaturalDisastersRenewal.ActionButton.Restart",
+                new Vector3(centeredXPosition + actionButtonWidth + actionButtonSpacing, yPosition),
+                actionButtonSize,
                 LocalizationService.Get("panel.reset_all"),
-                ResetAllDisastersBtn_eventClick,
-                Color.yellow,
-                "ButtonMenu",
-                "ButtonMenuHovered",
-                "ButtonMenuHovered",
-                actionButtonPadding);
+                ResetAllDisastersBtn_eventClick);
         }
 
         private void UpdatePopulationLabel()
