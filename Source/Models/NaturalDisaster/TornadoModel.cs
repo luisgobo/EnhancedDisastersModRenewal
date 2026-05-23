@@ -48,7 +48,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = 0.35f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            calmDays = 360 * 4;
+            CalmDays = 360 * 4;
             probabilityWarmupDays = 360;
             intensityWarmupDays = 360;
         }
@@ -86,7 +86,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
                 return GetRealTimeProbabilityTooltip(value);
 
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
                 if (!IsRealTimePatternActive() && NoTornadoDuringFog && GetCurrentFog() > 0f)
                     return LocalizationService.Format("tooltip.tornado.no_during_fog", GetName());
 
@@ -233,7 +233,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         private void ClearRealTimeCooldownState()
         {
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
         }
 
@@ -558,7 +558,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             var unitSize = 8;
             var unitsBase = 72;

@@ -22,6 +22,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const int DefaultWarmupDays = 240;
         private const float MaxBaseOccurrencePerYear = 4f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
+
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeForestFireFrequencyOptionValues =
         {
             RealTimeDisasterFrequencyPreset.Apocalypse,
@@ -31,22 +32,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             RealTimeDisasterFrequencyPreset.Rare
         };
 
-        private int _warmupDays = DefaultWarmupDays;
-
         [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
+
+        private int _warmupDays = DefaultWarmupDays;
+        public bool FogRetardsDryTime;
 
         [XmlIgnore] public float NoRainDays;
         [XmlIgnore] public float RealTimeCurrentDryPeriodMinutes = -1f;
-        [XmlIgnore] public float RealTimeMinutesUntilNextForestFire = -1f;
-        public bool FogRetardsDryTime;
+
         public RealTimeDisasterFrequencyPreset RealTimeForestFireFrequency =
             RealTimeDisasterFrequencyPreset.Occasional;
 
-        public int WarmupDays
-        {
-            get => _warmupDays;
-            set => _warmupDays = Math.Max(1, value);
-        }
+        [XmlIgnore] public float RealTimeMinutesUntilNextForestFire = -1f;
 
         public ForestFireModel()
         {
@@ -56,9 +53,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = MaxBaseOccurrencePerYear; // In case of dry weather
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
-            calmDays = 30;
+            CalmDays = 30;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
+        }
+
+        public int WarmupDays
+        {
+            get => _warmupDays;
+            set => _warmupDays = Math.Max(1, value);
         }
 
         protected override void OnSimulationFrameLocal()
@@ -127,7 +130,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterDetected(disasterInfoUnified, ref activeDisasters);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
             ref List<DisasterInfoModel> activeDisasters)
         {
             //Get disaster Info
@@ -181,7 +184,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             if (!unlocked) tooltip = LocalizationService.Get("tooltip.forest_fire.locked") + Environment.NewLine;
 
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
             {
                 if (IsRealTimePatternActive())
                     return GetRealTimeProbabilityTooltip(tooltip, value);
@@ -369,7 +372,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 string.Format("{0:00.00}%", probabilityValue * 100),
                 CommonProperties.NewLine,
                 LocalizationService.Get("tooltip.forest_fire.realtime_active"),
-                LocalizationService.Format("tooltip.forest_fire.realtime_reference", GetRealTimeForestFireFrequencyName()),
+                LocalizationService.Format("tooltip.forest_fire.realtime_reference",
+                    GetRealTimeForestFireFrequencyName()),
                 LocalizationService.Format(
                     "tooltip.forest_fire.current_dry_interval",
                     DisasterSimulationUtils.FormatRealTimeMinutes(RealTimeCurrentDryPeriodMinutes)) +
@@ -618,7 +622,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.SetDebugProbabilityProgress(progress);
 
             var clampedProgress = Mathf.Clamp01(progress);
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
             intensityWarmupDaysLeft = 0f;
 
@@ -640,7 +644,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
             {
                 ScheduleNextRealTimeForestFire();
-                calmDaysLeft = 0f;
+                CalmDaysLeft = 0f;
                 probabilityWarmupDaysLeft = 0f;
                 intensityWarmupDaysLeft = 0f;
             }
@@ -716,7 +720,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.CopySettings(disaster);
 
             if (!(disaster is ForestFireModel forestFireModel)) return;
-            
+
             WarmupDays = forestFireModel.WarmupDays;
             FogRetardsDryTime = forestFireModel.FogRetardsDryTime;
             RealTimeForestFireFrequency = forestFireModel.RealTimeForestFireFrequency;

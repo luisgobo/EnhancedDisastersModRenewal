@@ -216,6 +216,15 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildControlsTabContent(UIScrollablePanel parentPanel)
         {
+            // TODO: Add a reconstruction helper panel for collapsed/damaged city service buildings. (Version 2.0)
+            // Requirements:
+            // - Scan buildings that the base game allows to reconstruct after disasters, such as museums,
+            //   schools, hospitals, and other supported public/service buildings.
+            // - List rebuildable buildings in a dedicated menu with building name/type and district/position context.
+            // - Add a button to move the camera to the selected building so the player does not need to search the map.
+            // - If the game API allows it safely, add a quick rebuild button for each listed building.
+            // - Keep the list updated after disasters, manual rebuilds, demolitions, and map reloads.
+            // - Avoid touching buildings that are not in a valid reconstructable state.
             var yPosition = 10f;
             AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal,
                 LocalizationService.Get("settings.group.dependencies"));

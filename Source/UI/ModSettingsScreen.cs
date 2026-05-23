@@ -20,8 +20,14 @@ namespace NaturalDisastersRenewal.UI
 {
     public class ModSettingsScreen
     {
-        private readonly AboutSettingsSection aboutSection = new AboutSettingsSection();
-        private readonly DependenciesSettingsSection dependenciesSection = new DependenciesSettingsSection();
+        private const string FrequencyWarningAtlasName = "NaturalDisastersRenewal.FrequencyWarning.Atlas";
+        private const string FrequencyWarningSpriteName = "NaturalDisastersRenewal.FrequencyWarning.Icon";
+
+        private const string FrequencyWarningResourceName =
+            "NaturalDisastersRenewal.Resources.Images.icons.Warning2.svg";
+
+        private const float FrequencyWarningReservedWidth = 36f;
+
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeFrequencyHarmonyOptionValues =
         {
             RealTimeDisasterFrequencyPreset.Apocalypse,
@@ -31,12 +37,9 @@ namespace NaturalDisastersRenewal.UI
             RealTimeDisasterFrequencyPreset.Rare
         };
 
-        private const string FrequencyWarningAtlasName = "NaturalDisastersRenewal.FrequencyWarning.Atlas";
-        private const string FrequencyWarningSpriteName = "NaturalDisastersRenewal.FrequencyWarning.Icon";
-        private const string FrequencyWarningResourceName =
-            "NaturalDisastersRenewal.Resources.Images.icons.Warning2.svg";
-        private const float FrequencyWarningReservedWidth = 36f;
         private static UITextureAtlas frequencyWarningAtlas;
+        private readonly AboutSettingsSection aboutSection = new AboutSettingsSection();
+        private readonly DependenciesSettingsSection dependenciesSection = new DependenciesSettingsSection();
         private bool _freezeUI;
         private UIComponent _rootComponent;
         private UIHelper _rootHelper;
@@ -977,7 +980,8 @@ namespace NaturalDisastersRenewal.UI
         }
 
 #if DEBUG
-        private void AddDebugDisasterProgressControls(ref UIHelperBase generalGroup, DisasterSetupModel disasterContainer)
+        private void AddDebugDisasterProgressControls(ref UIHelperBase generalGroup,
+            DisasterSetupModel disasterContainer)
         {
             var debugGroup = generalGroup.AddGroup(LocalizationService.Get("settings.debug.progress.group"));
             var disasterNames = GetDebugDisasterProgressTargetOptions(disasterContainer);
@@ -1018,14 +1022,16 @@ namespace NaturalDisastersRenewal.UI
                         return;
 
                     ClearDebugDisasterProgress(disasterContainer, debugForcedDisasterProgressIndex);
-                    debugDisasterProgressTargetIndex = Mathf.Clamp(selection, 0, disasterContainer.AllDisasters.Count - 1);
+                    debugDisasterProgressTargetIndex =
+                        Mathf.Clamp(selection, 0, disasterContainer.AllDisasters.Count - 1);
                     if (UI_Debug_DisasterProgressEnabled != null && UI_Debug_DisasterProgressEnabled.isChecked)
                         ApplyDebugDisasterProgress(
                             disasterContainer,
                             debugDisasterProgressTargetIndex,
                             UI_Debug_DisasterProgress.value / 100f);
                 });
-            UI_Debug_DisasterProgressTarget.tooltip = LocalizationService.Get("settings.debug.progress.disaster.tooltip");
+            UI_Debug_DisasterProgressTarget.tooltip =
+                LocalizationService.Get("settings.debug.progress.disaster.tooltip");
             UIStyleHelper.ApplyDropDownStyle(UI_Debug_DisasterProgressTarget);
 
             UI_Debug_DisasterProgress = SliderHelper.AddSlider(
@@ -1225,7 +1231,8 @@ namespace NaturalDisastersRenewal.UI
                 ThunderstormModel.GetRealTimeThunderstormFrequencyOptions(),
                 disasterContainer.Thunderstorm.GetRealTimeThunderstormFrequencySelectionIndex(),
                 realTimeActive &&
-                disasterContainer.Thunderstorm.RealTimeThunderstormFrequency != disasterContainer.RealTimeFrequencyHarmony,
+                disasterContainer.Thunderstorm.RealTimeThunderstormFrequency !=
+                disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.Thunderstorm.GetRealTimeThunderstormFrequencyTooltip());
 
             SetFrequencyDropdownWarning(
@@ -1290,7 +1297,8 @@ namespace NaturalDisastersRenewal.UI
             dropDown.items = (string[])options.Clone();
             dropDown.selectedIndex = selectedIndex;
             dropDown.tooltip = showWarning
-                ? tooltip + CommonProperties.NewLine + LocalizationService.Get("settings.frequency_harmony.mismatch.tooltip")
+                ? tooltip + CommonProperties.NewLine +
+                  LocalizationService.Get("settings.frequency_harmony.mismatch.tooltip")
                 : tooltip;
 
             if (warningIcon == null)
@@ -1441,7 +1449,8 @@ namespace NaturalDisastersRenewal.UI
 
             UI_ForestFire_WarmupDays = SliderHelper.AddSlider(
                 ref forestFireGroup,
-                LocalizationService.Get("settings.warmup_period"), 240, 720, 10, disasterContainer.ForestFire.WarmupDays,
+                LocalizationService.Get("settings.warmup_period"), 240, 720, 10,
+                disasterContainer.ForestFire.WarmupDays,
                 delegate(float val)
                 {
                     if (!_freezeUI)
@@ -2023,7 +2032,7 @@ namespace NaturalDisastersRenewal.UI
                 ref UI_Earthquake_EvacuationMode,
                 ref earthquakeGroup,
                 EvacuationModeText,
-                DisasterSimulationUtils.GetAllEvacuationOptions(),
+                DisasterSimulationUtils.GetAllEvacuationOptions(true),
                 ref disasterContainer.Earthquake.EvacuationMode,
                 delegate(int selection)
                 {

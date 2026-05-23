@@ -51,13 +51,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public float WarmupYears
         {
-            get { return probabilityWarmupDays / 360f; }
+            get => probabilityWarmupDays / 360f;
 
             set
             {
                 probabilityWarmupDays = (int)(360 * value);
                 intensityWarmupDays = probabilityWarmupDays / 2;
-                calmDays = probabilityWarmupDays;
+                CalmDays = probabilityWarmupDays;
             }
         }
 
@@ -153,13 +153,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetProbabilityTooltip(float value)
         {
-            if (IsRealTimePatternActive() && calmDaysLeft <= 0)
+            if (IsRealTimePatternActive() && CalmDaysLeft <= 0)
                 return GetRealTimeProbabilityTooltip(value);
 
             return base.GetProbabilityTooltip(value);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
             ref List<DisasterInfoModel> activeDisasters)
         {
             // TODO: When tsunami gets separate auto-evacuate and auto-evacuate/release options, keep the
@@ -212,7 +212,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         out priority))
                     continue;
 
-                float shelterRadius =
+                var shelterRadius =
                     (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8 / 2f;
 
                 if (focusedRadius.HasValue &&
@@ -372,7 +372,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return false;
 
             var distanceFactor = Mathf.Clamp01(1f - waterDistance / searchRadius);
-            var elevationFactor = Mathf.Clamp01(1f - Mathf.Max(0f, elevationAboveWater) / MaxCoastalElevationAboveWater);
+            var elevationFactor =
+                Mathf.Clamp01(1f - Mathf.Max(0f, elevationAboveWater) / MaxCoastalElevationAboveWater);
             priority = Mathf.Clamp01(Mathf.Max(0.25f, distanceFactor * elevationFactor));
             return true;
         }
@@ -392,7 +393,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
                 return GetRealTimePatternProbabilityProgress();
 
-            if (calmDaysLeft > 0)
+            if (CalmDaysLeft > 0)
                 return 0f;
 
             if (probabilityWarmupDays <= 0 || probabilityWarmupDaysLeft <= 0f)
@@ -485,7 +486,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         private void ClearRealTimeCooldownState()
         {
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
             intensityWarmupDaysLeft = 0f;
         }

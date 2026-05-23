@@ -17,8 +17,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float RealTimeGroundwaterFillFactor = 2f;
         private const float RealTimeGroundwaterDrainFactor = 0.5f;
         private const int LocalizedWetnessGridResolution = 25;
+
         private const int LocalizedWetnessGridCellCount =
             LocalizedWetnessGridResolution * LocalizedWetnessGridResolution;
+
         private const int LocalizedWetnessTargetAttempts = 24;
         private const float LocalizedWetnessRainFillFactor = 1.25f;
         private const float LocalizedWetnessDrainFactor = 1f;
@@ -31,6 +33,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float DefaultGroundwaterCapacity = 90f;
         private const float MaxBaseOccurrencePerYear = 0.5f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
+
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeSinkholeFrequencyOptionValues =
         {
             RealTimeDisasterFrequencyPreset.Apocalypse,
@@ -40,10 +43,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             RealTimeDisasterFrequencyPreset.Rare
         };
 
-        [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
         [XmlIgnore] private readonly float[] _localizedWetnessCityFactors = new float[LocalizedWetnessGridCellCount];
         [XmlIgnore] private readonly float[] _localizedWetnessGrid = new float[LocalizedWetnessGridCellCount];
         [XmlIgnore] private readonly float[] _localizedWetnessTerrainFactors = new float[LocalizedWetnessGridCellCount];
+
+        [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
         [XmlIgnore] private bool _localizedWetnessGridInitialized;
         [XmlIgnore] private float _localizedWetnessMaxX;
         [XmlIgnore] private float _localizedWetnessMaxZ;
@@ -51,9 +55,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlIgnore] private float _localizedWetnessMinZ;
 
         [XmlIgnore] public float groundwaterAmount; // groundwaterAmount=1 means rain of intensity 1 during 1 day
+        public float GroundwaterCapacity = DefaultGroundwaterCapacity;
         [XmlIgnore] public float RealTimeCurrentWetPeriodMinutes = -1f;
         [XmlIgnore] public float RealTimeMinutesUntilNextSinkhole = -1f;
-        public float GroundwaterCapacity = DefaultGroundwaterCapacity;
+
         public RealTimeDisasterFrequencyPreset RealTimeSinkholeFrequency =
             RealTimeDisasterFrequencyPreset.Occasional;
 
@@ -64,7 +69,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = MaxBaseOccurrencePerYear; // When groundwater is full
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
-            calmDays = 180;
+            CalmDays = 180;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
         }
@@ -73,7 +78,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (!unlocked) return "Not unlocked yet";
 
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
             {
                 if (IsRealTimePatternActive())
                     return GetRealTimeProbabilityTooltip(value);
@@ -195,7 +200,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return LocalizationService.GetDisasterName(DType);
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             var unitSize = 8;
             var unitsBase = 24; //24 + 4 Original, Distance Fix for proximity
@@ -897,7 +902,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.SetDebugProbabilityProgress(progress);
 
             var clampedProgress = Mathf.Clamp01(progress);
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
             intensityWarmupDaysLeft = 0f;
             groundwaterAmount = GroundwaterCapacity * clampedProgress;
@@ -914,7 +919,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
             {
                 ScheduleNextRealTimeSinkhole();
-                calmDaysLeft = 0f;
+                CalmDaysLeft = 0f;
                 probabilityWarmupDaysLeft = 0f;
                 intensityWarmupDaysLeft = 0f;
             }

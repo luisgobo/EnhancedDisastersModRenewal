@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using ICities;
 using NaturalDisastersRenewal.Common;
@@ -22,6 +23,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float DefaultWarmupYears = 6f;
         private const float MaxBaseOccurrencePerYear = 0.2f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
+
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeEarthquakeFrequencyOptionValues =
         {
             RealTimeDisasterFrequencyPreset.Apocalypse,
@@ -31,24 +33,27 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             RealTimeDisasterFrequencyPreset.Rare
         };
 
-        [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
         [XmlIgnore] private readonly HashSet<ushort> _pendingDetectionEarthquakes = new HashSet<ushort>();
-        [XmlIgnore] public byte aftershockMaxIntensity;
-        [XmlIgnore] public byte aftershocksCount;
+
+        [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
+
+        [XmlIgnore] private bool _noCracksInTheGroud;
+        [XmlIgnore] public byte AftershockMaxIntensity;
+        [XmlIgnore] public byte AftershocksCount;
         public bool AftershocksEnabled = true;
         public EarthquakeCrackOptions EarthquakeCrackMode = EarthquakeCrackOptions.NoCracks;
-        [XmlIgnore] public float lastAngle;
-        [XmlIgnore] public Vector3 lastTargetPosition;
-        [XmlIgnore] public byte mainStrikeIntensity;
+        [XmlIgnore] public float LastAngle;
+        [XmlIgnore] public Vector3 LastTargetPosition;
+        [XmlIgnore] public byte MainStrikeIntensity;
         public float MinimalIntensityForCracks = 12.0f;
         [XmlIgnore] public float RealTimeCurrentAftershockPeriodMinutes = -1f;
         [XmlIgnore] public float RealTimeCurrentSeismicPeriodMinutes = -1f;
+
         public RealTimeDisasterFrequencyPreset RealTimeEarthquakeFrequency =
             RealTimeDisasterFrequencyPreset.Occasional;
+
         [XmlIgnore] public float RealTimeMinutesUntilNextAftershock = -1f;
         [XmlIgnore] public float RealTimeMinutesUntilNextEarthquake = -1f;
-
-        [XmlIgnore] private bool NoCracksInTheGroud;
 
         public EarthquakeModel()
         {
@@ -69,18 +74,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 probabilityWarmupDays = (int)(360 * value);
                 intensityWarmupDays = probabilityWarmupDays / 2;
-                calmDays = probabilityWarmupDays / 2;
+                CalmDays = probabilityWarmupDays / 2;
             }
         }
 
         public override string GetProbabilityTooltip(float value)
         {
-            if (aftershocksCount > 0)
+            if (AftershocksCount > 0)
             {
                 if (IsRealTimePatternActive())
                     return GetRealTimeAftershockProbabilityTooltip(value);
 
-                return LocalizationService.Format("tooltip.earthquake.aftershocks", aftershocksCount);
+                return LocalizationService.Format("tooltip.earthquake.aftershocks", AftershocksCount);
             }
 
             if (IsRealTimePatternActive())
@@ -98,7 +103,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             ClearRealTimeCooldownState();
 
-            if (aftershocksCount > 0)
+            if (AftershocksCount > 0)
             {
                 UpdateRealTimeAftershockSchedule();
                 return;
@@ -109,12 +114,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override float GetCurrentOccurrencePerYearLocal()
         {
-            if (aftershocksCount > 0)
+            if (AftershocksCount > 0)
                 return IsRealTimePatternActive()
                     ? IsRealTimeAftershockDue()
                         ? 365f / GetSimulationDaysPerFrame() * GuaranteedOccurrencePerFrame
                         : 0f
-                    : 12 * aftershocksCount;
+                    : 12 * AftershocksCount;
 
             if (IsRealTimePatternActive())
                 return IsRealTimeEarthquakeDue()
@@ -164,13 +169,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (_pendingDetectionEarthquakes.Count == 0)
                 return;
 
-            var detected = new List<ushort>();
-            foreach (var disasterId in _pendingDetectionEarthquakes)
-                if (TryForceDetectEarthquake(disasterId))
-                    detected.Add(disasterId);
+            var detected = _pendingDetectionEarthquakes
+                .Where(TryForceDetectEarthquake).ToList();
 
-            for (var i = 0; i < detected.Count; i++)
-                _pendingDetectionEarthquakes.Remove(detected[i]);
+            foreach (var t in detected)
+                _pendingDetectionEarthquakes.Remove(t);
         }
 
         private bool TryForceDetectEarthquake(ushort disasterId)
@@ -222,7 +225,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (!AftershocksEnabled)
             {
-                aftershocksCount = 0;
+                AftershocksCount = 0;
                 InvalidateRealTimeAftershockSchedule();
                 if (IsRealTimePatternActive())
                 {
@@ -235,22 +238,22 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return;
             }
 
-            var isAftershock = aftershocksCount > 0;
+            var isAftershock = AftershocksCount > 0;
 
             if (!isAftershock)
             {
-                mainStrikeIntensity = intensity;
-                aftershockMaxIntensity = (byte)(10 + (intensity - 10) * 3 / 4);
+                MainStrikeIntensity = intensity;
+                AftershockMaxIntensity = (byte)(10 + (intensity - 10) * 3 / 4);
                 if (intensity > 20)
-                    aftershocksCount = (byte)(1 + Services.Simulation.m_randomizer.Int32(1 + (uint)intensity / 20));
+                    AftershocksCount = (byte)(1 + Services.Simulation.m_randomizer.Int32(1 + (uint)intensity / 20));
             }
             else
             {
-                aftershocksCount--;
-                aftershockMaxIntensity = (byte)(10 + (aftershockMaxIntensity - 10) * 3 / 4);
+                AftershocksCount--;
+                AftershockMaxIntensity = (byte)(10 + (AftershockMaxIntensity - 10) * 3 / 4);
             }
 
-            if (aftershocksCount > 0)
+            if (AftershocksCount > 0)
             {
                 if (IsRealTimePatternActive())
                 {
@@ -259,15 +262,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 }
                 else
                 {
-                    calmDays = 15;
-                    calmDaysLeft = calmDays;
+                    CalmDays = 15;
+                    CalmDaysLeft = CalmDays;
                     probabilityWarmupDaysLeft = 0;
                     intensityWarmupDaysLeft = 0;
                 }
 
                 Debug.Log(string.Format(
                     CommonProperties.LogMessagePrefix + "{0} aftershocks are still going to happen.",
-                    aftershocksCount));
+                    AftershocksCount));
             }
             else
             {
@@ -279,15 +282,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                     return;
                 }
 
-                calmDays = GetMainEarthquakeCalmDays();
-                base.OnDisasterStarted(mainStrikeIntensity);
-                calmDays = GetMainEarthquakeCalmDays();
+                CalmDays = GetMainEarthquakeCalmDays();
+                base.OnDisasterStarted(MainStrikeIntensity);
+                CalmDays = GetMainEarthquakeCalmDays();
             }
         }
 
         protected override bool FindTarget(DisasterInfo disasterInfo, out Vector3 targetPosition, out float angle)
         {
-            if (aftershocksCount == 0)
+            if (AftershocksCount == 0)
             {
                 var result = base.FindTarget(disasterInfo, out targetPosition, out angle);
                 if (!result && TryFindRandomTargetInConfiguredArea(out targetPosition, out angle))
@@ -302,8 +305,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 if (result)
                 {
-                    lastTargetPosition = targetPosition;
-                    lastAngle = angle;
+                    LastTargetPosition = targetPosition;
+                    LastAngle = angle;
                 }
 
                 return result;
@@ -312,14 +315,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (TryFindNearbyAftershockTarget(out targetPosition, out angle))
                 return true;
 
-            targetPosition = lastTargetPosition;
-            angle = lastAngle;
+            targetPosition = LastTargetPosition;
+            angle = LastAngle;
             return true;
         }
 
         protected override byte GetRandomIntensity(byte maxIntensity)
         {
-            if (aftershocksCount > 0) return (byte)Services.Simulation.m_randomizer.Int32(10, aftershockMaxIntensity);
+            if (AftershocksCount > 0) return (byte)Services.Simulation.m_randomizer.Int32(10, AftershockMaxIntensity);
 
             return base.GetRandomIntensity(maxIntensity);
         }
@@ -334,7 +337,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return LocalizationService.GetDisasterName(DType);
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             var unitSize = 8;
             var unitsBase = 30; //24 Original, Distance Fix for proximity
@@ -397,7 +400,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return (float)Math.Sqrt(unitCalculation / 2 * unitSize);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
             ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX,
@@ -480,20 +483,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (EarthquakeCrackMode)
             {
                 case EarthquakeCrackOptions.NoCracks:
-                    NoCracksInTheGroud = true;
+                    _noCracksInTheGroud = true;
                     break;
 
                 case EarthquakeCrackOptions.AlwaysCracks:
-                    NoCracksInTheGroud = false;
+                    _noCracksInTheGroud = false;
                     break;
 
                 case EarthquakeCrackOptions ecp when ecp == EarthquakeCrackOptions.CracksBasedOnIntensity &&
                                                      intensity >= MinimalIntensityForCracks * 10:
-                    NoCracksInTheGroud = false;
+                    _noCracksInTheGroud = false;
                     break;
 
                 default:
-                    NoCracksInTheGroud = true;
+                    _noCracksInTheGroud = true;
                     break;
             }
 
@@ -512,7 +515,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public float GetRealTimePatternProbabilityProgress()
         {
-            if (aftershocksCount > 0)
+            if (AftershocksCount > 0)
             {
                 EnsureRealTimeAftershockSchedule();
                 return Mathf.Clamp01(1f - RealTimeMinutesUntilNextAftershock /
@@ -531,10 +534,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
                 return GetRealTimePatternProbabilityProgress();
 
-            if (calmDaysLeft > 0)
+            if (CalmDaysLeft > 0)
                 return 0f;
 
-            if (aftershocksCount > 0)
+            if (AftershocksCount > 0)
                 return 1f;
 
             if (probabilityWarmupDays <= 0 || probabilityWarmupDaysLeft <= 0f)
@@ -556,18 +559,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 ScheduleNextRealTimeEarthquake(progress);
                 InvalidateRealTimeAftershockSchedule();
-                aftershocksCount = 0;
+                AftershocksCount = 0;
                 ClearRealTimeCooldownState();
                 return;
             }
 
-            aftershocksCount = 0;
+            AftershocksCount = 0;
         }
 
         public override void ResetProbabilityProgress()
         {
             base.ResetProbabilityProgress();
-            aftershocksCount = 0;
+            AftershocksCount = 0;
             InvalidateRealTimeAftershockSchedule();
 
             if (IsRealTimePatternActive())
@@ -588,7 +591,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 string.Format("{0:00.00}%", probabilityValue * 100),
                 CommonProperties.NewLine,
                 LocalizationService.Get("tooltip.earthquake.realtime_active"),
-                LocalizationService.Format("tooltip.earthquake.realtime_reference", GetRealTimeEarthquakeFrequencyName()),
+                LocalizationService.Format("tooltip.earthquake.realtime_reference",
+                    GetRealTimeEarthquakeFrequencyName()),
                 LocalizationService.Format(
                     "tooltip.earthquake.current_seismic_interval",
                     DisasterSimulationUtils.FormatRealTimeMinutes(RealTimeCurrentSeismicPeriodMinutes)),
@@ -605,7 +609,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 LocalizationService.Get("tooltip.progress"),
                 string.Format("{0:00.00}%", probabilityValue * 100),
                 CommonProperties.NewLine,
-                LocalizationService.Format("tooltip.earthquake.aftershocks", aftershocksCount),
+                LocalizationService.Format("tooltip.earthquake.aftershocks", AftershocksCount),
                 LocalizationService.Get("tooltip.earthquake.realtime_aftershocks_active"),
                 LocalizationService.Format(
                     "tooltip.earthquake.current_aftershock_interval",
@@ -703,7 +707,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         private void ClearRealTimeCooldownState()
         {
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
             intensityWarmupDaysLeft = 0f;
         }
@@ -810,7 +814,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             targetPosition = Vector3.zero;
             angle = 0f;
 
-            if (lastTargetPosition == Vector3.zero)
+            if (LastTargetPosition == Vector3.zero)
                 return false;
 
             var simulation = Services.Simulation;
@@ -819,7 +823,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return false;
 
             var radius = Mathf.Clamp(
-                mainStrikeIntensity * AftershockRadiusPerIntensityPoint,
+                MainStrikeIntensity * AftershockRadiusPerIntensityPoint,
                 MinimumAftershockRadius,
                 MaximumAftershockRadius);
 
@@ -827,7 +831,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 var randomAngle = simulation.m_randomizer.Int32(0, 10000) * 0.0006283185f;
                 var randomDistance = Mathf.Sqrt(simulation.m_randomizer.Int32(0, 10000) / 10000f) * radius;
-                var candidate = lastTargetPosition;
+                var candidate = LastTargetPosition;
                 candidate.x += Mathf.Cos(randomAngle) * randomDistance;
                 candidate.z += Mathf.Sin(randomAngle) * randomDistance;
                 candidate.y = terrain.SampleRawHeightSmoothWithWater(candidate, false, 0f);
@@ -886,8 +890,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 var isUnlocked = IsAreaUnlocked(x, z);
                 var allowed = area == OccurrenceAreas.Everywhere ||
-                              area == OccurrenceAreas.UnlockedAreas && isUnlocked ||
-                              area == OccurrenceAreas.LockedAreas && !isUnlocked;
+                              (area == OccurrenceAreas.UnlockedAreas && isUnlocked) ||
+                              (area == OccurrenceAreas.LockedAreas && !isUnlocked);
                 if (!allowed)
                     continue;
 
@@ -1040,7 +1044,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
                 if (disasterInfo.m_disasterAI is EarthquakeAI earthquakeAI)
                 {
-                    if (isSet && NoCracksInTheGroud)
+                    if (isSet && _noCracksInTheGroud)
                     {
                         earthquakeAI.m_crackLength = 0;
                         earthquakeAI.m_crackWidth = 0;

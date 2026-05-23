@@ -285,7 +285,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.SetDebugProbabilityProgress(progress);
 
             var clampedProgress = Mathf.Clamp01(progress);
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
             intensityWarmupDaysLeft = 0f;
 
@@ -305,7 +305,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override void ResetProbabilityProgress()
         {
             base.ResetProbabilityProgress();
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
             intensityWarmupDaysLeft = 0f;
 
@@ -593,7 +593,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         // - Limit activation by distance from the impact and/or unlocked areas so inland shelters are not evacuated unnecessarily.
         // - Keep normal focused evacuation behavior unchanged for land impacts.
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             var unitSize = 8;
             var unitsBase = 24; //24 Original, Distance Fix for proximity

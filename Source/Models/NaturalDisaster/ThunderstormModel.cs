@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 using ICities;
 using NaturalDisastersRenewal.Common;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.Disaster;
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
 
 namespace NaturalDisastersRenewal.Models.NaturalDisaster
@@ -16,6 +16,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float MaxRealTimeDeltaSeconds = 5f;
         private const float MaxBaseOccurrencePerYear = 6f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
+
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeThunderstormFrequencyOptionValues =
         {
             RealTimeDisasterFrequencyPreset.Apocalypse,
@@ -26,11 +27,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         };
 
         [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
+        public int MaxProbabilityMonth = 7;
 
         public float RainFactor = 2.0f;
-        public int MaxProbabilityMonth = 7;
         [XmlIgnore] public float RealTimeCurrentStormPeriodMinutes = -1f;
         [XmlIgnore] public float RealTimeMinutesUntilNextThunderstorm = -1f;
+
         public RealTimeDisasterFrequencyPreset RealTimeThunderstormFrequency =
             RealTimeDisasterFrequencyPreset.Occasional;
 
@@ -42,7 +44,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             BaseOccurrencePerYear = 3.0f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            calmDays = 30;
+            CalmDays = 30;
             probabilityWarmupDays = 45;
             intensityWarmupDays = 60;
             EvacuationMode = EvacuationOptions.ManualEvacuation;
@@ -50,20 +52,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetProbabilityTooltip(float value)
         {
-            if (!unlocked)
-            {
-                return LocalizationService.Get("tooltip.thunderstorm.outside_area");
-            }
+            if (!unlocked) return LocalizationService.Get("tooltip.thunderstorm.outside_area");
 
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
             {
                 if (IsRealTimePatternActive())
                     return GetRealTimeProbabilityTooltip(value);
 
                 if (Services.Weather.m_currentRain > 0 && RainFactor > 1)
-                {
                     return LocalizationService.Get("tooltip.thunderstorm.rain_increase");
-                }
             }
 
             return base.GetProbabilityTooltip(value);
@@ -71,10 +68,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         protected override void OnSimulationFrameLocal()
         {
-            if (IsRealTimePatternActive())
-            {
-                UpdateRealTimeThunderstormSchedule();
-            }
+            if (IsRealTimePatternActive()) UpdateRealTimeThunderstormSchedule();
         }
 
         protected override float GetCurrentOccurrencePerYearLocal()
@@ -96,13 +90,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 : base.GetSimulationDaysPerFrame();
         }
 
-        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId, ref List<DisasterInfoModel> activeDisasters)
+        public override void OnDisasterActivated(DisasterSettings disasterInfo, ushort disasterId,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfo.type |= DisasterType.ThunderStorm;
             base.OnDisasterActivated(disasterInfo, disasterId, ref activeDisasters);
         }
 
-        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        public override void OnDisasterDeactivated(DisasterInfoModel disasterInfoUnified,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.ThunderStorm;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
@@ -110,7 +106,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             base.OnDisasterDeactivated(disasterInfoUnified, ref activeDisasters);
         }
 
-        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified, ref List<DisasterInfoModel> activeDisasters)
+        public override void OnDisasterDetected(DisasterInfoModel disasterInfoUnified,
+            ref List<DisasterInfoModel> activeDisasters)
         {
             disasterInfoUnified.DisasterInfo.type |= DisasterType.ThunderStorm;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
@@ -124,7 +121,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
                 ResetRealTimeSchedule();
 
-            base.OnDisasterStarted(intensity);            
+            base.OnDisasterStarted(intensity);
         }
 
         public override bool CheckDisasterAIType(object disasterAI)
@@ -141,7 +138,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             base.CopySettings(disaster);
 
-            ThunderstormModel d = disaster as ThunderstormModel;
+            var d = disaster as ThunderstormModel;
             if (d != null)
             {
                 RainFactor = d.RainFactor;
@@ -335,8 +332,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         private float GetSeasonFactor()
         {
-            DateTime dt = Services.Simulation.m_currentGameTime;
-            int deltaMonth = Math.Abs(dt.Month - MaxProbabilityMonth);
+            var dt = Services.Simulation.m_currentGameTime;
+            var deltaMonth = Math.Abs(dt.Month - MaxProbabilityMonth);
             if (deltaMonth > 6) deltaMonth = 12 - deltaMonth;
 
             return Mathf.Clamp01(1f - deltaMonth / 6f);
@@ -375,10 +372,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
             {
                 ScheduleNextRealTimeThunderstorm(progress);
-                calmDaysLeft = 0f;
+                CalmDaysLeft = 0f;
                 probabilityWarmupDaysLeft = 0f;
                 intensityWarmupDaysLeft = 0f;
-                return;
             }
         }
 
@@ -388,7 +384,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
             {
                 ScheduleNextRealTimeThunderstorm();
-                calmDaysLeft = 0f;
+                CalmDaysLeft = 0f;
                 probabilityWarmupDaysLeft = 0f;
                 intensityWarmupDaysLeft = 0f;
             }
