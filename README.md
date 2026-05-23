@@ -2,7 +2,16 @@
 
 ### Mod for Cities: Skylines.
 
-### Current Version: 1.2.3
+### Current Version: 1.3.0
+
+## Version 1.3.0 highlights
+
+* Major refactor from the refactor-018 branch series.
+* Improved Real Time compatibility for meteor strikes, forest fires, sinkholes, thunderstorms, tornadoes, earthquakes, and tsunamis.
+* Rebuilt the in-game disasters panel with tabs, dependency status, localized text, progress bars, action buttons, and debug controls.
+* Replaced the settings screen with a section-based UI, including About and Dependencies sections.
+* Added English and Spanish localization for panel text, settings labels, tooltips, dependency warnings, and about-screen content.
+* Added compatibility checks for Real Time, Extended Info Panel 2, ACME, and related behavior integrations.
 
 ## General features
 

@@ -576,23 +576,6 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return DisasterSimulationUtils.IsRealTimeModActive();
         }
 
-        // TODO: Evaluate a configurable meteor targeting mode that prefers populated areas. (Version 2.0)
-        // Requirements:
-        // - Keep the current vanilla/random targeting as the default behavior.
-        // - Add an optional "near populated areas" mode that selects a populated building or dense area.
-        // - Prefer an offset around the populated target instead of always hitting the building directly.
-        // - Use a safe fallback to vanilla/random when no valid populated target is found.
-        // - Apply the same target selection regardless of Real Time being active; Real Time only changes when meteors occur.
-        // - Consider a future setting for direct-hit risk or offset radius before implementing.
-
-        // TODO: Evaluate coastal shelter evacuation for meteor strikes that target water. (Version 2.0)
-        // Requirements:
-        // - Detect water impacts by comparing terrain height against terrain-with-water height at the meteor target.
-        // - Add an optional setting, disabled by default, to activate coastal shelters when a detected meteor will hit water.
-        // - Infer coastal shelters by water proximity/elevation because the game does not expose a dedicated coastal shelter type.
-        // - Limit activation by distance from the impact and/or unlocked areas so inland shelters are not evacuated unnecessarily.
-        // - Keep normal focused evacuation behavior unchanged for land impacts.
-
         protected override float CalculateDestructionRadio(byte intensity)
         {
             var unitSize = 8;
