@@ -18,6 +18,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float LightFogProgressFactor = 0.35f;
         private const float DenseFogProgressFactor = 0.1f;
         private const float MaxRainProgressBonus = 0.5f;
+        private const float MaxBaseOccurrencePerYear = 0.5f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
 
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeTornadoFrequencyOptionValues =
@@ -44,13 +45,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public TornadoModel()
         {
             DType = DisasterType.Tornado;
-            BaseOccurrencePerYear = 1.5f;
+            BaseOccurrencePerYear = 0.35f;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
 
-            calmDays = 360 * 2;
-            probabilityWarmupDays = 180;
-            intensityWarmupDays = 180;
-            intensityWarmupDays = 180;
+            CalmDays = 360 * 4;
+            probabilityWarmupDays = 360;
+            intensityWarmupDays = 360;
         }
 
         protected override void OnSimulationFrameLocal()
@@ -86,7 +86,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
                 return GetRealTimeProbabilityTooltip(value);
 
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
                 if (!IsRealTimePatternActive() && NoTornadoDuringFog && GetCurrentFog() > 0f)
                     return LocalizationService.Format("tooltip.tornado.no_during_fog", GetName());
 
@@ -233,7 +233,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         private void ClearRealTimeCooldownState()
         {
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
         }
 
@@ -335,6 +335,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (RealTimeCurrentTornadoPeriodMinutes <= 0f || RealTimeMinutesUntilNextTornado < 0f)
                 ScheduleNextRealTimeTornado();
 
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
+            RealTimeDisasterTiming.ClampScheduleToRange(
+                minMinutes,
+                maxMinutes,
+                ref RealTimeCurrentTornadoPeriodMinutes,
+                ref RealTimeMinutesUntilNextTornado);
+
             if (RealTimeMinutesUntilNextTornado > RealTimeCurrentTornadoPeriodMinutes)
                 RealTimeMinutesUntilNextTornado = RealTimeCurrentTornadoPeriodMinutes;
         }
@@ -425,25 +432,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (RealTimeTornadoFrequency)
             {
                 case RealTimeDisasterFrequencyPreset.Apocalypse:
-                    minMinutes = 15f;
-                    maxMinutes = 30f;
+                    minMinutes = 60f;
+                    maxMinutes = 120f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Frequent:
-                    minMinutes = 30f;
-                    maxMinutes = 90f;
+                    minMinutes = 180f;
+                    maxMinutes = 360f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Occasional:
-                    minMinutes = 120f;
-                    maxMinutes = 240f;
+                    minMinutes = 480f;
+                    maxMinutes = 960f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Uncommon:
                 default:
-                    minMinutes = 240f;
-                    maxMinutes = 480f;
+                    minMinutes = 960f;
+                    maxMinutes = 1920f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Rare:
-                    minMinutes = 480f;
-                    maxMinutes = 960f;
+                    minMinutes = 1920f;
+                    maxMinutes = 3840f;
                     break;
             }
         }
@@ -467,6 +474,14 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             ScheduleNextRealTimeTornado(currentProgress);
         }
 
+        public void NormalizeRealisticRecurrenceSettings()
+        {
+            BaseOccurrencePerYear = DisasterRecurrenceTuning.ClampOccurrencePerYear(
+                BaseOccurrencePerYear,
+                0.02f,
+                MaxBaseOccurrencePerYear);
+        }
+
         public override void SetDebugProbabilityProgress(float progress)
         {
             base.SetDebugProbabilityProgress(progress);
@@ -475,7 +490,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 ScheduleNextRealTimeTornado(progress);
                 ClearRealTimeCooldownState();
-                return;
+            }
+        }
+
+        public override void ResetProbabilityProgress()
+        {
+            base.ResetProbabilityProgress();
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeTornado();
+                ClearRealTimeCooldownState();
             }
         }
 
@@ -534,7 +558,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             var unitSize = 8;
             var unitsBase = 72;
@@ -614,6 +638,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 EnableTornadoDestruction = tornado.EnableTornadoDestruction;
                 MinimalIntensityForDestruction = tornado.MinimalIntensityForDestruction;
                 SetRealTimeTornadoFrequency(tornado.RealTimeTornadoFrequency);
+                NormalizeRealisticRecurrenceSettings();
             }
         }
     }

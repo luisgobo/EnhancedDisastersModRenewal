@@ -20,8 +20,14 @@ namespace NaturalDisastersRenewal.UI
 {
     public class ModSettingsScreen
     {
-        private readonly AboutSettingsSection aboutSection = new AboutSettingsSection();
-        private readonly DependenciesSettingsSection dependenciesSection = new DependenciesSettingsSection();
+        private const string FrequencyWarningAtlasName = "NaturalDisastersRenewal.FrequencyWarning.Atlas";
+        private const string FrequencyWarningSpriteName = "NaturalDisastersRenewal.FrequencyWarning.Icon";
+
+        private const string FrequencyWarningResourceName =
+            "NaturalDisastersRenewal.Resources.Images.icons.Warning2.svg";
+
+        private const float FrequencyWarningReservedWidth = 36f;
+
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeFrequencyHarmonyOptionValues =
         {
             RealTimeDisasterFrequencyPreset.Apocalypse,
@@ -31,12 +37,9 @@ namespace NaturalDisastersRenewal.UI
             RealTimeDisasterFrequencyPreset.Rare
         };
 
-        private const string FrequencyWarningAtlasName = "NaturalDisastersRenewal.FrequencyWarning.Atlas";
-        private const string FrequencyWarningSpriteName = "NaturalDisastersRenewal.FrequencyWarning.Icon";
-        private const string FrequencyWarningResourceName =
-            "NaturalDisastersRenewal.Resources.Images.icons.Warning2.svg";
-        private const float FrequencyWarningReservedWidth = 36f;
         private static UITextureAtlas frequencyWarningAtlas;
+        private readonly AboutSettingsSection aboutSection = new AboutSettingsSection();
+        private readonly DependenciesSettingsSection dependenciesSection = new DependenciesSettingsSection();
         private bool _freezeUI;
         private UIComponent _rootComponent;
         private UIHelper _rootHelper;
@@ -55,13 +58,16 @@ namespace NaturalDisastersRenewal.UI
         private UISlider UI_General_PartialEvacuationRadius;
         private UISlider UI_General_MaxPopulationToTrigguerHigherDisasters;
         private UICheckBox UI_General_ScaleMaxIntensityWithPopulation;
+        private UICheckBox UI_General_AllowExtremeIntensities;
         private UICheckBox UI_General_RecordDisasterEventsChkBox;
         private UICheckBox UI_General_ShowDisasterPanelButton;
         private UITextField UI_General_TogglePanelHotkeyField;
 #if DEBUG
         private UIDropDown UI_Debug_DisasterProgressTarget;
+        private UICheckBox UI_Debug_DisasterProgressEnabled;
         private UISlider UI_Debug_DisasterProgress;
         private int debugDisasterProgressTargetIndex;
+        private int debugForcedDisasterProgressIndex = -1;
 #endif
 
         //Forest Fire
@@ -73,6 +79,7 @@ namespace NaturalDisastersRenewal.UI
         private UIDropDown UI_ForestFire_RealTimeFrequency;
         private UISprite UI_ForestFire_RealTimeFrequencyWarning;
         private UIDropDown UI_ForestFire_EvacuationMode;
+        private UISlider UI_ForestFire_MaxGeneratedIntensity;
 
         //Thunderstorm
         private UICheckBox UI_Thunderstorm_Enabled;
@@ -83,6 +90,7 @@ namespace NaturalDisastersRenewal.UI
         private UIDropDown UI_Thunderstorm_RealTimeFrequency;
         private UISprite UI_Thunderstorm_RealTimeFrequencyWarning;
         private UIDropDown UI_Thunderstorm_EvacuationMode;
+        private UISlider UI_Thunderstorm_MaxGeneratedIntensity;
 
         //Sunkhole
         private UICheckBox UI_Sinkhole_Enabled;
@@ -92,6 +100,7 @@ namespace NaturalDisastersRenewal.UI
         private UIDropDown UI_Sinkhole_RealTimeFrequency;
         private UISprite UI_Sinkhole_RealTimeFrequencyWarning;
         private UIDropDown UI_Sinkhole_EvacuationMode;
+        private UISlider UI_Sinkhole_MaxGeneratedIntensity;
 
         //Tornado
         private UICheckBox UI_Tornado_Enabled;
@@ -104,6 +113,7 @@ namespace NaturalDisastersRenewal.UI
         private UIDropDown UI_Tornado_EvacuationMode;
         private UICheckBox UI_Tornado_EnableDestruction;
         private UISlider UI_Tornado_IntensityDestructionStart;
+        private UISlider UI_Tornado_MaxGeneratedIntensity;
 
         //Tsunami
         private UICheckBox UI_Tsunami_Enabled;
@@ -113,11 +123,13 @@ namespace NaturalDisastersRenewal.UI
         private UIDropDown UI_Tsunami_RealTimeFrequency;
         private UISprite UI_Tsunami_RealTimeFrequencyWarning;
         private UIDropDown UI_Tsunami_EvacuationMode;
+        private UISlider UI_Tsunami_MaxGeneratedIntensity;
 
         //Earthquake
         private UICheckBox UI_Earthquake_Enabled;
 
         private UISlider UI_Earthquake_MinIntensityToCrack;
+        private UISlider UI_Earthquake_MaxGeneratedIntensity;
         private UISlider UI_Earthquake_MaxProbability;
         private UISlider UI_Earthquake_WarmupYears;
         private UICheckBox UI_Earthquake_AftershocksEnabled;
@@ -139,6 +151,7 @@ namespace NaturalDisastersRenewal.UI
         private UICheckBox UI_MeteorStrike_MeteorMediumPeriodEnabled;
         private UICheckBox UI_MeteorStrike_MeteorShortPeriodEnabled;
         private UIDropDown UI_MeteorStrike_EvacuationMode;
+        private UISlider UI_MeteorStrike_MaxGeneratedIntensity;
 
         #endregion UI Components
 
@@ -199,6 +212,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_RealTimeFrequencyHarmony.selectedIndex =
                 GetRealTimeFrequencyHarmonySelectionIndex(disasterSetupModel.RealTimeFrequencyHarmony);
             UI_General_RealTimeFrequencyHarmony.tooltip = GetRealTimeFrequencyHarmonyTooltip();
+            SetRealTimeFrequencyHarmonyAvailability(DisasterSimulationUtils.IsRealTimeModActive());
             UI_General_DisableDisasterFocus.isChecked = disasterSetupModel.DisableDisasterFocus;
             RefreshDisableDisasterFocusAcmeWarning();
             UI_General_PauseOnDisasterStarts.isChecked = disasterSetupModel.PauseOnDisasterStarts;
@@ -207,6 +221,8 @@ namespace NaturalDisastersRenewal.UI
                 disasterSetupModel.MaxPopulationToTriggerHigherDisasters;
 
             UI_General_ScaleMaxIntensityWithPopulation.isChecked = disasterSetupModel.ScaleMaxIntensityWithPopulation;
+            UI_General_AllowExtremeIntensities.isChecked = disasterSetupModel.AllowExtremeIntensities;
+            RefreshExtremeIntensityControlsAvailability(disasterSetupModel.AllowExtremeIntensities);
             UI_General_RecordDisasterEventsChkBox.isChecked = disasterSetupModel.RecordDisasterEvents;
             UI_General_ShowDisasterPanelButton.isChecked = disasterSetupModel.ShowDisasterPanelButton;
             RefreshHotkeyFieldText();
@@ -217,6 +233,7 @@ namespace NaturalDisastersRenewal.UI
             UI_ForestFireMaxProbability.value = disasterSetupModel.ForestFire.BaseOccurrencePerYear;
             UI_ForestFire_WarmupDays.value = disasterSetupModel.ForestFire.WarmupDays;
             UI_ForestFire_FogRetardsDryTime.isChecked = disasterSetupModel.ForestFire.FogRetardsDryTime;
+            UI_ForestFire_MaxGeneratedIntensity.value = disasterSetupModel.ForestFire.MaxGeneratedIntensity;
             UI_ForestFire_RealTimeFrequency.selectedIndex =
                 disasterSetupModel.ForestFire.GetRealTimeForestFireFrequencySelectionIndex();
             UI_ForestFire_RealTimeFrequency.tooltip =
@@ -228,6 +245,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Thunderstorm_MaxProbability.value = disasterSetupModel.Thunderstorm.BaseOccurrencePerYear;
             UI_Thunderstorm_MaxProbabilityMonth.selectedIndex = disasterSetupModel.Thunderstorm.MaxProbabilityMonth - 1;
             UI_Thunderstorm_RainFactor.value = disasterSetupModel.Thunderstorm.RainFactor;
+            UI_Thunderstorm_MaxGeneratedIntensity.value = disasterSetupModel.Thunderstorm.MaxGeneratedIntensity;
             UI_Thunderstorm_RealTimeFrequency.selectedIndex =
                 disasterSetupModel.Thunderstorm.GetRealTimeThunderstormFrequencySelectionIndex();
             UI_Thunderstorm_RealTimeFrequency.tooltip =
@@ -238,6 +256,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Sinkhole_EvacuationMode.selectedIndex = (int)disasterSetupModel.Sinkhole.EvacuationMode;
             UI_Sinkhole_MaxProbability.value = disasterSetupModel.Sinkhole.BaseOccurrencePerYear;
             UI_Sinkhole_GroundwaterCapacity.value = disasterSetupModel.Sinkhole.GroundwaterCapacity;
+            UI_Sinkhole_MaxGeneratedIntensity.value = disasterSetupModel.Sinkhole.MaxGeneratedIntensity;
             UI_Sinkhole_RealTimeFrequency.selectedIndex =
                 disasterSetupModel.Sinkhole.GetRealTimeSinkholeFrequencySelectionIndex();
             UI_Sinkhole_RealTimeFrequency.tooltip =
@@ -249,6 +268,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Tornado_MaxProbability.value = disasterSetupModel.Tornado.BaseOccurrencePerYear;
             UI_Tornado_MaxProbabilityMonth.selectedIndex = disasterSetupModel.Tornado.MaxProbabilityMonth - 1;
             UI_Tornado_NoDuringFog.isChecked = disasterSetupModel.Tornado.NoTornadoDuringFog;
+            UI_Tornado_MaxGeneratedIntensity.value = disasterSetupModel.Tornado.MaxGeneratedIntensity;
             UI_Tornado_RealTimeFrequency.selectedIndex =
                 disasterSetupModel.Tornado.GetRealTimeTornadoFrequencySelectionIndex();
             UI_Tornado_RealTimeFrequency.tooltip =
@@ -261,6 +281,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Tsunami_EvacuationMode.selectedIndex = (int)disasterSetupModel.Tsunami.EvacuationMode;
             UI_Tsunami_MaxProbability.value = disasterSetupModel.Tsunami.BaseOccurrencePerYear;
             UI_Tsunami_WarmupYears.value = disasterSetupModel.Tsunami.WarmupYears;
+            UI_Tsunami_MaxGeneratedIntensity.value = disasterSetupModel.Tsunami.MaxGeneratedIntensity;
             UI_Tsunami_RealTimeFrequency.selectedIndex =
                 disasterSetupModel.Tsunami.GetRealTimeTsunamiFrequencySelectionIndex();
             UI_Tsunami_RealTimeFrequency.tooltip =
@@ -273,6 +294,7 @@ namespace NaturalDisastersRenewal.UI
             UI_Earthquake_MaxProbability.value = disasterSetupModel.Earthquake.BaseOccurrencePerYear;
             UI_Earthquake_WarmupYears.value = disasterSetupModel.Earthquake.WarmupYears;
             UI_Earthquake_AftershocksEnabled.isChecked = disasterSetupModel.Earthquake.AftershocksEnabled;
+            UI_Earthquake_MaxGeneratedIntensity.value = disasterSetupModel.Earthquake.MaxGeneratedIntensity;
             UI_Earthquake_RealTimeFrequency.selectedIndex =
                 disasterSetupModel.Earthquake.GetRealTimeEarthquakeFrequencySelectionIndex();
             UI_Earthquake_RealTimeFrequency.tooltip =
@@ -283,17 +305,18 @@ namespace NaturalDisastersRenewal.UI
             UI_MeteorStrike_Enabled.isChecked = disasterSetupModel.MeteorStrike.Enabled;
             UI_MeteorStrike_EvacuationMode.selectedIndex = (int)disasterSetupModel.MeteorStrike.EvacuationMode;
             UI_MeteorStrike_MaxProbability.value = disasterSetupModel.MeteorStrike.BaseOccurrencePerYear;
+            UI_MeteorStrike_MaxGeneratedIntensity.value = disasterSetupModel.MeteorStrike.MaxGeneratedIntensity;
             UI_MeteorStrike_RealTimeFrequency.selectedIndex =
                 disasterSetupModel.MeteorStrike.GetRealTimeMeteorFrequencySelectionIndex();
             UI_MeteorStrike_RealTimeFrequency.tooltip =
                 disasterSetupModel.MeteorStrike.GetRealTimeMeteorFrequencyTooltip();
             var meteorPeriodsEnabled = disasterSetupModel.MeteorStrike.AreMeteorPeriodsEnabled();
             UI_MeteorStrike_MeteorLongPeriodEnabled.isChecked =
-                meteorPeriodsEnabled && disasterSetupModel.MeteorStrike.GetEnabled(0);
+                disasterSetupModel.MeteorStrike.GetEnabled(0);
             UI_MeteorStrike_MeteorMediumPeriodEnabled.isChecked =
-                meteorPeriodsEnabled && disasterSetupModel.MeteorStrike.GetEnabled(1);
+                disasterSetupModel.MeteorStrike.GetEnabled(1);
             UI_MeteorStrike_MeteorShortPeriodEnabled.isChecked =
-                meteorPeriodsEnabled && disasterSetupModel.MeteorStrike.GetEnabled(2);
+                disasterSetupModel.MeteorStrike.GetEnabled(2);
             SetMeteorPeriodControlsAvailability(meteorPeriodsEnabled);
             SetMeteorRealTimeControlsAvailability(!meteorPeriodsEnabled);
             RefreshRealTimeFrequencyHarmonyWarnings(disasterSetupModel);
@@ -382,11 +405,11 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.general"), disasterContainer, SetupGeneralTab, sectionButtons,
                 sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
-                LocalizationService.GetDisasterName(disasterContainer.ForestFire.GetDisasterType()), disasterContainer,
-                SetupForestFire, sectionButtons, sectionPages);
-            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.Thunderstorm.GetDisasterType()),
                 disasterContainer, SetupThunderstorm, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.ForestFire.GetDisasterType()), disasterContainer,
+                SetupForestFire, sectionButtons, sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.Sinkhole.GetDisasterType()), disasterContainer,
                 SetupSinkhole, sectionButtons, sectionPages);
@@ -394,11 +417,11 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.GetDisasterName(disasterContainer.Tornado.GetDisasterType()), disasterContainer,
                 SetupTornado, sectionButtons, sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
-                LocalizationService.GetDisasterName(disasterContainer.Tsunami.GetDisasterType()), disasterContainer,
-                SetupTsunami, sectionButtons, sectionPages);
-            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.Earthquake.GetDisasterType()), disasterContainer,
                 SetupEarthquake, sectionButtons, sectionPages);
+            AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
+                LocalizationService.GetDisasterName(disasterContainer.Tsunami.GetDisasterType()), disasterContainer,
+                SetupTsunami, sectionButtons, sectionPages);
             AddSettingsSection(navigationPanel, contentHostPanel, ref buttonY,
                 LocalizationService.GetDisasterName(disasterContainer.MeteorStrike.GetDisasterType()),
                 disasterContainer, SetupMeteorStrike, sectionButtons, sectionPages);
@@ -669,13 +692,16 @@ namespace NaturalDisastersRenewal.UI
             UI_General_PartialEvacuationRadius = null;
             UI_General_MaxPopulationToTrigguerHigherDisasters = null;
             UI_General_ScaleMaxIntensityWithPopulation = null;
+            UI_General_AllowExtremeIntensities = null;
             UI_General_RecordDisasterEventsChkBox = null;
             UI_General_ShowDisasterPanelButton = null;
             UI_General_TogglePanelHotkeyField = null;
 #if DEBUG
             UI_Debug_DisasterProgressTarget = null;
+            UI_Debug_DisasterProgressEnabled = null;
             UI_Debug_DisasterProgress = null;
             debugDisasterProgressTargetIndex = 0;
+            debugForcedDisasterProgressIndex = -1;
 #endif
             UI_ForestFire_Enabled = null;
             UI_ForestFireMaxProbability = null;
@@ -684,6 +710,7 @@ namespace NaturalDisastersRenewal.UI
             UI_ForestFire_RealTimeFrequency = null;
             UI_ForestFire_RealTimeFrequencyWarning = null;
             UI_ForestFire_EvacuationMode = null;
+            UI_ForestFire_MaxGeneratedIntensity = null;
             UI_Thunderstorm_Enabled = null;
             UI_Thunderstorm_MaxProbability = null;
             UI_Thunderstorm_MaxProbabilityMonth = null;
@@ -691,12 +718,14 @@ namespace NaturalDisastersRenewal.UI
             UI_Thunderstorm_RealTimeFrequency = null;
             UI_Thunderstorm_RealTimeFrequencyWarning = null;
             UI_Thunderstorm_EvacuationMode = null;
+            UI_Thunderstorm_MaxGeneratedIntensity = null;
             UI_Sinkhole_Enabled = null;
             UI_Sinkhole_MaxProbability = null;
             UI_Sinkhole_GroundwaterCapacity = null;
             UI_Sinkhole_RealTimeFrequency = null;
             UI_Sinkhole_RealTimeFrequencyWarning = null;
             UI_Sinkhole_EvacuationMode = null;
+            UI_Sinkhole_MaxGeneratedIntensity = null;
             UI_Tornado_Enabled = null;
             UI_Tornado_MaxProbability = null;
             UI_Tornado_MaxProbabilityMonth = null;
@@ -704,14 +733,17 @@ namespace NaturalDisastersRenewal.UI
             UI_Tornado_EvacuationMode = null;
             UI_Tornado_EnableDestruction = null;
             UI_Tornado_IntensityDestructionStart = null;
+            UI_Tornado_MaxGeneratedIntensity = null;
             UI_Tsunami_Enabled = null;
             UI_Tsunami_MaxProbability = null;
             UI_Tsunami_WarmupYears = null;
             UI_Tsunami_RealTimeFrequency = null;
             UI_Tsunami_RealTimeFrequencyWarning = null;
             UI_Tsunami_EvacuationMode = null;
+            UI_Tsunami_MaxGeneratedIntensity = null;
             UI_Earthquake_Enabled = null;
             UI_Earthquake_MinIntensityToCrack = null;
+            UI_Earthquake_MaxGeneratedIntensity = null;
             UI_Earthquake_MaxProbability = null;
             UI_Earthquake_WarmupYears = null;
             UI_Earthquake_AftershocksEnabled = null;
@@ -727,6 +759,7 @@ namespace NaturalDisastersRenewal.UI
             UI_MeteorStrike_MeteorMediumPeriodEnabled = null;
             UI_MeteorStrike_MeteorShortPeriodEnabled = null;
             UI_MeteorStrike_EvacuationMode = null;
+            UI_MeteorStrike_MaxGeneratedIntensity = null;
             settingsSectionButtons = null;
             settingsSectionPages = null;
         }
@@ -803,6 +836,22 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.scale_intensity.tooltip"),
                 nextCheckboxSpacing);
 
+            UI_General_AllowExtremeIntensities = CheckboxHelper.AddCheckbox(
+                ref generalGroup,
+                LocalizationService.Get("settings.allow_extreme_intensities"),
+                disasterContainer.AllowExtremeIntensities,
+                delegate(bool isChecked)
+                {
+                    if (!_freezeUI)
+                    {
+                        disasterContainer.AllowExtremeIntensities = isChecked;
+                        RefreshExtremeIntensityControlsAvailability(isChecked);
+                        Services.DisasterHandler.UpdateDisastersDPanel();
+                    }
+                },
+                LocalizationService.Get("settings.allow_extreme_intensities.tooltip"),
+                nextCheckboxSpacing);
+
             UI_General_RecordDisasterEventsChkBox = CheckboxHelper.AddCheckbox(
                 ref generalGroup,
                 LocalizationService.Get("settings.record_events"), disasterContainer.RecordDisasterEvents,
@@ -833,20 +882,20 @@ namespace NaturalDisastersRenewal.UI
 
             var disastersGroup = generalGroup.AddGroup(LocalizationService.Get("settings.enable_disasters"));
 
-            UI_ForestFire_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
-                disasterContainer.ForestFire.GetName(),
-                disasterContainer.ForestFire.Enabled, delegate(bool isChecked)
-                {
-                    if (!_freezeUI)
-                        disasterContainer.ForestFire.SetEnabled(isChecked);
-                }, spacing: nextCheckboxSpacing);
-
             UI_Thunderstorm_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
                 disasterContainer.Thunderstorm.GetName(),
                 disasterContainer.Thunderstorm.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
                         disasterContainer.Thunderstorm.SetEnabled(isChecked);
+                }, spacing: nextCheckboxSpacing);
+
+            UI_ForestFire_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
+                disasterContainer.ForestFire.GetName(),
+                disasterContainer.ForestFire.Enabled, delegate(bool isChecked)
+                {
+                    if (!_freezeUI)
+                        disasterContainer.ForestFire.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_Sinkhole_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup, disasterContainer.Sinkhole.GetName(),
@@ -863,19 +912,19 @@ namespace NaturalDisastersRenewal.UI
                         disasterContainer.Tornado.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
-            UI_Tsunami_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup, disasterContainer.Tsunami.GetName(),
-                disasterContainer.Tsunami.Enabled, delegate(bool isChecked)
-                {
-                    if (!_freezeUI)
-                        disasterContainer.Tsunami.SetEnabled(isChecked);
-                }, spacing: nextCheckboxSpacing);
-
             UI_Earthquake_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
                 disasterContainer.Earthquake.GetName(),
                 disasterContainer.Earthquake.Enabled, delegate(bool isChecked)
                 {
                     if (!_freezeUI)
                         disasterContainer.Earthquake.SetEnabled(isChecked);
+                }, spacing: nextCheckboxSpacing);
+
+            UI_Tsunami_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup, disasterContainer.Tsunami.GetName(),
+                disasterContainer.Tsunami.Enabled, delegate(bool isChecked)
+                {
+                    if (!_freezeUI)
+                        disasterContainer.Tsunami.SetEnabled(isChecked);
                 }, spacing: nextCheckboxSpacing);
 
             UI_MeteorStrike_Enabled = CheckboxHelper.AddCheckbox(ref disastersGroup,
@@ -907,6 +956,7 @@ namespace NaturalDisastersRenewal.UI
             UI_General_RealTimeFrequencyHarmony.selectedIndex =
                 GetRealTimeFrequencyHarmonySelectionIndex(disasterContainer.RealTimeFrequencyHarmony);
             UI_General_RealTimeFrequencyHarmony.tooltip = GetRealTimeFrequencyHarmonyTooltip();
+            SetRealTimeFrequencyHarmonyAvailability(DisasterSimulationUtils.IsRealTimeModActive());
 
 #if DEBUG
             AddDebugDisasterProgressControls(ref generalGroup, disasterContainer);
@@ -930,10 +980,37 @@ namespace NaturalDisastersRenewal.UI
         }
 
 #if DEBUG
-        private void AddDebugDisasterProgressControls(ref UIHelperBase generalGroup, DisasterSetupModel disasterContainer)
+        private void AddDebugDisasterProgressControls(ref UIHelperBase generalGroup,
+            DisasterSetupModel disasterContainer)
         {
             var debugGroup = generalGroup.AddGroup(LocalizationService.Get("settings.debug.progress.group"));
             var disasterNames = GetDebugDisasterProgressTargetOptions(disasterContainer);
+
+            UI_Debug_DisasterProgressEnabled = CheckboxHelper.AddCheckbox(
+                ref debugGroup,
+                LocalizationService.Get("settings.debug.progress.force_enabled"),
+                false,
+                delegate(bool isChecked)
+                {
+                    if (_freezeUI)
+                        return;
+
+                    SetDebugDisasterProgressControlsAvailability(isChecked);
+                    if (isChecked)
+                    {
+                        if (UI_Debug_DisasterProgress != null)
+                            ApplyDebugDisasterProgress(
+                                disasterContainer,
+                                debugDisasterProgressTargetIndex,
+                                UI_Debug_DisasterProgress.value / 100f);
+                    }
+                    else
+                    {
+                        ClearDebugDisasterProgress(disasterContainer, debugForcedDisasterProgressIndex);
+                    }
+                },
+                LocalizationService.Get("settings.debug.progress.force_enabled.tooltip"),
+                nextCheckboxSpacing);
 
             UI_Debug_DisasterProgressTarget = (UIDropDown)debugGroup.AddDropdown(
                 LocalizationService.Get("settings.debug.progress.disaster"),
@@ -944,9 +1021,17 @@ namespace NaturalDisastersRenewal.UI
                     if (_freezeUI)
                         return;
 
-                    debugDisasterProgressTargetIndex = Mathf.Clamp(selection, 0, disasterContainer.AllDisasters.Count - 1);
+                    ClearDebugDisasterProgress(disasterContainer, debugForcedDisasterProgressIndex);
+                    debugDisasterProgressTargetIndex =
+                        Mathf.Clamp(selection, 0, disasterContainer.AllDisasters.Count - 1);
+                    if (UI_Debug_DisasterProgressEnabled != null && UI_Debug_DisasterProgressEnabled.isChecked)
+                        ApplyDebugDisasterProgress(
+                            disasterContainer,
+                            debugDisasterProgressTargetIndex,
+                            UI_Debug_DisasterProgress.value / 100f);
                 });
-            UI_Debug_DisasterProgressTarget.tooltip = LocalizationService.Get("settings.debug.progress.disaster.tooltip");
+            UI_Debug_DisasterProgressTarget.tooltip =
+                LocalizationService.Get("settings.debug.progress.disaster.tooltip");
             UIStyleHelper.ApplyDropDownStyle(UI_Debug_DisasterProgressTarget);
 
             UI_Debug_DisasterProgress = SliderHelper.AddSlider(
@@ -961,10 +1046,13 @@ namespace NaturalDisastersRenewal.UI
                     if (_freezeUI)
                         return;
 
-                    ApplyDebugDisasterProgress(disasterContainer, debugDisasterProgressTargetIndex, value / 100f);
+                    if (UI_Debug_DisasterProgressEnabled != null && UI_Debug_DisasterProgressEnabled.isChecked)
+                        ApplyDebugDisasterProgress(disasterContainer, debugDisasterProgressTargetIndex, value / 100f);
                 },
                 "%",
                 LocalizationService.Get("settings.debug.progress.percent.tooltip"));
+
+            SetDebugDisasterProgressControlsAvailability(UI_Debug_DisasterProgressEnabled.isChecked);
         }
 
         private static string[] GetDebugDisasterProgressTargetOptions(DisasterSetupModel disasterContainer)
@@ -976,7 +1064,7 @@ namespace NaturalDisastersRenewal.UI
             return names;
         }
 
-        private static void ApplyDebugDisasterProgress(
+        private void ApplyDebugDisasterProgress(
             DisasterSetupModel disasterContainer,
             int disasterIndex,
             float progress)
@@ -984,9 +1072,71 @@ namespace NaturalDisastersRenewal.UI
             if (disasterIndex < 0 || disasterIndex >= disasterContainer.AllDisasters.Count)
                 return;
 
+            if (debugForcedDisasterProgressIndex >= 0 && debugForcedDisasterProgressIndex != disasterIndex)
+                ClearDebugDisasterProgress(disasterContainer, debugForcedDisasterProgressIndex);
+
             disasterContainer.AllDisasters[disasterIndex].SetDebugProbabilityProgress(progress);
+            debugForcedDisasterProgressIndex = disasterIndex;
+        }
+
+        private void ClearDebugDisasterProgress(DisasterSetupModel disasterContainer, int disasterIndex)
+        {
+            if (disasterIndex < 0 || disasterIndex >= disasterContainer.AllDisasters.Count)
+                return;
+
+            disasterContainer.AllDisasters[disasterIndex].ClearDebugProbabilityProgress();
+            if (debugForcedDisasterProgressIndex == disasterIndex)
+                debugForcedDisasterProgressIndex = -1;
+        }
+
+        private void SetDebugDisasterProgressControlsAvailability(bool enabled)
+        {
+            if (UI_Debug_DisasterProgressTarget != null)
+                UI_Debug_DisasterProgressTarget.isEnabled = enabled;
+
+            if (UI_Debug_DisasterProgress != null)
+                UI_Debug_DisasterProgress.isEnabled = enabled;
         }
 #endif
+
+        private UISlider AddMaxGeneratedIntensitySlider(ref UIHelperBase group, DisasterBaseModel disaster)
+        {
+            return SliderHelper.AddSlider(
+                ref group,
+                LocalizationService.Get("settings.max_generated_intensity"),
+                DisasterBaseModel.ConservativeGeneratedIntensityLimit,
+                DisasterBaseModel.ExtremeGeneratedIntensityLimit,
+                0.1f,
+                disaster.MaxGeneratedIntensity,
+                delegate(float value)
+                {
+                    if (_freezeUI)
+                        return;
+
+                    disaster.MaxGeneratedIntensity = value;
+                    disaster.NormalizeGeneratedIntensitySettings();
+                    Services.DisasterHandler.UpdateDisastersDPanel();
+                },
+                LocalizationService.Get("settings.max_generated_intensity.suffix"),
+                LocalizationService.Get("settings.max_generated_intensity.tooltip"));
+        }
+
+        private void RefreshExtremeIntensityControlsAvailability(bool enabled)
+        {
+            SetExtremeIntensityControlAvailability(UI_ForestFire_MaxGeneratedIntensity, enabled);
+            SetExtremeIntensityControlAvailability(UI_Thunderstorm_MaxGeneratedIntensity, enabled);
+            SetExtremeIntensityControlAvailability(UI_Sinkhole_MaxGeneratedIntensity, enabled);
+            SetExtremeIntensityControlAvailability(UI_Tornado_MaxGeneratedIntensity, enabled);
+            SetExtremeIntensityControlAvailability(UI_Earthquake_MaxGeneratedIntensity, enabled);
+            SetExtremeIntensityControlAvailability(UI_Tsunami_MaxGeneratedIntensity, enabled);
+            SetExtremeIntensityControlAvailability(UI_MeteorStrike_MaxGeneratedIntensity, enabled);
+        }
+
+        private static void SetExtremeIntensityControlAvailability(UISlider slider, bool enabled)
+        {
+            if (slider != null)
+                slider.isEnabled = enabled;
+        }
 
         private static string[] GetRealTimeFrequencyHarmonyOptions()
         {
@@ -1020,6 +1170,12 @@ namespace NaturalDisastersRenewal.UI
         private static string GetRealTimeFrequencyHarmonyTooltip()
         {
             return LocalizationService.Get("settings.frequency_harmony.tooltip");
+        }
+
+        private void SetRealTimeFrequencyHarmonyAvailability(bool realTimeActive)
+        {
+            if (UI_General_RealTimeFrequencyHarmony != null)
+                UI_General_RealTimeFrequencyHarmony.isEnabled = realTimeActive;
         }
 
         private static void ApplyRealTimeFrequencyHarmony(
@@ -1058,12 +1214,14 @@ namespace NaturalDisastersRenewal.UI
         {
             var wasFrozen = _freezeUI;
             _freezeUI = true;
+            var realTimeActive = DisasterSimulationUtils.IsRealTimeModActive();
 
             SetFrequencyDropdownWarning(
                 UI_ForestFire_RealTimeFrequency,
                 UI_ForestFire_RealTimeFrequencyWarning,
                 ForestFireModel.GetRealTimeForestFireFrequencyOptions(),
                 disasterContainer.ForestFire.GetRealTimeForestFireFrequencySelectionIndex(),
+                realTimeActive &&
                 disasterContainer.ForestFire.RealTimeForestFireFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.ForestFire.GetRealTimeForestFireFrequencyTooltip());
 
@@ -1072,7 +1230,9 @@ namespace NaturalDisastersRenewal.UI
                 UI_Thunderstorm_RealTimeFrequencyWarning,
                 ThunderstormModel.GetRealTimeThunderstormFrequencyOptions(),
                 disasterContainer.Thunderstorm.GetRealTimeThunderstormFrequencySelectionIndex(),
-                disasterContainer.Thunderstorm.RealTimeThunderstormFrequency != disasterContainer.RealTimeFrequencyHarmony,
+                realTimeActive &&
+                disasterContainer.Thunderstorm.RealTimeThunderstormFrequency !=
+                disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.Thunderstorm.GetRealTimeThunderstormFrequencyTooltip());
 
             SetFrequencyDropdownWarning(
@@ -1080,6 +1240,7 @@ namespace NaturalDisastersRenewal.UI
                 UI_Sinkhole_RealTimeFrequencyWarning,
                 SinkholeModel.GetRealTimeSinkholeFrequencyOptions(),
                 disasterContainer.Sinkhole.GetRealTimeSinkholeFrequencySelectionIndex(),
+                realTimeActive &&
                 disasterContainer.Sinkhole.RealTimeSinkholeFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.Sinkhole.GetRealTimeSinkholeFrequencyTooltip());
 
@@ -1088,6 +1249,7 @@ namespace NaturalDisastersRenewal.UI
                 UI_Tornado_RealTimeFrequencyWarning,
                 TornadoModel.GetRealTimeTornadoFrequencyOptions(),
                 disasterContainer.Tornado.GetRealTimeTornadoFrequencySelectionIndex(),
+                realTimeActive &&
                 disasterContainer.Tornado.RealTimeTornadoFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.Tornado.GetRealTimeTornadoFrequencyTooltip());
 
@@ -1096,6 +1258,7 @@ namespace NaturalDisastersRenewal.UI
                 UI_Tsunami_RealTimeFrequencyWarning,
                 TsunamiModel.GetRealTimeTsunamiFrequencyOptions(),
                 disasterContainer.Tsunami.GetRealTimeTsunamiFrequencySelectionIndex(),
+                realTimeActive &&
                 disasterContainer.Tsunami.RealTimeTsunamiFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.Tsunami.GetRealTimeTsunamiFrequencyTooltip());
 
@@ -1104,6 +1267,7 @@ namespace NaturalDisastersRenewal.UI
                 UI_Earthquake_RealTimeFrequencyWarning,
                 EarthquakeModel.GetRealTimeEarthquakeFrequencyOptions(),
                 disasterContainer.Earthquake.GetRealTimeEarthquakeFrequencySelectionIndex(),
+                realTimeActive &&
                 disasterContainer.Earthquake.RealTimeEarthquakeFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.Earthquake.GetRealTimeEarthquakeFrequencyTooltip());
 
@@ -1112,6 +1276,7 @@ namespace NaturalDisastersRenewal.UI
                 UI_MeteorStrike_RealTimeFrequencyWarning,
                 MeteorStrikeModel.GetRealTimeMeteorFrequencyOptions(),
                 disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencySelectionIndex(),
+                realTimeActive &&
                 disasterContainer.MeteorStrike.RealTimeMeteorFrequency != disasterContainer.RealTimeFrequencyHarmony,
                 disasterContainer.MeteorStrike.GetRealTimeMeteorFrequencyTooltip());
 
@@ -1132,7 +1297,8 @@ namespace NaturalDisastersRenewal.UI
             dropDown.items = (string[])options.Clone();
             dropDown.selectedIndex = selectedIndex;
             dropDown.tooltip = showWarning
-                ? tooltip + CommonProperties.NewLine + LocalizationService.Get("settings.frequency_harmony.mismatch.tooltip")
+                ? tooltip + CommonProperties.NewLine +
+                  LocalizationService.Get("settings.frequency_harmony.mismatch.tooltip")
                 : tooltip;
 
             if (warningIcon == null)
@@ -1273,7 +1439,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_ForestFireMaxProbability = SliderHelper.AddSlider(
                 ref forestFireGroup,
-                LocalizationService.Get("settings.max_probability"), 1, 50, 1,
+                LocalizationService.Get("settings.max_probability"), 0.1f, 4f, 0.1f,
                 disasterContainer.ForestFire.BaseOccurrencePerYear, delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1283,7 +1449,8 @@ namespace NaturalDisastersRenewal.UI
 
             UI_ForestFire_WarmupDays = SliderHelper.AddSlider(
                 ref forestFireGroup,
-                LocalizationService.Get("settings.warmup_period"), 10, 360, 10, disasterContainer.ForestFire.WarmupDays,
+                LocalizationService.Get("settings.warmup_period"), 240, 720, 10,
+                disasterContainer.ForestFire.WarmupDays,
                 delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1330,6 +1497,12 @@ namespace NaturalDisastersRenewal.UI
                 CreateFrequencyWarningIcon(UI_ForestFire_RealTimeFrequency);
             SetForestFireRealTimeControlsAvailability(disasterContainer.ForestFire.IsRealTimePatternActive());
             RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+
+            UI_ForestFire_MaxGeneratedIntensity =
+                AddMaxGeneratedIntensitySlider(ref forestFireGroup, disasterContainer.ForestFire);
+            SetExtremeIntensityControlAvailability(
+                UI_ForestFire_MaxGeneratedIntensity,
+                disasterContainer.AllowExtremeIntensities);
 
             var forestFireEvacuationSelection =
                 GetForestFireEvacuationModeSelectionIndex(disasterContainer.ForestFire.EvacuationMode);
@@ -1381,7 +1554,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Thunderstorm_MaxProbability = SliderHelper.AddSlider(
                 ref thunderstormGroup,
-                LocalizationService.Get("settings.max_probability"), 0.1f, 10f, 0.1f,
+                LocalizationService.Get("settings.max_probability"), 0.1f, 6f, 0.1f,
                 disasterContainer.Thunderstorm.BaseOccurrencePerYear, delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1441,6 +1614,12 @@ namespace NaturalDisastersRenewal.UI
             SetThunderstormRealTimeControlsAvailability(disasterContainer.Thunderstorm.IsRealTimePatternActive());
             RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
 
+            UI_Thunderstorm_MaxGeneratedIntensity =
+                AddMaxGeneratedIntensitySlider(ref thunderstormGroup, disasterContainer.Thunderstorm);
+            SetExtremeIntensityControlAvailability(
+                UI_Thunderstorm_MaxGeneratedIntensity,
+                disasterContainer.AllowExtremeIntensities);
+
             DropDownHelper.AddDropDown(
                 ref UI_Thunderstorm_EvacuationMode,
                 ref thunderstormGroup,
@@ -1476,7 +1655,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Sinkhole_MaxProbability = SliderHelper.AddSlider(
                 ref sinkholeGroup,
-                LocalizationService.Get("settings.max_probability"), 0.1f, 10, 0.1f,
+                LocalizationService.Get("settings.max_probability"), 0.02f, 0.5f, 0.01f,
                 disasterContainer.Sinkhole.BaseOccurrencePerYear, delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1488,7 +1667,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Sinkhole_GroundwaterCapacity = SliderHelper.AddSlider(
                 ref sinkholeGroup,
-                LocalizationService.Get("settings.groundwater_capacity"), 1, 100, 1,
+                LocalizationService.Get("settings.groundwater_capacity"), 90, 365, 5,
                 disasterContainer.Sinkhole.GroundwaterCapacity, delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1523,6 +1702,12 @@ namespace NaturalDisastersRenewal.UI
             SetSinkholeRealTimeControlsAvailability(disasterContainer.Sinkhole.IsRealTimePatternActive());
             RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
 
+            UI_Sinkhole_MaxGeneratedIntensity =
+                AddMaxGeneratedIntensitySlider(ref sinkholeGroup, disasterContainer.Sinkhole);
+            SetExtremeIntensityControlAvailability(
+                UI_Sinkhole_MaxGeneratedIntensity,
+                disasterContainer.AllowExtremeIntensities);
+
             DropDownHelper.AddDropDown(
                 ref UI_Sinkhole_EvacuationMode,
                 ref sinkholeGroup,
@@ -1554,7 +1739,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Tornado_MaxProbability = SliderHelper.AddSlider(
                 ref tornadoGroup,
-                LocalizationService.Get("settings.max_probability"), 0.1f, 10f, 0.1f,
+                LocalizationService.Get("settings.max_probability"), 0.02f, 0.5f, 0.01f,
                 disasterContainer.Tornado.BaseOccurrencePerYear, delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1634,6 +1819,12 @@ namespace NaturalDisastersRenewal.UI
 
             tornadoGroup.AddSpacing();
 
+            UI_Tornado_MaxGeneratedIntensity =
+                AddMaxGeneratedIntensitySlider(ref tornadoGroup, disasterContainer.Tornado);
+            SetExtremeIntensityControlAvailability(
+                UI_Tornado_MaxGeneratedIntensity,
+                disasterContainer.AllowExtremeIntensities);
+
             DropDownHelper.AddDropDown(
                 ref UI_Tornado_EvacuationMode,
                 ref tornadoGroup,
@@ -1668,7 +1859,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Tsunami_MaxProbability = SliderHelper.AddSlider(
                 ref tsunamiGroup,
-                LocalizationService.Get("settings.max_probability"), 0.1f, 10, 0.1f,
+                LocalizationService.Get("settings.max_probability"), 0.005f, 0.08f, 0.005f,
                 disasterContainer.Tsunami.BaseOccurrencePerYear, delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1678,7 +1869,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Tsunami_WarmupYears = SliderHelper.AddSlider(ref tsunamiGroup,
                 LocalizationService.Get("settings.charge_period"),
-                0, 20, 0.5f, disasterContainer.Tsunami.WarmupYears, delegate(float val)
+                10, 50, 0.5f, disasterContainer.Tsunami.WarmupYears, delegate(float val)
                 {
                     if (!_freezeUI)
                         disasterContainer.Tsunami.WarmupYears = val;
@@ -1710,6 +1901,12 @@ namespace NaturalDisastersRenewal.UI
                 CreateFrequencyWarningIcon(UI_Tsunami_RealTimeFrequency);
             SetTsunamiRealTimeControlsAvailability(disasterContainer.Tsunami.IsRealTimePatternActive());
             RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
+
+            UI_Tsunami_MaxGeneratedIntensity =
+                AddMaxGeneratedIntensitySlider(ref tsunamiGroup, disasterContainer.Tsunami);
+            SetExtremeIntensityControlAvailability(
+                UI_Tsunami_MaxGeneratedIntensity,
+                disasterContainer.AllowExtremeIntensities);
 
             DropDownHelper.AddDropDown(
                 ref UI_Tsunami_EvacuationMode,
@@ -1745,7 +1942,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Earthquake_MaxProbability = SliderHelper.AddSlider(
                 ref earthquakeGroup,
-                LocalizationService.Get("settings.max_probability"), 0.1f, 10, 0.1f,
+                LocalizationService.Get("settings.max_probability"), 0.01f, 0.2f, 0.01f,
                 disasterContainer.Earthquake.BaseOccurrencePerYear, delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1755,7 +1952,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_Earthquake_WarmupYears = SliderHelper.AddSlider(
                 ref earthquakeGroup,
-                LocalizationService.Get("settings.charge_period"), 0, 20, 0.5f,
+                LocalizationService.Get("settings.charge_period"), 6, 30, 0.5f,
                 disasterContainer.Earthquake.WarmupYears, delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1825,11 +2022,17 @@ namespace NaturalDisastersRenewal.UI
                 LocalizationService.Get("settings.min_intensity_cracks.tooltip");
             earthquakeGroup.AddSpacing(15);
 
+            UI_Earthquake_MaxGeneratedIntensity =
+                AddMaxGeneratedIntensitySlider(ref earthquakeGroup, disasterContainer.Earthquake);
+            SetExtremeIntensityControlAvailability(
+                UI_Earthquake_MaxGeneratedIntensity,
+                disasterContainer.AllowExtremeIntensities);
+
             DropDownHelper.AddDropDown(
                 ref UI_Earthquake_EvacuationMode,
                 ref earthquakeGroup,
                 EvacuationModeText,
-                DisasterSimulationUtils.GetAllEvacuationOptions(),
+                DisasterSimulationUtils.GetAllEvacuationOptions(true),
                 ref disasterContainer.Earthquake.EvacuationMode,
                 delegate(int selection)
                 {
@@ -1860,7 +2063,7 @@ namespace NaturalDisastersRenewal.UI
 
             UI_MeteorStrike_MaxProbability = SliderHelper.AddSlider(
                 ref meteorStrikeGroup,
-                LocalizationService.Get("settings.max_probability"), 1f, 50, 1f,
+                LocalizationService.Get("settings.max_probability"), 0.001f, 0.05f, 0.001f,
                 disasterContainer.MeteorStrike.BaseOccurrencePerYear, delegate(float val)
                 {
                     if (!_freezeUI)
@@ -1924,6 +2127,12 @@ namespace NaturalDisastersRenewal.UI
             SetMeteorRealTimeControlsAvailability(!disasterContainer.MeteorStrike.AreMeteorPeriodsEnabled());
             RefreshRealTimeFrequencyHarmonyWarnings(disasterContainer);
 
+            UI_MeteorStrike_MaxGeneratedIntensity =
+                AddMaxGeneratedIntensitySlider(ref meteorStrikeGroup, disasterContainer.MeteorStrike);
+            SetExtremeIntensityControlAvailability(
+                UI_MeteorStrike_MaxGeneratedIntensity,
+                disasterContainer.AllowExtremeIntensities);
+
             DropDownHelper.AddDropDown(
                 ref UI_MeteorStrike_EvacuationMode,
                 ref meteorStrikeGroup,
@@ -1962,8 +2171,6 @@ namespace NaturalDisastersRenewal.UI
                 return;
 
             checkbox.isEnabled = enabled;
-            if (!enabled)
-                checkbox.isChecked = false;
         }
 
         private void SetupHotkeySetup(ref UIHelper helper, DisasterSetupModel disasterContainer)

@@ -43,8 +43,8 @@ Unlocks
 * From Milestone 3: Worthy Village (can occur everywere, both inside and outside of your unlocked areas)
 
 Default settings
-* Warmup period: 180 days without rain
-* Peak probability: 10 times/year
+* Warmup period: 240 days without rain
+* Peak probability: 4 times/year during prolonged dry conditions
 
 
 ### Thunderstorm
@@ -60,7 +60,7 @@ Unlocks
 
 Default settings
 * Thunderstorm season peak: July
-* Probability in the season peak: 2 times/year
+* Probability in the season peak: 3 times/year
 * Probability during rain: x2
 
 
@@ -75,8 +75,8 @@ Unlocks
 * From Milestone 4: Tiny Town (can occur only inside of your unlocked areas)
 
 Default settings
-* Maximum probability after a long heavy rainfall: 1.5 times/year
-* Underground reservour capacity: 50 days of heavy rainfall
+* Maximum probability after a long heavy rainfall: 0.5 times/year
+* Underground reservour capacity: 90 days of heavy rainfall
 * Evacuation Modes : Manual Evacuation // Automatic Evacuation // Focused Auto evacuation/release
 
 
@@ -97,8 +97,8 @@ Unlocks
 
 Default settings
 * Tornado season peak: May
-* Probability in the season peak: 1.5 times/year
-* Calm period after a big tornado: 2 years (depends on the intensity of the last tornado)
+* Probability in the season peak: 0.35 times/year
+* Calm period after a big tornado: 4 years (depends on the intensity of the last tornado)
 
 
 ### Tsunami
@@ -113,9 +113,9 @@ Unlocks
 * From Milestone 5: Boom Town
 
 Default settings
-* Maximum probability after a long time: 1 times/year
-* Charge period during wich probability increases: 4 years
-* Calm period after a big tsunami: 4 years (depends on the intensity of the last tsunami)
+* Maximum probability after a long time: 0.08 times/year
+* Charge period during wich probability increases: 10 years
+* Calm period after a big tsunami: 10 years (depends on the intensity of the last tsunami)
 * Evacuation Modes : Manual Evacuation // Automatic Evacuation // Focused Auto evacuation/release
 
 
@@ -136,8 +136,8 @@ Unlocks
 * From Milestone 6: Busy Town (can occur only inside of your unlocked areas)
 
 Default settings
-* Maximum probability after a long time: 1 times/year
-* Charge period during which probability increases: 3 years
+* Maximum probability after a long time: 0.2 times/year
+* Charge period during which probability increases: 6 years
 * Calm period after a big earthquake: 3 years (depends on the intensity of the last earthquake)
 * Aftershocks enabled
 
@@ -146,9 +146,9 @@ Default settings
 
 Features
 * There are three meteoroid streams periodically approaching the Earth.
-  * Long-periodical meteoroid stream: period 9 years, maximum size 190
-  * Medium-periodical meteoroid stream: period 5 years, maximum size 120
-  * Short-periodical meteoroid stream: period 2 years, maximum size 30
+  * Long-periodical meteoroid stream: period 75 years, maximum size 200
+  * Medium-periodical meteoroid stream: period 35 years, maximum size 120
+  * Short-periodical meteoroid stream: period 12 years, maximum size 30
   * When a meteoroid stream approaches the Earth, there is a chance of a meteor strike.
   * Evacuation Modes : Manual Evacuation // Automatic Evacuation // Focused Auto evacuation/release
 
@@ -156,7 +156,7 @@ Unlocks
 * From Milestone 6: Busy Town (can occur only inside your unlocked areas)
 
 Default settings
-* Peak probability when a meteoroid stream is approaching: 10 times/year (per meteoroid stream).
+* Peak probability when a meteoroid stream is approaching: driven by the active stream period.
 
 
 ## About destruction system (For Earthquake and Tornadoes)

@@ -10,6 +10,7 @@
         <RootNamespace>NaturalDisastersRenewal</RootNamespace>
         <AssemblyName>NaturalDisastersRenewal</AssemblyName>
         <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <RuntimeIdentifiers>win</RuntimeIdentifiers>
         <FileAlignment>512</FileAlignment>
         <TargetFrameworkProfile/>
     </PropertyGroup>
@@ -62,9 +63,11 @@
     <ItemGroup>
         <Compile Include="Common\BuildInfo.cs"/>
         <Compile Include="Common\CommonProperties.cs"/>
+        <Compile Include="Common\DisasterRecurrenceTuning.cs"/>
         <Compile Include="Common\HotkeyHelper.cs"/>
         <Compile Include="Common\LocalizationService.cs"/>
         <Compile Include="Common\ModCompatibilityService.cs"/>
+        <Compile Include="Common\RealTimeDisasterTiming.cs"/>
         <Compile Include="Common\Services.cs"/>
         <Compile Include="Common\enums\EarthquakeCrackOptions.cs"/>
         <Compile Include="Common\enums\EvacuationOptions.cs"/>
@@ -110,6 +113,7 @@
         <Compile Include="UI\ComponentHelper\UIStyleHelper.cs"/>
         <Compile Include="UI\ComponentHelper\TabHelper.cs"/>
         <Compile Include="UI\InGameDisastersPanel.cs" />
+        <Compile Include="UI\ShelterHoverDebugOverlay.cs" />
         <Compile Include="Common\DisasterSimulationUtils.cs"/>
         <Compile Include="BaseGameExtensions\LoadingExtension.cs"/>
         <Compile Include="Common\enums\OccurrenceAreas.cs"/>
@@ -126,6 +130,9 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="packages.config"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net35" Version="1.0.3" PrivateAssets="All"/>
     </ItemGroup>
     <ItemGroup>
         <WCFMetadata Include="Connected Services\"/>
@@ -152,6 +159,9 @@
         <EmbeddedResource Include="Resources\Images\icons\Warning-Conflict.svg" />
         <EmbeddedResource Include="Resources\Images\icons\Warning.svg" />
         <EmbeddedResource Include="Resources\Images\icons\Warning2.svg" />
+        <EmbeddedResource Include="Resources\Images\icons\Restart.svg" />
+        <EmbeddedResource Include="Resources\Images\icons\Stop.svg" />
+        <EmbeddedResource Include="Resources\Images\icons\Stop2.svg" />
         <Content Include="Versions\Changelog.txt"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

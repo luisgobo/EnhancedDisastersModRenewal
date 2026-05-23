@@ -21,6 +21,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float MinCoastalWaterSearchRadius = 768f;
         private const float MaxCoastalWaterSearchRadius = 1920f;
         private const float MaxCoastalElevationAboveWater = 80f;
+        private const float DefaultWarmupYears = 10f;
+        private const float MaxBaseOccurrencePerYear = 0.08f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
 
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeTsunamiFrequencyOptionValues =
@@ -42,20 +44,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public TsunamiModel()
         {
             DType = DisasterType.Tsunami;
-            BaseOccurrencePerYear = 1.0f;
+            BaseOccurrencePerYear = MaxBaseOccurrencePerYear;
             ProbabilityDistribution = ProbabilityDistributions.PowerLow;
-            WarmupYears = 4;
+            WarmupYears = DefaultWarmupYears;
         }
 
         public float WarmupYears
         {
-            get { return probabilityWarmupDays / 360f; }
+            get => probabilityWarmupDays / 360f;
 
             set
             {
                 probabilityWarmupDays = (int)(360 * value);
                 intensityWarmupDays = probabilityWarmupDays / 2;
-                calmDays = probabilityWarmupDays;
+                CalmDays = probabilityWarmupDays;
             }
         }
 
@@ -87,7 +89,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override byte GetMaximumIntensity()
         {
             return IsRealTimePatternActive()
-                ? ScaleIntensityByPopulation(baseIntensity)
+                ? ScaleIntensityByPopulation(GetConfiguredMaximumGeneratedIntensity())
                 : base.GetMaximumIntensity();
         }
 
@@ -124,6 +126,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public override void OnDisasterFinished(DisasterInfoModel disasterInfoUnified,
             ref List<DisasterInfoModel> activeDisasters)
         {
+            // TODO: Split tsunami evacuation behavior into two explicit modes.
+            // Current tsunami automatic evacuation behaves like "auto evacuate/release": it starts evacuation
+            // on detection and releases shelters when the tsunami finishes. Preserve this functional flow as
+            // the future auto-evacuate/release option, then add a separate auto-evacuate-only option that
+            // starts the selected shelters but leaves citizen release under manual/player control.
             disasterInfoUnified.DisasterInfo.type |= DisasterType.Tsunami;
             disasterInfoUnified.EvacuationMode = EvacuationMode;
             disasterInfoUnified.FinishOnDeactivate = true;
@@ -146,15 +153,18 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public override string GetProbabilityTooltip(float value)
         {
-            if (IsRealTimePatternActive() && calmDaysLeft <= 0)
+            if (IsRealTimePatternActive() && CalmDaysLeft <= 0)
                 return GetRealTimeProbabilityTooltip(value);
 
             return base.GetProbabilityTooltip(value);
         }
 
-        public override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
+        protected override void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
             ref List<DisasterInfoModel> activeDisasters)
         {
+            // TODO: When tsunami gets separate auto-evacuate and auto-evacuate/release options, keep the
+            // existing SetupTsunamiEvacuation path for auto-evacuate/release and route the new auto-evacuate-only
+            // option through the same shelter selection without automatic release on finish.
             SetupTsunamiEvacuation(disasterInfoModel, null, ref activeDisasters);
         }
 
@@ -202,7 +212,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         out priority))
                     continue;
 
-                float shelterRadius =
+                var shelterRadius =
                     (buildingInfo.Length < buildingInfo.Width ? buildingInfo.Width : buildingInfo.Length) * 8 / 2f;
 
                 if (focusedRadius.HasValue &&
@@ -271,6 +281,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 WarmupYears = tsunami.WarmupYears;
                 SetRealTimeTsunamiFrequency(tsunami.RealTimeTsunamiFrequency);
+                NormalizeRealisticRecurrenceSettings();
             }
         }
 
@@ -361,7 +372,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 return false;
 
             var distanceFactor = Mathf.Clamp01(1f - waterDistance / searchRadius);
-            var elevationFactor = Mathf.Clamp01(1f - Mathf.Max(0f, elevationAboveWater) / MaxCoastalElevationAboveWater);
+            var elevationFactor =
+                Mathf.Clamp01(1f - Mathf.Max(0f, elevationAboveWater) / MaxCoastalElevationAboveWater);
             priority = Mathf.Clamp01(Mathf.Max(0.25f, distanceFactor * elevationFactor));
             return true;
         }
@@ -381,7 +393,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
                 return GetRealTimePatternProbabilityProgress();
 
-            if (calmDaysLeft > 0)
+            if (CalmDaysLeft > 0)
                 return 0f;
 
             if (probabilityWarmupDays <= 0 || probabilityWarmupDaysLeft <= 0f)
@@ -443,6 +455,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (RealTimeCurrentTsunamiPeriodMinutes <= 0f || RealTimeMinutesUntilNextTsunami < 0f)
                 ScheduleNextRealTimeTsunami();
 
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
+            RealTimeDisasterTiming.ClampScheduleToRange(
+                minMinutes,
+                maxMinutes,
+                ref RealTimeCurrentTsunamiPeriodMinutes,
+                ref RealTimeMinutesUntilNextTsunami);
+
             if (RealTimeMinutesUntilNextTsunami > RealTimeCurrentTsunamiPeriodMinutes)
                 RealTimeMinutesUntilNextTsunami = RealTimeCurrentTsunamiPeriodMinutes;
         }
@@ -467,7 +486,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         private void ClearRealTimeCooldownState()
         {
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
             intensityWarmupDaysLeft = 0f;
         }
@@ -540,25 +559,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (RealTimeTsunamiFrequency)
             {
                 case RealTimeDisasterFrequencyPreset.Apocalypse:
-                    minMinutes = 120f;
-                    maxMinutes = 240f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Frequent:
                     minMinutes = 240f;
                     maxMinutes = 480f;
                     break;
-                case RealTimeDisasterFrequencyPreset.Occasional:
-                default:
+                case RealTimeDisasterFrequencyPreset.Frequent:
                     minMinutes = 480f;
                     maxMinutes = 960f;
                     break;
+                case RealTimeDisasterFrequencyPreset.Occasional:
+                default:
+                    minMinutes = 1440f;
+                    maxMinutes = 2880f;
+                    break;
                 case RealTimeDisasterFrequencyPreset.Uncommon:
-                    minMinutes = 960f;
-                    maxMinutes = 1920f;
+                    minMinutes = 2880f;
+                    maxMinutes = 5760f;
                     break;
                 case RealTimeDisasterFrequencyPreset.Rare:
-                    minMinutes = 1920f;
-                    maxMinutes = 3840f;
+                    minMinutes = 5760f;
+                    maxMinutes = 11520f;
                     break;
             }
         }
@@ -573,6 +592,15 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             ScheduleNextRealTimeTsunami(currentProgress);
         }
 
+        public void NormalizeRealisticRecurrenceSettings()
+        {
+            BaseOccurrencePerYear = DisasterRecurrenceTuning.ClampOccurrencePerYear(
+                BaseOccurrencePerYear,
+                0.005f,
+                MaxBaseOccurrencePerYear);
+            WarmupYears = Mathf.Max(WarmupYears, DefaultWarmupYears);
+        }
+
         public override void SetDebugProbabilityProgress(float progress)
         {
             base.SetDebugProbabilityProgress(progress);
@@ -580,6 +608,16 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (IsRealTimePatternActive())
             {
                 ScheduleNextRealTimeTsunami(progress);
+                ClearRealTimeCooldownState();
+            }
+        }
+
+        public override void ResetProbabilityProgress()
+        {
+            base.ResetProbabilityProgress();
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeTsunami();
                 ClearRealTimeCooldownState();
             }
         }

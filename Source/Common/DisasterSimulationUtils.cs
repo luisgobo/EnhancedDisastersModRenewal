@@ -43,12 +43,11 @@ namespace NaturalDisastersRenewal.Common
                 LocalizationService.Get("evacuation.auto")
             };
 
-            if (allowsFocusedEvacuation)
-            {
-                var focusedEvacuation = LocalizationService.Get("evacuation.focused");
-                Array.Resize(ref evacuationOptions, evacuationOptions.Length + 1);
-                evacuationOptions[evacuationOptions.Length - 1] = focusedEvacuation;
-            }
+            if (!allowsFocusedEvacuation) return evacuationOptions;
+            
+            var focusedEvacuation = LocalizationService.Get("evacuation.focused");
+            Array.Resize(ref evacuationOptions, evacuationOptions.Length + 1);
+            evacuationOptions[evacuationOptions.Length - 1] = focusedEvacuation;
 
             return evacuationOptions;
         }

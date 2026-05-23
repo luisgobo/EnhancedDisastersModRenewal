@@ -1,0 +1,8 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="640" height="640">
+	<style>
+		.s0 { fill: #ffffff } 
+		.s1 { fill: #c31d1d } 
+	</style>
+	<path id="Shape 1" fill-rule="evenodd" class="s0" d="m455 172v249h-271v-249z"/>
+	<path class="s1" d="m320 553c141.4 0 256-114.6 256-256 0-141.4-114.6-256-256-256-141.4 0-256 114.6-256 256 0 141.4 114.6 256 256 256zm-64-352h128c17.7 0 32 14.3 32 32v128c0 17.7-14.3 32-32 32h-128c-17.7 0-32-14.3-32-32v-128c0-17.7 14.3-32 32-32z"/>
+</svg>

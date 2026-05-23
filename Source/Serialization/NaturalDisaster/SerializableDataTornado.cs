@@ -36,12 +36,17 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
             tornado.EnableTornadoDestruction = dataSerializer.ReadBool();
             tornado.MinimalIntensityForDestruction = (byte)dataSerializer.ReadFloat();
 
-            if (dataSerializer.version < 15) return;
+            if (dataSerializer.version < 15)
+            {
+                tornado.NormalizeRealisticRecurrenceSettings();
+                return;
+            }
 
             tornado.RealTimeTornadoFrequency =
                 (RealTimeDisasterFrequencyPreset)dataSerializer.ReadInt32();
             tornado.RealTimeMinutesUntilNextTornado = dataSerializer.ReadFloat();
             tornado.RealTimeCurrentTornadoPeriodMinutes = dataSerializer.ReadFloat();
+            tornado.NormalizeRealisticRecurrenceSettings();
         }
 
         public void AfterDeserialize(DataSerializer dataSerializer)

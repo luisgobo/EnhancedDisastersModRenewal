@@ -20,8 +20,8 @@ namespace NaturalDisastersRenewal.UI
         private const float LabelTextScaleSmall = 0.7f;
         private const float LabelTextScaleNormal = 0.8f;
         private const string HelpTutorialKey = "NDR_TUTORIAL_PANEL_HELP";
-        private const float PanelWidth = 430f;
-        private const float PanelHeight = 335f;
+        private const float PanelWidth = 442f;
+        private const float PanelHeight = 365f;
         private const float ContentInset = 8f;
         private static readonly Color32 ActiveDependencyColor = new Color32(90, 200, 120, 255);
         private static readonly Color32 InactiveDependencyColor = new Color32(210, 120, 120, 255);
@@ -208,7 +208,7 @@ namespace NaturalDisastersRenewal.UI
                 yPosition += disasterRow.height + itemSpacing;
             }
 
-            yPosition += 0f;
+            yPosition += 10f;
             BuildActionButtons(parentPanel, xPosition, yPosition);
             parentPanel.autoLayout = false;
             parentPanel.autoSize = false;
@@ -216,6 +216,16 @@ namespace NaturalDisastersRenewal.UI
 
         private void BuildControlsTabContent(UIScrollablePanel parentPanel)
         {
+            // TODO: Add a reconstruction helper panel for collapsed/damaged city service buildings and damaged roads. (Version 2.0)
+            // Requirements:
+            // - Scan buildings that the base game allows to reconstruct after disasters, such as museums,
+            //   schools, hospitals, and other supported public/service buildings.
+            // - List rebuildable buildings in a dedicated menu with building name/type and district/position context.
+            // - Add a button to move the camera to the selected building so the player does not need to search the map.
+            // - If the game API allows it safely, add a quick rebuild button for each listed building.
+            // - Detect disaster-damaged road segments and, if the game API allows it safely, repair them in one click.
+            // - Keep the list updated after disasters, manual rebuilds, demolitions, and map reloads.
+            // - Avoid touching buildings that are not in a valid reconstructable state.
             var yPosition = 10f;
             AddLabel(parentPanel, 0f, yPosition, LabelTextScaleNormal,
                 LocalizationService.Get("settings.group.dependencies"));
@@ -262,38 +272,36 @@ namespace NaturalDisastersRenewal.UI
             // UpdateRealTimeLabels();
         }
 
-        private static void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
+        private void BuildActionButtons(UIComponent parentPanel, float xPosition, float yPosition)
         {
-            const float actionButtonSize = 22f;
-            var actionButtonPadding = new RectOffset(0, 0, 3, 0);
+            const float actionButtonWidth = 64f;
+            const float actionButtonHeight = 32f;
+            const float actionButtonSpacing = 8f;
+            var actionButtonSize = new Vector2(actionButtonWidth, actionButtonHeight);
+            var totalActionButtonWidth = actionButtonWidth * 2f + actionButtonSpacing;
+            var centeredXPosition = Mathf.Max(xPosition, (parentPanel.width - totalActionButtonWidth) * 0.5f);
 
-            ActionButtonHelper.CreateTextButton(
+            ActionButtonHelper.CreateSvgIconButton(
                 parentPanel,
                 "stopDisasterBtn",
-                "\u25A0",
-                new Vector3(xPosition, yPosition),
-                new Vector2(actionButtonSize, actionButtonSize),
+                "NaturalDisastersRenewal.Resources.Images.icons.Stop2.svg",
+                "NaturalDisastersRenewal.ActionButton.Stop.Atlas",
+                "NaturalDisastersRenewal.ActionButton.Stop",
+                new Vector3(centeredXPosition, yPosition),
+                actionButtonSize,
                 LocalizationService.Get("panel.stop_all"),
-                StopAllDisastersBtn_eventClick,
-                Color.red,
-                "ButtonMenu",
-                "ButtonMenuHovered",
-                "ButtonMenuHovered",
-                actionButtonPadding);
+                StopAllDisastersBtn_eventClick);
 
-            ActionButtonHelper.CreateTextButton(
+            ActionButtonHelper.CreateSvgIconButton(
                 parentPanel,
                 "resetDisasterBtn",
-                "\u21BA",
-                new Vector3(xPosition + actionButtonSize + 4f, yPosition),
-                new Vector2(actionButtonSize, actionButtonSize),
+                "NaturalDisastersRenewal.Resources.Images.icons.Restart.svg",
+                "NaturalDisastersRenewal.ActionButton.Restart.Atlas",
+                "NaturalDisastersRenewal.ActionButton.Restart",
+                new Vector3(centeredXPosition + actionButtonWidth + actionButtonSpacing, yPosition),
+                actionButtonSize,
                 LocalizationService.Get("panel.reset_all"),
-                ResetAllDisastersBtn_eventClick,
-                Color.yellow,
-                "ButtonMenu",
-                "ButtonMenuHovered",
-                "ButtonMenuHovered",
-                actionButtonPadding);
+                ResetAllDisastersBtn_eventClick);
         }
 
         private void UpdatePopulationLabel()
@@ -493,22 +501,23 @@ namespace NaturalDisastersRenewal.UI
             return localeField.GetValue(LocaleManager.instance) as Locale;
         }
 
-        private static void StopAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void StopAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             StopAllDisasters();
+            RefreshDisasterRow();
         }
 
-        private static void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void ResetAllDisastersBtn_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
             StopAllDisasters();
 
             for (var i = 0; i < Services.DisasterHandler.container.AllDisasters.Count; i++)
             {
                 var disaster = Services.DisasterHandler.container.AllDisasters[i];
-                disaster.calmDaysLeft = 0f;
-                disaster.probabilityWarmupDaysLeft = 0f;
-                disaster.intensityWarmupDaysLeft = 0f;
+                disaster.ResetProbabilityProgress();
             }
+
+            RefreshDisasterRow();
         }
 
         private static void StopAllDisasters()
@@ -529,18 +538,31 @@ namespace NaturalDisastersRenewal.UI
                     Services.Terrain.WaterSimulation.ReleaseWaterWave((ushort)i);
 
             var dm = Services.Disasters;
-            for (ushort i = 0; i < dm.m_disasterCount; i++)
+            var disasterWrapper = Services.DisasterHandler.GetDisasterWrapper();
+            for (var i = 0; i < dm.m_disasters.m_buffer.Length; i++)
             {
-                sb.AppendLine(dm.m_disasters.m_buffer[i].Info.name + " flags: " + dm.m_disasters.m_buffer[i].m_flags);
-                if ((dm.m_disasters.m_buffer[i].m_flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active |
-                                                           DisasterData.Flags.Clearing)) == DisasterData.Flags.None)
-                    continue;
-                if (!IsStoppableDisaster(dm.m_disasters.m_buffer[i].Info.m_disasterAI))
+                var flags = dm.m_disasters.m_buffer[i].m_flags;
+                if ((flags & (DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing)) ==
+                    DisasterData.Flags.None)
                     continue;
 
-                dm.m_disasters.m_buffer[i].m_flags =
-                    (dm.m_disasters.m_buffer[i].m_flags & ~(DisasterData.Flags.Emerging | DisasterData.Flags.Active |
-                                                            DisasterData.Flags.Clearing))
+                var disasterInfo = dm.m_disasters.m_buffer[i].Info;
+                if (disasterInfo == null)
+                    continue;
+
+                sb.AppendLine(disasterInfo.name + " flags: " + flags);
+                if (!IsStoppableDisaster(disasterInfo.m_disasterAI))
+                    continue;
+
+                var disasterId = (ushort)i;
+                if (disasterWrapper != null)
+                {
+                    disasterWrapper.EndDisaster(disasterId);
+                    continue;
+                }
+
+                dm.m_disasters.m_buffer[disasterId].m_flags =
+                    (flags & ~(DisasterData.Flags.Emerging | DisasterData.Flags.Active | DisasterData.Flags.Clearing))
                     | DisasterData.Flags.Finished;
             }
 

@@ -18,19 +18,20 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
     public abstract class DisasterBaseModel
     {
         // Constants
-        protected const uint randomizerRange = 67108864u;
-        protected const byte baseIntensity = 255; //Base intensity is 100 for all Disasters
-        protected const byte indexReferenceDisasterValue = 10;
-        private readonly HashSet<ushort> manualReleaseDisasters = new HashSet<ushort>();
-        private readonly double secondsBeforePausing = 3;
-        private bool debugForceOccurrence;
-        private float debugProbabilityProgressOverride = -1f;
-        private DateTime lastStartFailureLogUtc = DateTime.MinValue;
+        private const uint RandomizerRange = 67108864u;
+        private const byte IndexReferenceDisasterValue = 10;
+        public const float ConservativeGeneratedIntensityLimit = 10f;
+        public const float ExtremeGeneratedIntensityLimit = 25.5f;
+        private readonly HashSet<ushort> _manualReleaseDisasters = new HashSet<ushort>();
+        private readonly double _secondsBeforePausing = 3;
+        private bool _debugForceOccurrence;
+        private float _debugProbabilityProgressOverride = -1f;
+        private DateTime _lastStartFailureLogUtc = DateTime.MinValue;
         public float BaseOccurrencePerYear = 1.0f;
 
         // Cooldown variables (Not stored into XML)
-        protected int calmDays = 0;
-        [XmlIgnore] public float calmDaysLeft;
+        protected int CalmDays = 0;
+        [XmlIgnore] public float CalmDaysLeft;
 
 
         // Disaster properties
@@ -45,6 +46,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public EvacuationOptions EvacuationMode = EvacuationOptions.ManualEvacuation;
         [XmlIgnore] public int intensityWarmupDays = 0;
         [XmlIgnore] public float intensityWarmupDaysLeft;
+        public float MaxGeneratedIntensity = ConservativeGeneratedIntensityLimit;
 
         protected OccurrenceAreas OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
 
@@ -64,9 +66,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public float GetCurrentOccurrencePerYear()
         {
-            if (calmDaysLeft > 0) return 0f;
+            if (CalmDaysLeft > 0) return 0f;
 
-            if (debugForceOccurrence)
+            if (_debugForceOccurrence)
                 return 365f / GetSimulationDaysPerFrame() * 2f;
 
             return ScaleProbabilityByWarmup(GetCurrentOccurrencePerYearLocal());
@@ -74,7 +76,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
         public virtual byte GetMaximumIntensity()
         {
-            var intensity = baseIntensity;
+            var intensity = GetConfiguredMaximumGeneratedIntensity();
             intensity = ScaleIntensityByWarmup(intensity);
             intensity = ScaleIntensityByPopulation(intensity);
             return intensity;
@@ -95,9 +97,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             var daysPerFrame = GetSimulationDaysPerFrame();
 
-            if (calmDaysLeft > 0)
+            if (CalmDaysLeft > 0)
             {
-                calmDaysLeft -= daysPerFrame;
+                CalmDaysLeft -= daysPerFrame;
                 return;
             }
 
@@ -122,7 +124,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
 
             var sm = Services.Simulation;
             var occurrencePerFrame = occurrencePerYear / 365 * daysPerFrame;
-            if (sm.m_randomizer.Int32(randomizerRange) < (uint)(randomizerRange * occurrencePerFrame))
+            if (sm.m_randomizer.Int32(RandomizerRange) < (uint)(RandomizerRange * occurrencePerFrame))
             {
                 var maxIntensity = GetMaximumIntensity();
                 var intensity = GetRandomIntensity(maxIntensity);
@@ -140,9 +142,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (!unlocked) return LocalizationService.Get("tooltip.not_unlocked");
 
-            if (calmDaysLeft > 0)
+            if (CalmDaysLeft > 0)
                 return LocalizationService.Format("tooltip.no_disaster_for_another", GetName(),
-                    DisasterSimulationUtils.FormatTimeSpan(calmDaysLeft));
+                    DisasterSimulationUtils.FormatTimeSpan(CalmDaysLeft));
 
             if (probabilityWarmupDaysLeft > 0)
                 return LocalizationService.Format("tooltip.recently_occurred", GetName());
@@ -155,9 +157,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (!unlocked) return LocalizationService.Get("tooltip.not_unlocked");
 
-            if (calmDaysLeft > 0)
+            if (CalmDaysLeft > 0)
                 return LocalizationService.Format("tooltip.no_disaster_for_another", GetName(),
-                    DisasterSimulationUtils.FormatTimeSpan(calmDaysLeft));
+                    DisasterSimulationUtils.FormatTimeSpan(CalmDaysLeft));
 
             var result = LocalizationService.Format("tooltip.intensity", string.Format("{0:#.##}", value * 25.5f));
 
@@ -185,6 +187,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             Enabled = disaster.Enabled;
             BaseOccurrencePerYear = disaster.BaseOccurrencePerYear;
             EvacuationMode = disaster.EvacuationMode;
+            MaxGeneratedIntensity = disaster.MaxGeneratedIntensity;
+            NormalizeGeneratedIntensitySettings();
         }
 
         public void SetEnabled(bool enabled)
@@ -203,9 +207,9 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         public virtual void SetDebugProbabilityProgress(float progress)
         {
             var clampedProgress = Mathf.Clamp01(progress);
-            debugProbabilityProgressOverride = clampedProgress;
-            debugForceOccurrence = clampedProgress >= 0.999f;
-            calmDaysLeft = 0f;
+            _debugProbabilityProgressOverride = -1f;
+            _debugForceOccurrence = clampedProgress >= 0.999f;
+            CalmDaysLeft = 0f;
 
             if (probabilityWarmupDays > 0)
                 probabilityWarmupDaysLeft = probabilityWarmupDays * (1f - clampedProgress);
@@ -214,10 +218,24 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 intensityWarmupDaysLeft = intensityWarmupDays * (1f - clampedProgress);
         }
 
+        public void ClearDebugProbabilityProgress()
+        {
+            _debugProbabilityProgressOverride = -1f;
+            _debugForceOccurrence = false;
+        }
+
+        public virtual void ResetProbabilityProgress()
+        {
+            ClearDebugProbabilityProgress();
+            CalmDaysLeft = 0f;
+            probabilityWarmupDaysLeft = probabilityWarmupDays;
+            intensityWarmupDaysLeft = intensityWarmupDays;
+        }
+
         public bool TryGetDebugProbabilityProgress(out float progress)
         {
-            progress = debugProbabilityProgressOverride;
-            return debugProbabilityProgressOverride >= 0f;
+            progress = _debugProbabilityProgressOverride;
+            return _debugProbabilityProgressOverride >= 0f;
         }
 
         public DisasterType GetDisasterType()
@@ -254,39 +272,51 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 intensity = (byte)Services.Simulation.m_randomizer.Int32(10, 100);
             }
 
-            if (maxIntensity < 100) intensity = (byte)(10 + (intensity - 10) * maxIntensity / 100);
+            if (maxIntensity < 100)
+                intensity = (byte)(10 + (intensity - 10) * maxIntensity / 100);
+            else if (maxIntensity > 100)
+                intensity = (byte)(10 + (intensity - 10) * (maxIntensity - 10) / 90);
 
             return intensity;
         }
 
-        protected byte GetMaximumGeneratedIntensity(byte maxIntensity)
+        private static byte GetMaximumGeneratedIntensity(byte maxIntensity)
         {
             if (maxIntensity >= 100)
-                return 100;
+                return maxIntensity;
 
             return (byte)(10 + (100 - 10) * maxIntensity / 100);
         }
 
-        // TODO: Evaluate an advanced extreme-intensity system instead of changing all disasters globally.
-        // Current automatic generation effectively caps most disasters at 10.0, even though the game can store
-        // intensity up to 25.5 (byte.MaxValue / 10). Candidate design:
-        // - Add a global advanced toggle such as "Allow extreme intensities up to 25.5".
-        // - Add per-disaster maximum generated intensity so each disaster can opt into a different cap.
-        // - Strong candidates: Meteor Strike, Earthquake, Tsunami.
-        // - Optional/advanced candidates: Tornado and Sinkhole, with rarity controls and warnings.
-        // - Lower-priority candidates: Thunderstorm and Forest Fire, where frequency/spread/secondary effects
-        //   probably model severity better than raw 25.5 intensity.
-        // - Keep default behavior conservative and preserve current 10.0 cap unless explicitly enabled.
-        // - Review UI labels/tooltips so "max strength" reflects the real generated cap, not only byte storage.
+        public void NormalizeGeneratedIntensitySettings()
+        {
+            MaxGeneratedIntensity = Mathf.Clamp(
+                MaxGeneratedIntensity,
+                ConservativeGeneratedIntensityLimit,
+                ExtremeGeneratedIntensityLimit);
+        }
+
+        protected byte GetConfiguredMaximumGeneratedIntensity()
+        {
+            var setup = Services.DisasterSetup;
+            var maxIntensity = setup != null && setup.AllowExtremeIntensities
+                ? MaxGeneratedIntensity
+                : ConservativeGeneratedIntensityLimit;
+
+            return (byte)Mathf.RoundToInt(Mathf.Clamp(
+                maxIntensity,
+                1f,
+                ExtremeGeneratedIntensityLimit) * 10f);
+        }
 
         protected byte ScaleIntensityByWarmup(byte intensity)
         {
             if (intensityWarmupDaysLeft > 0 && intensityWarmupDays > 0)
             {
                 if (intensityWarmupDaysLeft >= intensityWarmupDays)
-                    intensity = indexReferenceDisasterValue;
+                    intensity = IndexReferenceDisasterValue;
                 else
-                    intensity = (byte)(indexReferenceDisasterValue + (intensity - indexReferenceDisasterValue) *
+                    intensity = (byte)(IndexReferenceDisasterValue + (intensity - IndexReferenceDisasterValue) *
                         (1 - intensityWarmupDaysLeft / intensityWarmupDays));
             }
 
@@ -300,7 +330,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 var population = DisasterSimulationUtils.GetPopulation();
                 var naturalDisasterSetup = Services.DisasterSetup;
                 if (population < naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters)
-                    intensity = (byte)(indexReferenceDisasterValue + (intensity - indexReferenceDisasterValue) *
+                    intensity = (byte)(IndexReferenceDisasterValue + (intensity - IndexReferenceDisasterValue) *
                         population / naturalDisasterSetup.MaxPopulationToTriggerHigherDisasters);
             }
 
@@ -330,10 +360,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         protected void LogDisasterStartFailure(string reason)
         {
             var now = DateTime.UtcNow;
-            if ((now - lastStartFailureLogUtc).TotalSeconds < 5)
+            if ((now - _lastStartFailureLogUtc).TotalSeconds < 5)
                 return;
 
-            lastStartFailureLogUtc = now;
+            _lastStartFailureLogUtc = now;
             DebugLogger.Log(GetDebugStr() + reason);
         }
 
@@ -361,7 +391,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             var naturalDisasterSetup = Services.DisasterSetup;
             DebugLogger.Log(GetDebugStr() + string.Format("activation handling. Id: {0}, Enabled: {1}",
                 disasterId, Enabled));
-            DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts, secondsBeforePausing,
+            DisasterExtension.SetPauseOnDisasterStarts(naturalDisasterSetup.PauseOnDisasterStarts,
+                _secondsBeforePausing,
                 disasterId, disasterInfo, Enabled);
         }
 
@@ -384,10 +415,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                 if (disasterInfoUnified.DisasterInfo.type == DisasterType.Empty) return;
 
                 if (!IsEvacuating())
-                {
                     // Not evacuating globally. Manual evacuations no longer need to block automatic releases.
-                    manualReleaseDisasters.Clear();
-                }
+                    _manualReleaseDisasters.Clear();
 
                 //Evaluate Disaster finishing                
                 var disasterFinishing = activeDisasters
@@ -407,7 +436,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                         case EvacuationOptions.AutoEvacuation:
                         case EvacuationOptions.FocusedAutoEvacuation:
                             //When all list empty, then release all using basegame code for it.
-                            if (!manualReleaseDisasters.Any() && !activeDisasters.Any())
+                            if (!_manualReleaseDisasters.Any() && !activeDisasters.Any())
                             {
                                 //Auto releasing citizens
                                 ReleaseAllShelters();
@@ -418,15 +447,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
                             if (activeDisasters.Any())
                             {
                                 var pendingShelters = new List<ushort>();
-                                //If pending disaster then get all pending shelters that souldnt be released
-                                foreach (var disaster in activeDisasters)
-                                {
-                                    foreach (var shelterId in disaster.ShelterList)
-                                    {
-                                        if (!pendingShelters.Contains(shelterId))
-                                            pendingShelters.Add(shelterId);
-                                    }
-                                }
+                                //If pending disaster then get all pending shelters that shouldn't be released
+                                foreach (var shelterId in activeDisasters
+                                             .SelectMany(disaster => disaster.ShelterList
+                                                 .Where(shelterId => !pendingShelters.Contains(shelterId))
+                                             )
+                                        )
+                                    pendingShelters.Add(shelterId);
 
                                 var sheltersToBeReleased = disasterFinishing.ShelterList.Where(disFinishing =>
                                     pendingShelters.All(pendSh => pendSh != disFinishing)).ToList();
@@ -492,7 +519,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             var framesPerDay = DisasterSimulationUtils.FramesPerDay;
 
-            calmDaysLeft = calmDays * intensity / 100; // TO DO: May be define minimum calmDays
+            CalmDaysLeft = CalmDays * intensity / 100; // TO DO: May be define minimum calmDays
             probabilityWarmupDaysLeft = probabilityWarmupDays;
             intensityWarmupDaysLeft = intensityWarmupDays;
         }
@@ -545,8 +572,8 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             expr_98_cp_0[expr_98_cp_1].m_flags = expr_98_cp_0[expr_98_cp_1].m_flags | DisasterData.Flags.SelfTrigger;
             disasterInfo.m_disasterAI.StartNow(disasterIndex, ref dm.m_disasters.m_buffer[disasterIndex]);
             AfterStartDisaster(disasterIndex);
-            debugForceOccurrence = false;
-            debugProbabilityProgressOverride = -1f;
+            _debugForceOccurrence = false;
+            _debugProbabilityProgressOverride = -1f;
 
             DebugLogger.Log(GetDebugStr() + string.Format(
                 "StartNow called. Id: {0}, Flags: {1}, Intensity: {2}, Area: {3}, Target: x:{4:#.##} y:{5:#.##} z:{6:#.##}",
@@ -581,12 +608,12 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             }
         }
 
-        public virtual float CalculateDestructionRadio(byte intensity)
+        protected virtual float CalculateDestructionRadio(byte intensity)
         {
             return 5.656854249f; //min Value Radio
         }
 
-        public virtual void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
+        protected virtual void SetupAutomaticEvacuation(DisasterInfoModel disasterInfoModel,
             ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX,
@@ -605,7 +632,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             if (serviceBuildings == null)
                 return;
 
-            //Release all shelters but Potentyally destroyed
+            //Release all shelters but Potentially destroyed
             for (var i = 0; i < serviceBuildings.m_size; i++)
             {
                 var num = serviceBuildings.m_buffer[i];
@@ -642,7 +669,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             AddOrReplaceActiveDisaster(disasterInfoModel, ref activeDisasters);
         }
 
-        private bool FindRandomTargetEverywhere(out Vector3 target, out float angle)
+        private static bool FindRandomTargetEverywhere(out Vector3 target, out float angle)
         {
             var gam = Services.GameArea;
             var sm = Services.Simulation;
@@ -738,10 +765,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private void SetupManualEvacuation(ushort disasterId)
         {
             //Should be manually released
-            manualReleaseDisasters.Add(disasterId);
+            _manualReleaseDisasters.Add(disasterId);
         }
 
-        protected virtual void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel, float disasterRadius,
+        protected virtual void SetupAutomaticFocusedEvacuation(DisasterInfoModel disasterInfoModel,
+            float disasterRadius,
             ref List<DisasterInfoModel> activeDisasters)
         {
             var disasterTargetPosition = new Vector3(disasterInfoModel.DisasterInfo.targetX,

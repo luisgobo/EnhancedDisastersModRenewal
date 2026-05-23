@@ -35,16 +35,25 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                 forestFire.NoRainDays = dataSeralizer.ReadFloat();
             }
 
-            if (dataSeralizer.version < 10) return;
+            if (dataSeralizer.version < 10)
+            {
+                forestFire.NormalizeRealisticRecurrenceSettings();
+                return;
+            }
             
             forestFire.RealTimeForestFireFrequency =
                 (RealTimeDisasterFrequencyPreset)dataSeralizer.ReadInt32();
             forestFire.RealTimeMinutesUntilNextForestFire = dataSeralizer.ReadFloat();
             forestFire.RealTimeCurrentDryPeriodMinutes = dataSeralizer.ReadFloat();
 
-            if (dataSeralizer.version < 11) return;
+            if (dataSeralizer.version < 11)
+            {
+                forestFire.NormalizeRealisticRecurrenceSettings();
+                return;
+            }
 
             forestFire.FogRetardsDryTime = dataSeralizer.ReadBool();
+            forestFire.NormalizeRealisticRecurrenceSettings();
         }
 
         private static void NormalizeForestFireEvacuationMode(ForestFireModel forestFire)

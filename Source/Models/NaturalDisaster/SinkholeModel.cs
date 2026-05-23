@@ -17,8 +17,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float RealTimeGroundwaterFillFactor = 2f;
         private const float RealTimeGroundwaterDrainFactor = 0.5f;
         private const int LocalizedWetnessGridResolution = 25;
+
         private const int LocalizedWetnessGridCellCount =
             LocalizedWetnessGridResolution * LocalizedWetnessGridResolution;
+
         private const int LocalizedWetnessTargetAttempts = 24;
         private const float LocalizedWetnessRainFillFactor = 1.25f;
         private const float LocalizedWetnessDrainFactor = 1f;
@@ -28,7 +30,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         private const float LocalizedWetnessActiveCityMaxFactor = 5f;
         private const float LocalizedWetnessActiveBuildingFactorStep = 0.2f;
         private const float LocalizedWetnessNeighborBuildingFactorStep = 0.05f;
+        private const float DefaultGroundwaterCapacity = 90f;
+        private const float MaxBaseOccurrencePerYear = 0.5f;
         private const string ExtendedInfoPanel2ModKey = "extendedInfoPanel2";
+
         private static readonly RealTimeDisasterFrequencyPreset[] RealTimeSinkholeFrequencyOptionValues =
         {
             RealTimeDisasterFrequencyPreset.Apocalypse,
@@ -38,10 +43,11 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             RealTimeDisasterFrequencyPreset.Rare
         };
 
-        [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
         [XmlIgnore] private readonly float[] _localizedWetnessCityFactors = new float[LocalizedWetnessGridCellCount];
         [XmlIgnore] private readonly float[] _localizedWetnessGrid = new float[LocalizedWetnessGridCellCount];
         [XmlIgnore] private readonly float[] _localizedWetnessTerrainFactors = new float[LocalizedWetnessGridCellCount];
+
+        [XmlIgnore] private float _lastRealTimeScheduleUpdateSeconds = -1f;
         [XmlIgnore] private bool _localizedWetnessGridInitialized;
         [XmlIgnore] private float _localizedWetnessMaxX;
         [XmlIgnore] private float _localizedWetnessMaxZ;
@@ -49,9 +55,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         [XmlIgnore] private float _localizedWetnessMinZ;
 
         [XmlIgnore] public float groundwaterAmount; // groundwaterAmount=1 means rain of intensity 1 during 1 day
+        public float GroundwaterCapacity = DefaultGroundwaterCapacity;
         [XmlIgnore] public float RealTimeCurrentWetPeriodMinutes = -1f;
         [XmlIgnore] public float RealTimeMinutesUntilNextSinkhole = -1f;
-        public float GroundwaterCapacity = 50;
+
         public RealTimeDisasterFrequencyPreset RealTimeSinkholeFrequency =
             RealTimeDisasterFrequencyPreset.Occasional;
 
@@ -59,10 +66,10 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             DType = DisasterType.Sinkhole;
             OccurrenceAreaAfterUnlock = OccurrenceAreas.UnlockedAreas;
-            BaseOccurrencePerYear = 1.5f; // When groundwater is full
+            BaseOccurrencePerYear = MaxBaseOccurrencePerYear; // When groundwater is full
             ProbabilityDistribution = ProbabilityDistributions.Uniform;
 
-            calmDays = 30;
+            CalmDays = 180;
             probabilityWarmupDays = 0;
             intensityWarmupDays = 0;
         }
@@ -71,7 +78,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (!unlocked) return "Not unlocked yet";
 
-            if (calmDaysLeft <= 0)
+            if (CalmDaysLeft <= 0)
             {
                 if (IsRealTimePatternActive())
                     return GetRealTimeProbabilityTooltip(value);
@@ -193,7 +200,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             return LocalizationService.GetDisasterName(DType);
         }
 
-        public override float CalculateDestructionRadio(byte intensity)
+        protected override float CalculateDestructionRadio(byte intensity)
         {
             var unitSize = 8;
             var unitsBase = 24; //24 + 4 Original, Distance Fix for proximity
@@ -271,6 +278,7 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             {
                 GroundwaterCapacity = d.GroundwaterCapacity;
                 SetRealTimeSinkholeFrequency(d.RealTimeSinkholeFrequency);
+                NormalizeRealisticRecurrenceSettings();
             }
         }
 
@@ -334,6 +342,13 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
         {
             if (RealTimeCurrentWetPeriodMinutes <= 0f || RealTimeMinutesUntilNextSinkhole < 0f)
                 ScheduleNextRealTimeSinkhole();
+
+            GetRealTimeIntervalRange(out var minMinutes, out var maxMinutes);
+            RealTimeDisasterTiming.ClampScheduleToRange(
+                minMinutes,
+                maxMinutes,
+                ref RealTimeCurrentWetPeriodMinutes,
+                ref RealTimeMinutesUntilNextSinkhole);
 
             if (RealTimeMinutesUntilNextSinkhole > RealTimeCurrentWetPeriodMinutes)
                 RealTimeMinutesUntilNextSinkhole = RealTimeCurrentWetPeriodMinutes;
@@ -441,25 +456,25 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             switch (RealTimeSinkholeFrequency)
             {
                 case RealTimeDisasterFrequencyPreset.Apocalypse:
-                    minMinutes = 10f;
-                    maxMinutes = 20f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Frequent:
-                    minMinutes = 20f;
-                    maxMinutes = 60f;
-                    break;
-                case RealTimeDisasterFrequencyPreset.Occasional:
-                default:
                     minMinutes = 60f;
                     maxMinutes = 120f;
                     break;
-                case RealTimeDisasterFrequencyPreset.Uncommon:
+                case RealTimeDisasterFrequencyPreset.Frequent:
                     minMinutes = 120f;
                     maxMinutes = 240f;
                     break;
+                case RealTimeDisasterFrequencyPreset.Occasional:
+                default:
+                    minMinutes = 360f;
+                    maxMinutes = 720f;
+                    break;
+                case RealTimeDisasterFrequencyPreset.Uncommon:
+                    minMinutes = 720f;
+                    maxMinutes = 1440f;
+                    break;
                 case RealTimeDisasterFrequencyPreset.Rare:
-                    minMinutes = 240f;
-                    maxMinutes = 480f;
+                    minMinutes = 1440f;
+                    maxMinutes = 2880f;
                     break;
             }
         }
@@ -873,18 +888,41 @@ namespace NaturalDisastersRenewal.Models.NaturalDisaster
             ScheduleNextRealTimeSinkhole(currentProgress);
         }
 
+        public void NormalizeRealisticRecurrenceSettings()
+        {
+            BaseOccurrencePerYear = DisasterRecurrenceTuning.ClampOccurrencePerYear(
+                BaseOccurrencePerYear,
+                0.02f,
+                MaxBaseOccurrencePerYear);
+            GroundwaterCapacity = Mathf.Max(DefaultGroundwaterCapacity, GroundwaterCapacity);
+        }
+
         public override void SetDebugProbabilityProgress(float progress)
         {
             base.SetDebugProbabilityProgress(progress);
 
             var clampedProgress = Mathf.Clamp01(progress);
-            calmDaysLeft = 0f;
+            CalmDaysLeft = 0f;
             probabilityWarmupDaysLeft = 0f;
             intensityWarmupDaysLeft = 0f;
             groundwaterAmount = GroundwaterCapacity * clampedProgress;
 
             if (IsRealTimePatternActive())
                 ScheduleNextRealTimeSinkhole(clampedProgress);
+        }
+
+        public override void ResetProbabilityProgress()
+        {
+            base.ResetProbabilityProgress();
+            groundwaterAmount = 0f;
+
+            if (IsRealTimePatternActive())
+            {
+                ScheduleNextRealTimeSinkhole();
+                CalmDaysLeft = 0f;
+                probabilityWarmupDaysLeft = 0f;
+                intensityWarmupDaysLeft = 0f;
+            }
         }
 
         public static string[] GetRealTimeSinkholeFrequencyOptions()

@@ -75,6 +75,8 @@ namespace NaturalDisastersRenewal.Serialization.NaturalDisaster
                     meteorStrike.MeteorEvents[i].MeteorsFallen = dataSerializer.ReadInt32();
                 }
             }
+
+            meteorStrike.NormalizeRealisticRecurrenceSettings();
         }
 
         public void AfterDeserialize(DataSerializer dataSerializer)

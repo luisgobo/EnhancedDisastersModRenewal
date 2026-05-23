@@ -32,6 +32,7 @@ namespace NaturalDisastersRenewal.Models.Setup
         public bool RecordDisasterEvents = false;
         public RealTimeDisasterFrequencyPreset RealTimeFrequencyHarmony = RealTimeDisasterFrequencyPreset.Occasional;
 
+        public bool AllowExtremeIntensities = false;
         public bool ScaleMaxIntensityWithPopulation = false;
         public bool ShowDisasterPanelButton = true;
         public SinkholeModel Sinkhole;
@@ -41,16 +42,6 @@ namespace NaturalDisastersRenewal.Models.Setup
         [XmlIgnore] public EventModifiers TogglePanelHotkeyModifiers = EventModifiers.Shift;
         public TornadoModel Tornado;
         public TsunamiModel Tsunami;
-
-        // TODO: Harmonize disaster recurrence proportions across all disaster types.
-        // Requirements:
-        // - Rebalance default annual occurrences and Real Time presets using realistic relative rarity as a guide.
-        // - Keep thunderstorms and non-destructive/common events frequent enough for visible gameplay.
-        // - Make highly destructive/rare events, especially meteor strikes and damaging tsunamis, proportionally rarer.
-        // - Account for map context where possible: coastline for tsunamis, forest/dry periods for forest fires,
-        //   rain/groundwater for sinkholes, and season/rain for thunderstorms.
-        // - Preserve gameplay pacing with configurable presets rather than strict real-world rates.
-        // - Migrate or clamp existing saved settings so older saves do not suddenly become too quiet or too chaotic.
 
         [XmlElement("TogglePanelHotkey")]
         public string TogglePanelHotkeySerialized
@@ -117,13 +108,29 @@ namespace NaturalDisastersRenewal.Models.Setup
             if (Earthquake == null) Earthquake = new EarthquakeModel();
             if (MeteorStrike == null) MeteorStrike = new MeteorStrikeModel();
 
+            ForestFire.NormalizeRealisticRecurrenceSettings();
+            Thunderstorm.NormalizeRealisticRecurrenceSettings();
+            Sinkhole.NormalizeRealisticRecurrenceSettings();
+            Tornado.NormalizeRealisticRecurrenceSettings();
+            Tsunami.NormalizeRealisticRecurrenceSettings();
+            Earthquake.NormalizeRealisticRecurrenceSettings();
+            MeteorStrike.NormalizeRealisticRecurrenceSettings();
+
+            ForestFire.NormalizeGeneratedIntensitySettings();
+            Thunderstorm.NormalizeGeneratedIntensitySettings();
+            Sinkhole.NormalizeGeneratedIntensitySettings();
+            Tornado.NormalizeGeneratedIntensitySettings();
+            Tsunami.NormalizeGeneratedIntensitySettings();
+            Earthquake.NormalizeGeneratedIntensitySettings();
+            MeteorStrike.NormalizeGeneratedIntensitySettings();
+
             AllDisasters.Clear();
-            AllDisasters.Add(ForestFire);
             AllDisasters.Add(Thunderstorm);
+            AllDisasters.Add(ForestFire);
             AllDisasters.Add(Sinkhole);
-            AllDisasters.Add(Tsunami);
             AllDisasters.Add(Tornado);
             AllDisasters.Add(Earthquake);
+            AllDisasters.Add(Tsunami);
             AllDisasters.Add(MeteorStrike);
         }
 
