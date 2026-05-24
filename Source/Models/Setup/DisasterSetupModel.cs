@@ -20,7 +20,7 @@ namespace NaturalDisastersRenewal.Models.Setup
 
         //General options
         public bool DisableDisasterFocus = true;
-        public Vector3 DPanelPos = new Vector3(90, 40);
+        public Vector3 DPanelPos = new Vector3(90, 100);
         public EarthquakeModel Earthquake;
         public ForestFireModel ForestFire;
         public ModLanguage Language = ModLanguage.English;

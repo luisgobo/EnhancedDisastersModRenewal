@@ -16,6 +16,8 @@ namespace NaturalDisastersRenewal.Handlers
 {
     public class NaturalDisasterHandler : Singleton<NaturalDisasterHandler>
     {
+        private static readonly Vector3 DefaultPanelPosition = new Vector3(90f, 100f);
+        private static readonly Vector3 DefaultToggleButtonPosition = new Vector3(90f, 62f);
         private readonly Harmony harmony = new Harmony(CommonProperties.ModNameForHarmony);
         public DisasterSetupModel container;
         private DisasterWrapper disasterWrapper;
@@ -105,14 +107,22 @@ namespace NaturalDisastersRenewal.Handlers
             {
                 if (resetButtonPos)
                 {
-                    toggleButton.absolutePosition = new Vector3(90, 62);
-                    container.ToggleButtonPos = new Vector3(90, 62);
+                    container.ShowDisasterPanelButton = true;
+                    container.ToggleButtonPos = DefaultToggleButtonPosition;
+
+                    if (toggleButton != null)
+                    {
+                        toggleButton.isVisible = true;
+                        toggleButton.absolutePosition = DefaultToggleButtonPosition;
+                    }
                 }
 
                 if (resetPanelPos)
                 {
-                    dPanel.absolutePosition = new Vector3(90, 100);
-                    container.DPanelPos = new Vector3(90, 100);
+                    container.DPanelPos = DefaultPanelPosition;
+
+                    if (dPanel != null)
+                        dPanel.absolutePosition = DefaultPanelPosition;
                 }
             }
         }
@@ -318,7 +328,7 @@ namespace NaturalDisastersRenewal.Handlers
             var obj = new GameObject("InGameDisastersPanel");
             obj.transform.parent = v.cachedTransform;
             dPanel = obj.AddComponent<InGameDisastersPanel>();
-            dPanel.absolutePosition = new Vector3(90, 100);
+            dPanel.absolutePosition = DefaultPanelPosition;
 
             EnsureShelterHoverDebugOverlay();
 
@@ -330,7 +340,7 @@ namespace NaturalDisastersRenewal.Handlers
             ApplyDefaultToggleButtonSprites();
             toggleButton.width = 48f;
             toggleButton.height = 48f;
-            toggleButton.absolutePosition = new Vector3(90, 62);
+            toggleButton.absolutePosition = DefaultToggleButtonPosition;
             toggleButton.tooltip = LocalizationService.Get("panel.toggle_button.tooltip");
             toggleButton.isVisible = container.ShowDisasterPanelButton;
             toggleButton.eventClick += ToggleButton_eventClick;
@@ -378,16 +388,19 @@ namespace NaturalDisastersRenewal.Handlers
             toggleButton.isVisible = container.ShowDisasterPanelButton;
             UpdateToggleButtonIcon();
 
-            if (container.ToggleButtonPos.x > 10 && container.ToggleButtonPos.y > 10)
-                toggleButton.absolutePosition = container.ToggleButtonPos;
+            var visiblePosition = GetVisibleUIPosition(container.ToggleButtonPos, toggleButton,
+                DefaultToggleButtonPosition);
+            toggleButton.absolutePosition = visiblePosition;
+            container.ToggleButtonPos = visiblePosition;
         }
 
         public void UpdateDisastersDPanel()
         {
             if (dPanel == null || container == null) return;
 
-            if (container.DPanelPos.x > 10 && container.DPanelPos.y > 10)
-                dPanel.absolutePosition = container.DPanelPos;
+            var visiblePosition = GetVisibleUIPosition(container.DPanelPos, dPanel, DefaultPanelPosition);
+            dPanel.absolutePosition = visiblePosition;
+            container.DPanelPos = visiblePosition;
         }
 
         public void RefreshLocalizedUI()
@@ -470,6 +483,25 @@ namespace NaturalDisastersRenewal.Handlers
                 currentPosition.x + x * ratio,
                 currentPosition.y + y * ratio,
                 currentPosition.z);
+        }
+
+        private static Vector3 GetVisibleUIPosition(Vector3 requestedPosition, UIComponent component,
+            Vector3 fallbackPosition)
+        {
+            if (requestedPosition.x <= 10f || requestedPosition.y <= 10f)
+                return fallbackPosition;
+
+            var componentWidth = component != null ? component.width : 0f;
+            var componentHeight = component != null ? component.height : 0f;
+            var maxX = Screen.width - componentWidth;
+            var maxY = Screen.height - componentHeight;
+
+            if (maxX <= 0f || maxY <= 0f)
+                return requestedPosition;
+
+            return requestedPosition.x <= maxX && requestedPosition.y <= maxY
+                ? requestedPosition
+                : fallbackPosition;
         }
 
         private void UIInput_eventProcessKeyEvent(EventType eventType, KeyCode keyCode, EventModifiers modifiers)

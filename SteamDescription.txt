@@ -70,6 +70,11 @@ Please, report any issue to check it and fix it in next releases.
 [url=https://steamcommunity.com/workshop/filedetails/discussion/2957578256/6492543723419458165/]right here[/url]. Please add some information to figure out what would be happening (City Population, disaster where the issue is happening or in-game situation being affected, for example some other mods, conflicts).
 
 [hr][/hr]
+[h1]Support / Donations[/h1]
+If you want to support the work on this mod, you can do it here:
+[url=https://ko-fi.com/luisgobo2986][img]https://storage.ko-fi.com/cdn/kofi3.png?v=3[/img][/url]
+
+[hr][/hr]
 [h1]Source Code[/h1] 
 You can take a look to source code
 [url=https://github.com/luisgobo/EnhancedDisastersModRenewal][img]https://i.imgur.com/DczUXYq.png[/img][/url]
