@@ -163,6 +163,10 @@
         <EmbeddedResource Include="Resources\Images\icons\Stop.svg" />
         <EmbeddedResource Include="Resources\Images\icons\Stop2.svg" />
         <Content Include="Versions\Changelog.txt"/>
+        <Content Include="Versions\FutureWork\FutureWork.txt"/>
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Versions\FutureWork\" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <Target Name="GenerateBuildInfo" BeforeTargets="BeforeBuild">
