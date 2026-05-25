@@ -5,7 +5,13 @@ namespace NaturalDisastersRenewal.Common
 {
     public static class CommonProperties
     {
+        // For development Purpose//////////////////////
+        
+
+        ///
+        ///////////////////////////////////////////////
         public const string ModName = "Natural Disasters Renewal";
+
         public const string ModNameForHarmony = "NaturalDisastersRenewal";
         public const string ModVersion = "1.3.0";
         public const string ModSteamId = "2957578256";
@@ -17,6 +23,7 @@ namespace NaturalDisastersRenewal.Common
         public const string DataId = "NaturalDisastersRenewalMod";
         public const string DisasterListFileName = "DisasterList.csv";
         public const string LogMessagePrefix = ">>> " + ModName + ": ";
+
 
         public static readonly string NewLine = $"{Environment.NewLine}";
 
