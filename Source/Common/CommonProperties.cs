@@ -5,11 +5,6 @@ namespace NaturalDisastersRenewal.Common
 {
     public static class CommonProperties
     {
-        // For development Purpose//////////////////////
-        
-
-        ///
-        ///////////////////////////////////////////////
         public const string ModName = "Natural Disasters Renewal";
 
         public const string ModNameForHarmony = "NaturalDisastersRenewal";
