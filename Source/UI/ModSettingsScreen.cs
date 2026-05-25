@@ -7,6 +7,7 @@ using ColossalFramework.UI;
 using ICities;
 using NaturalDisastersRenewal.BaseGameExtensions;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.Development;
 using NaturalDisastersRenewal.Common.enums;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using NaturalDisastersRenewal.Models.Setup;
@@ -62,13 +63,11 @@ namespace NaturalDisastersRenewal.UI
         private UICheckBox UI_General_RecordDisasterEventsChkBox;
         private UICheckBox UI_General_ShowDisasterPanelButton;
         private UITextField UI_General_TogglePanelHotkeyField;
-#if DEBUG
         private UIDropDown UI_Debug_DisasterProgressTarget;
         private UICheckBox UI_Debug_DisasterProgressEnabled;
         private UISlider UI_Debug_DisasterProgress;
         private int debugDisasterProgressTargetIndex;
         private int debugForcedDisasterProgressIndex = -1;
-#endif
 
         //Forest Fire
         private UICheckBox UI_ForestFire_Enabled;
@@ -696,13 +695,11 @@ namespace NaturalDisastersRenewal.UI
             UI_General_RecordDisasterEventsChkBox = null;
             UI_General_ShowDisasterPanelButton = null;
             UI_General_TogglePanelHotkeyField = null;
-#if DEBUG
             UI_Debug_DisasterProgressTarget = null;
             UI_Debug_DisasterProgressEnabled = null;
             UI_Debug_DisasterProgress = null;
             debugDisasterProgressTargetIndex = 0;
             debugForcedDisasterProgressIndex = -1;
-#endif
             UI_ForestFire_Enabled = null;
             UI_ForestFireMaxProbability = null;
             UI_ForestFire_WarmupDays = null;
@@ -958,9 +955,10 @@ namespace NaturalDisastersRenewal.UI
             UI_General_RealTimeFrequencyHarmony.tooltip = GetRealTimeFrequencyHarmonyTooltip();
             SetRealTimeFrequencyHarmonyAvailability(DisasterSimulationUtils.IsRealTimeModActive());
 
-#if DEBUG
-            AddDebugDisasterProgressControls(ref generalGroup, disasterContainer);
-#endif
+#pragma warning disable CS0162
+            if (DevelopmentProperties.IsDevelopmentMode)
+                AddDebugDisasterProgressControls(ref generalGroup, disasterContainer);
+#pragma warning restore CS0162
 
             generalGroup.AddSpacing();
 
@@ -979,7 +977,6 @@ namespace NaturalDisastersRenewal.UI
             });
         }
 
-#if DEBUG
         private void AddDebugDisasterProgressControls(ref UIHelperBase generalGroup,
             DisasterSetupModel disasterContainer)
         {
@@ -1097,7 +1094,6 @@ namespace NaturalDisastersRenewal.UI
             if (UI_Debug_DisasterProgress != null)
                 UI_Debug_DisasterProgress.isEnabled = enabled;
         }
-#endif
 
         private UISlider AddMaxGeneratedIntensitySlider(ref UIHelperBase group, DisasterBaseModel disaster)
         {

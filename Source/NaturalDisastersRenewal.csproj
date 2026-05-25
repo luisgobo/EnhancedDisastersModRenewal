@@ -63,6 +63,7 @@
     <ItemGroup>
         <Compile Include="Common\BuildInfo.cs"/>
         <Compile Include="Common\CommonProperties.cs"/>
+        <Compile Include="Common\Development\DevelopmentProperties.cs"/>
         <Compile Include="Common\DisasterRecurrenceTuning.cs"/>
         <Compile Include="Common\HotkeyHelper.cs"/>
         <Compile Include="Common\LocalizationService.cs"/>
@@ -112,8 +113,8 @@
         <Compile Include="UI\ComponentHelper\HotkeyFieldHelper.cs"/>
         <Compile Include="UI\ComponentHelper\UIStyleHelper.cs"/>
         <Compile Include="UI\ComponentHelper\TabHelper.cs"/>
-        <Compile Include="UI\InGameDisastersPanel.cs" />
-        <Compile Include="UI\ShelterHoverDebugOverlay.cs" />
+        <Compile Include="UI\InGameDisastersPanel.cs"/>
+        <Compile Include="UI\ShelterHoverDebugOverlay.cs"/>
         <Compile Include="Common\DisasterSimulationUtils.cs"/>
         <Compile Include="BaseGameExtensions\LoadingExtension.cs"/>
         <Compile Include="Common\enums\OccurrenceAreas.cs"/>
@@ -126,7 +127,7 @@
         <Compile Include="UI\Extensions\UIHelperExtensions.cs"/>
         <Compile Include="UI\SettingsSections\AboutSettingsSection.cs"/>
         <Compile Include="UI\SettingsSections\DependenciesSettingsSection.cs"/>
-        <Compile Include="UI\ModSettingsScreen.cs" />
+        <Compile Include="UI\ModSettingsScreen.cs"/>
     </ItemGroup>
     <ItemGroup>
         <None Include="packages.config"/>
@@ -155,18 +156,18 @@
         <EmbeddedResource Include="Resources\Images\mod_compatibility.png"/>
         <EmbeddedResource Include="Resources\Images\github.png"/>
         <EmbeddedResource Include="Resources\Images\kofi_dark.png"/>
-        <EmbeddedResource Include="Resources\Images\steam.png" />
-        <EmbeddedResource Include="Resources\Images\icons\Warning-Conflict.svg" />
-        <EmbeddedResource Include="Resources\Images\icons\Warning.svg" />
-        <EmbeddedResource Include="Resources\Images\icons\Warning2.svg" />
-        <EmbeddedResource Include="Resources\Images\icons\Restart.svg" />
-        <EmbeddedResource Include="Resources\Images\icons\Stop.svg" />
-        <EmbeddedResource Include="Resources\Images\icons\Stop2.svg" />
+        <EmbeddedResource Include="Resources\Images\steam.png"/>
+        <EmbeddedResource Include="Resources\Images\icons\Warning-Conflict.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Warning.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Warning2.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Restart.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Stop.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Stop2.svg"/>
         <Content Include="Versions\Changelog.txt"/>
         <Content Include="Versions\FutureWork\FutureWork.txt"/>
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Versions\FutureWork\" />
+        <Folder Include="Versions\FutureWork\"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <Target Name="GenerateBuildInfo" BeforeTargets="BeforeBuild">

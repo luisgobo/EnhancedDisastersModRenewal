@@ -4,9 +4,10 @@ using System.Reflection;
 using ColossalFramework;
 using ColossalFramework.UI;
 using NaturalDisastersRenewal.Common;
+using NaturalDisastersRenewal.Common.Development;
 using NaturalDisastersRenewal.Models.NaturalDisaster;
 using UnityEngine;
-//
+
 namespace NaturalDisastersRenewal.UI
 {
     public class ShelterHoverDebugOverlay : UIPanel
@@ -20,12 +21,13 @@ namespace NaturalDisastersRenewal.UI
         private const float MinMeteorWaterWaveReach = 2560f;
         private const float MaxMeteorWaterWaveReach = 7680f;
         private const float SimulationFramesPerSecond = 60f;
+
         private static readonly FieldInfo HoverInstanceField =
             typeof(DefaultTool).GetField("m_hoverInstance", BindingFlags.Instance | BindingFlags.NonPublic);
 
         private readonly HashSet<ulong> _clearedMeteorShelterKeys = new HashSet<ulong>();
-        private readonly Dictionary<ulong, uint> _waterContactFrameByMeteorShelter = new Dictionary<ulong, uint>();
         private readonly Dictionary<ulong, uint> _meteorImpactFrameByMeteorShelter = new Dictionary<ulong, uint>();
+        private readonly Dictionary<ulong, uint> _waterContactFrameByMeteorShelter = new Dictionary<ulong, uint>();
         private UILabel _label;
         private UIView _view;
 
@@ -91,18 +93,14 @@ namespace NaturalDisastersRenewal.UI
             bool isFlooded;
 
             if (!TryGetShelterStreetFloodState(ref building, out segmentId, out waterDepth, out isFlooded))
-            {
                 _label.text = string.Format("Shelter {0}\nCalle: desconocida", shelterId);
-            }
             else
-            {
                 _label.text = string.Format(
                     "Shelter {0}\nCalle: {1}\nSegmento: {2}\nAgua: {3:0.00}",
                     shelterId,
                     isFlooded ? "inundada" : "seca",
                     segmentId,
                     waterDepth);
-            }
 
             string meteorInfo;
             if (TryGetNearbyMeteorWaterImpactInfo(shelterId, building.m_position, waterDepth, out meteorInfo))
@@ -128,12 +126,12 @@ namespace NaturalDisastersRenewal.UI
 
             var foundMeteor = false;
             ushort bestDisasterId = 0;
-            float bestDistance = float.MaxValue;
+            var bestDistance = float.MaxValue;
             byte bestIntensity = 0;
-            uint bestImpactFrame = 0u;
-            bool bestHasImpactFrame = false;
-            bool bestImpactFrameIsFallback = false;
-            bool bestIsActive = false;
+            var bestImpactFrame = 0u;
+            var bestHasImpactFrame = false;
+            var bestImpactFrameIsFallback = false;
+            var bestIsActive = false;
 
             for (var disasterIndex = 0; disasterIndex < disasterManager.m_disasters.m_buffer.Length; disasterIndex++)
             {
@@ -409,11 +407,7 @@ namespace NaturalDisastersRenewal.UI
 
         private static bool IsDevelopmentModeEnabled()
         {
-#if DEBUG
-            return true;
-#else
-            return false;
-#endif
+            return DevelopmentProperties.IsDevelopmentMode;
         }
     }
 }
