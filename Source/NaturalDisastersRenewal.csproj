@@ -164,7 +164,7 @@
         <EmbeddedResource Include="Resources\Images\icons\Stop.svg"/>
         <EmbeddedResource Include="Resources\Images\icons\Stop2.svg"/>
         <Content Include="Versions\Changelog.txt"/>
-        <Content Include="Versions\FutureWork\FutureWork.txt"/>
+        <Content Include="Versions\FutureWork\FutureWork.md"/>
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Versions\FutureWork\"/>
