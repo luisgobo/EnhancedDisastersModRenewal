@@ -73,6 +73,110 @@ The UI layer should not:
 
 Use a simple staged structure, not a large framework rewrite.
 
+### Proposed Dependency Flow
+
+```mermaid
+flowchart TB
+    Player["Player input<br/>clicks, hotkeys, settings changes"]
+
+    subgraph UI["UI layer - Source/UI"]
+        ModSettingsScreen["ModSettingsScreen<br/>renders settings controls"]
+        InGamePanel["InGameDisastersPanel<br/>renders disaster status"]
+        DisasterRow["DisasterRowHelper<br/>renders one disaster row"]
+        ShelterOverlay["ShelterHoverDebugOverlay<br/>renders debug overlay"]
+        UiManager["DisasterPanelUiManager<br/>creates and positions UI"]
+    end
+
+    subgraph App["Application/control layer - Source/Application"]
+        SettingsController["DisasterSettingsController<br/>settings commands"]
+        PanelController["DisasterPanelController<br/>panel view-model builder"]
+        CommandService["DisasterCommandService<br/>disaster commands"]
+        ShelterProvider["ShelterDebugInfoProvider<br/>debug data provider"]
+        UiRefresh["IUiRefreshService<br/>refresh boundary"]
+        HotkeyState["HotkeyCaptureState<br/>input capture boundary"]
+    end
+
+    subgraph ViewModels["UI-ready view models"]
+        SettingsVM["SettingsViewModel"]
+        PanelVM["DisasterPanelViewModel"]
+        RowVM["DisasterRowViewModel"]
+        ShelterVM["ShelterDebugInfoViewModel"]
+    end
+
+    subgraph Core["Domain/core layer"]
+        Handler["NaturalDisasterHandler<br/>domain orchestration"]
+        Setup["DisasterSetupModel<br/>settings state"]
+        DisasterModels["DisasterBaseModel + concrete disasters<br/>probability, intensity, lifecycle"]
+        Compatibility["ModCompatibilityService<br/>mod detection"]
+        SimulationUtils["DisasterSimulationUtils<br/>shared calculations"]
+        Serialization["Serialization<br/>save/load data"]
+    end
+
+    subgraph Game["Cities: Skylines / Unity APIs"]
+        Managers["Game managers<br/>Simulation, Disasters, Buildings, Terrain, Vehicles, Water"]
+        GameUI["ColossalFramework.UI<br/>UIPanel, UIButton, UILabel"]
+        Harmony["Harmony patches<br/>base-game behavior hooks"]
+    end
+
+    Player --> UI
+
+    ModSettingsScreen --> SettingsController
+    InGamePanel --> CommandService
+    ShelterOverlay --> ShelterProvider
+    UiManager --> GameUI
+
+    SettingsController --> SettingsVM
+    PanelController --> PanelVM
+    PanelVM --> RowVM
+    ShelterProvider --> ShelterVM
+
+    SettingsVM --> ModSettingsScreen
+    PanelVM --> InGamePanel
+    RowVM --> DisasterRow
+    ShelterVM --> ShelterOverlay
+
+    SettingsController --> Setup
+    SettingsController --> Handler
+    CommandService --> Handler
+    CommandService --> DisasterModels
+    CommandService --> Managers
+    PanelController --> Setup
+    PanelController --> DisasterModels
+    PanelController --> Compatibility
+    ShelterProvider --> Managers
+    UiRefresh --> UI
+    HotkeyState --> ModSettingsScreen
+
+    Handler --> Setup
+    Handler --> DisasterModels
+    Handler --> Serialization
+    DisasterModels --> SimulationUtils
+    DisasterModels --> Managers
+    Compatibility --> Managers
+    Serialization --> Setup
+    Harmony --> Handler
+
+    classDef ui fill:#dbeafe,stroke:#2563eb,color:#111827
+    classDef app fill:#dcfce7,stroke:#16a34a,color:#111827
+    classDef vm fill:#fef3c7,stroke:#d97706,color:#111827
+    classDef core fill:#f3e8ff,stroke:#9333ea,color:#111827
+    classDef game fill:#fee2e2,stroke:#dc2626,color:#111827
+
+    class ModSettingsScreen,InGamePanel,DisasterRow,ShelterOverlay,UiManager ui
+    class SettingsController,PanelController,CommandService,ShelterProvider,UiRefresh,HotkeyState app
+    class SettingsVM,PanelVM,RowVM,ShelterVM vm
+    class Handler,Setup,DisasterModels,Compatibility,SimulationUtils,Serialization core
+    class Managers,GameUI,Harmony game
+```
+
+The intended direction is one-way for normal UI workflows:
+
+- UI emits commands to the application layer.
+- Application services mutate core state or read core state.
+- Application services build view models.
+- UI renders view models.
+- Core does not instantiate or call concrete UI classes.
+
 ### UI layer
 
 Files under `Source/UI` should contain:
