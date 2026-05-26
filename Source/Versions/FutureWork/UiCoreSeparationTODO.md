@@ -457,6 +457,50 @@ Acceptance criteria:
 - `rg -n "ModSettingsScreen\\." Source` should show UI-owned creation/update only, not core checks.
 - Hotkey handling depends on an input/capture service, not on a concrete settings screen.
 
+### Stage 9: Define Testing Strategy After Structure Stabilizes
+
+Goal:
+
+- Define the testing strategy only after the UI/core separation is mostly complete, so tests target stable
+  responsibilities instead of locking in the current mixed architecture.
+
+Timing rule:
+
+- Do not invest heavily in formal automated tests while `Source/UI` still owns domain mutations or while
+  `NaturalDisasterHandler` still owns concrete UI components.
+- During stages 1-8, use focused manual checks and build verification to avoid double work.
+- Start the full testing strategy after the command/controller/view-model boundaries are in place.
+
+Create:
+
+- `Source/Versions/FutureWork/TestingStrategyTODO.md`
+
+Testing strategy topics to define:
+
+- What can be unit tested without Cities: Skylines runtime.
+- What needs integration/manual in-game verification.
+- How to test command services, view-model builders, settings controllers, and compatibility providers.
+- How to validate Real Time behavior without relying only on long live play sessions.
+- How to validate disaster lifecycle flows:
+  - Generated disaster occurrence.
+  - Manual disaster spawn.
+  - Emergency stop.
+  - Reset disaster state/progress.
+  - Enable/disable disaster.
+  - Save/load settings.
+  - Level load/unload.
+- How to validate UI render behavior from view models without testing game UI internals directly.
+- How to track compatibility test cases for Real Time, ACME, forest-fire behavior mods, and disaster-overhaul conflicts.
+- What minimum regression checklist must run before releases.
+
+Acceptance criteria:
+
+- Testing work has a dedicated TODO/document instead of being scattered across refactor notes.
+- The testing plan is written after the new boundaries exist, so test names and fixtures map to stable services.
+- The test plan distinguishes automated tests, manual in-game checks, and compatibility smoke tests.
+- The final refactor Definition of Done includes creating the testing strategy, but not necessarily implementing
+  every test immediately.
+
 ## Recommended Order Of Work
 
 1. Extract `StopAllDisasters` and reset/toggle commands from `InGameDisastersPanel`.
@@ -467,11 +511,14 @@ Acceptance criteria:
 6. Introduce a narrow UI refresh boundary.
 7. Remove remaining `Services.*` references from `Source/UI`.
 8. Remove remaining `NaturalDisastersRenewal.UI` references from non-UI core files.
+9. Define the testing strategy in a separate TODO after the structure is stable.
 
 ## Migration Rules
 
 - Keep behavior unchanged unless a behavior change is explicitly planned.
 - Do not combine UI restructuring with gameplay tuning.
+- Do not design broad automated tests against temporary mixed responsibilities; use build checks and focused
+  manual verification until the architecture boundaries are stable.
 - Move one responsibility at a time.
 - After each stage, build the project before continuing.
 - Prefer wrappers around existing code first, then clean internals after behavior is stable.
@@ -497,6 +544,8 @@ The refactor is complete when:
 - Shelter debug overlay renders provider output instead of calculating disaster/building/terrain state itself.
 - A search for `Services.` under `Source/UI` produces no unapproved domain/simulation access.
 - A search for `NaturalDisastersRenewal.UI` outside `Source/UI` produces no core dependency on concrete UI classes.
+- A dedicated testing strategy TODO exists and is scoped to the final separated structure, not the temporary
+  migration shape.
 
 ## Useful Search Checks
 
