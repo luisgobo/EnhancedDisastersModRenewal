@@ -15,6 +15,10 @@ from one place while preserving the original code reference.
    - Add a button to move the camera to the selected building so the player does not need to search the map.
    - If the game API allows it safely, add a quick rebuild button for each listed building.
    - Detect disaster-damaged road segments and, if the game API allows it safely, repair them in one click.
+   - Evaluate a contextual panel that appears when the player clicks a disaster response center or equivalent disaster service building.
+   - From that contextual panel, expose quick repair/rebuild actions for valid nearby damaged roads and reconstructable buildings.
+   - Include useful response information in the contextual panel, such as active nearby disasters, damaged targets in range,
+     target district/position, repair availability, and camera navigation actions.
    - Keep the list updated after disasters, manual rebuilds, demolitions, and map reloads.
    - Avoid touching buildings that are not in a valid reconstructable state.
 

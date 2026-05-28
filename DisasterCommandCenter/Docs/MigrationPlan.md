@@ -19,7 +19,7 @@ Natural Disasters Renewal remains the stable reference implementation until each
 5. Port disasters one by one: forest fire, thunderstorm, sinkhole, tornado, tsunami, earthquake, meteor strike.
 6. Port evacuation and shelter release behavior.
 7. Rebuild the in-game command center panel against the new module structure.
-8. Add recovery tools for collapsed buildings and damaged roads.
+8. Add recovery tools for collapsed buildings and damaged roads, including contextual actions from disaster response buildings.
 9. Update Steam description, README, screenshots, icon, changelog, and migration notes.
 
 ## Compatibility requirements
