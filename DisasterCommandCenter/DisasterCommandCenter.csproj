@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{A4A69D10-2EDB-4D64-96A7-8AC0FC3D0B2F}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>DisasterCommandCenter</RootNamespace>
+        <AssemblyName>DisasterCommandCenter</AssemblyName>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <RuntimeIdentifiers>win</RuntimeIdentifiers>
+        <FileAlignment>512</FileAlignment>
+        <TargetFrameworkProfile/>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <Prefer32Bit>false</Prefer32Bit>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <Prefer32Bit>false</Prefer32Bit>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="CitiesHarmony.API, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+            <HintPath>..\packages\CitiesHarmony.API.2.2.0\lib\net35\CitiesHarmony.API.dll</HintPath>
+        </Reference>
+        <Reference Include="CitiesHarmony.Harmony, Version=2.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+            <HintPath>..\packages\CitiesHarmony.Harmony.2.2.2\lib\net35\CitiesHarmony.Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="ColossalManaged">
+            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
+        </Reference>
+        <Reference Include="ICities">
+            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
+        </Reference>
+        <Reference Include="System"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Xml.Linq"/>
+        <Reference Include="System.Data.DataSetExtensions"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.Xml"/>
+        <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+            <SpecificVersion>False</SpecificVersion>
+            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Common\BuildInfo.cs"/>
+        <Compile Include="Common\CommandCenterProperties.cs"/>
+        <Compile Include="Compatibility\CompatibilityModule.cs"/>
+        <Compile Include="Core\CommandCenterBootstrapper.cs"/>
+        <Compile Include="Core\CommandCenterContext.cs"/>
+        <Compile Include="Core\ICommandCenterModule.cs"/>
+        <Compile Include="Disasters\DisasterSimulationModule.cs"/>
+        <Compile Include="Evacuation\EvacuationModule.cs"/>
+        <Compile Include="Localization\LocalizationModule.cs"/>
+        <Compile Include="Migration\LegacyModIdentity.cs"/>
+        <Compile Include="Migration\MigrationModule.cs"/>
+        <Compile Include="Mod.cs"/>
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="Recovery\RecoveryModule.cs"/>
+        <Compile Include="Serialization\SerializationModule.cs"/>
+        <Compile Include="Settings\SettingsModule.cs"/>
+        <Compile Include="UI\CommandCenterSettingsScreen.cs"/>
+        <Compile Include="UI\InGame\CommandCenterPanelModule.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="packages.config"/>
+        <None Include="Docs\MigrationPlan.md"/>
+        <None Include="Resources\Files\.gitkeep"/>
+        <None Include="Resources\Images\.gitkeep"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net35" Version="1.0.3" PrivateAssets="All"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="Versions\Changelog.txt"/>
+        <Content Include="Versions\FutureWork\FutureWork.txt"/>
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <Target Name="GenerateBuildInfo" BeforeTargets="BeforeBuild">
+        <PropertyGroup>
+            <BuildInfoYear>$([System.DateTime]::Now.ToString('yyyy'))</BuildInfoYear>
+            <BuildInfoMonthNumber>$([System.DateTime]::Now.ToString('MM'))</BuildInfoMonthNumber>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '01' ">January</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '02' ">February</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '03' ">March</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '04' ">April</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '05' ">May</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '06' ">June</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '07' ">July</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '08' ">August</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '09' ">September</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '10' ">October</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '11' ">November</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '12' ">December</BuildInfoMonth>
+        </PropertyGroup>
+        <ItemGroup>
+            <BuildInfoLines Include="namespace DisasterCommandCenter.Common"/>
+            <BuildInfoLines Include="{"/>
+            <BuildInfoLines Include="    internal static class BuildInfo"/>
+            <BuildInfoLines Include="    {"/>
+            <BuildInfoLines Include="        public const string BuildYear = &quot;$(BuildInfoYear)&quot;%3B"/>
+            <BuildInfoLines Include="        public const string BuildMonth = &quot;$(BuildInfoMonth)&quot;%3B"/>
+            <BuildInfoLines Include="    }"/>
+            <BuildInfoLines Include="}"/>
+        </ItemGroup>
+        <WriteLinesToFile File="$(MSBuildProjectDirectory)\Common\BuildInfo.cs" Lines="@(BuildInfoLines)" Overwrite="true" Encoding="UTF-8"/>
+    </Target>
+    <PropertyGroup>
+        <PostBuildEvent>mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(MSBuildProjectName)"
+            del "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(MSBuildProjectName)\$(TargetFileName)"
+            xcopy /y "$(TargetPath)" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(MSBuildProjectName)"
+        </PostBuildEvent>
+    </PropertyGroup>
+</Project>

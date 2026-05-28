@@ -1,0 +1,10 @@
+-------------------
+|    CHANGE LOG   |
+-------------------
+
+Version: 0.1.0-dev
+Release Date (YYYY-MM-dd): Unreleased
+Change List:
+ * Created the Disaster Command Center project shell.
+ * Added module boundaries for migration, localization, compatibility, settings, serialization, disaster simulation, evacuation, recovery, and in-game UI.
+ * Added legacy Natural Disasters Renewal identity constants for future import/migration work.
