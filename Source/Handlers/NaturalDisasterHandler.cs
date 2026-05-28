@@ -25,6 +25,8 @@ namespace NaturalDisastersRenewal.Handlers
         private bool keyHandlerRegistered;
         private ShelterHoverDebugOverlay shelterHoverDebugOverlay;//
         private UIButton toggleButton;
+        private bool panelPositionChanged;
+        private bool toggleButtonPositionChanged;
 
         private NaturalDisasterHandler()
         {
@@ -328,7 +330,7 @@ namespace NaturalDisastersRenewal.Handlers
             var obj = new GameObject("InGameDisastersPanel");
             obj.transform.parent = v.cachedTransform;
             dPanel = obj.AddComponent<InGameDisastersPanel>();
-            dPanel.absolutePosition = DefaultPanelPosition;
+            dPanel.absolutePosition = GetVisibleUIPosition(container.DPanelPos, dPanel, DefaultPanelPosition);
 
             EnsureShelterHoverDebugOverlay();
 
@@ -340,14 +342,19 @@ namespace NaturalDisastersRenewal.Handlers
             ApplyDefaultToggleButtonSprites();
             toggleButton.width = 48f;
             toggleButton.height = 48f;
-            toggleButton.absolutePosition = DefaultToggleButtonPosition;
+            toggleButton.absolutePosition = GetVisibleUIPosition(
+                container.ToggleButtonPos,
+                toggleButton,
+                DefaultToggleButtonPosition);
             toggleButton.tooltip = LocalizationService.Get("panel.toggle_button.tooltip");
             toggleButton.isVisible = container.ShowDisasterPanelButton;
             toggleButton.eventClick += ToggleButton_eventClick;
             toggleButton.eventMouseMove += ToggleButton_eventMouseMove;
+            toggleButton.eventMouseUp += ToggleButton_eventMouseUp;
 
             dPanel.tooltip = LocalizationService.Get("panel.drag_panel.tooltip");
             dPanel.eventMouseMove += DPanel_eventMouseMove;
+            dPanel.eventMouseUp += DPanel_eventMouseUp;
 
             UpdateDisastersPanelToggleBtn();
             UpdateDisastersDPanel();
@@ -417,6 +424,27 @@ namespace NaturalDisastersRenewal.Handlers
             dPanel.RebuildLocalizedContent();
         }
 
+        public void SyncInterfaceElementPositions()
+        {
+            if (container == null)
+                return;
+
+            if (toggleButton != null)
+            {
+                var visiblePosition = GetVisibleUIPosition(
+                    toggleButton.absolutePosition,
+                    toggleButton,
+                    DefaultToggleButtonPosition);
+                container.ToggleButtonPos = visiblePosition;
+            }
+
+            if (dPanel != null)
+            {
+                var visiblePosition = GetVisibleUIPosition(dPanel.absolutePosition, dPanel, DefaultPanelPosition);
+                container.DPanelPos = visiblePosition;
+            }
+        }
+
         public DisasterWrapper GetDisasterWrapper()
         {
             return disasterWrapper;
@@ -464,6 +492,16 @@ namespace NaturalDisastersRenewal.Handlers
             toggleButton.position = SetUIItemPosition(toggleButton.position, eventParam.moveDelta.x,
                 eventParam.moveDelta.y, ratio);
             container.ToggleButtonPos = toggleButton.absolutePosition;
+            toggleButtonPositionChanged = true;
+        }
+
+        private void ToggleButton_eventMouseUp(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            if (!toggleButtonPositionChanged) return;
+
+            toggleButtonPositionChanged = false;
+            SyncInterfaceElementPositions();
+            SaveInterfaceElementPositionsToFile();
         }
 
         private void DPanel_eventMouseMove(UIComponent component, UIMouseEventParameter eventParam)
@@ -474,7 +512,29 @@ namespace NaturalDisastersRenewal.Handlers
                 dPanel.position =
                     SetUIItemPosition(dPanel.position, eventParam.moveDelta.x, eventParam.moveDelta.y, ratio);
                 container.DPanelPos = dPanel.absolutePosition;
+                panelPositionChanged = true;
             }
+        }
+
+        private void DPanel_eventMouseUp(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            if (!panelPositionChanged) return;
+
+            panelPositionChanged = false;
+            SyncInterfaceElementPositions();
+            SaveInterfaceElementPositionsToFile();
+        }
+
+        private void SaveInterfaceElementPositionsToFile()
+        {
+            if (container == null)
+                return;
+
+            var defaultSettings = DisasterSetupModel.CreateFromFile() ?? new DisasterSetupModel();
+            defaultSettings.CheckObjects();
+            defaultSettings.ToggleButtonPos = container.ToggleButtonPos;
+            defaultSettings.DPanelPos = container.DPanelPos;
+            defaultSettings.Save();
         }
 
         private Vector3 SetUIItemPosition(Vector3 currentPosition, float x, float y, float ratio)
