@@ -12,6 +12,7 @@ namespace NaturalDisastersRenewal.Serialization.Setup
     {
         public void Serialize(DataSerializer dataSerializer)
         {
+            Services.DisasterHandler.SyncInterfaceElementPositions();
             DisasterSetupModel disasterSetupmodel = Services.DisasterSetup;
 
             dataSerializer.WriteBool(disasterSetupmodel.ScaleMaxIntensityWithPopulation);
