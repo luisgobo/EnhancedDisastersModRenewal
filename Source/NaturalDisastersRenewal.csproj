@@ -155,6 +155,8 @@
     <ItemGroup>
         <Content Include="Versions\FutureWork\JiraBacklog.csv" />
         <Content Include="Versions\FutureWork\JiraBacklog.md" />
+        <Content Include="Versions\FutureWork\FutureWork_CommunityRequests.md" />
+        <Content Include="Versions\FutureWork\FutureWork_UiCoreSeparationTODO.md" />
         <EmbeddedResource Include="Resources\Images\mod_compatibility.png"/>
         <EmbeddedResource Include="Resources\Images\github.png"/>
         <EmbeddedResource Include="Resources\Images\kofi_dark.png"/>
