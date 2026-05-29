@@ -92,6 +92,10 @@
     <ItemGroup>
         <Content Include="Versions\Changelog.txt"/>
         <Content Include="Versions\FutureWork\FutureWork.txt"/>
+        <Content Include="Versions\FutureWork\OwnerIdeas.txt"/>
+        <Content Include="Versions\FutureWork\CommunitySuggestions.txt"/>
+        <Content Include="Versions\FutureWork\TechnicalMigration.txt"/>
+        <Content Include="Versions\FutureWork\SourceBacklog.txt"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <Target Name="GenerateBuildInfo" BeforeTargets="BeforeBuild">

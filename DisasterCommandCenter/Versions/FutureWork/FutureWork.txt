@@ -2,19 +2,17 @@
 |   FUTURE WORK   |
 -------------------
 
-* Port Natural Disasters Renewal localization and mod compatibility services.
-* Design a migration importer for NaturalDisastersRenewalModOptions.xml.
-* Port settings models and save-game serialization with versioned data ids.
-* Port disaster recurrence and Real Time timing helpers.
-* Port each disaster model one at a time and verify behavior against the current mod.
-* Rebuild the in-game command center panel using the new module structure.
-* Add recovery support for rebuildable buildings and disaster-damaged roads.
-* Add a contextual Disaster Response Center panel that opens when the player clicks a disaster response building.
-  Requirements:
-   - Detect when the selected/clicked building is a disaster response center or equivalent emergency/disaster service building.
-   - Show a compact action panel tied to that building instead of only the global command center panel.
-   - Include quick actions to repair or rebuild valid disaster-damaged structures, such as collapsed service buildings and damaged road segments.
-   - Include camera navigation buttons for each damaged target so the player can inspect the affected area.
-   - Include useful status information, such as nearby active disasters, damaged structures in range, available repair targets, affected district/position, and response readiness.
-   - Keep actions safe: only enable repair/rebuild buttons when the game API reports a valid damaged/reconstructable target.
-   - Keep the list updated after disasters, manual repairs, demolitions, building selection changes, and map reloads.
+This folder separates future work by origin so planning decisions are easier to track.
+
+Files:
+* OwnerIdeas.txt
+  Ideas proposed directly by the mod owner/maintainer.
+
+* CommunitySuggestions.txt
+  Suggestions, requests, and feedback coming from players or the Steam/GitHub community.
+
+* TechnicalMigration.txt
+  Refactor, migration, compatibility, and architecture tasks required to build Disaster Command Center.
+
+* SourceBacklog.txt
+  Legacy TODOs carried from Natural Disasters Renewal source references.

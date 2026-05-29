@@ -1,0 +1,18 @@
+-------------------
+|   OWNER IDEAS   |
+-------------------
+
+These ideas were proposed directly by the maintainer and should be considered product direction for Disaster Command Center.
+
+* Add a contextual Disaster Response Center panel that opens when the player clicks a disaster response building.
+  Version target: 2.0+
+  Source: Maintainer idea
+  Related module: Recovery / UI / In-game panel
+  Requirements:
+   - Detect when the selected/clicked building is a disaster response center or equivalent emergency/disaster service building.
+   - Show a compact action panel tied to that building instead of only the global command center panel.
+   - Include quick actions to repair or rebuild valid disaster-damaged structures, such as collapsed service buildings and damaged road segments.
+   - Include camera navigation buttons for each damaged target so the player can inspect the affected area.
+   - Include useful status information, such as nearby active disasters, damaged structures in range, available repair targets, affected district/position, and response readiness.
+   - Keep actions safe: only enable repair/rebuild buttons when the game API reports a valid damaged/reconstructable target.
+   - Keep the list updated after disasters, manual repairs, demolitions, building selection changes, and map reloads.

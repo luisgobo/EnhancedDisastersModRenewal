@@ -1,0 +1,26 @@
+---------------------------
+|   TECHNICAL MIGRATION   |
+---------------------------
+
+These tasks are implementation/refactor work needed to move from Natural Disasters Renewal to Disaster Command Center.
+
+* Port Natural Disasters Renewal localization and mod compatibility services.
+  Related module: Localization / Compatibility
+
+* Design a migration importer for NaturalDisastersRenewalModOptions.xml.
+  Related module: Migration / Serialization
+
+* Port settings models and save-game serialization with versioned data ids.
+  Related module: Settings / Serialization
+
+* Port disaster recurrence and Real Time timing helpers.
+  Related module: Disasters / Compatibility
+
+* Port each disaster model one at a time and verify behavior against the current mod.
+  Related module: Disasters
+
+* Rebuild the in-game command center panel using the new module structure.
+  Related module: UI
+
+* Add recovery support for rebuildable buildings and disaster-damaged roads.
+  Related module: Recovery

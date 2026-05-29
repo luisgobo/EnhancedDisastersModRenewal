@@ -1,0 +1,15 @@
+-----------------------------
+|   COMMUNITY SUGGESTIONS   |
+-----------------------------
+
+Use this file for ideas that come from Steam Workshop comments, GitHub issues, Discord, Reddit, or other player/community feedback.
+
+Format:
+* Title
+  Source:
+  Link:
+  Status:
+  Notes:
+
+Current items:
+* No community suggestions have been classified yet.
