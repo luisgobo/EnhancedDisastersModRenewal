@@ -166,37 +166,34 @@ namespace NaturalDisastersRenewal.UI
 
         public static void UpdateUISettingsOptions()
         {
-            foreach (var current in Services.Plugins.GetPluginsInfo())
-                if (current.isEnabled)
-                {
-                    var instances = current.GetInstances<IUserMod>();
-
-                    var method = instances[0].GetType().GetMethod("EnhancedDisastersOptionsUpdateUI",
-                        BindingFlags.Instance | BindingFlags.Public);
-
-                    if (method != null)
-                    {
-                        method.Invoke(instances[0], new object[] { });
-                        return;
-                    }
-                }
+            InvokeOptionsMethod("EnhancedDisastersOptionsUpdateUI");
         }
 
         private static void RebuildUISettingsOptions()
         {
-            foreach (var current in Services.Plugins.GetPluginsInfo())
-                if (current.isEnabled)
-                {
-                    var instances = current.GetInstances<IUserMod>();
+            InvokeOptionsMethod("EnhancedDisastersOptionsRebuildUI");
+        }
 
-                    var method = instances[0].GetType().GetMethod("EnhancedDisastersOptionsRebuildUI",
-                        BindingFlags.Instance | BindingFlags.Public);
+        private static void InvokeOptionsMethod(string methodName)
+        {
+            var pluginManager = Services.Plugins;
+            if (!pluginManager)
+                return;
 
-                    if (method == null) continue;
+            foreach (var current in pluginManager.GetPluginsInfo())
+            {
+                if (current == null || !current.isEnabled || current.userModInstance == null)
+                    continue;
 
-                    method.Invoke(instances[0], new object[] { });
-                    return;
-                }
+                var method = current.userModInstance.GetType().GetMethod(methodName,
+                    BindingFlags.Instance | BindingFlags.Public);
+
+                if (method == null)
+                    continue;
+
+                method.Invoke(current.userModInstance, new object[] { });
+                return;
+            }
         }
 
         public void UpdateSetupContentUI()
