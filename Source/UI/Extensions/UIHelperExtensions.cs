@@ -6,7 +6,7 @@ namespace NaturalDisastersRenewal.UI.Extensions
     {
         public static void AddSpacing(this UIHelperBase group, int spacingValue = 10)
         {
-            if (group == null)
+            if (group == null || spacingValue <= 0)
                 return;
 
             group.AddSpace(spacingValue);
