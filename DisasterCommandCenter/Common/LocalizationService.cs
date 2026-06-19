@@ -1,0 +1,1109 @@
+using System.Collections.Generic;
+using ICities;
+using NaturalDisastersRenewal.Common.enums;
+
+namespace NaturalDisastersRenewal.Common
+{
+    public static class LocalizationService
+    {
+        private static readonly Dictionary<ModLanguage, Dictionary<string, string>> Translations =
+            new Dictionary<ModLanguage, Dictionary<string, string>>
+            {
+                {
+                    ModLanguage.English, new Dictionary<string, string>
+                    {
+                        { "language.english", "English" },
+                        { "language.spanish", "Spanish" },
+                        { "time.and", "and" },
+                        { "time.less_than_one_day", "Less than one day" },
+                        { "time.second", "second" },
+                        { "time.minute", "minute" },
+                        { "time.hour", "hour" },
+                        { "time.day", "day" },
+                        { "time.month", "month" },
+                        { "time.year", "year" },
+                        { "month.1", "January" }, { "month.2", "February" }, { "month.3", "March" },
+                        { "month.4", "April" }, { "month.5", "May" }, { "month.6", "June" },
+                        { "month.7", "July" }, { "month.8", "August" }, { "month.9", "September" },
+                        { "month.10", "October" }, { "month.11", "November" }, { "month.12", "December" },
+                        { "evacuation.manual", "Manual evacuation" },
+                        { "evacuation.auto", "Auto evacuate/release" },
+                        { "evacuation.focused", "Focused auto evacuate/release" },
+                        { "cracks.none", "No Cracks" },
+                        { "cracks.always", "Always Cracks" },
+                        { "cracks.by_intensity", "Allow Cracks Based on intensity" },
+                        { "panel.title", "Disasters info" },
+                        { "panel.population_threshold", "Max population to trigger higher disasters" },
+                        { "panel.disaster_header", "Disaster - COY/Max Int" },
+                        { "panel.axis.probability", "Annual rate" },
+                        { "panel.axis.max_intensity", "Max intensity" },
+                        { "panel.stop_all", "Emergency Button (stop all disasters)" },
+                        { "panel.reset_all", "Reset disaster cooldowns and progress" },
+                        { "panel.disabled", "Disabled" },
+                        { "panel.tab.statistics", "Statistics" },
+                        { "panel.tab.controls", "Controls" },
+                        { "panel.header.disaster", "Disaster" },
+                        { "panel.header.probability", "Annual rate" },
+                        {
+                            "panel.header.probability.tooltip",
+                            "Normalized from the current disaster occurrence per year."
+                        },
+                        { "panel.header.max_intensity", "Max strength" },
+                        { "panel.population_threshold.value", "Min. population for strongest disasters: {0}." },
+                        { "panel.help.tooltip", "Open panel help" },
+                        { "panel.close.tooltip", "Close panel" },
+                        { "panel.controls.title", "Controls" },
+                        {
+                            "panel.controls.toggle",
+                            "Use the play/pause button beside each disaster to enable or disable it."
+                        },
+                        {
+                            "panel.controls.stop",
+                            "Use the red square button to stop active disasters and release disaster vehicles."
+                        },
+                        {
+                            "panel.controls.reset",
+                            "Use the reset button to clear current cooldowns and probability warmups."
+                        },
+                        {
+                            "panel.controls.drag",
+                            "Drag the button or the panel with right click to save their position."
+                        },
+                        { "panel.controls.hotkey", "Use the configured hotkey to show or hide the panel." },
+                        { "panel.help.title", "Help - Natural Disasters Renewal" },
+                        {
+                            "panel.help.content",
+                            "STATISTICS:\n\n• Probability bars show current disaster chance.\n• Intensity bars show the current maximum generated strength.\n\nCONTROLS:\n• Play/Pause toggles each disaster.\n• Square stops active disasters.\n• Reset clears current disaster cooldowns."
+                        },
+                        { "panel.toggle_button.tooltip", "Extended Disasters (drag by right-click)" },
+                        { "panel.drag_panel.tooltip", "Drag by right-click to set the panel position." },
+                        { "settings.general", "General" },
+                        { "settings.about", "About" },
+                        { "settings.language", "Language" },
+                        { "settings.language.tooltip", "Choose the language for panel text and tooltips." },
+                        { "settings.disable_follow", "Disable automatic disaster follow when it starts." },
+                        { "settings.pause_on_start", "Pause on disaster starts" },
+                        { "settings.focused_radius", "Partial evacuation Radius (In meters)" },
+                        { "settings.focused_radius.tooltip", "Select the Radius (In meters) for Focused evacuations." },
+                        { "settings.max_population", "Max population to trigger higher disasters." },
+                        {
+                            "settings.max_population.tooltip",
+                            "Select the max population to trigger higher disaster intensity."
+                        },
+                        { "settings.scale_intensity", "Scale max intensity with population" },
+                        {
+                            "settings.scale_intensity.tooltip",
+                            "Maximum intensity for all disasters is set to the minimum at the beginning of the game and gradually increases as the city grows."
+                        },
+                        { "settings.allow_extreme_intensities", "Allow extreme intensities up to 25.5" },
+                        {
+                            "settings.allow_extreme_intensities.tooltip",
+                            "Advanced. Keeps the default 10.0 generated cap when disabled. When enabled, each disaster uses its own maximum generated strength slider."
+                        },
+                        { "settings.max_generated_intensity", "Max generated strength" },
+                        { "settings.max_generated_intensity.suffix", " strength" },
+                        {
+                            "settings.max_generated_intensity.tooltip",
+                            "Advanced. Highest automatic strength this disaster can generate. Values above 10.0 only apply when extreme intensities are enabled in General."
+                        },
+                        { "settings.record_events", "Record disaster events" },
+                        {
+                            "settings.record_events.tooltip",
+                            "Write out disaster name, date of occurrence, and intencity into Disasters.csv file"
+                        },
+                        { "settings.show_panel_button", "Show Disasters Panel toggle button" },
+                        { "settings.positions", "Button/Panel positions:" },
+                        { "settings.group.hotkey", "Hotkeys" },
+                        { "settings.group.dependencies", "Dependencies" },
+                        { "settings.dependency.active", "active" },
+                        { "settings.dependency.inactive", "inactive" },
+                        { "settings.dependency.real_time_description", "Modifies game time" },
+                        {
+                            "settings.dependency.extended_info_panel_2_description",
+                            "Adds more game speed options"
+                        },
+                        {
+                            "settings.dependency.automatic_go_to_disaster_warning",
+                            "This mod can affect {0}"
+                        },
+                        {
+                            "settings.dependency.forest_fire_warning",
+                            "This mod can affect Forest Fire behavior"
+                        },
+                        { "settings.hotkey.info", "Use up to 3 keys: up to 2 modifiers plus 1 regular key." },
+                        { "settings.hotkey.field_label", "Shortcut" },
+                        { "settings.hotkey.capture", "Press a key combination..." },
+                        { "settings.hotkey.none", "Not set" },
+                        {
+                            "settings.hotkey.tooltip",
+                            "Click and then press up to 3 keys. Escape cancels. Backspace or Delete clears the hotkey."
+                        },
+                        { "settings.hotkey.keypad", "Num {0}" },
+                        { "settings.reset_button_position", "Reset Button Position" },
+                        { "settings.reset_panel_position", "Reset Panel Position" },
+                        {
+                            "settings.hotkey_placeholder",
+                            "Hotkey to display/hide panel info: Shift + D (will be configurable soon)."
+                        },
+                        { "settings.enable_disasters", "Enable Disasters:" },
+                        { "settings.frequency_harmony", "Harmonize disaster frequency" },
+                        {
+                            "settings.frequency_harmony.tooltip",
+                            "Applies the selected Real Time frequency preset to every disaster with a frequency preset. Individual frequency dropdowns show a warning when they differ from this value."
+                        },
+                        {
+                            "settings.frequency_harmony.mismatch.tooltip",
+                            "Does not match the General frequency harmonizer."
+                        },
+                        { "settings.debug.progress.group", "Debug disaster progress" },
+                        { "settings.debug.progress.disaster", "Disaster" },
+                        {
+                            "settings.debug.progress.disaster.tooltip",
+                            "DEV only. Selects which disaster receives the test progress value."
+                        },
+                        { "settings.debug.progress.percent", "Set progress" },
+                        { "settings.debug.progress.force_enabled", "Force Selected progress" },
+                        {
+                            "settings.debug.progress.force_enabled.tooltip",
+                            "DEV only. Enables applying a test progress value to the selected disaster. After applying it, normal progression continues."
+                        },
+                        {
+                            "settings.debug.progress.percent.tooltip",
+                            "DEV only. Progress value to apply while force selected progress is enabled. Moving the slider applies a new value; 100% forces the next occurrence attempt."
+                        },
+                        { "settings.frequency.apocalypse", "Apocalypse" },
+                        { "settings.frequency.frequent", "Frequent" },
+                        { "settings.frequency.occasional", "Occasional" },
+                        { "settings.frequency.uncommon", "Uncommon" },
+                        { "settings.frequency.rare", "Rare" },
+                        { "settings.save_options", "Save options" },
+                        { "settings.save_default", "Save as default for new games" },
+                        { "settings.reset_saved", "Reset to the last saved values" },
+                        { "settings.reset_defaults", "Reset to the mod default values" },
+                        { "settings.evacuation_mode", "Evacuation Mode: " },
+                        { "settings.max_probability", "Max probability" },
+                        { "settings.times_per_year", " times per year" },
+                        { "settings.days", " days" },
+                        {
+                            "settings.forest_fire.max_probability.tooltip",
+                            "Occurrence (per year) in case of a long period without rain when Real Time is inactive."
+                        },
+                        {
+                            "settings.forest_fire.warmup.tooltip",
+                            "No-rain period during which the probability of Forest Fire increases when Real Time is inactive."
+                        },
+                        {
+                            "settings.forest_fire.realtime_frequency",
+                            "Real Time forest fire frequency"
+                        },
+                        {
+                            "settings.forest_fire.realtime_frequency.tooltip.selected",
+                            "Chooses the random dry-time interval used between automatic forest fires while Real Time is active.\nSelected reference period: {0}."
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time",
+                            "Fog slows Forest Fire dry time"
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time.tooltip",
+                            "When enabled, fog advances dry time more slowly, and dense fog pauses dry time like light rain."
+                        },
+                        { "settings.forest_fire.frequency.apocalypse", "Apocalypse: 30-60 dry minutes" },
+                        { "settings.forest_fire.frequency.frequent", "Frequent: 1-2 dry hours" },
+                        { "settings.forest_fire.frequency.occasional", "Occasional: 3-6 dry hours" },
+                        { "settings.forest_fire.frequency.uncommon", "Uncommon: 6-12 dry hours" },
+                        { "settings.forest_fire.frequency.rare", "Rare: 12-24 dry hours" },
+                        { "settings.forest_fire.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.forest_fire.frequency_name.frequent", "Frequent" },
+                        { "settings.forest_fire.frequency_name.occasional", "Occasional" },
+                        { "settings.forest_fire.frequency_name.uncommon", "Uncommon" },
+                        { "settings.forest_fire.frequency_name.rare", "Rare" },
+                        { "settings.season_peak.thunderstorm", "Thunderstorm season peak" },
+                        {
+                            "settings.thunderstorm.max_probability.tooltip",
+                            "Occurrence (per year) in thunderstorm season when Real Time is inactive.\nReal Time uses the dedicated thunderstorm frequency below."
+                        },
+                        {
+                            "settings.thunderstorm.realtime_frequency",
+                            "Real Time thunderstorm frequency"
+                        },
+                        {
+                            "settings.thunderstorm.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time interval used between automatic thunderstorms while Real Time is active.\nRain makes progress advance faster.\nSelected reference period: {0}."
+                        },
+                        { "settings.thunderstorm.frequency.apocalypse", "Apocalypse: 20-40 minutes" },
+                        { "settings.thunderstorm.frequency.frequent", "Frequent: 45-90 minutes" },
+                        { "settings.thunderstorm.frequency.occasional", "Occasional: 2-4 hours" },
+                        { "settings.thunderstorm.frequency.uncommon", "Uncommon: 4-8 hours" },
+                        { "settings.thunderstorm.frequency.rare", "Rare: 8-16 hours" },
+                        { "settings.thunderstorm.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.thunderstorm.frequency_name.frequent", "Frequent" },
+                        { "settings.thunderstorm.frequency_name.occasional", "Occasional" },
+                        { "settings.thunderstorm.frequency_name.uncommon", "Uncommon" },
+                        { "settings.thunderstorm.frequency_name.rare", "Rare" },
+                        { "settings.season_peak.tornado", "Tornado season peak" },
+                        { "settings.rain_factor", "Rain factor" },
+                        {
+                            "settings.rain_factor.tooltip",
+                            "Thunderstorm probability increases by this factor during rain."
+                        },
+                        {
+                            "settings.sinkhole.max_probability.tooltip",
+                            "Occurrence (per year) in case of a long period of rain when Real Time is inactive.\nReal Time uses the dedicated sinkhole frequency below."
+                        },
+                        { "settings.groundwater_capacity", "Groundwater capacity" },
+                        {
+                            "settings.groundwater_capacity.tooltip",
+                            "Set how fast groundwater fills up during rain and causes a sinkhole to appear."
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency",
+                            "Real Time sinkhole frequency"
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency.tooltip",
+                            "Chooses the random real-time wet interval used between automatic sinkholes while Real Time is active."
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time wet interval used between automatic sinkholes while Real Time is active.\nSelected reference period: {0}."
+                        },
+                        { "settings.sinkhole.frequency.apocalypse", "Apocalypse: 1-2 wet hours" },
+                        { "settings.sinkhole.frequency.frequent", "Frequent: 2-4 wet hours" },
+                        { "settings.sinkhole.frequency.occasional", "Occasional: 6-12 wet hours" },
+                        { "settings.sinkhole.frequency.uncommon", "Uncommon: 12-24 wet hours" },
+                        { "settings.sinkhole.frequency.rare", "Rare: 24-48 wet hours" },
+                        { "settings.sinkhole.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.sinkhole.frequency_name.frequent", "Frequent" },
+                        { "settings.sinkhole.frequency_name.occasional", "Occasional" },
+                        { "settings.sinkhole.frequency_name.uncommon", "Uncommon" },
+                        { "settings.sinkhole.frequency_name.rare", "Rare" },
+                        { "settings.no_tornado_fog", "No Tornado during fog" },
+                        { "settings.no_tornado_fog.tooltip", "Tornado does not occur during foggy weather" },
+                        {
+                            "settings.tornado.max_probability.tooltip",
+                            "Occurrence (per year) in Tornado season when Real Time is inactive.\nReal Time uses the dedicated tornado frequency below."
+                        },
+                        {
+                            "settings.tornado.realtime_frequency",
+                            "Real Time tornado frequency"
+                        },
+                        {
+                            "settings.tornado.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time interval used between automatic tornadoes while Real Time is active.\nFog slows progress when No Tornado during fog is enabled.\nSelected reference period: {0}."
+                        },
+                        { "settings.tornado.frequency.apocalypse", "Apocalypse: 1-2 hours" },
+                        { "settings.tornado.frequency.frequent", "Frequent: 3-6 hours" },
+                        { "settings.tornado.frequency.occasional", "Occasional: 8-16 hours" },
+                        { "settings.tornado.frequency.uncommon", "Uncommon: 16-32 hours" },
+                        { "settings.tornado.frequency.rare", "Rare: 32-64 hours" },
+                        { "settings.tornado.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.tornado.frequency_name.frequent", "Frequent" },
+                        { "settings.tornado.frequency_name.occasional", "Occasional" },
+                        { "settings.tornado.frequency_name.uncommon", "Uncommon" },
+                        { "settings.tornado.frequency_name.rare", "Rare" },
+                        { "settings.enable_tornado_destruction", "Enable tornado destruction" },
+                        { "settings.min_tornado_destruction", "Minimal intensity for tornado destruction:" },
+                        { "settings.min_tornado_destruction.suffix", " Intensity to start destruction" },
+                        { "settings.charge_period", "Charge period" },
+                        { "settings.charge_period.years", " years" },
+                        {
+                            "settings.tsunami.max_probability.tooltip",
+                            "Maximum occurrence (per year) after a long period without tsunamis."
+                        },
+                        {
+                            "settings.tsunami.warmup.tooltip",
+                            "The probability of tsunami increases to the maximum during this period when Real Time is inactive."
+                        },
+                        {
+                            "settings.tsunami.realtime_frequency",
+                            "Real Time tsunami frequency"
+                        },
+                        {
+                            "settings.tsunami.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time ocean interval used between automatic tsunamis while Real Time is active.\nSelected reference period: {0}."
+                        },
+                        { "settings.tsunami.frequency.apocalypse", "Apocalypse: 4-8 hours" },
+                        { "settings.tsunami.frequency.frequent", "Frequent: 8-16 hours" },
+                        { "settings.tsunami.frequency.occasional", "Occasional: 24-48 hours" },
+                        { "settings.tsunami.frequency.uncommon", "Uncommon: 48-96 hours" },
+                        { "settings.tsunami.frequency.rare", "Rare: 96-192 hours" },
+                        { "settings.tsunami.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.tsunami.frequency_name.frequent", "Frequent" },
+                        { "settings.tsunami.frequency_name.occasional", "Occasional" },
+                        { "settings.tsunami.frequency_name.uncommon", "Uncommon" },
+                        { "settings.tsunami.frequency_name.rare", "Rare" },
+                        { "tooltip.tsunami.realtime_active", "Real Time active: tsunami charge period uses real-time intervals." },
+                        { "tooltip.tsunami.realtime_reference", "Selected reference period: {0}" },
+                        { "tooltip.tsunami.current_tsunami_interval", "Current ocean interval: {0}" },
+                        { "tooltip.tsunami.tsunami_time_remaining", "Time remaining: {0}" },
+                        { "settings.warmup_period", "Warmup period" },
+                        { "settings.warmup_period.days", " days" },
+                        {
+                            "settings.earthquake.max_probability.tooltip",
+                            "Maximum occurrence per year after a long period without earthquakes when Real Time is inactive."
+                        },
+                        {
+                            "settings.earthquake.warmup.tooltip",
+                            "The probability and maximum intensity of earthquakes increase during this period when Real Time is inactive."
+                        },
+                        {
+                            "settings.earthquake.realtime_frequency",
+                            "Real Time earthquake frequency"
+                        },
+                        {
+                            "settings.earthquake.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time seismic interval used between automatic earthquakes while Real Time is active.\nAftershocks use shorter intervals and nearby epicenters.\nSelected reference period: {0}."
+                        },
+                        { "settings.earthquake.frequency.apocalypse", "Apocalypse: 3-6 hours" },
+                        { "settings.earthquake.frequency.frequent", "Frequent: 8-16 hours" },
+                        { "settings.earthquake.frequency.occasional", "Occasional: 24-48 hours" },
+                        { "settings.earthquake.frequency.uncommon", "Uncommon: 48-96 hours" },
+                        { "settings.earthquake.frequency.rare", "Rare: 96-192 hours" },
+                        { "settings.earthquake.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.earthquake.frequency_name.frequent", "Frequent" },
+                        { "settings.earthquake.frequency_name.occasional", "Occasional" },
+                        { "settings.earthquake.frequency_name.uncommon", "Uncommon" },
+                        { "settings.earthquake.frequency_name.rare", "Rare" },
+                        { "settings.enable_aftershocks", "Enable aftershocks" },
+                        {
+                            "settings.enable_aftershocks.tooltip",
+                            "Several aftershocks may occur after a big earthquake. Aftershocks strike near the main epicenter."
+                        },
+                        { "settings.ground_cracks", "Cracks in the ground:" },
+                        {
+                            "settings.ground_cracks.tooltip",
+                            "Based on selection you can put a crack in the ground, ignoring it or put it based on intensity."
+                        },
+                        { "settings.min_intensity_cracks", "Min. intensity for cracks" },
+                        { "settings.min_intensity_cracks.suffix", " minimal Intensity" },
+                        { "settings.min_intensity_cracks.tooltip", "Minimal intensity to see cracks on the ground" },
+                        { "settings.enable_long_meteor", "Enable long period (75 years) meteor" },
+                        { "settings.enable_medium_meteor", "Enable medium period (35 years) meteor" },
+                        { "settings.enable_short_meteor", "Enable short period (12 years) meteor" },
+                        {
+                            "settings.meteor.max_probability.tooltip",
+                            "Maximum meteor occurrence per year when Real Time is inactive.\nReal Time uses the dedicated meteor period setting below."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier",
+                            "Real Time frequency reduction"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier.tooltip",
+                            "Divides the configured meteor occurrence while Real Time is active. Higher values make automatic meteors less frequent."
+                        },
+                        {
+                            "settings.meteor.realtime_period_days",
+                            "Real Time meteor period"
+                        },
+                        {
+                            "settings.meteor.realtime_period_days.tooltip",
+                            "Number of vanilla-equivalent simulation days required to fill the meteor progress bar while Real Time is active."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency",
+                            "Real Time meteor frequency"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip",
+                            "Chooses the random real-time interval used between automatic meteor strikes while Real Time is active."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip.selected",
+                            "Chooses the random real-time interval used between automatic meteor strikes while Real Time is active.\nSelected reference period: {0}."
+                        },
+                        { "settings.meteor.frequency.apocalypse", "Apocalypse: 6-12 hours" },
+                        { "settings.meteor.frequency.frequent", "Frequent: 12-24 hours" },
+                        { "settings.meteor.frequency.daily_threat", "Frequent: 12-24 hours" },
+                        { "settings.meteor.frequency.occasional", "Occasional: 48-96 hours" },
+                        { "settings.meteor.frequency.uncommon", "Uncommon: 96-192 hours" },
+                        { "settings.meteor.frequency.rare", "Rare: 192-384 hours" },
+                        { "settings.meteor.frequency_name.apocalypse", "Apocalypse" },
+                        { "settings.meteor.frequency_name.frequent", "Frequent" },
+                        { "settings.meteor.frequency_name.occasional", "Occasional" },
+                        { "settings.meteor.frequency_name.uncommon", "Uncommon" },
+                        { "settings.meteor.frequency_name.rare", "Rare" },
+                        { "key.ctrl", "Ctrl" },
+                        { "key.alt", "Alt" },
+                        { "key.shift", "Shift" },
+                        { "key.command", "Cmd" },
+                        { "key.up", "Up" },
+                        { "key.down", "Down" },
+                        { "key.left", "Left" },
+                        { "key.right", "Right" },
+                        { "key.page_up", "Page Up" },
+                        { "key.page_down", "Page Down" },
+                        { "tooltip.probability", "Probability: {0}" },
+                        { "tooltip.progress", "Progress" },
+                        { "tooltip.forest_fire.locked", "Not unlocked yet (occurs only outside of your area)." },
+                        { "tooltip.not_unlocked", "Not unlocked yet" },
+                        { "tooltip.no_disaster_for_another", "No {0} for another {1}" },
+                        { "tooltip.recently_occurred", "Decreased because {0} occured recently." },
+                        { "tooltip.intensity", "Intensity: {0}" },
+                        { "tooltip.low_population", "Decreased because of low population." },
+                        { "tooltip.forest_fire.no_during_rain", "No {0} during rain." },
+                        {
+                            "tooltip.forest_fire.maximum_no_rain",
+                            "Maximum because there was no rain for more than {0} days."
+                        },
+                        { "tooltip.forest_fire.increasing_no_rain", "Increasing because there was no rain for {0}" },
+                        {
+                            "tooltip.forest_fire.realtime_active",
+                            "Real Time active: Forest Fire uses dry-time intervals."
+                        },
+                        { "tooltip.forest_fire.realtime_reference", "Reference dry period: {0}." },
+                        { "tooltip.forest_fire.current_dry_interval", "Current dry interval: {0}." },
+                        { "tooltip.forest_fire.dry_time_remaining", "Dry time remaining: {0}." },
+                        {
+                            "tooltip.forest_fire.fog_paused",
+                            "Forest Fire probability is paused by dense fog right now."
+                        },
+                        {
+                            "tooltip.forest_fire.fog_slowed",
+                            "Forest Fire probability is reduced by fog right now: dry-time advances at {0}%."
+                        },
+                        { "tooltip.sinkhole.groundwater", "Ground water level {0}%" },
+                        {
+                            "tooltip.sinkhole.realtime_active",
+                            "Real Time active: sinkhole progress advances with groundwater saturation."
+                        },
+                        { "tooltip.sinkhole.realtime_reference", "Reference wet interval: {0}." },
+                        { "tooltip.sinkhole.current_wet_interval", "Current wet interval: {0}." },
+                        { "tooltip.sinkhole.wet_time_remaining", "Wet progress remaining: {0}." },
+                        { "tooltip.thunderstorm.outside_area", "Not unlocked yet (occurs only outside of your area)." },
+                        { "tooltip.thunderstorm.rain_increase", "Increased because of rain." },
+                        {
+                            "tooltip.thunderstorm.realtime_active",
+                            "Real Time active: thunderstorm progress advances with real time, and rain speeds it up."
+                        },
+                        { "tooltip.thunderstorm.realtime_reference", "Reference storm interval: {0}." },
+                        { "tooltip.thunderstorm.current_storm_interval", "Current storm interval: {0}." },
+                        { "tooltip.thunderstorm.storm_time_remaining", "Storm progress remaining: {0}." },
+                        { "tooltip.tornado.no_during_fog", "No {0} during fog." },
+                        {
+                            "tooltip.tornado.realtime_active",
+                            "Real Time active: tornado progress advances with real time, and fog can slow it down."
+                        },
+                        { "tooltip.tornado.realtime_reference", "Reference tornado interval: {0}." },
+                        { "tooltip.tornado.current_tornado_interval", "Current tornado interval: {0}." },
+                        { "tooltip.tornado.tornado_time_remaining", "Tornado progress remaining: {0}." },
+                        {
+                            "tooltip.tornado.fog_slowed",
+                            "Tornado progress is reduced by fog right now: progress advances at {0}%."
+                        },
+                        {
+                            "tooltip.tornado.rain_increased",
+                            "Tornado progress is increased by rain right now: progress advances at {0}%."
+                        },
+                        { "tooltip.earthquake.aftershocks", "Expect {0} more aftershocks" },
+                        {
+                            "tooltip.earthquake.realtime_active",
+                            "Real Time active: earthquakes use seismic intervals."
+                        },
+                        { "tooltip.earthquake.realtime_reference", "Reference seismic interval: {0}." },
+                        { "tooltip.earthquake.current_seismic_interval", "Current seismic interval: {0}." },
+                        { "tooltip.earthquake.seismic_time_remaining", "Seismic progress remaining: {0}." },
+                        {
+                            "tooltip.earthquake.realtime_aftershocks_active",
+                            "Real Time active: aftershocks use short intervals and nearby epicenters."
+                        },
+                        { "tooltip.earthquake.current_aftershock_interval", "Current aftershock interval: {0}." },
+                        { "tooltip.earthquake.aftershock_time_remaining", "Aftershock progress remaining: {0}." },
+                        { "tooltip.meteor.realtime_reference", "Reference period: {0}." },
+                        { "disaster.earthquake", "Earthquake" },
+                        { "disaster.forest_fire", "Forest Fire" },
+                        { "disaster.meteor_strike", "Meteor Strike" },
+                        { "disaster.sinkhole", "Sinkhole" },
+                        { "disaster.thunderstorm", "Thunderstorm" },
+                        { "disaster.tornado", "Tornado" },
+                        { "disaster.tsunami", "Tsunami" },
+                        { "about.mod_name", "Natural Disasters Renewal" },
+                        { "about.version", "Version: {0}" },
+                        { "about.updated", "Last updated: {0}" },
+                        {
+                            "about.description",
+                            "A unified overhaul for natural disasters, evacuation behavior, and disaster control in Cities: Skylines."
+                        },
+                        { "about.donate_link", "Open Donations Page" },
+                        { "about.git_link", "Open GitHub Page" },
+                        { "about.steam_link", "Open Steam Workshop Page" }
+                    }
+                },
+                {
+                    ModLanguage.Spanish, new Dictionary<string, string>
+                    {
+                        { "language.english", "Ingles" },
+                        { "language.spanish", "Español" },
+                        { "time.and", "y" },
+                        { "time.less_than_one_day", "Menos de un dia" },
+                        { "time.second", "segundo" },
+                        { "time.minute", "minuto" },
+                        { "time.hour", "hora" },
+                        { "time.day", "dia" },
+                        { "time.month", "mes" },
+                        { "time.year", "ano" },
+                        { "month.1", "Enero" }, { "month.2", "Febrero" }, { "month.3", "Marzo" },
+                        { "month.4", "Abril" }, { "month.5", "Mayo" }, { "month.6", "Junio" },
+                        { "month.7", "Julio" }, { "month.8", "Agosto" }, { "month.9", "Septiembre" },
+                        { "month.10", "Octubre" }, { "month.11", "Noviembre" }, { "month.12", "Diciembre" },
+                        { "evacuation.manual", "Evacuacion manual" },
+                        { "evacuation.auto", "Evacuacion/liberacion automatica" },
+                        { "evacuation.focused", "Evacuacion/liberacion automatica enfocada" },
+                        { "cracks.none", "Sin grietas" },
+                        { "cracks.always", "Siempre con grietas" },
+                        { "cracks.by_intensity", "Permitir grietas segun intensidad" },
+                        { "panel.title", "Informacion de desastres" },
+                        { "panel.population_threshold", "Poblacion maxima para activar desastres mas fuertes" },
+                        { "panel.disaster_header", "Desastre - FOA/Fuerza Max" },
+                        { "panel.axis.probability", "Tasa anual" },
+                        { "panel.axis.max_intensity", "Fuerza maxima" },
+                        { "panel.stop_all", "Boton de emergencia (detener todos los desastres)" },
+                        { "panel.reset_all", "Reiniciar enfriamientos y progreso de desastres" },
+                        { "panel.disabled", "Desactivado" },
+                        { "panel.tab.statistics", "Estadisticas" },
+                        { "panel.tab.controls", "Controles" },
+                        { "panel.header.disaster", "Desastre" },
+                        { "panel.header.probability", "Tasa anual" },
+                        {
+                            "panel.header.probability.tooltip",
+                            "Normalizada segun la ocurrencia anual actual del desastre."
+                        },
+                        { "panel.header.max_intensity", "Fuerza max." },
+                        { "panel.population_threshold.value", "Poblacion minima para los desastres mas fuertes: {0}." },
+                        { "panel.help.tooltip", "Abrir ayuda del panel" },
+                        { "panel.close.tooltip", "Cerrar panel" },
+                        { "panel.controls.title", "Controles" },
+                        {
+                            "panel.controls.toggle",
+                            "Usa el boton de play/pausa junto a cada desastre para activarlo o desactivarlo."
+                        },
+                        {
+                            "panel.controls.stop",
+                            "Usa el boton cuadrado rojo para detener desastres activos y liberar vehiculos de desastre."
+                        },
+                        {
+                            "panel.controls.reset",
+                            "Usa el boton de reinicio para limpiar enfriamientos y calentamientos actuales."
+                        },
+                        {
+                            "panel.controls.drag",
+                            "Arrastra el boton o el panel con clic derecho para guardar su posicion."
+                        },
+                        { "panel.controls.hotkey", "Usa el atajo configurado para mostrar u ocultar el panel." },
+                        { "panel.help.title", "Ayuda - Natural Disasters Renewal" },
+                        {
+                            "panel.help.content",
+                            "ESTADÍSTICAS:\n\n• Las barras de probabilidad muestran la posibilidad actual del desastre.\n• Las barras de intensidad muestran la fuerza maxima generada actual.\n\nCONTROLES:\n• Play/Pausa activa o desactiva cada desastre.\n• El cuadrado detiene desastres activos.\n• Reiniciar limpia enfriamientos actuales."
+                        },
+                        { "panel.toggle_button.tooltip", "Desastres extendidos (arrastra con clic derecho)" },
+                        { "panel.drag_panel.tooltip", "Arrastra con clic derecho para cambiar la posicion del panel." },
+                        { "settings.general", "General" },
+                        { "settings.about", "About" },
+                        { "settings.language", "Idioma" },
+                        { "settings.language.tooltip", "Elige el idioma de los textos y tooltips." },
+                        {
+                            "settings.disable_follow",
+                            "Desactivar el seguimiento automatico del desastre cuando empieza."
+                        },
+                        { "settings.pause_on_start", "Pausar cuando comienza un desastre" },
+                        { "settings.focused_radius", "Radio de evacuacion parcial (en metros)" },
+                        {
+                            "settings.focused_radius.tooltip",
+                            "Selecciona el radio (en metros) para evacuaciones enfocadas."
+                        },
+                        { "settings.max_population", "Poblacion maxima para activar desastres mas fuertes." },
+                        {
+                            "settings.max_population.tooltip",
+                            "Selecciona la poblacion maxima para activar desastres de mayor intensidad."
+                        },
+                        { "settings.scale_intensity", "Escalar intensidad maxima segun poblacion" },
+                        {
+                            "settings.scale_intensity.tooltip",
+                            "La intensidad maxima de todos los desastres se fija al minimo al inicio y aumenta a medida que crece la ciudad."
+                        },
+                        { "settings.allow_extreme_intensities", "Permitir intensidades extremas hasta 25.5" },
+                        {
+                            "settings.allow_extreme_intensities.tooltip",
+                            "Avanzado. Mantiene el limite generado por defecto en 10.0 cuando esta desactivado. Al activarlo, cada desastre usa su propio slider de fuerza maxima generada."
+                        },
+                        { "settings.max_generated_intensity", "Fuerza maxima generada" },
+                        { "settings.max_generated_intensity.suffix", " fuerza" },
+                        {
+                            "settings.max_generated_intensity.tooltip",
+                            "Avanzado. Fuerza automatica maxima que puede generar este desastre. Los valores sobre 10.0 solo aplican cuando las intensidades extremas estan activas en General."
+                        },
+                        { "settings.record_events", "Registrar eventos de desastre" },
+                        {
+                            "settings.record_events.tooltip",
+                            "Escribe nombre del desastre, fecha e intensidad en el archivo Disasters.csv file"
+                        },
+                        { "settings.show_panel_button", "Mostrar boton del panel de desastres" },
+                        { "settings.positions", "Posiciones del boton/panel:" },
+                        { "settings.group.hotkey", "Atajos del teclado" },
+                        { "settings.group.dependencies", "Dependencias" },
+                        { "settings.dependency.active", "activo" },
+                        { "settings.dependency.inactive", "inactivo" },
+                        { "settings.dependency.real_time_description", "Modifica el tiempo del juego" },
+                        {
+                            "settings.dependency.extended_info_panel_2_description",
+                            "Agrega mas opciones de velocidad al juego"
+                        },
+                        {
+                            "settings.dependency.automatic_go_to_disaster_warning",
+                            "Este mod puede afectar la opcion {0}"
+                        },
+                        {
+                            "settings.dependency.forest_fire_warning",
+                            "Este mod puede afectar el comportamiento de los Forest Fire"
+                        },
+                        { "settings.hotkey.info", "Usa hasta 3 teclas: hasta 2 modificadoras y 1 tecla normal." },
+                        { "settings.hotkey.field_label", "Atajo" },
+                        { "settings.hotkey.capture", "Presiona una combinacion..." },
+                        { "settings.hotkey.none", "Sin asignar" },
+                        {
+                            "settings.hotkey.tooltip",
+                            "Haz clic y luego presiona hasta 3 teclas. Escape cancela. Backspace o Delete borra el atajo."
+                        },
+                        { "settings.hotkey.keypad", "Num {0}" },
+                        { "settings.reset_button_position", "Restablecer posicion del boton" },
+                        { "settings.reset_panel_position", "Restablecer posicion del panel" },
+                        {
+                            "settings.hotkey_placeholder",
+                            "Atajo para mostrar/ocultar panel: Shift + D (sera configurable pronto)."
+                        },
+                        { "settings.enable_disasters", "Activar desastres:" },
+                        { "settings.frequency_harmony", "Armonizar frecuencia de desastres" },
+                        {
+                            "settings.frequency_harmony.tooltip",
+                            "Aplica el preset de frecuencia Real Time seleccionado a todos los desastres con preset de frecuencia. Los dropdowns individuales muestran una advertencia cuando son diferentes a este valor."
+                        },
+                        {
+                            "settings.frequency_harmony.mismatch.tooltip",
+                            "No coincide con el armonizador de frecuencia de General."
+                        },
+                        { "settings.debug.progress.group", "Progreso de desastres para debug" },
+                        { "settings.debug.progress.disaster", "Desastre" },
+                        {
+                            "settings.debug.progress.disaster.tooltip",
+                            "Solo DEV. Selecciona que desastre recibe el valor de progreso de prueba."
+                        },
+                        { "settings.debug.progress.percent", "Definir progreso" },
+                        { "settings.debug.progress.force_enabled", "Forzar progreso seleccionado" },
+                        {
+                            "settings.debug.progress.force_enabled.tooltip",
+                            "Solo DEV. Habilita aplicar un valor de progreso de prueba al desastre seleccionado. Luego de aplicarlo, la progresion normal continua."
+                        },
+                        {
+                            "settings.debug.progress.percent.tooltip",
+                            "Solo DEV. Valor de progreso que se aplica mientras Forzar progreso seleccionado esta activo. Mover el slider aplica un nuevo valor; 100% fuerza el proximo intento de ocurrencia."
+                        },
+                        { "settings.frequency.apocalypse", "Apocalipsis" },
+                        { "settings.frequency.frequent", "Frecuente" },
+                        { "settings.frequency.occasional", "Ocasional" },
+                        { "settings.frequency.uncommon", "Poco frecuente" },
+                        { "settings.frequency.rare", "Raro" },
+                        { "settings.save_options", "Opciones de guardado" },
+                        { "settings.save_default", "Guardar como valor predeterminado para partidas nuevas" },
+                        { "settings.reset_saved", "Restablecer a los ultimos valores guardados" },
+                        { "settings.reset_defaults", "Restablecer a los valores predeterminados del mod" },
+                        { "settings.evacuation_mode", "Modo de evacuacion: " },
+                        { "settings.max_probability", "Probabilidad maxima" },
+                        { "settings.times_per_year", " veces por ano" },
+                        { "settings.days", " dias" },
+                        {
+                            "settings.forest_fire.max_probability.tooltip",
+                            "Ocurrencia por ano en caso de un periodo largo sin lluvia cuando Real Time no esta activo."
+                        },
+                        {
+                            "settings.forest_fire.warmup.tooltip",
+                            "Periodo sin lluvia durante el cual aumenta la probabilidad de incendio forestal cuando Real Time no esta activo."
+                        },
+                        {
+                            "settings.forest_fire.realtime_frequency",
+                            "Frecuencia de incendios forestales con Real Time"
+                        },
+                        {
+                            "settings.forest_fire.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio de tiempo seco entre incendios forestales automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time",
+                            "La niebla ralentiza el tiempo seco de incendios"
+                        },
+                        {
+                            "settings.forest_fire.fog_retards_dry_time.tooltip",
+                            "Si esta activo, la niebla hace avanzar el tiempo seco mas lento, y la niebla densa pausa el tiempo seco como lluvia ligera."
+                        },
+                        { "settings.forest_fire.frequency.apocalypse", "Apocalipsis: 30-60 minutos secos" },
+                        { "settings.forest_fire.frequency.frequent", "Frecuente: 1-2 horas secas" },
+                        { "settings.forest_fire.frequency.occasional", "Ocasional: 3-6 horas secas" },
+                        { "settings.forest_fire.frequency.uncommon", "Poco frecuente: 6-12 horas secas" },
+                        { "settings.forest_fire.frequency.rare", "Raro: 12-24 horas secas" },
+                        { "settings.forest_fire.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.forest_fire.frequency_name.frequent", "Frecuente" },
+                        { "settings.forest_fire.frequency_name.occasional", "Ocasional" },
+                        { "settings.forest_fire.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.forest_fire.frequency_name.rare", "Raro" },
+                        { "settings.season_peak.thunderstorm", "Pico de temporada de tormentas" },
+                        {
+                            "settings.thunderstorm.max_probability.tooltip",
+                            "Ocurrencia por ano durante la temporada de tormentas cuando Real Time no esta activo.\nReal Time usa la frecuencia dedicada de tormentas configurada abajo."
+                        },
+                        {
+                            "settings.thunderstorm.realtime_frequency",
+                            "Frecuencia de tormentas con Real Time"
+                        },
+                        {
+                            "settings.thunderstorm.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio de tiempo real entre tormentas automaticas mientras Real Time esta activo.\nLa lluvia hace que el progreso avance mas rapido.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.thunderstorm.frequency.apocalypse", "Apocalipsis: 20-40 minutos" },
+                        { "settings.thunderstorm.frequency.frequent", "Frecuente: 45-90 minutos" },
+                        { "settings.thunderstorm.frequency.occasional", "Ocasional: 2-4 horas" },
+                        { "settings.thunderstorm.frequency.uncommon", "Poco frecuente: 4-8 horas" },
+                        { "settings.thunderstorm.frequency.rare", "Raro: 8-16 horas" },
+                        { "settings.thunderstorm.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.thunderstorm.frequency_name.frequent", "Frecuente" },
+                        { "settings.thunderstorm.frequency_name.occasional", "Ocasional" },
+                        { "settings.thunderstorm.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.thunderstorm.frequency_name.rare", "Raro" },
+                        { "settings.season_peak.tornado", "Pico de temporada de tornados" },
+                        { "settings.rain_factor", "Factor de lluvia" },
+                        {
+                            "settings.rain_factor.tooltip",
+                            "La probabilidad de tormenta aumenta por este factor durante la lluvia."
+                        },
+                        {
+                            "settings.sinkhole.max_probability.tooltip",
+                            "Ocurrencia por ano en caso de un periodo largo de lluvia cuando Real Time no esta activo. Real Time usa la frecuencia dedicada de socavones configurada abajo."
+                        },
+                        { "settings.groundwater_capacity", "Capacidad del agua subterranea" },
+                        {
+                            "settings.groundwater_capacity.tooltip",
+                            "Define que tan rapido se llena el agua subterranea durante la lluvia y provoca un socavon."
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency",
+                            "Frecuencia de socavones con Real Time"
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency.tooltip",
+                            "Elige el intervalo humedo aleatorio en tiempo real entre socavones automaticos mientras Real Time esta activo."
+                        },
+                        {
+                            "settings.sinkhole.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo humedo aleatorio en tiempo real entre socavones automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.sinkhole.frequency.apocalypse", "Apocalipsis: 1-2 horas humedas" },
+                        { "settings.sinkhole.frequency.frequent", "Frecuente: 2-4 horas humedas" },
+                        { "settings.sinkhole.frequency.occasional", "Ocasional: 6-12 horas humedas" },
+                        { "settings.sinkhole.frequency.uncommon", "Poco frecuente: 12-24 horas humedas" },
+                        { "settings.sinkhole.frequency.rare", "Raro: 24-48 horas humedas" },
+                        { "settings.sinkhole.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.sinkhole.frequency_name.frequent", "Frecuente" },
+                        { "settings.sinkhole.frequency_name.occasional", "Ocasional" },
+                        { "settings.sinkhole.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.sinkhole.frequency_name.rare", "Raro" },
+                        { "settings.no_tornado_fog", "Sin tornados durante niebla" },
+                        { "settings.no_tornado_fog.tooltip", "El tornado no ocurre durante clima con niebla" },
+                        {
+                            "settings.tornado.max_probability.tooltip",
+                            "Ocurrencia por ano durante la temporada de tornados cuando Real Time no esta activo.\nReal Time usa la frecuencia dedicada de tornados configurada abajo."
+                        },
+                        {
+                            "settings.tornado.realtime_frequency",
+                            "Frecuencia de tornados con Real Time"
+                        },
+                        {
+                            "settings.tornado.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio en tiempo real entre tornados automaticos mientras Real Time esta activo.\nLa niebla ralentiza el progreso cuando Sin tornados durante niebla esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.tornado.frequency.apocalypse", "Apocalipsis: 1-2 horas" },
+                        { "settings.tornado.frequency.frequent", "Frecuente: 3-6 horas" },
+                        { "settings.tornado.frequency.occasional", "Ocasional: 8-16 horas" },
+                        { "settings.tornado.frequency.uncommon", "Poco frecuente: 16-32 horas" },
+                        { "settings.tornado.frequency.rare", "Raro: 32-64 horas" },
+                        { "settings.tornado.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.tornado.frequency_name.frequent", "Frecuente" },
+                        { "settings.tornado.frequency_name.occasional", "Ocasional" },
+                        { "settings.tornado.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.tornado.frequency_name.rare", "Raro" },
+                        { "settings.enable_tornado_destruction", "Activar destruccion por tornado" },
+                        { "settings.min_tornado_destruction", "Intensidad minima para destruccion por tornado:" },
+                        { "settings.min_tornado_destruction.suffix", " Intensidad para iniciar destruccion" },
+                        { "settings.charge_period", "Periodo de carga" },
+                        { "settings.charge_period.years", " anos" },
+                        {
+                            "settings.tsunami.max_probability.tooltip",
+                            "Ocurrencia maxima por ano despues de un largo periodo sin tsunamis."
+                        },
+                        {
+                            "settings.tsunami.warmup.tooltip",
+                            "La probabilidad del tsunami aumenta al maximo durante este periodo cuando Real Time no esta activo."
+                        },
+                        {
+                            "settings.tsunami.realtime_frequency",
+                            "Frecuencia de tsunamis con Real Time"
+                        },
+                        {
+                            "settings.tsunami.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo oceanico aleatorio en tiempo real entre tsunamis automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.tsunami.frequency.apocalypse", "Apocalipsis: 4-8 horas" },
+                        { "settings.tsunami.frequency.frequent", "Frecuente: 8-16 horas" },
+                        { "settings.tsunami.frequency.occasional", "Ocasional: 24-48 horas" },
+                        { "settings.tsunami.frequency.uncommon", "Poco frecuente: 48-96 horas" },
+                        { "settings.tsunami.frequency.rare", "Raro: 96-192 horas" },
+                        { "settings.tsunami.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.tsunami.frequency_name.frequent", "Frecuente" },
+                        { "settings.tsunami.frequency_name.occasional", "Ocasional" },
+                        { "settings.tsunami.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.tsunami.frequency_name.rare", "Raro" },
+                        { "tooltip.tsunami.realtime_active", "Real Time activo: el periodo de carga de tsunamis usa intervalos en tiempo real." },
+                        { "tooltip.tsunami.realtime_reference", "Periodo de referencia seleccionado: {0}" },
+                        { "tooltip.tsunami.current_tsunami_interval", "Intervalo oceanico actual: {0}" },
+                        { "tooltip.tsunami.tsunami_time_remaining", "Tiempo restante: {0}" },
+                        { "settings.warmup_period", "Periodo de calentamiento" },
+                        { "settings.warmup_period.days", " dias" },
+                        {
+                            "settings.earthquake.max_probability.tooltip",
+                            "Ocurrencia maxima por ano despues de un largo periodo sin terremotos cuando Real Time no esta activo."
+                        },
+                        {
+                            "settings.earthquake.warmup.tooltip",
+                            "La probabilidad y la intensidad maxima de terremotos aumentan durante este periodo cuando Real Time no esta activo."
+                        },
+                        {
+                            "settings.earthquake.realtime_frequency",
+                            "Frecuencia de terremotos con Real Time"
+                        },
+                        {
+                            "settings.earthquake.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo sismico aleatorio en tiempo real entre terremotos automaticos mientras Real Time esta activo.\nLas replicas usan intervalos mas cortos y epicentros cercanos.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.earthquake.frequency.apocalypse", "Apocalipsis: 3-6 horas" },
+                        { "settings.earthquake.frequency.frequent", "Frecuente: 8-16 horas" },
+                        { "settings.earthquake.frequency.occasional", "Ocasional: 24-48 horas" },
+                        { "settings.earthquake.frequency.uncommon", "Poco frecuente: 48-96 horas" },
+                        { "settings.earthquake.frequency.rare", "Raro: 96-192 horas" },
+                        { "settings.earthquake.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.earthquake.frequency_name.frequent", "Frecuente" },
+                        { "settings.earthquake.frequency_name.occasional", "Ocasional" },
+                        { "settings.earthquake.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.earthquake.frequency_name.rare", "Raro" },
+                        { "settings.enable_aftershocks", "Activar replicas" },
+                        {
+                            "settings.enable_aftershocks.tooltip",
+                            "Pueden ocurrir varias replicas despues de un gran terremoto. Las replicas golpean cerca del epicentro principal."
+                        },
+                        { "settings.ground_cracks", "Grietas en el suelo:" },
+                        {
+                            "settings.ground_cracks.tooltip",
+                            "Segun la seleccion, puedes crear grietas en el suelo, ignorarlas o activarlas por intensidad."
+                        },
+                        { "settings.min_intensity_cracks", "Intensidad minima para grietas" },
+                        { "settings.min_intensity_cracks.suffix", " Intensidad minima" },
+                        { "settings.min_intensity_cracks.tooltip", "Intensidad minima para ver grietas en el suelo" },
+                        { "settings.enable_long_meteor", "Activar meteorito de periodo largo (75 anos)" },
+                        { "settings.enable_medium_meteor", "Activar meteorito de periodo medio (35 anos)" },
+                        { "settings.enable_short_meteor", "Activar meteorito de periodo corto (12 anos)" },
+                        {
+                            "settings.meteor.max_probability.tooltip",
+                            "Ocurrencia maxima de meteoritos por ano cuando Real Time no esta activo. Real Time usa el periodo dedicado de meteorito configurado abajo."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier",
+                            "Reduccion de frecuencia con Real Time"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency_multiplier.tooltip",
+                            "Divide la ocurrencia configurada de meteoritos mientras Real Time esta activo. Valores mas altos reducen los meteoritos automaticos."
+                        },
+                        {
+                            "settings.meteor.realtime_period_days",
+                            "Periodo de meteorito con Real Time"
+                        },
+                        {
+                            "settings.meteor.realtime_period_days.tooltip",
+                            "Cantidad de dias de simulacion equivalentes a vanilla necesarios para llenar la barra de progreso del meteorito mientras Real Time esta activo."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency",
+                            "Frecuencia de meteoritos con Real Time"
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip",
+                            "Elige el intervalo aleatorio en tiempo real entre meteoritos automaticos mientras Real Time esta activo."
+                        },
+                        {
+                            "settings.meteor.realtime_frequency.tooltip.selected",
+                            "Elige el intervalo aleatorio en tiempo real entre meteoritos automaticos mientras Real Time esta activo.\nPeriodo de referencia seleccionado: {0}."
+                        },
+                        { "settings.meteor.frequency.apocalypse", "Apocalipsis: 6-12 horas" },
+                        { "settings.meteor.frequency.frequent", "Frecuente: 12-24 horas" },
+                        { "settings.meteor.frequency.daily_threat", "Frecuente: 12-24 horas" },
+                        { "settings.meteor.frequency.occasional", "Ocasional: 48-96 horas" },
+                        { "settings.meteor.frequency.uncommon", "Poco frecuente: 96-192 horas" },
+                        { "settings.meteor.frequency.rare", "Raro: 192-384 horas" },
+                        { "settings.meteor.frequency_name.apocalypse", "Apocalipsis" },
+                        { "settings.meteor.frequency_name.frequent", "Frecuente" },
+                        { "settings.meteor.frequency_name.occasional", "Ocasional" },
+                        { "settings.meteor.frequency_name.uncommon", "Poco frecuente" },
+                        { "settings.meteor.frequency_name.rare", "Raro" },
+                        { "key.ctrl", "Ctrl" },
+                        { "key.alt", "Alt" },
+                        { "key.shift", "Shift" },
+                        { "key.command", "Cmd" },
+                        { "key.up", "Arriba" },
+                        { "key.down", "Abajo" },
+                        { "key.left", "Izquierda" },
+                        { "key.right", "Derecha" },
+                        { "key.page_up", "Re Pag" },
+                        { "key.page_down", "Av Pag" },
+                        { "tooltip.probability", "Probabilidad: {0}" },
+                        { "tooltip.progress", "Progreso" },
+                        { "tooltip.forest_fire.locked", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
+                        { "tooltip.not_unlocked", "Aun no desbloqueado" },
+                        { "tooltip.no_disaster_for_another", "No habra {0} por otros {1}" },
+                        { "tooltip.recently_occurred", "Bajo porque {0} ocurrio recientemente." },
+                        { "tooltip.intensity", "Intensidad: {0}" },
+                        { "tooltip.low_population", "Disminuido por baja poblacion." },
+                        { "tooltip.forest_fire.no_during_rain", "No habra {0} durante la lluvia." },
+                        { "tooltip.forest_fire.maximum_no_rain", "Maxima porque no ha llovido por mas de {0} dias." },
+                        { "tooltip.forest_fire.increasing_no_rain", "Aumentando porque no ha llovido durante {0}" },
+                        {
+                            "tooltip.forest_fire.realtime_active",
+                            "Real Time activo: el incendio forestal usa intervalos de tiempo seco."
+                        },
+                        { "tooltip.forest_fire.realtime_reference", "Periodo seco de referencia: {0}." },
+                        { "tooltip.forest_fire.current_dry_interval", "Intervalo seco actual: {0}." },
+                        { "tooltip.forest_fire.dry_time_remaining", "Tiempo seco restante: {0}." },
+                        {
+                            "tooltip.forest_fire.fog_paused",
+                            "La probabilidad de incendio forestal esta pausada por niebla densa en este momento."
+                        },
+                        {
+                            "tooltip.forest_fire.fog_slowed",
+                            "La probabilidad de incendio forestal esta reducida por la niebla en este momento: el tiempo seco avanza al {0}%."
+                        },
+                        { "tooltip.sinkhole.groundwater", "Nivel de agua subterranea {0}%" },
+                        {
+                            "tooltip.sinkhole.realtime_active",
+                            "Real Time activo: el progreso del socavon avanza con la saturacion del agua subterranea."
+                        },
+                        { "tooltip.sinkhole.realtime_reference", "Intervalo humedo de referencia: {0}." },
+                        { "tooltip.sinkhole.current_wet_interval", "Intervalo humedo actual: {0}." },
+                        { "tooltip.sinkhole.wet_time_remaining", "Progreso humedo restante: {0}." },
+                        { "tooltip.thunderstorm.outside_area", "Aun no desbloqueado (solo ocurre fuera de tu area)." },
+                        { "tooltip.thunderstorm.rain_increase", "Aumentado por la lluvia." },
+                        {
+                            "tooltip.thunderstorm.realtime_active",
+                            "Real Time activo: el progreso de tormenta avanza con tiempo real, y la lluvia lo acelera."
+                        },
+                        { "tooltip.thunderstorm.realtime_reference", "Intervalo de tormenta de referencia: {0}." },
+                        { "tooltip.thunderstorm.current_storm_interval", "Intervalo de tormenta actual: {0}." },
+                        { "tooltip.thunderstorm.storm_time_remaining", "Progreso de tormenta restante: {0}." },
+                        { "tooltip.tornado.no_during_fog", "No habra {0} durante la niebla." },
+                        {
+                            "tooltip.tornado.realtime_active",
+                            "Real Time activo: el progreso de tornado avanza con tiempo real, y la niebla puede ralentizarlo."
+                        },
+                        { "tooltip.tornado.realtime_reference", "Intervalo de tornado de referencia: {0}." },
+                        { "tooltip.tornado.current_tornado_interval", "Intervalo de tornado actual: {0}." },
+                        { "tooltip.tornado.tornado_time_remaining", "Progreso de tornado restante: {0}." },
+                        {
+                            "tooltip.tornado.fog_slowed",
+                            "La niebla reduce el progreso de tornado ahora: el progreso avanza al {0}%."
+                        },
+                        {
+                            "tooltip.tornado.rain_increased",
+                            "La lluvia aumenta el progreso de tornado ahora: el progreso avanza al {0}%."
+                        },
+                        { "tooltip.earthquake.aftershocks", "Se esperan {0} replicas mas" },
+                        {
+                            "tooltip.earthquake.realtime_active",
+                            "Real Time activo: los terremotos usan intervalos sismicos."
+                        },
+                        { "tooltip.earthquake.realtime_reference", "Intervalo sismico de referencia: {0}." },
+                        { "tooltip.earthquake.current_seismic_interval", "Intervalo sismico actual: {0}." },
+                        { "tooltip.earthquake.seismic_time_remaining", "Progreso sismico restante: {0}." },
+                        {
+                            "tooltip.earthquake.realtime_aftershocks_active",
+                            "Real Time activo: las replicas usan intervalos cortos y epicentros cercanos."
+                        },
+                        { "tooltip.earthquake.current_aftershock_interval", "Intervalo de replica actual: {0}." },
+                        { "tooltip.earthquake.aftershock_time_remaining", "Progreso de replica restante: {0}." },
+                        { "tooltip.meteor.realtime_reference", "Periodo de referencia: {0}." },
+                        { "disaster.earthquake", "Terremoto" },
+                        { "disaster.forest_fire", "Incendio forestal" },
+                        { "disaster.meteor_strike", "Meteorito" },
+                        { "disaster.sinkhole", "Socavon" },
+                        { "disaster.thunderstorm", "Tormenta electrica" },
+                        { "disaster.tornado", "Tornado" },
+                        { "disaster.tsunami", "Tsunami" },
+                        { "about.mod_name", "Natural Disasters Renewal" },
+                        { "about.version", "Version: {0}" },
+                        { "about.updated", "Ultima actualizacion: {0}" },
+                        {
+                            "about.description",
+                            "Una renovacion unificada para desastres naturales, comportamiento de evacuacion y control de desastres en Cities: Skylines."
+                        },
+                        { "about.donate_link", "Abrir pagina de donaciones" },
+                        { "about.git_link", "Abrir pagina de GitHub" },
+                        { "about.steam_link", "Abrir Pagina de Steam Workshop" }
+                    }
+                }
+            };
+
+        public static string Get(string key)
+        {
+            var language = GetCurrentLanguage();
+            Dictionary<string, string> languageValues;
+            if (Translations.TryGetValue(language, out languageValues) && languageValues.ContainsKey(key))
+                return languageValues[key];
+
+            return Translations[ModLanguage.English].ContainsKey(key) ? Translations[ModLanguage.English][key] : key;
+        }
+
+        public static string Format(string key, params object[] args)
+        {
+            return string.Format(Get(key), args);
+        }
+
+        public static string[] GetMonths()
+        {
+            return new[]
+            {
+                Get("month.1"), Get("month.2"), Get("month.3"), Get("month.4"),
+                Get("month.5"), Get("month.6"), Get("month.7"), Get("month.8"),
+                Get("month.9"), Get("month.10"), Get("month.11"), Get("month.12")
+            };
+        }
+
+        public static string[] GetLanguageDisplayNames()
+        {
+            return new[] { Get("language.english"), Get("language.spanish") };
+        }
+
+        public static string GetDisasterName(DisasterType disasterType)
+        {
+            switch (disasterType)
+            {
+                case DisasterType.Earthquake: return Get("disaster.earthquake");
+                case DisasterType.ForestFire: return Get("disaster.forest_fire");
+                case DisasterType.MeteorStrike: return Get("disaster.meteor_strike");
+                case DisasterType.Sinkhole: return Get("disaster.sinkhole");
+                case DisasterType.ThunderStorm: return Get("disaster.thunderstorm");
+                case DisasterType.Tornado: return Get("disaster.tornado");
+                case DisasterType.Tsunami: return Get("disaster.tsunami");
+                default: return disasterType.ToString();
+            }
+        }
+
+        public static ModLanguage GetCurrentLanguage()
+        {
+            return Services.DisasterSetup != null ? Services.DisasterSetup.Language : ModLanguage.English;
+        }
+    }
+}

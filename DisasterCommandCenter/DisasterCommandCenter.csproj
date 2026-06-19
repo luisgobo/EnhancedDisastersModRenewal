@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{BB5AD67C-A298-47CF-963E-10B12CC9CE0B}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>NaturalDisastersRenewal</RootNamespace>
+        <AssemblyName>DisasterCommandCenter</AssemblyName>
+        <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+        <RuntimeIdentifiers>win</RuntimeIdentifiers>
+        <FileAlignment>512</FileAlignment>
+        <TargetFrameworkProfile/>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <Prefer32Bit>false</Prefer32Bit>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <Prefer32Bit>false</Prefer32Bit>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="CitiesHarmony.API, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+            <HintPath>..\packages\CitiesHarmony.API.2.2.0\lib\net35\CitiesHarmony.API.dll</HintPath>
+        </Reference>
+        <Reference Include="CitiesHarmony.Harmony, Version=2.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+            <HintPath>..\packages\CitiesHarmony.Harmony.2.2.2\lib\net35\CitiesHarmony.Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="ColossalManaged">
+            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
+        </Reference>
+        <Reference Include="ICities">
+            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
+        </Reference>
+        <Reference Include="System"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Xml.Linq"/>
+        <Reference Include="System.Data.DataSetExtensions"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.Xml"/>
+        <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+            <SpecificVersion>False</SpecificVersion>
+            <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Common\BuildInfo.cs"/>
+        <Compile Include="Common\CommonProperties.cs"/>
+        <Compile Include="Common\Development\DevelopmentProperties.cs"/>
+        <Compile Include="Common\Development\ShelterFloodQueryService.cs"/>
+        <Compile Include="Common\DisasterRecurrenceTuning.cs"/>
+        <Compile Include="Common\HotkeyHelper.cs"/>
+        <Compile Include="Common\LocalizationService.cs"/>
+        <Compile Include="Common\ModCompatibilityService.cs"/>
+        <Compile Include="Common\RealTimeDisasterTiming.cs"/>
+        <Compile Include="Common\Services.cs"/>
+        <Compile Include="Common\enums\EarthquakeCrackOptions.cs"/>
+        <Compile Include="Common\enums\EvacuationOptions.cs"/>
+        <Compile Include="Common\enums\ModLanguage.cs"/>
+        <Compile Include="Common\enums\RealTimeDisasterFrequencyPreset.cs"/>
+        <Compile Include="Common\Types\Triplet.cs"/>
+        <Compile Include="Logger\DebugLogger.cs"/>
+        <Compile Include="Serialization\NaturalDisaster\SerializableDataDisasterBase.cs"/>
+        <Compile Include="Serialization\NaturalDisaster\SerializableDataForestFire.cs"/>
+        <Compile Include="Serialization\NaturalDisaster\SerializableDataTsunami.cs"/>
+        <Compile Include="Serialization\NaturalDisaster\SerializableDataTornado.cs"/>
+        <Compile Include="Serialization\NaturalDisaster\SerializableDataThunderstorm.cs"/>
+        <Compile Include="Serialization\NaturalDisaster\SerializableDataSinkhole.cs"/>
+        <Compile Include="Serialization\NaturalDisaster\SerializableDataMeteorStrike.cs"/>
+        <Compile Include="Serialization\Setup\LoadedGameSerializableDataExtension.cs"/>
+        <Compile Include="Serialization\NaturalDisaster\SerializableDataEarthquake.cs"/>
+        <Compile Include="Serialization\Setup\SerializableDataDisasterSetup.cs"/>
+        <Compile Include="Services\HarmonyPatches\DestroyRoadsPatch.cs"/>
+        <Compile Include="Services\HarmonyPatches\DestroyBuildingsPatch.cs"/>
+        <Compile Include="BaseGameExtensions\DisasterExtension.cs"/>
+        <Compile Include="Logger\DisasterLogger.cs"/>
+        <Compile Include="Models\Disaster\DisasterInfoModel.cs"/>
+        <Compile Include="Models\Disaster\ShelterInfoModel.cs"/>
+        <Compile Include="Models\Setup\DisasterSetupModel.cs"/>
+        <Compile Include="Models\NaturalDisaster\DisasterBaseModel.cs"/>
+        <Compile Include="Handlers\NaturalDisasterHandler.cs"/>
+        <Compile Include="Models\NaturalDisaster\EarthquakeModel.cs"/>
+        <Compile Include="Models\NaturalDisaster\ForestFireModel.cs"/>
+        <Compile Include="Models\NaturalDisaster\MeteorStrikeModel.cs"/>
+        <Compile Include="Models\NaturalDisaster\SinkholeModel.cs"/>
+        <Compile Include="Models\NaturalDisaster\ThunderstormModel.cs"/>
+        <Compile Include="Models\NaturalDisaster\TornadoModel.cs"/>
+        <Compile Include="Models\NaturalDisaster\TsunamiModel.cs"/>
+        <Compile Include="UI\ComponentHelper\LabelHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\ActionButtonHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\ToggleButtonIconHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\DisasterRowHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\ProgressBarHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\ScrollablePanelHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\SliderHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\CheckboxHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\HotkeyFieldHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\UIStyleHelper.cs"/>
+        <Compile Include="UI\ComponentHelper\TabHelper.cs"/>
+        <Compile Include="UI\InGameDisastersPanel.cs"/>
+        <Compile Include="UI\ShelterHoverDebugOverlay.cs"/>
+        <Compile Include="Common\DisasterSimulationUtils.cs"/>
+        <Compile Include="BaseGameExtensions\LoadingExtension.cs"/>
+        <Compile Include="Common\enums\OccurrenceAreas.cs"/>
+        <Compile Include="Services\HarmonyPatches\DisasterHelpersModified.cs"/>
+        <Compile Include="Common\enums\ProbabilityDistributions.cs"/>
+        <Compile Include="BaseGameExtensions\Threading.cs"/>
+        <Compile Include="Mod.cs"/>
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="UI\ComponentHelper\DropDownHelper.cs"/>
+        <Compile Include="UI\Extensions\UIHelperExtensions.cs"/>
+        <Compile Include="UI\SettingsSections\AboutSettingsSection.cs"/>
+        <Compile Include="UI\SettingsSections\DependenciesSettingsSection.cs"/>
+        <Compile Include="UI\ModSettingsScreen.cs"/>
+        <Compile Include="Handlers\DisasterActionsService.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="packages.config"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net35" Version="1.0.3" PrivateAssets="All"/>
+    </ItemGroup>
+    <ItemGroup>
+        <WCFMetadata Include="Connected Services\"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Resources\Files\CompatibleMods.json"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Resources\Images\icon-active.png">
+            <LogicalName>NaturalDisastersRenewal.Resources.Images.icon-active.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Resources\Images\icon-inactive.png">
+            <LogicalName>NaturalDisastersRenewal.Resources.Images.icon-inactive.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Resources\Images\logo_1.3.0_3.png">
+            <LogicalName>NaturalDisastersRenewal.Resources.Images.logo_1.3.0_3.png</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Resources\Images\mod_compatibility.png"/>
+        <EmbeddedResource Include="Resources\Images\github.png"/>
+        <EmbeddedResource Include="Resources\Images\kofi_dark.png"/>
+        <EmbeddedResource Include="Resources\Images\steam.png"/>
+        <EmbeddedResource Include="Resources\Images\icons\Warning-Conflict.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Warning.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Warning2.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Restart.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Stop.svg"/>
+        <EmbeddedResource Include="Resources\Images\icons\Stop2.svg"/>
+        <Content Include="Versions\Changelog.txt"/>
+        <Content Include="Versions\FutureWork\FutureWork.txt"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Versions\FutureWork\"/>
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <Target Name="GenerateBuildInfo" BeforeTargets="BeforeBuild">
+        <PropertyGroup>
+            <BuildInfoYear>$([System.DateTime]::Now.ToString('yyyy'))</BuildInfoYear>
+            <BuildInfoMonthNumber>$([System.DateTime]::Now.ToString('MM'))</BuildInfoMonthNumber>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '01' ">January</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '02' ">February</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '03' ">March</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '04' ">April</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '05' ">May</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '06' ">June</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '07' ">July</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '08' ">August</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '09' ">September</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '10' ">October</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '11' ">November</BuildInfoMonth>
+            <BuildInfoMonth Condition=" '$(BuildInfoMonthNumber)' == '12' ">December</BuildInfoMonth>
+        </PropertyGroup>
+        <ItemGroup>
+            <BuildInfoLines Include="namespace NaturalDisastersRenewal.Common"/>
+            <BuildInfoLines Include="{"/>
+            <BuildInfoLines Include="    internal static class BuildInfo"/>
+            <BuildInfoLines Include="    {"/>
+            <BuildInfoLines Include="        public const string BuildYear = &quot;$(BuildInfoYear)&quot;%3B"/>
+            <BuildInfoLines Include="        public const string BuildMonth = &quot;$(BuildInfoMonth)&quot;%3B"/>
+            <BuildInfoLines Include="    }"/>
+            <BuildInfoLines Include="}"/>
+        </ItemGroup>
+        <WriteLinesToFile File="$(MSBuildProjectDirectory)\Common\BuildInfo.cs" Lines="@(BuildInfoLines)" Overwrite="true" Encoding="UTF-8"/>
+    </Target>
+    <PropertyGroup>
+        <!-- Hardcoded (not $(SolutionName)): this project now shares NaturalDisastersRenewal.sln with the
+             legacy project, so $(SolutionName) would resolve the same for both and deploy both DLLs into
+             the same mods folder. Keep this deploy folder name in sync with AssemblyName above. -->
+        <PostBuildEvent>mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\DisasterCommandCenter"
+            del "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\DisasterCommandCenter\$(TargetFileName)"
+            xcopy /y "$(TargetPath)" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\DisasterCommandCenter"
+        </PostBuildEvent>
+    </PropertyGroup>
+</Project>

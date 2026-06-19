@@ -1,0 +1,98 @@
+-------------------
+|    CHANGE LOG   |
+-------------------
+* History
+	Version: 1.0
+		Release Date (YYYY-MM-dd): 2023-04-04
+		Change List:
+			* Initial changes.
+			* Restructuring Natural Disaster Overhaul Code.
+			* Including Ragnarok's functionalities.
+			* Setup panel functionalities Added.
+			* Improved Evacuation Method included.
+			* Adding Functionalities for button and panel info to be placed anywhere.
+			* Released as Beta for Community
+				
+	Version: 1.1		
+		Release Date (YYYY-MM-dd): 2023-05-06
+		Change List:
+		 * Added reset button/panel position.
+		 * Icon size changed and icon modified.
+		 * Settings panel organization changed.
+		 * New property to enable/disable tornado destruction included.
+		 * Disaster name identifier moved to common properties class instead of static string,
+		 * Enable/disable disaster option created to be used from in-game panel (not shown yet)
+		 * Settings notification for hotkey to display/hide information panel
+		 * Meteor Period/intensity changed
+			** 9 Years moved from 10 to 19 intensity
+			** 5 Years moved from 7 to 12 intensity
+	Version: 1.2
+		Release Date (YYYY-MM-dd): 2023-05-21
+		Change List:
+		 * Added constant for debugging (new line)
+		 * Fixed tooltip to show intensity and probability value
+		 * Fixed probability/intensity calculations
+		 * Set value for max population to trigger higher disasters from settings menu.
+		 * Disable/enable disasters from information Panel.
+		 * Mod description updated, small spelling fixes in text descriptions
+
+	Version: 1.2.1
+		Release Date (YYYY-MM-dd): 2023-05-22
+		Change List:
+		 * Fixed issue with probabilities found during extra testing.
+		 * Fixed tooltip values when mouse over disaster probability bar.
+
+	Version: 1.2.2
+		Release Date (YYYY-MM-dd): 2023-05-23
+		Change List:
+		 * Assembly information updated.
+		 * Mod validation for new DLC "Hotels and Retreats" (Version: 1.17.0-f3).
+
+	Version: 1.2.3
+		Release Date (YYYY-MM-dd): 2023-06-01
+		Change List:
+		 * Fix for issue on parameter for meteor strike.
+		 * Max population limit to trigger higher disasters moved from 400K to 800K
+		 * Max population limit Default value changed from 100K to 200K.
+		 * Meteor strike tooltip info format fixed
+
+	Version: 1.2.4
+		Release Date (YYYY-MM-dd): 2023-06-03
+		Change List:
+		 * Extra fix for meteor strike max intensity internal setup when save.
+		 * Max population limit to trigger higher disasters moved from 400K to 800K
+		 * Max population limit Default value changed from 100K to 200K.
+		 * Meteor strike tooltip info format fixed
+
+	Version: 1.3.0
+		Release Date (YYYY-MM-dd): 2026-05-23
+		Change List:
+		 * Major refactor from the refactor-018 branch series, focused on Real Time compatibility and long-term maintainability.
+		 * Added Real Time compatible timing and recurrence logic for meteor strikes, forest fires, sinkholes, thunderstorms, tornadoes, earthquakes, and tsunamis.
+		 * Added shared disaster recurrence tuning, real-time timing helpers, and common simulation utilities to reduce duplicated disaster logic.
+		 * Improved disaster probability progress handling, including reset support, debug progress overrides, and clearer probability/intensity tooltips.
+		 * Reworked meteor strike configuration with real-time frequency presets, uncommon frequency support, meteor period improvements, and safer intensity handling.
+		 * Improved forest fire behavior with real-time dry-time handling, fog/weather influence, ACME compatibility checks, and optional behavior-mod status messaging.
+		 * Improved sinkhole, thunderstorm, tornado, earthquake, and tsunami logic with more localized environmental factors and safer real-time occurrence calculations.
+		 * Added tsunami coastal shelter risk assessment and improved evacuation-related future-work tracking.
+		 * Rebuilt the in-game disasters panel with tabs, localized labels, progress bars, action buttons, dependency status, and debug controls.
+		 * Replaced the old settings screen with a section-based settings UI, including About and Dependencies sections, reusable UI helpers, and improved hotkey capture.
+		 * Added localization infrastructure for English and Spanish disaster names, settings labels, tooltips, panel text, dependency warnings, and about-screen content.
+		 * Added mod compatibility detection and embedded compatibility metadata for Real Time, Extended Info Panel 2, ACME, and related behavior integrations.
+		 * Added reusable UI component helpers for action buttons, sliders, checkboxes, dropdowns, progress bars, scrollable panels, tabs, hotkey fields, and toggle icons.
+		 * Added embedded image and SVG resources for the updated panel, settings screen, dependency warnings, and about/resource links.
+		 * Updated serialization for the expanded disaster and setup settings while keeping loaded-game data handling centralized.
+		 * Centralized service access through shared Services/CommonProperties helpers and removed legacy helper usage.
+		 * Improved active disaster handling, shelter release flow, target detection, logging consistency, and general code readability.
+		 * Added a shelter hover debug overlay to inspect shelter-related disaster behavior during testing.
+		 * Added future-work documentation for known follow-up items, including repair/reconstruction support for damaged buildings and roads.
+		 
+	Version: 2.0
+		Release Date (YYYY-MM-dd): 2026-06-19
+		Change List:
+			* Disaster Command Center becomes the active project, bootstrapped as a 1:1 copy of Natural Disasters Renewal 1.3.0 (same namespace, same Steam id, same settings/save file names) so it upgrades the existing mod in place. The legacy Source/ implementation is now frozen as the 1.3.0 behavior reference.
+			* Architecture cleanup: moved domain/application logic that was embedded directly in UI classes into dedicated backend services and models, so the UI layer only displays state and dispatches actions.
+				** InGameDisastersPanel: Stop All Disasters, Reset All, and per-disaster enable/disable now delegate to a new DisasterActionsService instead of running simulation logic inline in the panel.
+				** ShelterHoverDebugOverlay: meteor/water-impact tracking and shelter street-flood queries moved to a new ShelterFloodQueryService.
+				** ModSettingsScreen: applying the Real Time frequency harmony preset, and detecting per-disaster frequency mismatches, moved onto DisasterSetupModel.
+			* No player-facing behavior change intended; this release is an internal architecture/maintainability pass ahead of further UI work.

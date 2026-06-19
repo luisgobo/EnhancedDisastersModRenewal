@@ -5,6 +5,8 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalDisastersRenewal", "Source\NaturalDisastersRenewal.csproj", "{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisasterCommandCenter", "DisasterCommandCenter\DisasterCommandCenter.csproj", "{BB5AD67C-A298-47CF-963E-10B12CC9CE0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8BA8110-6480-4AC9-B4E0-AE9BF21CB979}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB5AD67C-A298-47CF-963E-10B12CC9CE0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB5AD67C-A298-47CF-963E-10B12CC9CE0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB5AD67C-A298-47CF-963E-10B12CC9CE0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB5AD67C-A298-47CF-963E-10B12CC9CE0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
