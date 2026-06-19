@@ -171,9 +171,9 @@ When editing a skill, update the matching file under both `.codex/skills/<skill-
 ### High Priority: Migration And Source Hygiene
 
 - Done: `DisasterCommandCenter/` now contains real checked-in source (a 1:1 copy of `Source/` 1.3.0 plus the `DisasterActionsService` extraction below). `Source/` is frozen.
-- Create a parity checklist from `Source/` `1.3.0` to `DisasterCommandCenter/` before implementing new features beyond the architecture cleanup.
+- Done: parity checklist from `Source/` `1.3.0` to `DisasterCommandCenter/` (15 manual test cases covering mod isolation in Content Manager, save/settings migration, log output, in-game panel actions, the shelter debug overlay, and Real Time frequency harmony warnings) — all 15 verified manually in-game by the maintainer. No regressions found from the architecture extraction.
 - Confirm whether `SteamDescription.txt` and `docs/release/*` should describe Natural Disasters Renewal, Disaster Command Center, or both.
-- Continue extracting domain logic still embedded in UI classes inside `DisasterCommandCenter/` (not done yet, lower urgency than the panel action extraction already applied): `UI/ModSettingsScreen.cs` settings mutations and `UI/ShelterHoverDebugOverlay.cs` meteor/shelter query logic.
+- Done: `UI/ShelterHoverDebugOverlay.cs` meteor/shelter query logic extracted to `Common/Development/ShelterFloodQueryService.cs`. Done: `UI/ModSettingsScreen.cs`'s Real Time frequency harmony apply/mismatch logic moved to `DisasterSetupModel`. Remaining: the ~80 single-line slider/checkbox property writes in `ModSettingsScreen.cs` still assign directly to `disasterContainer.<Property>` from UI callbacks — assessed as low risk (no business rule involved), not yet extracted to a command layer.
 
 ### High Priority: Existing Future Work From Source
 
